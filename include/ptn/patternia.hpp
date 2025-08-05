@@ -26,6 +26,15 @@ namespace ptn {
       return match_builder<T, Cases..., pair_t>(std::move(value_), std::move(new_cases));
     }
 
+    /* Overload for "with", now it supports rvalue. */
+    template <typename Pattern, typename Handler>
+    constexpr auto with(Pattern p, Handler h) && {
+      using pair_t = std::pair<Pattern, Handler>;
+      auto new_cases =
+          std::tuple_cat(std::move(cases_), std::make_tuple(pair_t{std::move(p), std::move(h)}));
+      return match_builder<T, Cases..., pair_t>(std::move(value_), std::move(new_cases));
+    }
+
     /* Register a “default branch” and triggers match execution. Only for rvalue.*/
     template <typename Handler>
     constexpr auto otherwise(Handler h) && {
