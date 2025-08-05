@@ -1,0 +1,13 @@
+*
+
+!.gitignore
+!.clang-format
+!CMakeLists.txt
+
+!include
+!src
+!tests
+
+!include/**
+!src/**
+!tests/**
