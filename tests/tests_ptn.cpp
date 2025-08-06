@@ -1,4 +1,5 @@
-// test_patternia.cpp
+// test: tests_ptn.cpp
+
 #include "ptn/patternia.hpp"
 #include <cassert>
 #include <iostream>
@@ -7,7 +8,7 @@
 using namespace ptn;
 
 /**
- * @brief Simple struct to demonstrate custom-type matching.
+ * @brief simple struct to demonstrate custom-type matching.
  */
 struct Point {
   int x;
@@ -16,7 +17,7 @@ struct Point {
 
 int main() {
   /**
-   * Test 1: Match integer values for zero, positive, and negative.
+   * test 1: match integer values for zero, positive, and negative.
    */
   {
     int  value = 0;
@@ -49,7 +50,7 @@ int main() {
   }
 
   /**
-   * Test 2: Match a custom struct Point by sums of coordinates.
+   * test 2: match a custom struct Point by sums of coordinates.
    */
   {
     Point p1{0, 0};
@@ -81,7 +82,7 @@ int main() {
   }
 
   /**
-   * Test 3: Match string values by prefix.
+   * test 3: match string values by prefix.
    */
   {
     std::string s   = "hello world";
@@ -92,6 +93,6 @@ int main() {
     assert(res == "greeting");
   }
 
-  std::cout << "All pattern match tests passed!\n";
+  std::cout << "all tests passed!\n";
   return 0;
 }
