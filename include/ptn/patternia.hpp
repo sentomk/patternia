@@ -47,7 +47,7 @@ namespace ptn {
       std::apply(
           [&](auto &...casePair) {
             (([&] {
-               if (!matched && casePair.first.match(value_)) {
+               if (!matched && casePair.first(value_)) {
                  result  = casePair.second(std::move(value_));
                  matched = true;
                }
