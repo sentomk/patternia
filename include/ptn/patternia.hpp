@@ -69,7 +69,7 @@ namespace ptn {
       }
       return result;
     }
-  }; // class match_builder
+  };
 
   /* wrapper */
   template <typename T>
