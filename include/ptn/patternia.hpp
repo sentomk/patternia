@@ -6,18 +6,26 @@
 #include <utility>
 
 namespace ptn {
+
+  // forward declare
+  template <typename T>
+  constexpr auto match(T &&) noexcept;
+
+  /* class match_builder start */
   template <typename T, typename... Cases>
   class match_builder {
-  public:
+    friend constexpr auto match(T &&) noexcept;
+
+  private:
     T                    value_;
     std::tuple<Cases...> cases_;
 
-  public:
     /* Perfect forwarding conductor. */
     explicit constexpr match_builder(T v, std::tuple<Cases...> cs)
         : value_(std::move(v)), cases_(cs) {
     }
 
+  public:
     /* Return itself or a new builder. Only can be called on lvalue */
     template <typename Pattern, typename Handler>
     constexpr auto with(Pattern p, Handler h) & {
@@ -61,12 +69,12 @@ namespace ptn {
       }
       return result;
     }
-  };
+  }; // class match_builder
 
-  template <typename U>
-  constexpr auto match(U &&value) {
-    using V = std::decay_t<U>;
-    return match_builder<V>(std::forward<U>(value), std::tuple<>());
+  template <typename T>
+  constexpr auto match(T &&value) noexcept {
+    using V = std::decay_t<T>;
+    return match_builder<V>(std::forward<T>(value), std::tuple<>());
   }
 } // namespace ptn
 
