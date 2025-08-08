@@ -49,9 +49,8 @@ namespace ptn {
     /* Register a “default branch” and triggers match execution. Only for rvalue.*/
     template <typename Handler>
     constexpr auto otherwise(Handler h) && {
-      using R =
-          std::common_type_t<std::invoke_result_t<Handler, T>,
-                             std::invoke_result_t<decltype(std::get<Cases>(cases_).second), T>...>;
+      using R = std::common_type_t<std::invoke_result_t<Handler, T &&>,
+                                   std::invoke_result_t<typename Cases::second_type, T &&>...>;
       R    result{};
       bool matched = false;
 
