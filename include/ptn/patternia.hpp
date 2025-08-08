@@ -2,6 +2,7 @@
 #define PATTERNIA_HPP
 
 #include <tuple>
+#include <concepts>
 #include <type_traits>
 #include <utility>
 
@@ -22,8 +23,10 @@ namespace ptn {
     /* public member method */
   public:
     /* perfect forwarding ctor */
-    explicit constexpr match_builder(T v, std::tuple<Cases...> cs, ctor_tag = {})
-        : value_(std::move(v)), cases_(cs) {
+    template <class TV, class Tuple>
+    requires std::constructible_from<std::tuple<Cases...>, Tuple>
+    explicit constexpr match_builder(TV &&v, Tuple &&cs, ctor_tag = {})
+        : value_(std::forward<TV>(v)), cases_(std::forward<Tuple>(cs)) {
     }
 
     /* return itself or a new builder. Only can be called on lvalue */
@@ -31,7 +34,7 @@ namespace ptn {
     constexpr auto with(Pattern p, Handler h) & {
       using pair_t   = std::pair<Pattern, Handler>;
       auto new_cases = std::tuple_cat(cases_, std::make_tuple(pair_t{std::move(p), std::move(h)}));
-      return match_builder<T, Cases..., pair_t>(std::move(value_), std::move(new_cases));
+      return match_builder<T, Cases..., pair_t>(value_, std::move(new_cases));
     }
 
     /* overload for "with", now it supports rvalue. */
@@ -52,18 +55,17 @@ namespace ptn {
       R    result{};
       bool matched = false;
 
-      std::apply(
-          [&](auto &...casePair) {
-            (([&] {
-               if (!matched && casePair.first(value_)) {
-                 result  = casePair.second(std::move(value_));
-                 matched = true;
-               }
-             }()),
-             ...);
-          },
-          cases_);
+      /* if matched */
+      auto try_case = [&](auto &&case_pair) {
+        if (!matched && case_pair.first(value_)) {
+          result  = case_pair.second(std::move(value_));
+          matched = true;
+        }
+      };
 
+      std::apply([&](auto &&...cs) { (try_case(cs), ...); }, cases_);
+
+      /* if not matched */
       if (!matched) {
         result = h(std::move(value_));
       }
@@ -75,7 +77,7 @@ namespace ptn {
   template <typename T>
   constexpr auto match(T &&value) noexcept {
     using V = std::decay_t<T>;
-    return match_builder<V>(std::forward<T>(value), std::tuple<>());
+    return match_builder<V>(V(std::forward<T>(value)), std::tuple<>());
   }
 } // namespace ptn
 
