@@ -1,5 +1,5 @@
-#ifndef PATTERNIA_HPP
-#define PATTERNIA_HPP
+#ifndef MATCH_BUILDER_HPP
+#define MATCH_BUILDER_HPP
 
 #include <tuple>
 #include <concepts>
@@ -12,7 +12,16 @@ namespace ptn {
   template <typename T, typename... Cases>
   class match_builder {
 
-    /* private tag type used to hide ctor */
+    /* grant friend access to free function match() so it can call hidden ctor */
+    template <typename U>
+    friend constexpr auto
+    match(U &&) noexcept(std::is_nothrow_constructible_v<std::decay_t<U>, U &&>);
+
+    /* make all specializations of match_builder mutual friends */
+    template <typename, typename...>
+    friend class match_builder;
+
+    /* private tag type used to hide ctor. only friends can pass ctor_tag{} */
     struct ctor_tag {};
 
     /* private member variables*/
@@ -20,8 +29,6 @@ namespace ptn {
     T                    value_;
     std::tuple<Cases...> cases_;
 
-    /* public member method */
-  public:
     /* perfect forwarding ctor */
     template <class TV, class Tuple>
     requires std::constructible_from<std::tuple<Cases...>, Tuple>
@@ -29,7 +36,8 @@ namespace ptn {
         : value_(std::forward<TV>(v)), cases_(std::forward<Tuple>(cs)) {
     }
 
-    /* return itself or a new builder. Only can be called on lvalue */
+  public:
+    /* return itself or a new builder. only can be called on lvalue */
     template <typename Pattern, typename Handler>
     constexpr auto with(Pattern p, Handler h) & {
       using pair_t   = std::pair<Pattern, Handler>;
@@ -37,7 +45,7 @@ namespace ptn {
       return match_builder<T, Cases..., pair_t>(value_, std::move(new_cases));
     }
 
-    /* overload for "with", now it supports rvalue. */
+    /* overload for "with", now it supports rvalue */
     template <typename Pattern, typename Handler>
     constexpr auto with(Pattern p, Handler h) && {
       using pair_t = std::pair<Pattern, Handler>;
@@ -46,7 +54,7 @@ namespace ptn {
       return match_builder<T, Cases..., pair_t>(std::move(value_), std::move(new_cases));
     }
 
-    /* Register a “default branch” and triggers match execution. Only for rvalue.*/
+    /* register a “default branch” and triggers match execution. only for rvalue */
     template <typename Handler>
     constexpr auto otherwise(Handler h) && {
       using R = std::common_type_t<std::invoke_result_t<Handler, T &&>,
@@ -72,12 +80,6 @@ namespace ptn {
     }
   };
 
-  /* wrapper */
-  template <typename T>
-  constexpr auto match(T &&value) noexcept {
-    using V = std::decay_t<T>;
-    return match_builder<V>(V(std::forward<T>(value)), std::tuple<>());
-  }
 } // namespace ptn
 
-#endif // PATTERNIA_HPP
+#endif // MATCH_BUILDER_HPP

@@ -1,6 +1,6 @@
 // test: tests_ptn.cpp
 
-#include "ptn/patternia.hpp"
+#include "patternia.hpp"
 #include <cassert>
 #include <iostream>
 #include <string>
