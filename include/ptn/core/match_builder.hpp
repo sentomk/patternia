@@ -31,7 +31,7 @@ namespace ptn {
 
     /* perfect forwarding ctor */
     template <class TV, class Tuple>
-    requires std::constructible_from<std::tuple<Cases...>, Tuple>
+      requires std::constructible_from<std::tuple<Cases...>, Tuple>
     explicit constexpr match_builder(TV &&v, Tuple &&cs, ctor_tag = {})
         : value_(std::forward<TV>(v)), cases_(std::forward<Tuple>(cs)) {
     }

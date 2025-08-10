@@ -13,4 +13,10 @@ namespace ptn {
   }
 }; // namespace ptn
 
+#ifdef PATTERNIA_ENABLE_VALUE_PATTERN
+// clang-format off
+#  include "ptn/patterns/value.hpp"
+// clang-format on
+#endif
+
 #endif // PATTERNIA_HPP
