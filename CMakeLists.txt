@@ -19,7 +19,7 @@ target_include_directories(patternia
 )
 
 add_executable(ptn_tests
-    tests/tests_ptn.cpp
+    tests/tests_value_pattern.cpp
 )
 
 target_link_libraries(ptn_tests PRIVATE patternia)

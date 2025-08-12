@@ -1,0 +1,3 @@
+#ifndef PTN_ENABLE_VALUE_PATTERN
+#define PTN_ENABLE_VALUE_PATTERN 1
+#endif
