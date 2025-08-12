@@ -33,7 +33,7 @@ namespace ptn {
 
     /* perfect forwarding ctor */
     template <class TV, class Tuple>
-    requires std::constructible_from<std::tuple<Cases...>, Tuple>
+      requires std::constructible_from<std::tuple<Cases...>, Tuple>
     explicit constexpr match_builder(TV &&v, Tuple &&cs, ctor_tag)
         : value_(std::forward<TV>(v)), cases_(std::forward<Tuple>(cs)) {
     }
@@ -44,7 +44,7 @@ namespace ptn {
     constexpr auto with(Pattern p, Handler h) & {
       using pair_t   = std::pair<Pattern, Handler>;
       auto new_cases = std::tuple_cat(cases_, std::make_tuple(pair_t{std::move(p), std::move(h)}));
-      return match_builder<T, Cases..., pair_t, ctor_tag{}>(value_, std::move(new_cases));
+      return match_builder<T, Cases..., pair_t>(value_, std::move(new_cases), ctor_tag{});
     }
 
     /* overload for "with", now it supports rvalue */
@@ -53,8 +53,8 @@ namespace ptn {
       using pair_t = std::pair<Pattern, Handler>;
       auto new_cases =
           std::tuple_cat(std::move(cases_), std::make_tuple(pair_t{std::move(p), std::move(h)}));
-      return match_builder<T, Cases..., pair_t, ctor_tag{}>(std::move(value_),
-                                                            std::move(new_cases));
+      return match_builder<T, Cases..., pair_t>(
+          std::move(value_), std::move(new_cases), ctor_tag{});
     }
 
     /* register a “default branch” and triggers match execution. only for rvalue */
