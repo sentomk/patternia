@@ -2,6 +2,7 @@
 #define PATTERNIA_HPP
 
 #include "ptn/core/match_builder.hpp"
+#include "ptn/config.hpp"
 
 namespace ptn {
   /* wrapper: the only public entry to start a match chain */
@@ -13,9 +14,9 @@ namespace ptn {
   }
 }; // namespace ptn
 
-#ifdef PATTERNIA_ENABLE_VALUE_PATTERN
+#if PTN_ENABLE_VALUE_PATTERN
 // clang-format off
-#  include "ptn/patterns/value.hpp"
+#  include <ptn/patterns/value.hpp>
 // clang-format on
 #endif
 
