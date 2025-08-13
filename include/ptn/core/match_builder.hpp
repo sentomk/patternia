@@ -8,16 +8,22 @@
 
 #include "ptn/patterns/value.hpp"
 
+/* namespace ptn */
 namespace ptn {
+  /* grant friend access to free function match() so it can call hidden ctor */
+  template <typename U>
+  constexpr auto match(U &&) noexcept(std::is_nothrow_constructible_v<std::decay_t<U>, U &&>);
+} // namespace ptn
 
+/* namespace ptn::core */
+namespace ptn::core {
   /* class match_builder start */
   template <typename T, typename... Cases>
   class match_builder {
 
-    /* grant friend access to free function match() so it can call hidden ctor */
     template <typename U>
-    friend constexpr auto
-    match(U &&) noexcept(std::is_nothrow_constructible_v<std::decay_t<U>, U &&>);
+    friend constexpr auto ::ptn::match(U &&) noexcept(
+        std::is_throw_constructible_v<std::decay_t<U>, U &&>);
 
     /* make all specializations of match_builder mutual friends */
     template <typename, typename...>
@@ -26,14 +32,13 @@ namespace ptn {
     /* private tag type used to hide ctor. only friends can pass ctor_tag{} */
     struct ctor_tag {};
 
-    /* private member variables*/
-  private:
+    /* member variables*/
     T                    value_;
     std::tuple<Cases...> cases_;
 
     /* perfect forwarding ctor */
     template <class TV, class Tuple>
-      requires std::constructible_from<std::tuple<Cases...>, Tuple>
+    requires std::constructible_from<std::tuple<Cases...>, Tuple>
     explicit constexpr match_builder(TV &&v, Tuple &&cs, ctor_tag)
         : value_(std::forward<TV>(v)), cases_(std::forward<Tuple>(cs)) {
     }
@@ -115,6 +120,5 @@ namespace ptn {
     }
   };
 
-} // namespace ptn
-
+} // namespace ptn::core
 #endif // MATCH_BUILDER_HPP
