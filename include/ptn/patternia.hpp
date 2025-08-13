@@ -9,7 +9,7 @@ namespace ptn {
   template <typename T>
   constexpr auto match(T &&value) noexcept(std::is_nothrow_constructible_v<std::decay_t<T>, T &&>) {
     using V = std::decay_t<T>;
-    return match_builder<V>(
+    return core::match_builder<V>(
         V(std::forward<T>(value)), std::tuple<>{}, typename match_builder<V>::ctor_tag{});
   }
 }; // namespace ptn
