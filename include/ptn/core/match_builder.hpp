@@ -17,20 +17,23 @@ namespace ptn {
 
 /* namespace ptn::core */
 namespace ptn::core {
+
+  /* private tag type used to hide ctor. only friends can pass ctor_tag{} */
+  struct ctor_tag {};
+
   /* class match_builder start */
   template <typename T, typename... Cases>
   class match_builder {
 
+    using ctor_tag = ptn::core::ctor_tag;
+
     template <typename U>
     friend constexpr auto ::ptn::match(U &&) noexcept(
-        std::is_throw_constructible_v<std::decay_t<U>, U &&>);
+        std::is_nothrow_constructible_v<std::decay_t<U>, U &&>);
 
     /* make all specializations of match_builder mutual friends */
     template <typename, typename...>
     friend class match_builder;
-
-    /* private tag type used to hide ctor. only friends can pass ctor_tag{} */
-    struct ctor_tag {};
 
     /* member variables*/
     T                    value_;
