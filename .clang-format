@@ -80,3 +80,4 @@ ForEachMacros:
   - wl_list_for_each_safe
 
 AlwaysBreakTemplateDeclarations: Yes
+AlignAfterOpenBracket: AlwaysBreak
