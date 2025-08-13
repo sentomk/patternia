@@ -1,6 +1,5 @@
 #include "ptn/patternia.hpp"
-#include "ptn/patterns/value.hpp" // <- 确保引入 value 模式
-#include <string>                 // <- 用到了 std::string
+#include <string>
 #include <iostream>
 
 using namespace ptn;
