@@ -6,7 +6,10 @@
 #include <type_traits>
 #include <utility>
 
+#include "ptn/config.hpp"
+#if PTN_ENABLE_VALUE_PATTERN
 #include "ptn/patterns/value.hpp"
+#endif
 
 /* namespace ptn */
 namespace ptn {
@@ -65,6 +68,17 @@ namespace ptn::core {
           std::move(value_), std::move(new_cases), ctor_tag{});
     }
 
+    /* .when(...): a readable alias for with */
+    template <typename Pred, typename H>
+    constexpr auto when(Pred p, H h) & {
+      return with(std::move(p), std::move(h));
+    }
+
+    template <typename Pred, typename H>
+    constexpr auto when(Pred p, H h) && {
+      return std::move(*this).with(std::move(p), std::move(h));
+    }
+
     /* register a “default branch” and triggers match execution. only for rvalue */
     template <typename Handler>
     constexpr auto otherwise(Handler h) && {
@@ -98,6 +112,7 @@ namespace ptn::core {
       return with(value(std::forward<V>(v)), std::forward<H>(h));
     }
 
+#if PTN_ENABLE_VALUE_PATTERN
     /* overload of with_value for rval */
     template <typename Value, typename Handler>
     constexpr auto with_value(Value &&v, Handler &&h) && {
@@ -122,6 +137,7 @@ namespace ptn::core {
           store_t(std::forward<V>(v)), std::forward<Cmp>(cmp)};
       return std::move(*this).with(std::move(p), std::forward<H>(h));
     }
+#endif
   };
 
 } // namespace ptn::core
