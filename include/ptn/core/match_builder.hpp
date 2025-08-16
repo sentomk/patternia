@@ -15,7 +15,8 @@
 namespace ptn {
   /* grant friend access to free function match() so it can call hidden ctor */
   template <typename U>
-  constexpr auto match(U &&) noexcept(std::is_nothrow_constructible_v<std::decay_t<U>, U &&>);
+  constexpr auto
+  match(U &&) noexcept(std::is_nothrow_constructible_v<std::decay_t<U>, U &&>);
 } // namespace ptn
 
 /* namespace ptn::core */
@@ -54,16 +55,19 @@ namespace ptn::core {
     template <typename Pattern, typename Handler>
     constexpr auto with(Pattern p, Handler h) & {
       using pair_t   = std::pair<Pattern, Handler>;
-      auto new_cases = std::tuple_cat(cases_, std::make_tuple(pair_t{std::move(p), std::move(h)}));
-      return match_builder<T, Cases..., pair_t>(value_, std::move(new_cases), ctor_tag{});
+      auto new_cases = std::tuple_cat(
+          cases_, std::make_tuple(pair_t{std::move(p), std::move(h)}));
+      return match_builder<T, Cases..., pair_t>(
+          value_, std::move(new_cases), ctor_tag{});
     }
 
     /* overload for "with", now it supports rvalue */
     template <typename Pattern, typename Handler>
     constexpr auto with(Pattern p, Handler h) && {
-      using pair_t = std::pair<Pattern, Handler>;
-      auto new_cases =
-          std::tuple_cat(std::move(cases_), std::make_tuple(pair_t{std::move(p), std::move(h)}));
+      using pair_t   = std::pair<Pattern, Handler>;
+      auto new_cases = std::tuple_cat(
+          std::move(cases_),
+          std::make_tuple(pair_t{std::move(p), std::move(h)}));
       return match_builder<T, Cases..., pair_t>(
           std::move(value_), std::move(new_cases), ctor_tag{});
     }
@@ -79,7 +83,8 @@ namespace ptn::core {
       return std::move(*this).with(std::move(p), std::move(h));
     }
 
-    /* register a “default branch” and triggers match execution. only for rvalue */
+    /* register a default branch and triggers match execution. only for rvalue
+     */
     template <typename Handler>
     constexpr auto otherwise(Handler h) && {
       using R = std::common_type_t<
@@ -117,7 +122,8 @@ namespace ptn::core {
     template <typename Value, typename Handler>
     constexpr auto with_value(Value &&v, Handler &&h) && {
       using ptn::patterns::value;
-      return std::move(*this).with(value(std::forward<Value>(v)), std::forward<Handler>(h));
+      return std::move(*this).with(
+          value(std::forward<Value>(v)), std::forward<Handler>(h));
     }
 
     /* allows specifying a "per-branch" custom comparator for value matching */
