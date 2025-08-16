@@ -38,9 +38,9 @@ TEST(ValuePattern, IntNoMatchFallsToOtherwise) {
 
 TEST(ValuePattern, HeterogeneousEquality_IntVsLongLong) {
   int  x   = 42;
-  auto out = match(x).with(value(42LL), [](int) { return std::string{"ok"}; }).otherwise([](int) {
-    return std::string{"no"};
-  });
+  auto out = match(x)
+                 .with(value(42LL), [](int) { return std::string{"ok"}; })
+                 .otherwise([](int) { return std::string{"no"}; });
   EXPECT_EQ(out, "ok");
 }
 
@@ -50,11 +50,12 @@ enum class Color {
   Blue  = 3
 };
 TEST(ValuePattern, EnumExactMatch) {
-  Color c   = Color::Green;
-  auto  out = match(c)
-                 .with(value(Color::Red), [](auto) { return std::string{"R"}; })
-                 .with(value(Color::Green), [](auto) { return std::string{"G"}; })
-                 .otherwise([](auto) { return std::string{"X"}; });
+  Color c = Color::Green;
+  auto  out =
+      match(c)
+          .with(value(Color::Red), [](auto) { return std::string{"R"}; })
+          .with(value(Color::Green), [](auto) { return std::string{"G"}; })
+          .otherwise([](auto) { return std::string{"X"}; });
   EXPECT_EQ(out, "G");
 }
 
@@ -62,7 +63,9 @@ TEST(ValuePattern, StringTypes_CaseSensitive) {
   std::string_view sv  = "hello";
   auto             out = match(sv)
                  .with(value("HELLO"), [](auto) { return std::string{"cs1"}; })
-                 .with(value(std::string{"hello"}), [](auto) { return std::string{"cs2"}; })
+                 .with(
+                     value(std::string{"hello"}),
+                     [](auto) { return std::string{"cs2"}; })
                  .otherwise([](auto) { return std::string{"other"}; });
   EXPECT_EQ(out, "cs2");
 }
@@ -70,9 +73,9 @@ TEST(ValuePattern, StringTypes_CaseSensitive) {
 TEST(ValuePattern, StringTypes_CaseInsensitive_Mixed) {
   std::string s = "HeLLo";
   auto        out =
-      match(s).with(ci_value("hello"), [](auto) { return std::string{"ci"}; }).otherwise([](auto) {
-        return std::string{"other"};
-      });
+      match(s)
+          .with(ci_value("hello"), [](auto) { return std::string{"ci"}; })
+          .otherwise([](auto) { return std::string{"other"}; });
   EXPECT_EQ(out, "ci");
 }
 
@@ -84,12 +87,13 @@ struct approx_equal {
 };
 
 TEST(ValuePattern, DoubleApproxEqual_CustomComparator) {
-  double x   = 3.141592;
-  auto   out = match(x)
-                 .with(
-                     value_pattern<double, approx_equal>{3.141593, approx_equal{1e-5}},
-                     [](double) { return std::string{"ok"}; })
-                 .otherwise([](double) { return std::string{"no"}; });
+  double x = 3.141592;
+  auto   out =
+      match(x)
+          .with(
+              value_pattern<double, approx_equal>{3.141593, approx_equal{1e-5}},
+              [](double) { return std::string{"ok"}; })
+          .otherwise([](double) { return std::string{"no"}; });
   EXPECT_EQ(out, "ok");
 }
 
@@ -118,7 +122,9 @@ TEST(ValuePattern, UserType_CustomComparator_ByField) {
 TEST(ValuePattern, FirstMatchWins_OrderMatters) {
   int  x   = 7;
   auto out = match(x)
-                 .with([](int v) { return v > 0; }, [](int) { return std::string{"pos"}; })
+                 .with(
+                     [](int v) { return v > 0; },
+                     [](int) { return std::string{"pos"}; })
                  .with(value(7), [](int) { return std::string{"exact-7"}; })
                  .otherwise([](int) { return std::string{"other"}; });
   EXPECT_EQ(out, "pos");
@@ -127,8 +133,12 @@ TEST(ValuePattern, FirstMatchWins_OrderMatters) {
 TEST(ValuePattern, OptionalValueMatch) {
   std::optional<int> oi  = 42;
   auto               out = match(oi)
-                 .with(value(std::optional<int>{}), [](auto) { return std::string{"empty"}; })
-                 .with(value(std::optional<int>{42}), [](auto) { return std::string{"some42"}; })
+                 .with(
+                     value(std::optional<int>{}),
+                     [](auto) { return std::string{"empty"}; })
+                 .with(
+                     value(std::optional<int>{42}),
+                     [](auto) { return std::string{"some42"}; })
                  .otherwise([](auto) { return std::string{"other"}; });
   EXPECT_EQ(out, "some42");
 }
@@ -153,8 +163,9 @@ TEST(ValuePattern, CStringLiteralMatchesStringView) {
 
 TEST(ValuePattern, HeterogeneousEquality_Int64VsInt32) {
   long long big = 1234567890LL;
-  auto      out = match(big)
-                 .with(value(1234567890), [](auto) { return std::string{"ok"}; })
-                 .otherwise([](auto) { return std::string{"no"}; });
+  auto      out =
+      match(big)
+          .with(value(1234567890), [](auto) { return std::string{"ok"}; })
+          .otherwise([](auto) { return std::string{"no"}; });
   EXPECT_EQ(out, "ok");
 }
