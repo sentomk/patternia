@@ -14,8 +14,12 @@ namespace ptn::patterns {
   // x < v
   template <typename V, typename Cmp = std::less<>>
   struct lt_pattern {
-    rel_store_t<V>            v;
+    rel_store_t<V> v;
+#if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
+#else
+    Cmp cmp{};
+#endif
 
     template <typename X>
     constexpr bool operator()(X const &x) const
@@ -27,9 +31,12 @@ namespace ptn::patterns {
   // x <= v  <=>  !(v < x)
   template <typename V, typename Cmp = std::less<>>
   struct le_pattern {
-    rel_store_t<V>            v;
+    rel_store_t<V> v;
+#if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
-
+#else
+    Cmp cmp{};
+#endif
     template <typename X>
     constexpr bool operator()(X const &x) const
         noexcept(noexcept(std::declval<const Cmp &>()(v, x))) {
@@ -40,8 +47,12 @@ namespace ptn::patterns {
   // x > v  <=>  (v < x)
   template <typename V, typename Cmp = std::less<>>
   struct gt_pattern {
-    rel_store_t<V>            v;
+    rel_store_t<V> v;
+#if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
+#else
+    Cmp cmp{};
+#endif
 
     template <typename X>
     constexpr bool operator()(X const &x) const
@@ -53,9 +64,12 @@ namespace ptn::patterns {
   // x >= v  <=>  !(x < v)
   template <typename V, typename Cmp = std::less<>>
   struct ge_pattern {
-    rel_store_t<V>            v;
+    rel_store_t<V> v;
+#if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
-
+#else
+    Cmp cmp{};
+#endif
     template <typename X>
     constexpr bool operator()(X const &x) const
         noexcept(noexcept(std::declval<const Cmp &>()(x, v))) {
@@ -66,9 +80,12 @@ namespace ptn::patterns {
   // x == v
   template <typename V, typename Cmp = std::equal_to<>>
   struct eq_pattern {
-    rel_store_t<V>            v;
+    rel_store_t<V> v;
+#if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
-
+#else
+    Cmp cmp{};
+#endif
     template <typename X>
     constexpr bool operator()(X const &x) const
         noexcept(noexcept(std::declval<const Cmp &>()(x, v))) {
@@ -78,9 +95,12 @@ namespace ptn::patterns {
   // x != v
   template <typename V, typename Cmp = std::not_equal_to<>>
   struct ne_pattern {
-    rel_store_t<V>            v;
+    rel_store_t<V> v;
+#if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
-
+#else
+    Cmp cmp{};
+#endif
     template <typename X>
     constexpr bool operator()(X const &x) const
         noexcept(noexcept(std::declval<const Cmp &>()(x, v))) {
@@ -121,11 +141,14 @@ namespace ptn::patterns {
   */
   template <typename L, typename R, typename Cmp = std::less<>>
   struct between_pattern {
-    rel_store_t<L>            lo;
-    rel_store_t<R>            hi;
-    bool                      closed;
+    rel_store_t<L> lo;
+    rel_store_t<R> hi;
+    bool           closed;
+#if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
-
+#else
+    Cmp cmp{};
+#endif
     template <typename X>
     constexpr bool operator()(X const &x) const noexcept(
         noexcept(std::declval<const Cmp &>()(x, lo)) &&
