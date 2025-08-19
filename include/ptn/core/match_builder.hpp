@@ -19,6 +19,28 @@ namespace ptn {
   match(U &&) noexcept(std::is_nothrow_constructible_v<std::decay_t<U>, U &&>);
 } // namespace ptn
 
+/* namespace ptn::detail */
+namespace ptn::detail {
+  template <typename H, typename X>
+  concept Invocable1 = std::is_invocable_v<H &, X &>;
+
+  template <typename H>
+  concept Invocable0 = std::is_invocable_v<H &>;
+
+  template <typename H, typename X>
+  constexpr decltype(auto) run_handler(H &h, X &x) {
+    if constexpr (Invocable1<H, X>) {
+      return std::invoke(h, x);
+    }
+    else if constexpr (Invocable0<H>) {
+      return std::invoke(h);
+    }
+    else {
+      return (h);
+    }
+  }
+} // namespace ptn::detail
+
 /* namespace ptn::core */
 namespace ptn::core {
 
@@ -45,7 +67,7 @@ namespace ptn::core {
 
     /* perfect forwarding ctor */
     template <class TV, class Tuple>
-      requires std::constructible_from<std::tuple<Cases...>, Tuple>
+    requires std::constructible_from<std::tuple<Cases...>, Tuple>
     explicit constexpr match_builder(TV &&v, Tuple &&cs, ctor_tag)
         : value_(std::forward<TV>(v)), cases_(std::forward<Tuple>(cs)) {
     }
@@ -85,30 +107,36 @@ namespace ptn::core {
 
     /* register a default branch and triggers match execution. only for rvalue
      */
-    template <typename Handler>
-    constexpr auto otherwise(Handler h) && {
+    template <typename H>
+    constexpr auto otherwise(H &&h) && {
       using R = std::common_type_t<
-          std::invoke_result_t<Handler, T &&>,
-          std::invoke_result_t<typename Cases::second_type, T &&>...>;
-      R    result{};
-      bool matched = false;
+          decltype(ptn::detail::run_handler(
+              std::declval<typename Cases::second_type &>(),
+              std::declval<T &>()))...,
+          decltype(ptn::detail::run_handler(
+              std::declval<std::decay_t<H> &>(), std::declval<T &>()))>;
 
-      /* if matched */
-      auto try_case = [&](auto &&case_pair) {
-        if (!matched && case_pair.first(value_)) {
-          result  = case_pair.second(std::move(value_));
-          matched = true;
+      R    out{};
+      bool done = false;
+
+      auto try_one = [&](auto &c) {
+        if (done)
+          return;
+        auto &[p, handler] = c;
+        if (p(value_)) {
+          out  = static_cast<R>(ptn::detail::run_handler(handler, value_));
+          done = true;
         }
       };
 
-      std::apply([&](auto &&...cs) { (try_case(cs), ...); }, cases_);
+      std::apply([&](auto &...cs) { (try_one(cs), ...); }, cases_);
 
-      /* if not matched */
-      if (!matched) {
-        result = h(std::move(value_));
-      }
-      return result;
+      if (!done)
+        out = static_cast<R>(ptn::detail::run_handler(h, value_));
+      return out;
     }
+
+#if PTN_ENABLE_VALUE_PATTERN
 
     /* value pattern: with_value(v, h) == with(value(v), h)*/
     template <class V, class H>
@@ -117,7 +145,6 @@ namespace ptn::core {
       return with(value(std::forward<V>(v)), std::forward<H>(h));
     }
 
-#if PTN_ENABLE_VALUE_PATTERN
     /* overload of with_value for rval */
     template <typename Value, typename Handler>
     constexpr auto with_value(Value &&v, Handler &&h) && {
@@ -131,7 +158,7 @@ namespace ptn::core {
     constexpr auto with_value_cmp(V &&v, Cmp &&cmp, H &&h) & {
       using store_t = ptn::patterns::value_store_t<V>;
       auto p        = ptn::patterns::value_pattern<store_t, std::decay_t<Cmp>>{
-          store_t(std::forward<V>(v)), std::forward<Cmp>(cmp)};
+                 store_t(std::forward<V>(v)), std::forward<Cmp>(cmp)};
       return with(std::move(p), std::forward<H>(h));
     }
 
@@ -140,11 +167,12 @@ namespace ptn::core {
     constexpr auto with_value_cmp(V &&v, Cmp &&cmp, H &&h) && {
       using store_t = ptn::patterns::value_store_t<V>;
       auto p        = ptn::patterns::value_pattern<store_t, std::decay_t<Cmp>>{
-          store_t(std::forward<V>(v)), std::forward<Cmp>(cmp)};
+                 store_t(std::forward<V>(v)), std::forward<Cmp>(cmp)};
       return std::move(*this).with(std::move(p), std::forward<H>(h));
     }
 #endif
   };
 
 } // namespace ptn::core
+
 #endif // MATCH_BUILDER_HPP

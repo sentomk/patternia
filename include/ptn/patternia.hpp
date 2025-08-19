@@ -10,9 +10,11 @@
 namespace ptn {
   /* wrapper: the only public entry to start a match chain */
   template <typename T>
-  constexpr auto match(T &&value) noexcept(std::is_nothrow_constructible_v<std::decay_t<T>, T &&>) {
+  constexpr auto match(T &&value) noexcept(
+      std::is_nothrow_constructible_v<std::decay_t<T>, T &&>) {
     using V = std::decay_t<T>;
-    return core::match_builder<V>(V(std::forward<T>(value)), std::tuple<>{}, core::ctor_tag{});
+    return core::match_builder<V>(
+        V(std::forward<T>(value)), std::tuple<>{}, core::ctor_tag{});
   }
 }; // namespace ptn
 

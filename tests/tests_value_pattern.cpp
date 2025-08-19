@@ -82,7 +82,7 @@ TEST(ValuePattern, StringTypes_CaseInsensitive_Mixed) {
 struct approx_equal {
   double eps{1e-6};
   bool   operator()(double x, double y) const {
-    return std::fabs(x - y) <= eps;
+      return std::fabs(x - y) <= eps;
   }
 };
 
