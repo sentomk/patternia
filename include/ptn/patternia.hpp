@@ -4,10 +4,15 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
-#include "ptn/core/match_builder.hpp"
+#include "ptn/core/match_builder.hpp" // core API
 #include "ptn/config.hpp"
 
 namespace ptn {
+
+  using namespace core;
+  using namespace patterns;
+  using namespace dsl;
+
   /* wrapper: the only public entry to start a match chain */
   template <typename T>
   constexpr auto match(T &&value) noexcept(
