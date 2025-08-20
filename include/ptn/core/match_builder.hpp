@@ -1,10 +1,12 @@
-#ifndef MATCH_BUILDER_HPP
-#define MATCH_BUILDER_HPP
+#ifndef PTN_MATCH_BUILDER_HPP
+#define PTN_MATCH_BUILDER_HPP
 
 #include <tuple>
 #include <concepts>
 #include <type_traits>
 #include <utility>
+
+#include "ptn/dsl/case_expr.hpp"
 
 #include "ptn/config.hpp"
 #if PTN_ENABLE_VALUE_PATTERN
@@ -94,17 +96,6 @@ namespace ptn::core {
           std::move(value_), std::move(new_cases), ctor_tag{});
     }
 
-    /* .when(...): a readable alias for with */
-    template <typename Pred, typename H>
-    constexpr auto when(Pred p, H h) & {
-      return with(std::move(p), std::move(h));
-    }
-
-    template <typename Pred, typename H>
-    constexpr auto when(Pred p, H h) && {
-      return std::move(*this).with(std::move(p), std::move(h));
-    }
-
     /* register a default branch and triggers match execution. only for rvalue
      */
     template <typename H>
@@ -171,8 +162,19 @@ namespace ptn::core {
       return std::move(*this).with(std::move(p), std::forward<H>(h));
     }
 #endif
+
+    /* for match(x).when(p >> "h") */
+    template <typename Pattern, typename Handler>
+    constexpr auto when(dsl::case_expr<Pattern, Handler> &&e) & {
+      return this->with(std::move(e.pattern), std::move(e.handler));
+    }
+
+    template <typename Pattern, typename Handler>
+    constexpr auto when(dsl::case_expr<Pattern, Handler> &&e) && {
+      return std::move(*this).with(std::move(e.pattern), std::move(e.handler));
+    }
   };
 
 } // namespace ptn::core
 
-#endif // MATCH_BUILDER_HPP
+#endif // PTN_MATCH_BUILDER_HPP

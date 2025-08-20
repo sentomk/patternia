@@ -34,6 +34,7 @@ enable_testing()
 add_executable(ptn_tests
     tests/tests_value_pattern.cpp
     tests/tests_relational_pattern.cpp
+    tests/tests_dsl_when_then.cpp
 )
 
 target_link_libraries(ptn_tests PRIVATE

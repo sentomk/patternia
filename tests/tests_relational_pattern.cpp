@@ -6,7 +6,6 @@
 #include <limits>
 
 using namespace ptn;
-using namespace ptn::patterns;
 
 TEST(RelationalPattern, IntBasicComparisons) {
   int  x   = 10;

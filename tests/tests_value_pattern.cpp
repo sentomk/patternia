@@ -7,7 +7,6 @@
 #include <string_view>
 
 using namespace ptn;
-using namespace ptn::patterns;
 
 TEST(ValuePattern, IntExactMatch) {
   int  x   = 42;
