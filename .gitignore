@@ -8,7 +8,9 @@
 !include
 !src
 !tests
+!benchmarks
 
 !include/**
 !src/**
 !tests/**
+!benchmarks/**
