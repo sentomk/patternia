@@ -9,8 +9,10 @@
 !src
 !tests
 !benchmarks
+!cmake
 
 !include/**
 !src/**
 !tests/**
 !benchmarks/**
+!cmake/**
