@@ -31,6 +31,7 @@ target_include_directories(patternia
   $<INSTALL_INTERFACE:include>
 )
 
+# for FetchContent
 add_library(patternia::patternia ALIAS patternia)
 
 target_compile_features(patternia INTERFACE cxx_std_20)
