@@ -11,6 +11,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # --------------------------------------------------
+# Options to enable/disable tests and benchmarks
+# --------------------------------------------------
+option(BUILD_TESTS "Build unit tests" OFF)
+option(BUILD_BENCHMARKS "Build benchmarks" OFF)
+include(FetchContent)
+
+# Find Threads package (required by benchmark)
+find_package(Threads REQUIRED)
+
+# --------------------------------------------------
 # Interface library target for patternia
 # --------------------------------------------------
 add_library(patternia INTERFACE)
@@ -20,50 +30,24 @@ target_include_directories(patternia
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
+target_compile_features(patternia INTERFACE cxx_std_20)
 
 # --------------------------------------------------
-# FetchContent for external dependencies
-# --------------------------------------------------
-include(FetchContent)
-
-# --- GoogleTest for unit testing ---
-# Turn off unneeded components before declaration
-set(BUILD_GMOCK OFF CACHE BOOL "Disable GoogleMock" FORCE)
-set(INSTALL_GTEST OFF CACHE BOOL "Disable GTest install" FORCE)
-
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG v1.17.0
-  GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(googletest)
-
-# --- Google Benchmark for performance testing ---
-# Disable benchmark's internal tests
-set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Disable benchmark tests" FORCE)
-set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Disable benchmark GTest tests" FORCE)
-
-FetchContent_Declare(
-  benchmark
-  GIT_REPOSITORY https://github.com/google/benchmark.git
-  GIT_TAG v1.9.4
-)
-FetchContent_MakeAvailable(benchmark)
-
-# --------------------------------------------------
-# Options to enable/disable tests and benchmarks
-# --------------------------------------------------
-option(BUILD_TESTS "Build unit tests" ON)
-option(BUILD_BENCHMARKS "Build benchmarks" OFF)
-
-# Find Threads package (required by benchmark)
-find_package(Threads REQUIRED)
-
-# --------------------------------------------------
-# Unit tests target
+# GoogleTest for unit testing
 # --------------------------------------------------
 if(BUILD_TESTS)
+  # Turn off unneeded components before declaration
+  set(BUILD_GMOCK OFF CACHE BOOL "Disable GoogleMock" FORCE)
+  set(INSTALL_GTEST OFF CACHE BOOL "Disable GTest install" FORCE)
+  FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG v1.17.0
+    GIT_SHALLOW TRUE
+  )
+  FetchContent_MakeAvailable(googletest)
+
+  # Unit tests target
   enable_testing()
   add_executable(ptn_tests
     tests/tests_value_pattern.cpp
@@ -79,9 +63,21 @@ if(BUILD_TESTS)
 endif()
 
 # --------------------------------------------------
-# Benchmark target
+# Google Benchmark for performance testing
 # --------------------------------------------------
 if(BUILD_BENCHMARKS)
+  # Disable benchmark's internal tests
+  set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Disable benchmark tests" FORCE)
+  set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Disable benchmark GTest tests" FORCE)
+
+  FetchContent_Declare(
+    benchmark
+    GIT_REPOSITORY https://github.com/google/benchmark.git
+    GIT_TAG v1.9.4
+  )
+  FetchContent_MakeAvailable(benchmark)
+
+  # Benchmark target
   add_executable(bench_patternia
     benchmarks/bench_patternia.cpp
   )
@@ -98,11 +94,12 @@ endif()
 # --------------------------------------------------
 # Installation rules (optional)
 # --------------------------------------------------
-install(TARGETS patternia EXPORT patterniaTargets)
 install(DIRECTORY include/ DESTINATION include)
+install(TARGETS patternia
+  EXPORT patterniaTargets
+  INCLUDES DESTINATION include)
 
-install(EXPORT patterniaTargets
-  FILE patterniaConfig.cmake
-  NAMESPACE patternia::
-  DESTINATION lib/cmake/patternia
-)
+export(
+  EXPORT patterniaTargets
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/patterniaTargets.cmake"
+  NAMESPACE patternia::)
