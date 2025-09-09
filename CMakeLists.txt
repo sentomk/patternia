@@ -30,6 +30,9 @@ target_include_directories(patternia
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
+
+add_library(patternia::patternia ALIAS patternia)
+
 target_compile_features(patternia INTERFACE cxx_std_20)
 
 # --------------------------------------------------
