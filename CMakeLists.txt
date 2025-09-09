@@ -94,7 +94,6 @@ endif()
 # --------------------------------------------------
 # Installation rules (optional)
 # --------------------------------------------------
-install(DIRECTORY include/ DESTINATION include)
 install(TARGETS patternia
   EXPORT patterniaTargets
   INCLUDES DESTINATION include)
@@ -103,3 +102,24 @@ export(
   EXPORT patterniaTargets
   FILE "${CMAKE_CURRENT_BINARY_DIR}/patterniaTargets.cmake"
   NAMESPACE patternia::)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/patterniaConfigVersion.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/patterniaConfig.cmake"
+  INSTALL_DESTINATION lib/cmake/patternia
+)
+install(EXPORT patterniaTargets
+  FILE patterniaTargets.cmake
+  NAMESPACE patternia::
+  DESTINATION lib/cmake/patternia)
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/patterniaConfig.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/patterniaConfigVersion.cmake"
+  DESTINATION lib/cmake/patternia)
+install(DIRECTORY include/ DESTINATION include)
