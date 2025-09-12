@@ -9,10 +9,6 @@ A header-only, zero-overhead, compile-time pattern matching library for modern C
   - [Features](#features)
   - [Examples](#examples)
   - [Installation](#installation)
-    - [To build and use](#to-build-and-use)
-    - [Option A: FetchContent (recommended)](#option-a-fetchcontent-recommended)
-    - [Option B: Build \& Install from Source](#option-b-build--install-from-source)
-    - [Optional CMake Flags](#optional-cmake-flags)
 
 ### Features
 
