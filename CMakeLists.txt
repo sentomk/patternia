@@ -15,6 +15,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # --------------------------------------------------
 option(BUILD_TESTS "Build unit tests" OFF)
 option(BUILD_BENCHMARKS "Build benchmarks" OFF)
+option(PTN_SKIP_COMPILER_CHECK "Skip compiler version checking for patternia" OFF)
+
 include(FetchContent)
 
 # Find Threads package (required by benchmark)
@@ -98,6 +100,12 @@ if(BUILD_BENCHMARKS)
   # Optimize for performance tests
   target_compile_options(bench_patternia PRIVATE -O3 -march=native)
 endif()
+
+# --------------------------------------------------
+# Check compiler version
+# --------------------------------------------------
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(CheckCompilerVersion)
 
 # --------------------------------------------------
 # Installation rules (optional)
