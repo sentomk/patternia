@@ -69,7 +69,7 @@ namespace ptn::core {
 
     /* perfect forwarding ctor */
     template <class TV, class Tuple>
-    requires std::constructible_from<std::tuple<Cases...>, Tuple>
+      requires std::constructible_from<std::tuple<Cases...>, Tuple>
     explicit constexpr match_builder(TV &&v, Tuple &&cs, ctor_tag)
         : value_(std::forward<TV>(v)), cases_(std::forward<Tuple>(cs)) {
     }
@@ -149,7 +149,7 @@ namespace ptn::core {
     constexpr auto with_value_cmp(V &&v, Cmp &&cmp, H &&h) & {
       using store_t = ptn::patterns::value_store_t<V>;
       auto p        = ptn::patterns::value_pattern<store_t, std::decay_t<Cmp>>{
-                 store_t(std::forward<V>(v)), std::forward<Cmp>(cmp)};
+          store_t(std::forward<V>(v)), std::forward<Cmp>(cmp)};
       return with(std::move(p), std::forward<H>(h));
     }
 
@@ -158,7 +158,7 @@ namespace ptn::core {
     constexpr auto with_value_cmp(V &&v, Cmp &&cmp, H &&h) && {
       using store_t = ptn::patterns::value_store_t<V>;
       auto p        = ptn::patterns::value_pattern<store_t, std::decay_t<Cmp>>{
-                 store_t(std::forward<V>(v)), std::forward<Cmp>(cmp)};
+          store_t(std::forward<V>(v)), std::forward<Cmp>(cmp)};
       return std::move(*this).with(std::move(p), std::forward<H>(h));
     }
 #endif

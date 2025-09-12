@@ -83,7 +83,9 @@ if(BUILD_BENCHMARKS)
 
   # Benchmark target
   add_executable(bench_patternia
+    benchmarks/bench_main.cpp
     benchmarks/bench_patternia.cpp
+    benchmarks/bench_patternia_complex.cpp
   )
   target_link_libraries(bench_patternia PRIVATE
     patternia
