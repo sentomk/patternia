@@ -3,9 +3,6 @@
 A header-only, zero-overhead, compile-time pattern matching library for modern C++.
 
 ### Table of Contents
-
-- [patternia](#patternia)
-  - [Table of Contents](#table-of-contents)
   - [Features](#features)
   - [Examples](#examples)
   - [Installation](#installation)
