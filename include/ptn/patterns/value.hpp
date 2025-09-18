@@ -1,20 +1,21 @@
-#ifndef PTN_PATTERNS_VALUE_HPP
-#define PTN_PATTERNS_VALUE_HPP
+#pragma once
 
 #include <functional>
 #include <string_view>
 #include <type_traits>
 #include <utility>
+#include "ptn/config.hpp"
 
 namespace ptn::patterns {
-  template <typename V>
+  template<typename V>
   /* if is c-style string/array or others */
   using value_store_t = std::conditional_t<
-      std::is_array_v<std::remove_reference_t<V>> ||
-          std::is_same_v<std::decay_t<V>, const char *>,
-      std::string_view,
-      std::decay_t<V>>;
-  template <typename V, typename Cmp = std::equal_to<>>
+    std::is_array_v<std::remove_reference_t<V> > ||
+    std::is_same_v<std::decay_t<V>, const char *>,
+    std::string_view,
+    std::decay_t<V> >;
+
+  template<typename V, typename Cmp = std::equal_to<> >
   struct value_pattern {
     using store_t = value_store_t<V>;
 
@@ -27,16 +28,16 @@ namespace ptn::patterns {
 #endif
 
     /* allow matching end x to be compared heterogeneously with stored v */
-    template <typename X>
+    template<typename X>
     constexpr bool operator()(X const &x) const
-        noexcept(noexcept(std::declval<const Cmp &>()(x, v))) {
+      noexcept(noexcept(std::declval<const Cmp &>()(x, v))) {
       return cmp(x, v);
     }
   };
 
   /* factory: automatic selection of the storage type based on the entry
    * parameter */
-  template <typename V>
+  template<typename V>
   constexpr auto value(V &&v) {
     using store_t = value_store_t<V>;
     return value_pattern<store_t>{store_t(std::forward<V>(v))};
@@ -59,24 +60,35 @@ namespace ptn::patterns {
       }
       return true;
     }
+
     /* transparent comparison */
-    template <typename A, typename B>
-    requires(
-        (std::is_convertible_v<A, std::string_view> &&
-         std::is_convertible_v<B, std::string_view>) ) constexpr bool
-    operator()(A const &a, B const &b) const noexcept {
+#if PTN_USE_CONCEPTS
+    template<typename A, typename B>
+      requires(
+        std::is_convertible_v<A, std::string_view> &&
+        std::is_convertible_v<B, std::string_view>
+      )
+    constexpr bool operator()(A const &a, B const &b) const noexcept {
       return (*this)(std::string_view(a), std::string_view(b));
     }
+# else
+    template<typename A, typename B,
+      typename = std::enable_if_t<
+        std::is_convertible_v<A, std::string_view> &&
+        std::is_convertible_v<B, std::string_view>
+      > >
+    constexpr bool operator()(A const &a, B const &b) const noexcept {
+      return (*this)(std::string_view(a), std::string_view(b));
+    }
+#endif
   };
 
   /* convenience factory: case-insensitive value model */
-  template <class V>
+  template<class V>
   constexpr auto ci_value(V &&v) {
     using store_t = value_store_t<V>;
     return value_pattern<store_t, iequal_ascii>{
-        store_t(std::forward<V>(v)), iequal_ascii{}};
+      store_t(std::forward<V>(v)), iequal_ascii{}
+    };
   }
-
 } // namespace ptn::patterns
-
-#endif // PTN_PATTERNS_VALUE_HPP
