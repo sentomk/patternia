@@ -155,12 +155,3 @@ namespace ptn::core {
     }
   };
 } // namespace ptn::core
-
-// free match()
-namespace ptn {
-  template<typename U>
-  constexpr auto match(U &&u) noexcept(std::is_nothrow_constructible_v<std::decay_t<U>, U &&>) {
-    using builder_t = core::match_builder<std::decay_t<U> >;
-    return builder_t(std::forward<U>(u), std::tuple<>{}, core::ctor_tag{});
-  }
-} // namespace ptn
