@@ -108,18 +108,28 @@ jobs:
             echo "No tests."
           fi
         shell: bash
-
+        
       - name: Run tests (Windows)
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
           if (Test-Path build/CTestTestfile.cmake) {
             Push-Location build
-            ctest --output-on-failure --parallel
+            $gen = ""
+            if (Test-Path CMakeCache.txt) {
+              $m = Select-String -Path CMakeCache.txt -Pattern '^CMAKE_GENERATOR:INTERNAL=(.*)' -ErrorAction SilentlyContinue
+              if ($m) { $gen = $m.Matches[0].Groups[1].Value }
+            }
+            if ($gen -like "Visual Studio*") {
+              ctest -C Release --output-on-failure --parallel
+            } else {
+              ctest --output-on-failure --parallel
+            }
             Pop-Location
           } else {
             Write-Host "No tests configured."
           }
-        shell: pwsh
+
 
       - name: Upload build artifact (success)
         if: success()
