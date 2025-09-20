@@ -14,10 +14,10 @@ permissions:
 env:
   ARTIFACT_RETENTION_DAYS: 7
 
-################################################################
-# 1) Linux full matrix: GCC / Clang × C++17/20/23 (12 combos)
-################################################################
 jobs:
+  ################################################################
+  # 1) Linux full matrix: GCC / Clang × C++17/20/23 (12 combos)
+  ################################################################
   linux-full:
     name: Linux – full (${{ matrix.label }})
     runs-on: ubuntu-latest
@@ -63,15 +63,15 @@ jobs:
             label: clang18-cxx23
       max-parallel: 4
 
+    # expose matrix values to shell via env
+    env:
+      LABEL: ${{ matrix.label }}
+      COMPILER: ${{ matrix.compiler }}
+      CXX_STD: ${{ matrix.std }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup env variables
-        run: |
-          echo "LABEL=${{ matrix.label }}" >> $GITHUB_ENV
-          echo "COMPILER=${{ matrix.compiler }}" >> $GITHUB_ENV
-          echo "CXX_STD=${{ matrix.std }}" >> $GITHUB_ENV
 
       - name: Cache ccache
         uses: actions/cache@v4
@@ -88,40 +88,42 @@ jobs:
 
       - name: Install compiler (GCC or Clang)
         run: |
-          COMP="${{ matrix.compiler }}"
+          set -e
+          COMP="$COMPILER"
+          echo "Selected compiler: $COMP"
           if [[ "$COMP" == g++-* ]]; then
             VER=${COMP#g++-}
-            sudo apt-get install -y gcc-${VER} g++-${VER} || true
-            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${VER} 100 || true
-            sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${VER} 100 || true
+            sudo apt-get install -y gcc-"$VER" g++-"$VER" || true
+            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-"$VER" 100 || true
+            sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-"$VER" 100 || true
           else
+            # parse clang version in shell (safe)
             CLANG_VER="${COMP#clang++-}"
-            # Add LLVM apt repo for specified clang version (jammy used for ubuntu-latest)
+            echo "Installing clang $CLANG_VER"
             wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add - || true
             sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-${CLANG_VER} main" || true
             sudo apt-get update -y
-            sudo apt-get install -y clang-${CLANG_VER} libc++-dev libc++abi-dev || true
+            sudo apt-get install -y clang-"$CLANG_VER" libc++-dev libc++abi-dev || true
           fi
 
-      - name: Show compiler version
+      - name: Show compiler
         run: |
-          echo "gcc:"
+          echo "gcc --version:"
           gcc --version || true
-          echo "g++:"
+          echo "g++ --version:"
           g++ --version || true
-          echo "clang++:"
+          echo "clang++ --version:"
           clang++ --version || true
 
       - name: Configure (CMake)
         run: |
           set -e
-          BUILD_DIR=build/${{ matrix.label }}
-          mkdir -p $BUILD_DIR
-          cd $BUILD_DIR
-          # pull compiler string into shell variable and parse it in shell (avoid using '#' inside ${{ }})
-          COMP="${{ matrix.compiler }}"
-          if [[ "$COMP" == clang++-* ]]; then
-            CLANG_VER="${COMP#clang++-}"   # shell substring removal
+          BUILD_DIR=build/${LABEL}
+          mkdir -p "$BUILD_DIR"
+          cd "$BUILD_DIR"
+          # Use shell to parse compiler string
+          if [[ "$COMPILER" == clang++-* ]]; then
+            CLANG_VER="${COMPILER#clang++-}"
             export CC="/usr/bin/clang-${CLANG_VER}"
             export CXX="/usr/bin/clang++-${CLANG_VER}"
             CXX_FLAGS="-stdlib=libc++"
@@ -138,7 +140,7 @@ jobs:
             -DCMAKE_CXX_COMPILER="$CXX" \
             -DCMAKE_CXX_FLAGS="$CXX_FLAGS" \
             -DCMAKE_EXE_LINKER_FLAGS="$EXE_LINK_FLAGS" \
-            -DCMAKE_CXX_STANDARD=${{ matrix.std }} \
+            -DCMAKE_CXX_STANDARD=${CXX_STD} \
             -DCMAKE_CXX_STANDARD_REQUIRED=ON \
             -DCMAKE_CXX_EXTENSIONS=OFF \
             -DPTN_SKIP_COMPILER_CHECK=ON
@@ -146,28 +148,28 @@ jobs:
       - name: Build
         run: |
           set -e
-          cd build/${{ matrix.label }}
-          ninja -v -j$(nproc) 2>&1 | tee ../../ci/results/build-${{ matrix.label }}.log
+          cd build/${LABEL}
+          ninja -v -j$(nproc) 2>&1 | tee ../../ci/results/build-${LABEL}.log
 
       - name: Test (ctest -> junit)
         run: |
-          cd build/${{ matrix.label }}
-          ctest --output-on-failure --output-junit test-results-${{ matrix.label }}.xml || true
-          cp -v test-results-${{ matrix.label }}.xml ../../ci/results/ || true
+          cd build/${LABEL}
+          ctest --output-on-failure --output-junit test-results-${LABEL}.xml || true
+          cp -v test-results-${LABEL}.xml ../../ci/results/ || true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: linux-${{ matrix.label }}
           path: |
-            ci/results/build-${{ matrix.label }}.log
-            ci/results/test-results-${{ matrix.label }}.xml
+            ci/results/build-${LABEL}.log
+            ci/results/test-results-${LABEL}.xml
           retention-days: ${{ env.ARTIFACT_RETENTION_DAYS }}
 
       - name: Cleanup build dir (optional)
         if: always()
         run: |
-          rm -rf build/${{ matrix.label }} || true
+          rm -rf build/${LABEL} || true
 
   ################################################################
   # 2) macOS: Apple Clang + Homebrew clang variants
@@ -189,6 +191,7 @@ jobs:
             std: 20
             type: homebrew
             clang_ver: 15
+
     steps:
       - uses: actions/checkout@v4
 
@@ -204,12 +207,11 @@ jobs:
         run: |
           set -e
           BUILD_DIR=build/${{ matrix.label }}
-          mkdir -p $BUILD_DIR
-          cd $BUILD_DIR
+          mkdir -p "$BUILD_DIR"
+          cd "$BUILD_DIR"
           if [[ "${{ matrix.type }}" == "apple" ]]; then
             cmake -G Ninja ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=${{ matrix.std }} -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
           else
-            # use Homebrew clang
             export PATH="/usr/local/opt/llvm@${{ matrix.clang_ver }}/bin:$PATH"
             cmake -G Ninja ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_STANDARD=${{ matrix.std }} -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
           fi
@@ -233,6 +235,7 @@ jobs:
       fail-fast: false
       matrix:
         vs: [ "Visual Studio 16 2019", "Visual Studio 17 2022" ]
+
     steps:
       - uses: actions/checkout@v4
 
@@ -304,7 +307,9 @@ jobs:
       - name: clang-format check
         run: |
           files=$(git ls-files '*.hpp' '*.h' '*.cpp' '*.c' | tr '\n' ' ')
-          if [ -z "$files" ]; then echo "no source files found"; else
+          if [ -z "$files" ]; then
+            echo "no source files found"
+          else
             echo "$files" | xargs clang-format -style=file -n || (echo "clang-format check failed" && exit 1)
           fi
 
@@ -332,6 +337,8 @@ jobs:
   coverage:
     name: Coverage (lcov)
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -370,7 +377,7 @@ jobs:
 
       - name:
           Optional: upload to Codecov (requires secret)
-        if: ${{ secrets.CODECOV_TOKEN }}
+        if: ${{ env.CODECOV_TOKEN != '' }}
         uses: codecov/codecov-action@v4
         with:
           files: build/coverage/coverage.info
