@@ -108,7 +108,7 @@ namespace ptn::core {
       requires std::constructible_from<std::tuple<Cases...>, Tuple>
 #endif
     static constexpr match_builder create(V &&v, Tuple &&cs) {
-      return match_builder(
+      return match_builder<TV, Cases...>(
           std::forward<V>(v), std::forward<Tuple>(cs), ctor_tag{});
     }
     // with
