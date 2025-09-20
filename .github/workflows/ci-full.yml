@@ -114,7 +114,7 @@ jobs:
         run: |
           if (Test-Path build/CTestTestfile.cmake) {
             Push-Location build
-            ctest --config Release --output-on-failure --parallel
+            ctest --output-on-failure --parallel
             Pop-Location
           } else {
             Write-Host "No tests configured."
