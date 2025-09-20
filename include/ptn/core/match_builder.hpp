@@ -90,7 +90,7 @@ namespace ptn::core {
   class match_builder {
     TV                   value_;
     std::tuple<Cases...> cases_;
-    using ctor_tag_t = ctor_tag;
+    using ctor_tag_t = ptn::core::ctor_tag;
     /* make all specializations of match_builder mutual friends  */
     template <typename, typename...>
     friend class match_builder;
@@ -104,17 +104,17 @@ namespace ptn::core {
     }
 
   public:
-    template <typename VArg, typename Tuple>
 #if PTN_USE_CONCEPTS
-      requires std::constructible_from<std::tuple<Cases...>, Tuple>
+    requires std::constructible_from<std::tuple<Cases...>, Tuple>
 #endif
-    static constexpr auto create(VArg &&v, Tuple &&cs)
-        -> ::ptn::core::match_builder<std::decay_t<VArg>, Cases...> {
-      using result_t = ::ptn::core::match_builder<std::decay_t<VArg>, Cases...>;
-      using cases_t  = std::tuple<Cases...>;
-      using ctor_tag_t = typename result_t::ctor_tag_t;
-      return result_t(std::forward<VArg>(v), cases_t{}, ctor_tag_t{});
+        template <typename VArg, typename Tuple>
+        static constexpr auto create(VArg &&v, Tuple &&cs)
+            -> match_builder<std::decay_t<VArg>, Cases...> {
+      using result_t = match_builder<std::decay_t<VArg>, Cases...>;
+      return result_t{
+          std::forward<VArg>(v), std::forward<Tuple>(cs), ctor_tag{}};
     }
+
     // with
     template <typename Pattern, typename Handler>
     constexpr auto with(Pattern p, Handler h) & {
