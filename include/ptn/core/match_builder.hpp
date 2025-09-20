@@ -90,10 +90,6 @@ namespace ptn::core {
     TV                   value_;
     std::tuple<Cases...> cases_;
     using ctor_tag_t = ctor_tag;
-
-    template <typename T>
-    friend constexpr auto ::ptn::match(T &&);
-
     /* make all specializations of match_builder mutual friends  */
     template <typename, typename...>
     friend class match_builder;
@@ -107,10 +103,13 @@ namespace ptn::core {
     }
 
   public:
-    template <typename Tuple>
-    static constexpr auto create(TV &&v, Tuple &&cs) {
+    template <typename V, typename Tuple>
+#if PTN_USE_CONCEPTS
+      requires std::constructible_from<std::tuple<Cases...>, Tuple>
+#endif
+    static constexpr match_builder create(V &&v, Tuple &&cs) {
       return match_builder(
-          std::forward<TV>(v), std::forward<Tuple>(cs), ctor_tag_t{});
+          std::forward<V>(v), std::forward<Tuple>(cs), ctor_tag{});
     }
     // with
     template <typename Pattern, typename Handler>
