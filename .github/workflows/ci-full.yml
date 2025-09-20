@@ -95,7 +95,7 @@ jobs:
             sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${VER} 100 || true
             sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${VER} 100 || true
           else
-            CLANG_VER=${COMP#clang++-}
+            CLANG_VER="${COMP#clang++-}"
             # Add LLVM apt repo for specified clang version (jammy used for ubuntu-latest)
             wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add - || true
             sudo apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-${CLANG_VER} main" || true
@@ -118,15 +118,17 @@ jobs:
           BUILD_DIR=build/${{ matrix.label }}
           mkdir -p $BUILD_DIR
           cd $BUILD_DIR
-          if [[ "${{ matrix.compiler }}" == clang++-* ]]; then
-            CLANG_VER=${{ matrix.compiler#clang++- }}
-            export CC=/usr/bin/clang-${CLANG_VER}
-            export CXX=/usr/bin/clang++-${CLANG_VER}
+          # pull compiler string into shell variable and parse it in shell (avoid using '#' inside ${{ }})
+          COMP="${{ matrix.compiler }}"
+          if [[ "$COMP" == clang++-* ]]; then
+            CLANG_VER="${COMP#clang++-}"   # shell substring removal
+            export CC="/usr/bin/clang-${CLANG_VER}"
+            export CXX="/usr/bin/clang++-${CLANG_VER}"
             CXX_FLAGS="-stdlib=libc++"
             EXE_LINK_FLAGS="-lc++abi"
           else
-            export CC=/usr/bin/gcc
-            export CXX=/usr/bin/g++
+            export CC="/usr/bin/gcc"
+            export CXX="/usr/bin/g++"
             CXX_FLAGS=""
             EXE_LINK_FLAGS=""
           fi
@@ -192,7 +194,6 @@ jobs:
 
       - name: Install deps (Homebrew)
         run: |
-          # brew is preinstalled on macos-latest
           brew update || true
           brew install cmake ninja || true
           if [[ "${{ matrix.type }}" == "homebrew" ]]; then
@@ -277,7 +278,6 @@ jobs:
       - name: Run tests under sanitizers
         run: |
           cd build/sanitizers
-          # continue-on-error: sanitizers may fail tests (we still collect logs)
           ctest --output-on-failure || true
 
       - name: Upload sanitizers logs
@@ -300,11 +300,9 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y clang-format clang-tidy cmake ninja-build python3-pip || true
-          # optionally install run-clang-tidy via pip or apt if available
 
       - name: clang-format check
         run: |
-          # Adjust patterns to your repo if needed
           files=$(git ls-files '*.hpp' '*.h' '*.cpp' '*.c' | tr '\n' ' ')
           if [ -z "$files" ]; then echo "no source files found"; else
             echo "$files" | xargs clang-format -style=file -n || (echo "clang-format check failed" && exit 1)
@@ -315,7 +313,6 @@ jobs:
           mkdir -p build/clang-tidy
           cd build/clang-tidy
           cmake -G Ninja ../.. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug || true
-          # run-clang-tidy may not be available; run a limited set if present
           if command -v run-clang-tidy-10 >/dev/null 2>&1; then
             run-clang-tidy-10 -p . || true
           else
@@ -373,7 +370,7 @@ jobs:
 
       - name:
           Optional: upload to Codecov (requires secret)
-        if: ${{ secrets.CODECOV_TOKEN != '' }}
+        if: ${{ secrets.CODECOV_TOKEN }}
         uses: codecov/codecov-action@v4
         with:
           files: build/coverage/coverage.info
