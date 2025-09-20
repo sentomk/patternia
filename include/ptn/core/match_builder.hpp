@@ -5,6 +5,7 @@
 #include <type_traits>
 #include <utility>
 #include <functional>
+#include <ratio>
 
 #if PTN_USE_CONCEPTS
 #include <concepts>
@@ -103,13 +104,17 @@ namespace ptn::core {
     }
 
   public:
-    template <typename V, typename Tuple>
+    template <typename VArg, typename Tuple>
 #if PTN_USE_CONCEPTS
       requires std::constructible_from<std::tuple<Cases...>, Tuple>
 #endif
-    static constexpr match_builder create(V &&v, Tuple &&cs) {
-      return match_builder<TV, Cases...>{
-          std::forward<V>(v), std::forward<Tuple>(cs), ctor_tag{}};
+    static constexpr auto create(VArg &&v, Tuple &&cs)
+        -> ::ptn::core::match_builder<std::decay_t<VArg>, Cases...> {
+      using result_t = ::ptn::core::match_builder<std::decay_t<VArg>, Cases...>;
+      return result_t(
+          std::forward<VArg>(v),
+          std::forward<Tuple>(cs),
+          ::ptn::core::ctor_tag{});
     }
     // with
     template <typename Pattern, typename Handler>
