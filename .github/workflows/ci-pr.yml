@@ -111,15 +111,24 @@ jobs:
 
       - name: Run tests (if any) - Windows
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
           if (Test-Path build/CTestTestfile.cmake) {
             Push-Location build
-            ctest --config Release --output-on-failure --parallel
-            Pop-Location
+            try {
+              ctest -C Release --output-on-failure --parallel
+            } catch {
+              if (Test-Path "Testing/Temporary/LastTest.log") {
+                Write-Host "==== LastTest.log ===="
+                Get-Content "Testing/Temporary/LastTest.log"
+              }
+              throw
+            } finally {
+              Pop-Location
+            }
           } else {
             Write-Host "No tests configured."
           }
-        shell: pwsh
 
       - name: Upload build artifact on failure
         if: failure()
