@@ -92,8 +92,7 @@ namespace ptn::core {
     using ctor_tag_t = ctor_tag;
 
     template <typename T>
-    friend constexpr auto ::ptn::match(T &&) noexcept(
-        std::is_nothrow_constructible_v<std::decay_t<T>, T &&>);
+    friend constexpr auto ::ptn::match(T &&);
 
     /* make all specializations of match_builder mutual friends  */
     template <typename, typename...>
