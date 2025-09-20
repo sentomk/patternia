@@ -3,9 +3,10 @@
 A header-only, zero-overhead, compile-time pattern matching library for modern C++.
 
 ### Table of Contents
-  - [Features](#features)
-  - [Examples](#examples)
-  - [Installation](#installation)
+
+- [Features](#features)
+- [Examples](#examples)
+- [Installation](#installation)
 
 ### Features
 
@@ -14,11 +15,12 @@ A header-only, zero-overhead, compile-time pattern matching library for modern C
 - **Compile-time pattern matching**  
   Uses C++20/23 `constexpr`, `concepts`, and template metaprogramming to evaluate patterns entirely at compile time.
 - **Rich built-in patterns**
-  - _Value patterns_ (`value(v)`, `ci_value(v)`) for equality (and case-insensitive)
-  - _Relational patterns_ (`lt(v)`, `le(v)`, `gt(v)`, `ge(v)`, `eq(v)`, `ne(v)`) for ordering comparisons
-  - _Range patterns_ (`between(lo, hi, closed)`) for closed or open intervals
+    - _Value patterns_ (`value(v)`, `ci_value(v)`) for equality (and case-insensitive)
+    - _Relational patterns_ (`lt(v)`, `le(v)`, `gt(v)`, `ge(v)`, `eq(v)`, `ne(v)`) for ordering comparisons
+    - _Range patterns_ (`between(lo, hi, closed)`) for closed or open intervals
 - **Fluent DSL**  
-  Chain `.when(p >> handler)` calls for concise, readable match expressions, with automatic overload resolution for handlers that take zero or one argument.
+  Chain `.when(p >> handler)` calls for concise, readable match expressions, with automatic overload resolution for
+  handlers that take zero or one argument.
 - **Lightweight dependency**  
   Depends only on the C++ standard library; no external libraries required unless you opt in to benchmarks or tests.
 
@@ -47,7 +49,7 @@ A header-only, zero-overhead, compile-time pattern matching library for modern C
   std::cout << "grade: " << grade << "\n";
   ```
 
-  - #### relational pattern
+    - #### relational pattern
 
   ```cpp
   double n = -3.14;
@@ -69,7 +71,7 @@ A header-only, zero-overhead, compile-time pattern matching library for modern C
   std::cout << "age group: " << category << "\n";
   ```
 
-  - #### case expression DSL
+    - #### case expression DSL
 
   ```cpp
   std::string cmd = "StArT";
@@ -91,7 +93,7 @@ A header-only, zero-overhead, compile-time pattern matching library for modern C
   std::cout << c << " is a " << type << "\n";
   ```
 
-  - #### `.with()` / `.otherwise()` style
+    - #### `.with()` / `.otherwise()` style
 
   ```cpp
   auto result = match(7)
@@ -122,7 +124,8 @@ A header-only, zero-overhead, compile-time pattern matching library for modern C
 Ensure your development environment has the following tools installed and configured:
 
 - [CMake (≥3.21)](https://cmake.org/)
-- A C++20/23-capable compiler toolchain (e.g. MSVC 19.3x+, Clang ≥ 18, GCC ≥ 11, or Apple Clang ≥ 14)
+- **Minimum**: C++17
+- **Recommended compilers**: GCC >= 11, Clang >= 12, MSVC >= Visual Studio 2019
 
 #### Option A: FetchContent (recommended)
 
@@ -138,9 +141,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(FetchContent)
 
 FetchContent_Declare(
-  patternia
-  GIT_REPOSITORY https://github.com/SentoMK/patternia.git
-  GIT_TAG        v0.3.2
+        patternia
+        GIT_REPOSITORY https://github.com/SentoMK/patternia.git
+        GIT_TAG v0.3.2
 )
 FetchContent_MakeAvailable(patternia)
 
@@ -175,7 +178,7 @@ target_link_libraries(your_project_name PRIVATE patternia::patternia)
 
   Build benchmark executables (requires [Google Benchmark](https://github.com/google/benchmark), fetched automatically).
 
-  - Recommended to also set `-DHAVE_STD_REGEX=ON` for benchmark builds.
+    - Recommended to also set `-DHAVE_STD_REGEX=ON` for benchmark builds.
 
 - `-DBUILD_TESTS=ON`
 
