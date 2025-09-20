@@ -1,0 +1,122 @@
+name: CI - PR (light)
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'include/**'
+      - 'tests/**'
+      - 'CMakeLists.txt'
+      - 'ci/**'
+    # optional: ignore docs-only changes
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - '*.md'
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & Test (PR light) - ${{ matrix.label }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - compiler: g++-11
+            std: 17
+            label: gcc11-cxx17
+          - compiler: clang++-15
+            std: 20
+            label: clang15-cxx20
+      max-parallel: 2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup env
+        run: |
+          echo "LABEL=${{ matrix.label }}" >> $GITHUB_ENV
+          echo "COMPILER=${{ matrix.compiler }}" >> $GITHUB_ENV
+          echo "CXX_STD=${{ matrix.std }}" >> $GITHUB_ENV
+
+      - name: Cache ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ccache-pr-${{ matrix.label }}-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            ccache-pr-${{ runner.os }}-
+
+      - name: Install minimal deps
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends cmake ninja-build ccache build-essential
+
+      - name: Install compiler if needed
+        run: |
+          COMP="${{ matrix.compiler }}"
+          if [[ "$COMP" == g++-* ]]; then
+            VER=${COMP#g++-}
+            sudo apt-get install -y gcc-${VER} g++-${VER} || true
+            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${VER} 100 || true
+            sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${VER} 100 || true
+          else
+            CLV=${COMP#clang++-}
+            sudo apt-get install -y clang-${CLV} || true
+          fi
+
+      - name: Configure (CMake)
+        run: |
+          BUILD_DIR=build/${{ matrix.label }}
+          mkdir -p $BUILD_DIR
+          cd $BUILD_DIR
+          if [[ "${{ matrix.compiler }}" == clang++-* ]]; then
+            CLV=${{ matrix.compiler#clang++-}}
+            export CC=/usr/bin/clang-${CLV}
+            export CXX=/usr/bin/clang++-${CLV}
+            CXX_FLAGS="-stdlib=libc++"
+            EXE_LINK_FLAGS="-lc++abi"
+          else
+            export CC=/usr/bin/gcc
+            export CXX=/usr/bin/g++
+            CXX_FLAGS=""
+            EXE_LINK_FLAGS=""
+          fi
+          cmake -G Ninja ../.. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER="$CC" \
+            -DCMAKE_CXX_COMPILER="$CXX" \
+            -DCMAKE_CXX_FLAGS="$CXX_FLAGS" \
+            -DCMAKE_EXE_LINKER_FLAGS="$EXE_LINK_FLAGS" \
+            -DCMAKE_CXX_STANDARD=${{ matrix.std }} \
+            -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+            -DCMAKE_CXX_EXTENSIONS=OFF \
+            -DPTN_SKIP_COMPILER_CHECK=ON
+
+      - name: Build
+        run: |
+          cd build/${{ matrix.label }}
+          ninja -v -j2 2>&1 | tee ../../ci/results/build-${{ matrix.label }}.log || (echo "Build failed" && exit 1)
+
+      - name: Run tests
+        run: |
+          cd build/${{ matrix.label }}
+          ctest --output-on-failure || true
+
+      - name: Upload artifacts (small logs)
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-${{ matrix.label }}-logs
+          path: |
+            ci/results/build-${{ matrix.label }}.log
+          retention-days: 3
+
+      - name: Cleanup build dir
+        if: always()
+        run: |
+          rm -rf build/${{ matrix.label }} || true
