@@ -111,10 +111,9 @@ namespace ptn::core {
     static constexpr auto create(VArg &&v, Tuple &&cs)
         -> ::ptn::core::match_builder<std::decay_t<VArg>, Cases...> {
       using result_t = ::ptn::core::match_builder<std::decay_t<VArg>, Cases...>;
-      return result_t{
-          std::forward<VArg>(v),
-          std::forward<Tuple>(cs),
-          ::ptn::core::ctor_tag{}};
+      using cases_t  = std::tuple<Cases...>;
+      using ctor_tag_t = typename result_t::ctor_tag_t;
+      return result_t(std::forward<VArg>(v), cases_t{}, ctor_tag_t{});
     }
     // with
     template <typename Pattern, typename Handler>
