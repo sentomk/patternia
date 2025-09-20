@@ -28,29 +28,58 @@ namespace ptn::detail {
   concept Invocable1 = std::is_invocable_v<H &, X &>;
   template <typename H>
   concept Invocable0 = std::is_invocable_v<H &>;
-#else
-  template <typename H, typename X>
-  using Invocable1 = std::is_invocable<H &, X &>;
-  template <typename H>
-  using Invocable0 = std::is_invocable<H &>;
-#endif
 
+  // handler callable with (x)
   template <typename H, typename X>
+    requires Invocable1<H, X>
   constexpr decltype(auto) run_handler(H &h, X &x) {
-#if PTN_USE_CONCEPTS
-    if constexpr (Invocable1<H, X>) {
-      return std::invoke(h, x);
-    }
-    else if constexpr (Invocable0<H>) {
-      return std::invoke(h);
-    }
-    else {
-      return (h);
-    }
-#else
     return std::invoke(h, x);
-#endif
   }
+
+  // not callable with (x) but callable with ()
+  template <typename H, typename X>
+    requires(!Invocable1<H, X> && Invocable0<H>)
+  constexpr decltype(auto) run_handler(H &h, X & /*x*/) {
+    return std::invoke(h);
+  }
+
+  // neither callable -> treat handler as plain value and return it
+  template <typename H, typename X>
+    requires(!Invocable1<H, X> && !Invocable0<H>)
+  constexpr decltype(auto) run_handler(H &h, X & /*x*/) {
+    return (h);
+  }
+#else
+  // C++17 fallback: use SFINAE overloads
+  template <
+      typename H,
+      typename X,
+      typename = std::enable_if_t<std::is_invocable_v<H &, X &>>>
+  constexpr decltype(auto) run_handler(H &h, X &x) {
+    return std::invoke(h, x);
+  }
+
+  template <
+      typename H,
+      typename X,
+      typename = void,
+      typename = std::enable_if_t<
+          !std::is_invocable_v<H &, X &> && std::is_invocable_v<H &>>>
+  constexpr decltype(auto) run_handler(H &h, X & /*x*/) {
+    return std::invoke(h);
+  }
+
+  template <
+      typename H,
+      typename X,
+      typename = void,
+      typename = void,
+      typename = std::enable_if_t<
+          !std::is_invocable_v<H &, X &> && !std::is_invocable_v<H &>>>
+  constexpr decltype(auto) run_handler(H &h, X & /*x*/) {
+    return (h);
+  }
+#endif
 } // namespace ptn::detail
 
 namespace ptn::core {
