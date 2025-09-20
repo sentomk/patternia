@@ -5,7 +5,6 @@ on:
     branches:
       - main
       - ci/workflows
-
   workflow_dispatch:
   schedule:
     - cron: '0 3 * * 1' # weekly (UTC)
@@ -18,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # same include list as ci-pr.yml (copy/paste)
+          # Ubuntu - gcc/clang
           - os: ubuntu-latest
             compiler: gcc
             cpp_std: 17
@@ -37,6 +36,7 @@ jobs:
           - os: ubuntu-latest
             compiler: clang
             cpp_std: 23
+          # macOS - clang (AppleClang)
           - os: macos-latest
             compiler: clang
             cpp_std: 17
@@ -46,6 +46,7 @@ jobs:
           - os: macos-latest
             compiler: clang
             cpp_std: 23
+          # Windows - MSVC
           - os: windows-latest
             compiler: msvc
             cpp_std: 17
@@ -58,87 +59,141 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
       - name: Cache build dir
         uses: actions/cache@v4
         with:
           path: build
-          key: full-${{ runner.os }}-cmake-${{ matrix.compiler }}-std${{ matrix.cpp_std }}-${{ hashFiles('**/CMakeLists.txt') }}
+          key: full-${{ runner.os }}-cmake-${{ matrix.compiler }}-std${{ matrix.cpp_std }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
           restore-keys: |
             full-${{ runner.os }}-cmake-${{ matrix.compiler }}-std${{ matrix.cpp_std }}-
 
-      - name: Prepare (Linux/macOS)
-        if: runner.os != 'Windows'
+      # -----------------------------
+      # Dependencies per platform
+      # -----------------------------
+      - name: Prepare (Ubuntu)
+        if: runner.os == 'Linux'
         run: |
-          sudo apt-get update -y || true
-          sudo apt-get install -y ninja-build ccache || true
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build ccache
+          # clang/gcc 通常已预装；如需特定版本可在这里安装
 
-      - name: Configure
-        if: runner.os != 'Windows'
-        env:
-          CC: ${{ matrix.compiler == 'clang' && 'clang' || 'gcc' }}
-          CXX: ${{ matrix.compiler == 'clang' && 'clang++' || 'g++' }}
+      - name: Prepare (macOS)
+        if: runner.os == 'macOS'
         run: |
-          cmake -S . -B build \
+          brew update
+          brew install ninja || true
+
+      # -----------------------------
+      # Configure
+      # -----------------------------
+      - name: Configure (Linux/macOS, Ninja single-config)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euxo pipefail
+          if [ "${{ matrix.compiler }}" = "clang" ]; then
+            export CC=clang
+            export CXX=clang++
+          else
+            export CC=gcc
+            export CXX=g++
+          fi
+          cmake -S . -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_CXX_STANDARD=${{ matrix.cpp_std }} \
             -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DBUILD_TESTS=ON \
             -DBUILD_BENCHMARKS=ON
-      - name: Configure (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          powershell -Command "cmake -S . -B build -G 'Visual Studio 17 2022' -A x64 -DCMAKE_CXX_STANDARD=${{ matrix.cpp_std }} -DBUILD_TESTS=ON -DBUILD_BENCHMARKS=ON"
 
-      - name: Build
+      - name: Configure (Windows, Visual Studio multi-config)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: >
+          cmake -S . -B build
+          -G "Visual Studio 17 2022"
+          -A x64
+          -DCMAKE_CXX_STANDARD=${{ matrix.cpp_std }}
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          -DBUILD_TESTS=ON
+          -DBUILD_BENCHMARKS=ON
+
+      # -----------------------------
+      # Build
+      # -----------------------------
+      - name: Build (Linux/macOS)
         if: runner.os != 'Windows'
         run: cmake --build build --parallel
+
       - name: Build (Windows)
         if: runner.os == 'Windows'
-        run: powershell -Command "cmake --build build --config Release --parallel"
+        shell: pwsh
+        run: cmake --build build --config Release --parallel
+
+      # -----------------------------
+      # Test
+      # -----------------------------
+      - name: Run tests (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euxo pipefail
+          if [ -f build/CTestTestfile.cmake ]; then
+            pushd build
+            ctest --output-on-failure --parallel
+            popd
+          else
+            echo "No tests configured."
+          fi
 
       - name: Run tests (Windows)
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
           if (Test-Path build/CTestTestfile.cmake) {
             Push-Location build
+            # 注意：ctest 在多配置生成器下应使用 -C，而不是 --config
             ctest -C Release --output-on-failure --parallel
             Pop-Location
           } else {
             Write-Host "No tests configured."
           }
-        shell: pwsh
 
-      - name: Run tests (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          if (Test-Path build/CTestTestfile.cmake) {
-            Push-Location build
-            ctest --config Release --output-on-failure --parallel
-            Pop-Location
-          } else {
-            Write-Host "No tests configured."
-          }
-        shell: pwsh
-
-      - name: Upload build artifact (success)
-        if: success()
+      # -----------------------------
+      # Artifacts
+      # -----------------------------
+      - name: Upload build artifact (always)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-${{ matrix.os }}-${{ matrix.compiler }}-std${{ matrix.cpp_std }}
           path: build
 
+  # -----------------------------------------
+  # clang-format style check
+  # -----------------------------------------
   clang-format-check:
     name: clang-format check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Install clang-format
-        run: sudo apt-get update -y && sudo apt-get install -y clang-format
-      - name: Check formatting
         run: |
-          files=$(git ls-files '*.hpp' '*.h' '*.cpp' '*.c' | xargs)
-          if [ -z "$files" ]; then echo "No source files"; exit 0; fi
+          sudo apt-get update -y
+          sudo apt-get install -y clang-format
+      - name: Check formatting
+        shell: bash
+        run: |
+          set -euxo pipefail
+          files="$(git ls-files '*.hpp' '*.h' '*.cpp' '*.c' | xargs || true)"
+          if [ -z "$files" ]; then
+            echo "No source files"
+            exit 0
+          fi
           bad=0
           for f in $files; do
             if ! clang-format -style=file "$f" | diff -u "$f" - >/dev/null; then
@@ -151,6 +206,9 @@ jobs:
             exit 2
           fi
 
+  # -----------------------------------------
+  # clang-tidy (quick scan on part of headers)
+  # -----------------------------------------
   clang-tidy-scan:
     name: clang-tidy (quick)
     runs-on: ubuntu-latest
@@ -158,13 +216,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install clang-tidy
-        run: sudo apt-get update -y && sudo apt-get install -y clang-tidy
-      - name: Configure compile_commands.json
-        run: cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_STANDARD=23 -DBUILD_TESTS=OFF
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y clang-tidy
+      - name: Configure compile_commands.json (Ninja)
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_CXX_STANDARD=23 \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DBUILD_TESTS=OFF \
+            -DBUILD_BENCHMARKS=OFF
       - name: Run clang-tidy on headers (limited)
         run: |
           if [ -f build/compile_commands.json ]; then
-            find include -name '*.hpp' -or -name '*.h' | head -n 50 | xargs -r clang-tidy -p build || true
+            find include -type f \( -name '*.hpp' -o -name '*.h' \) | head -n 50 | xargs -r clang-tidy -p build || true
           else
             echo "No compile_commands.json; skipping"
           fi
