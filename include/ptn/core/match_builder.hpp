@@ -17,9 +17,9 @@
 
 namespace ptn {
   /* free match function forward declaration */
-  template <typename U>
+  template <typename T>
   constexpr auto
-  match(U &&) noexcept(std::is_nothrow_constructible_v<std::decay_t<U>, U &&>);
+  match(T &&) noexcept(std::is_nothrow_constructible_v<std::decay_t<T>, T &&>);
 } // namespace ptn
 
 namespace ptn::detail {
@@ -91,9 +91,9 @@ namespace ptn::core {
     std::tuple<Cases...> cases_;
     using ctor_tag_t = ctor_tag;
 
-    template <typename U>
-    friend constexpr auto ::ptn::match(U &&) noexcept(
-        std::is_nothrow_constructible_v<std::decay_t<U>, U &&>);
+    template <typename T>
+    friend constexpr auto ::ptn::match(T &&) noexcept(
+        std::is_nothrow_constructible_v<std::decay_t<T>, T &&>);
 
     /* make all specializations of match_builder mutual friends  */
     template <typename, typename...>
