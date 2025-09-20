@@ -104,35 +104,39 @@ namespace ptn::core {
     }
 
   public:
+    // Correctly place template & requires for create
+    template <typename VArg, typename Tuple>
 #if PTN_USE_CONCEPTS
-    requires std::constructible_from<std::tuple<Cases...>, Tuple>
+      requires std::constructible_from<std::tuple<Cases...>, Tuple>
 #endif
-        template <typename VArg, typename Tuple>
-        static constexpr auto create(VArg &&v, Tuple &&cs)
-            -> match_builder<std::decay_t<VArg>, Cases...> {
+    static constexpr auto create(VArg &&v, Tuple &&cs)
+        -> match_builder<std::decay_t<VArg>, Cases...> {
       using result_t = match_builder<std::decay_t<VArg>, Cases...>;
+      // Use brace-init + forward tuple to avoid MSVC initializer-list ambiguity
       return result_t{
           std::forward<VArg>(v), std::forward<Tuple>(cs), ctor_tag{}};
     }
 
-    // with
+    // with (lvalue)
     template <typename Pattern, typename Handler>
     constexpr auto with(Pattern p, Handler h) & {
       using pair_t   = std::pair<Pattern, Handler>;
       auto new_cases = std::tuple_cat(
           cases_, std::make_tuple(pair_t{std::move(p), std::move(h)}));
-      return match_builder<TV, Cases..., pair_t>(
-          value_, std::move(new_cases), ctor_tag_t{});
+      // use brace-init to construct the returned match_builder
+      return match_builder<TV, Cases..., pair_t>{
+          value_, std::move(new_cases), ctor_tag_t{}};
     }
 
+    // with (rvalue)
     template <typename Pattern, typename Handler>
     constexpr auto with(Pattern p, Handler h) && {
       using pair_t   = std::pair<Pattern, Handler>;
       auto new_cases = std::tuple_cat(
           std::move(cases_),
           std::make_tuple(pair_t{std::move(p), std::move(h)}));
-      return match_builder<TV, Cases..., pair_t>(
-          std::move(value_), std::move(new_cases), ctor_tag_t{});
+      return match_builder<TV, Cases..., pair_t>{
+          std::move(value_), std::move(new_cases), ctor_tag_t{}};
     }
 
     // otherwise
