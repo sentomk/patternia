@@ -108,6 +108,11 @@ namespace ptn::core {
     }
 
   public:
+    template <typename Tuple>
+    static constexpr auto create(TV &&v, Tuple &&cs) {
+      return match_builder(
+          std::forward<TV>(v), std::forward<Tuple>(cs), ctor_tag_t{});
+    }
     // with
     template <typename Pattern, typename Handler>
     constexpr auto with(Pattern p, Handler h) & {
