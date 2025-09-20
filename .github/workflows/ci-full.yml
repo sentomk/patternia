@@ -17,45 +17,57 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Ubuntu - gcc/clang
+          # Ubuntu - gcc/clang (Ninja)
           - os: ubuntu-latest
             compiler: gcc
             cpp_std: 17
+            generator: ninja
           - os: ubuntu-latest
             compiler: gcc
             cpp_std: 20
+            generator: ninja
           - os: ubuntu-latest
             compiler: gcc
             cpp_std: 23
+            generator: ninja
           - os: ubuntu-latest
             compiler: clang
             cpp_std: 17
+            generator: ninja
           - os: ubuntu-latest
             compiler: clang
             cpp_std: 20
+            generator: ninja
           - os: ubuntu-latest
             compiler: clang
             cpp_std: 23
-          # macOS - clang (AppleClang)
+            generator: ninja
+          # macOS - AppleClang (Ninja)
           - os: macos-latest
             compiler: clang
             cpp_std: 17
+            generator: ninja
           - os: macos-latest
             compiler: clang
             cpp_std: 20
+            generator: ninja
           - os: macos-latest
             compiler: clang
             cpp_std: 23
-          # Windows - MSVC
+            generator: ninja
+          # Windows - MSVC (VS 2022)
           - os: windows-latest
             compiler: msvc
             cpp_std: 17
+            generator: vs17
           - os: windows-latest
             compiler: msvc
             cpp_std: 20
+            generator: vs17
           - os: windows-latest
             compiler: msvc
             cpp_std: 23
+            generator: vs17
 
     steps:
       - uses: actions/checkout@v4
@@ -63,23 +75,21 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Cache build dir
+      # 建议：不要缓存整个 build 目录；如果你坚持缓存，至少把 generator 放进 key
+      - name: Cache build dir (optional)
         uses: actions/cache@v4
         with:
           path: build
-          key: full-${{ runner.os }}-cmake-${{ matrix.compiler }}-std${{ matrix.cpp_std }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          key: full-${{ runner.os }}-cmake-${{ matrix.compiler }}-std${{ matrix.cpp_std }}-gen-${{ matrix.generator }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
           restore-keys: |
-            full-${{ runner.os }}-cmake-${{ matrix.compiler }}-std${{ matrix.cpp_std }}-
+            full-${{ runner.os }}-cmake-${{ matrix.compiler }}-std${{ matrix.cpp_std }}-gen-${{ matrix.generator }}-
 
-      # -----------------------------
-      # Dependencies per platform
-      # -----------------------------
+      # ---- Dependencies per platform ----
       - name: Prepare (Ubuntu)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update -y
           sudo apt-get install -y ninja-build ccache
-          # clang/gcc 通常已预装；如需特定版本可在这里安装
 
       - name: Prepare (macOS)
         if: runner.os == 'macOS'
@@ -87,10 +97,33 @@ jobs:
           brew update
           brew install ninja || true
 
-      # -----------------------------
-      # Configure
-      # -----------------------------
-      - name: Configure (Linux/macOS, Ninja single-config)
+      # ---- Clean stale build dir if generator mismatched ----
+      - name: Ensure clean build dir for Ninja (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euxo pipefail
+          if [ -f build/CMakeCache.txt ]; then
+            if ! grep -q 'CMAKE_GENERATOR:INTERNAL=Ninja' build/CMakeCache.txt; then
+              rm -rf build
+            fi
+          fi
+          mkdir -p build
+
+      - name: Ensure clean build dir for VS (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (Test-Path build/CMakeCache.txt) {
+            $gen = Select-String -Path build/CMakeCache.txt -Pattern 'CMAKE_GENERATOR:INTERNAL=(.*)' | ForEach-Object { $_.Matches[0].Groups[1].Value }
+            if ($gen -notlike 'Visual Studio*') {
+              Remove-Item -Recurse -Force build
+            }
+          }
+          New-Item -ItemType Directory -Force -Path build | Out-Null
+
+      # ---- Configure ----
+      - name: Configure (Linux/macOS, Ninja)
         if: runner.os != 'Windows'
         shell: bash
         run: |
@@ -110,7 +143,7 @@ jobs:
             -DBUILD_TESTS=ON \
             -DBUILD_BENCHMARKS=ON
 
-      - name: Configure (Windows, Visual Studio multi-config)
+      - name: Configure (Windows, VS 2022)
         if: runner.os == 'Windows'
         shell: pwsh
         run: >
@@ -122,9 +155,7 @@ jobs:
           -DBUILD_TESTS=ON
           -DBUILD_BENCHMARKS=ON
 
-      # -----------------------------
-      # Build
-      # -----------------------------
+      # ---- Build ----
       - name: Build (Linux/macOS)
         if: runner.os != 'Windows'
         run: cmake --build build --parallel
@@ -134,9 +165,7 @@ jobs:
         shell: pwsh
         run: cmake --build build --config Release --parallel
 
-      # -----------------------------
-      # Test
-      # -----------------------------
+      # ---- Test ----
       - name: Run tests (Linux/macOS)
         if: runner.os != 'Windows'
         shell: bash
@@ -156,16 +185,13 @@ jobs:
         run: |
           if (Test-Path build/CTestTestfile.cmake) {
             Push-Location build
-            # 注意：ctest 在多配置生成器下应使用 -C，而不是 --config
             ctest -C Release --output-on-failure --parallel
             Pop-Location
           } else {
             Write-Host "No tests configured."
           }
 
-      # -----------------------------
-      # Artifacts
-      # -----------------------------
+      # ---- Artifacts ----
       - name: Upload build artifact (always)
         if: always()
         uses: actions/upload-artifact@v4
@@ -173,9 +199,7 @@ jobs:
           name: build-${{ matrix.os }}-${{ matrix.compiler }}-std${{ matrix.cpp_std }}
           path: build
 
-  # -----------------------------------------
-  # clang-format style check
-  # -----------------------------------------
+  # ---- clang-format ----
   clang-format-check:
     name: clang-format check
     runs-on: ubuntu-latest
@@ -206,9 +230,7 @@ jobs:
             exit 2
           fi
 
-  # -----------------------------------------
-  # clang-tidy (quick scan on part of headers)
-  # -----------------------------------------
+  # ---- clang-tidy (quick) ----
   clang-tidy-scan:
     name: clang-tidy (quick)
     runs-on: ubuntu-latest
