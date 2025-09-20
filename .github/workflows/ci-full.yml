@@ -1,0 +1,168 @@
+name: CI - Full (C++17/20/23 matrix)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 1' # weekly (UTC)
+
+jobs:
+  build-matrix:
+    name: Build & Test (${{ matrix.os }} / ${{ matrix.compiler }} / c++${{ matrix.cpp_std }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # same include list as ci-pr.yml (copy/paste)
+          - os: ubuntu-latest
+            compiler: gcc
+            cpp_std: 17
+          - os: ubuntu-latest
+            compiler: gcc
+            cpp_std: 20
+          - os: ubuntu-latest
+            compiler: gcc
+            cpp_std: 23
+          - os: ubuntu-latest
+            compiler: clang
+            cpp_std: 17
+          - os: ubuntu-latest
+            compiler: clang
+            cpp_std: 20
+          - os: ubuntu-latest
+            compiler: clang
+            cpp_std: 23
+          - os: macos-latest
+            compiler: clang
+            cpp_std: 17
+          - os: macos-latest
+            compiler: clang
+            cpp_std: 20
+          - os: macos-latest
+            compiler: clang
+            cpp_std: 23
+          - os: windows-latest
+            compiler: msvc
+            cpp_std: 17
+          - os: windows-latest
+            compiler: msvc
+            cpp_std: 20
+          - os: windows-latest
+            compiler: msvc
+            cpp_std: 23
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache build dir
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: full-${{ runner.os }}-cmake-${{ matrix.compiler }}-std${{ matrix.cpp_std }}-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            full-${{ runner.os }}-cmake-${{ matrix.compiler }}-std${{ matrix.cpp_std }}-
+
+      - name: Prepare (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          sudo apt-get update -y || true
+          sudo apt-get install -y ninja-build ccache || true
+
+      - name: Configure
+        if: runner.os != 'Windows'
+        env:
+          CC: ${{ matrix.compiler == 'clang' && 'clang' || 'gcc' }}
+          CXX: ${{ matrix.compiler == 'clang' && 'clang++' || 'g++' }}
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_STANDARD=${{ matrix.cpp_std }} \
+            -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+            -DBUILD_TESTS=ON \
+            -DBUILD_BENCHMARKS=ON
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          powershell -Command "cmake -S . -B build -G 'Visual Studio 17 2022' -A x64 -DCMAKE_CXX_STANDARD=${{ matrix.cpp_std }} -DBUILD_TESTS=ON -DBUILD_BENCHMARKS=ON"
+
+      - name: Build
+        if: runner.os != 'Windows'
+        run: cmake --build build --parallel
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        run: powershell -Command "cmake --build build --config Release --parallel"
+
+      - name: Run tests
+        if: runner.os != 'Windows'
+        run: |
+          if [ -f build/CTestTestfile.cmake ]; then
+            pushd build
+            ctest --output-on-failure --parallel || (cat Testing/Temporary/LastTest.log || true; exit 1)
+            popd
+          else
+            echo "No tests."
+          fi
+        shell: bash
+
+      - name: Run tests (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          if (Test-Path build/CTestTestfile.cmake) {
+            Push-Location build
+            ctest --config Release --output-on-failure --parallel
+            Pop-Location
+          } else {
+            Write-Host "No tests configured."
+          }
+        shell: pwsh
+
+      - name: Upload build artifact (success)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.os }}-${{ matrix.compiler }}-std${{ matrix.cpp_std }}
+          path: build
+
+  clang-format-check:
+    name: clang-format check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install clang-format
+        run: sudo apt-get update -y && sudo apt-get install -y clang-format
+      - name: Check formatting
+        run: |
+          files=$(git ls-files '*.hpp' '*.h' '*.cpp' '*.c' | xargs)
+          if [ -z "$files" ]; then echo "No source files"; exit 0; fi
+          bad=0
+          for f in $files; do
+            if ! clang-format -style=file "$f" | diff -u "$f" - >/dev/null; then
+              echo "Not formatted: $f"
+              bad=1
+            fi
+          done
+          if [ $bad -ne 0 ]; then
+            echo "Run clang-format -i on reported files."
+            exit 2
+          fi
+
+  clang-tidy-scan:
+    name: clang-tidy (quick)
+    runs-on: ubuntu-latest
+    needs: build-matrix
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install clang-tidy
+        run: sudo apt-get update -y && sudo apt-get install -y clang-tidy
+      - name: Configure compile_commands.json
+        run: cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_STANDARD=23 -DBUILD_TESTS=OFF
+      - name: Run clang-tidy on headers (limited)
+        run: |
+          if [ -f build/compile_commands.json ]; then
+            find include -name '*.hpp' -or -name '*.h' | head -n 50 | xargs -r clang-tidy -p build || true
+          else
+            echo "No compile_commands.json; skipping"
+          fi

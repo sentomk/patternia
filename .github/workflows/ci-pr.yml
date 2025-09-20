@@ -1,0 +1,129 @@
+name: CI - PR (C++17/20/23 matrix)
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build & Test (${{ matrix.os }} / ${{ matrix.compiler }} / c++${{ matrix.cpp_std }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux - gcc / clang
+          - os: ubuntu-latest
+            compiler: gcc
+            cpp_std: 17
+          - os: ubuntu-latest
+            compiler: gcc
+            cpp_std: 20
+          - os: ubuntu-latest
+            compiler: gcc
+            cpp_std: 23
+          - os: ubuntu-latest
+            compiler: clang
+            cpp_std: 17
+          - os: ubuntu-latest
+            compiler: clang
+            cpp_std: 20
+          - os: ubuntu-latest
+            compiler: clang
+            cpp_std: 23
+
+          # macOS - clang
+          - os: macos-latest
+            compiler: clang
+            cpp_std: 17
+          - os: macos-latest
+            compiler: clang
+            cpp_std: 20
+          - os: macos-latest
+            compiler: clang
+            cpp_std: 23
+
+          # Windows - MSVC (Visual Studio)
+          - os: windows-latest
+            compiler: msvc
+            cpp_std: 17
+          - os: windows-latest
+            compiler: msvc
+            cpp_std: 20
+          - os: windows-latest
+            compiler: msvc
+            cpp_std: 23
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup cache (build)
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: ${{ runner.os }}-cmake-${{ matrix.compiler }}-std${{ matrix.cpp_std }}-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-cmake-${{ matrix.compiler }}-std${{ matrix.cpp_std }}-
+
+      - name: Prepare toolchain (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          sudo apt-get update -y || true
+          # basic helpers; on macOS these cmds are no-ops
+          sudo apt-get install -y ninja-build ccache || true
+
+      - name: Configure & build (Linux/macOS)
+        if: runner.os != 'Windows'
+        env:
+          CC: ${{ matrix.compiler == 'clang' && 'clang' || 'gcc' }}
+          CXX: ${{ matrix.compiler == 'clang' && 'clang++' || 'g++' }}
+        run: |
+          mkdir -p build
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_STANDARD=${{ matrix.cpp_std }} \
+            -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+            -DBUILD_TESTS=ON
+          cmake --build build --parallel
+        shell: bash
+
+      - name: Configure & build (Windows - MSVC)
+        if: runner.os == 'Windows'
+        run: |
+          powershell -Command "cmake -S . -B build -G 'Visual Studio 17 2022' -A x64 -DCMAKE_CXX_STANDARD=${{ matrix.cpp_std }} -DBUILD_TESTS=ON"
+          powershell -Command "cmake --build build --config Release --parallel"
+        shell: pwsh
+
+      - name: Run tests (if any) - Linux/macOS
+        if: runner.os != 'Windows'
+        run: |
+          if [ -f build/CTestTestfile.cmake ]; then
+            pushd build
+            ctest --output-on-failure --parallel || (cat Testing/Temporary/LastTest.log || true; exit 1)
+            popd
+          else
+            echo "No tests configured."
+          fi
+        shell: bash
+
+      - name: Run tests (if any) - Windows
+        if: runner.os == 'Windows'
+        run: |
+          if (Test-Path build/CTestTestfile.cmake) {
+            Push-Location build
+            ctest --config Release --output-on-failure --parallel
+            Pop-Location
+          } else {
+            Write-Host "No tests configured."
+          }
+        shell: pwsh
+
+      - name: Upload build artifact on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.os }}-${{ matrix.compiler }}-std${{ matrix.cpp_std }}
+          path: build || .
