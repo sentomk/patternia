@@ -97,17 +97,17 @@ jobs:
         if: runner.os == 'Windows'
         run: powershell -Command "cmake --build build --config Release --parallel"
 
-      - name: Run tests
-        if: runner.os != 'Windows'
+      - name: Run tests (Windows)
+        if: runner.os == 'Windows'
         run: |
-          if [ -f build/CTestTestfile.cmake ]; then
-            pushd build
-            ctest --output-on-failure --parallel || (cat Testing/Temporary/LastTest.log || true; exit 1)
-            popd
-          else
-            echo "No tests."
-          fi
-        shell: bash
+          if (Test-Path build/CTestTestfile.cmake) {
+            Push-Location build
+            ctest -C Release --output-on-failure --parallel
+            Pop-Location
+          } else {
+            Write-Host "No tests configured."
+          }
+        shell: pwsh
 
       - name: Run tests (Windows)
         if: runner.os == 'Windows'
