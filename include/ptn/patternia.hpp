@@ -18,8 +18,8 @@ namespace ptn {
   constexpr auto match(T &&value) noexcept(
       std::is_nothrow_constructible_v<std::decay_t<T>, T &&>) {
     using V = std::decay_t<T>;
-    return core::match_builder<V>(
-        V(std::forward<T>(value)), std::tuple<>{}, core::ctor_tag{});
+    return core::match_builder<V>::create(
+        V(std::forward<T>(value)), std::tuple<>{});
   }
 }; // namespace ptn
 
@@ -31,7 +31,7 @@ namespace ptn {
 
 #if PTN_ENABLE_RELATIONAL_PATTERN
 // clang-format off
-#  include <ptn/patterns/relational.hpp>
+#include <ptn/patterns/relational.hpp>
 // clang-format on
 #endif
 

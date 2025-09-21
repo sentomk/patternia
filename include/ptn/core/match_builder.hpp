@@ -5,6 +5,7 @@
 #include <type_traits>
 #include <utility>
 #include <functional>
+#include <ratio>
 
 #if PTN_USE_CONCEPTS
 #include <concepts>
@@ -17,9 +18,9 @@
 
 namespace ptn {
   /* free match function forward declaration */
-  template <typename U>
+  template <typename T>
   constexpr auto
-  match(U &&) noexcept(std::is_nothrow_constructible_v<std::decay_t<U>, U &&>);
+  match(T &&) noexcept(std::is_nothrow_constructible_v<std::decay_t<T>, T &&>);
 } // namespace ptn
 
 namespace ptn::detail {
@@ -89,35 +90,45 @@ namespace ptn::core {
   class match_builder {
     TV                   value_;
     std::tuple<Cases...> cases_;
-    using ctor_tag_t = ctor_tag;
-
-    template <typename U>
-    friend constexpr auto ::ptn::match(U &&) noexcept(
-        std::is_nothrow_constructible_v<std::decay_t<U>, U &&>);
-
+    using ctor_tag_t = ptn::core::ctor_tag;
     /* make all specializations of match_builder mutual friends  */
     template <typename, typename...>
     friend class match_builder;
 
-    template <typename Tuple>
+    template <typename TV2, typename Tuple>
 #if PTN_USE_CONCEPTS
-      requires std::constructible_from<std::tuple<Cases...>, Tuple>
+      requires std::constructible_from<TV, TV2 &&> &&
+                   std::constructible_from<std::tuple<Cases...>, Tuple>
 #endif
-    explicit constexpr match_builder(TV &&v, Tuple &&cs, ctor_tag_t)
-        : value_(std::forward<TV>(v)), cases_(std::forward<Tuple>(cs)) {
+    explicit constexpr match_builder(TV2 &&v, Tuple &&cs, ctor_tag_t)
+        : value_(std::forward<TV2>(v)), cases_(std::forward<Tuple>(cs)) {
     }
 
   public:
-    // with
+    // Correctly place template & requires for create
+    template <typename VArg, typename Tuple>
+#if PTN_USE_CONCEPTS
+      requires std::constructible_from<std::tuple<Cases...>, Tuple>
+#endif
+    static constexpr auto create(VArg &&v, Tuple &&cs)
+        -> match_builder<std::decay_t<VArg>, Cases...> {
+      using result_t = match_builder<std::decay_t<VArg>, Cases...>;
+      return result_t(
+          std::forward<VArg>(v), std::forward<Tuple>(cs), ctor_tag{});
+    }
+
+    // with (lvalue)
     template <typename Pattern, typename Handler>
     constexpr auto with(Pattern p, Handler h) & {
       using pair_t   = std::pair<Pattern, Handler>;
       auto new_cases = std::tuple_cat(
           cases_, std::make_tuple(pair_t{std::move(p), std::move(h)}));
+      // use brace-init to construct the returned match_builder
       return match_builder<TV, Cases..., pair_t>(
           value_, std::move(new_cases), ctor_tag_t{});
     }
 
+    // with (rvalue)
     template <typename Pattern, typename Handler>
     constexpr auto with(Pattern p, Handler h) && {
       using pair_t   = std::pair<Pattern, Handler>;
@@ -138,7 +149,8 @@ namespace ptn::core {
           decltype(ptn::detail::run_handler(
               std::declval<std::decay_t<H> &>(), std::declval<TV &>()))>;
       R    out{};
-      bool done    = false;
+      bool done = false;
+
       auto try_one = [&](auto &c) {
         if (done)
           return;
