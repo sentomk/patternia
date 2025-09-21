@@ -5,7 +5,6 @@
 #include <type_traits>
 #include <utility>
 #include <functional>
-#include <ratio>
 
 #if PTN_USE_CONCEPTS
 #include <concepts>
