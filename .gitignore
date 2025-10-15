@@ -93,3 +93,4 @@ secrets.yml
 !tests/**
 !benchmarks/**
 !cmake/**
+cmake/patternia_dummy.cc
