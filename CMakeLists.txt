@@ -85,6 +85,8 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/patterns/value.hpp
   include/ptn/dispatch/traits.hpp
   include/ptn/dispatch/linear_fallback.hpp
+  include/ptn/dispatch/apply.hpp
+  include/ptn/dispatch/value/value_switch.hpp
 )
 
 
