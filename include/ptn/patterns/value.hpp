@@ -84,7 +84,7 @@ namespace ptn::patterns {
   };
 
   /* convenience factory: case-insensitive value model */
-  template <class V>
+  template <typename V>
   constexpr auto ci_value(V &&v) {
     using store_t = value_store_t<V>;
     return value_pattern<store_t, iequal_ascii>{
