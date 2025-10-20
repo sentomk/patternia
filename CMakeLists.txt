@@ -83,6 +83,8 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/dsl/case_expr.hpp
   include/ptn/patterns/relational.hpp
   include/ptn/patterns/value.hpp
+  include/ptn/dispatch/traits.hpp
+  include/ptn/dispatch/linear_fallback.hpp
 )
 
 
