@@ -13,7 +13,6 @@ project(patternia
   LANGUAGES CXX
 )
 
-
 # ========== Global language standard ==========
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -83,8 +82,9 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/dsl/case_expr.hpp
   include/ptn/patterns/relational.hpp
   include/ptn/patterns/value.hpp
+  include/ptn/dispatch/traits.hpp
+  include/ptn/dispatch/linear_fallback.hpp
 )
-
 
 # ========== Public interface target ==========
 add_library(patternia INTERFACE)
