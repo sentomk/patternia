@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ptn/config.hpp"
+#include <cstddef>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -103,6 +104,23 @@ namespace ptn::core {
         : value_(std::forward<TV2>(v)), cases_(std::forward<Tuple>(cs)) {
     }
 
+    // try_cases
+    template <std::size_t I = 0, typename OutT>
+    constexpr void try_cases(OutT &out, bool &done) {
+      if constexpr (I < sizeof...(Cases)) {
+        auto &c            = std::get<I>(cases_);
+        auto &[p, handler] = c;
+
+        if (!done && p(value_)) {
+          out  = static_cast<OutT>(ptn::detail::run_handler(handler, value_));
+          done = true;
+        }
+        else {
+          try_cases<I + 1>(out, done);
+        }
+      }
+    }
+
   public:
     // Correctly place template & requires for create
     template <typename VArg, typename Tuple>
@@ -150,19 +168,11 @@ namespace ptn::core {
       R    out{};
       bool done = false;
 
-      auto try_one = [&](auto &c) {
-        if (done)
-          return;
-        auto &[p, handler] = c;
-        if (p(value_)) {
-          out  = static_cast<R>(ptn::detail::run_handler(handler, value_));
-          done = true;
-        }
-      };
-      // unified iteration using std::apply + fold-expression (C++17)
-      std::apply([&](auto &...cs) { (try_one(cs), ...); }, cases_);
+      try_cases(out, done);
+
       if (!done)
         out = static_cast<R>(ptn::detail::run_handler(h, value_));
+
       return out;
     }
 
