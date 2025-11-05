@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.20...3.28)
 
 # ========== Policies and compatibility ==========
-if (${CMAKE_VERSION} VERSION_LESS 3.12)
+if(${CMAKE_VERSION} VERSION_LESS 3.12)
   cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-endif ()
-
+endif()
 
 # ========== Project ==========
 project(patternia
@@ -12,7 +11,6 @@ project(patternia
   DESCRIPTION "Header-only pattern matching library for modern C++"
   LANGUAGES CXX
 )
-
 
 # ========== Global language standard ==========
 set(CMAKE_CXX_STANDARD 17)
@@ -22,48 +20,49 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(GNUInstallDirs)
 
-
 # ========== Utilities ==========
 macro(PTN_SET_IF_UNDEFINED VAR VALUE)
-  if (NOT DEFINED ${VAR})
+  if(NOT DEFINED ${VAR})
     set(${VAR} ${VALUE})
-  endif ()
+  endif()
 endmacro()
 
 # Determine whether this CMakeLists is the top-level entry.
 function(PTN_IS_MASTER_PROJECT OUT_VAR)
-  if (NOT DEFINED PROJECT_NAME)
+  if(NOT DEFINED PROJECT_NAME)
     # No project() above us
     set(${OUT_VAR} ON PARENT_SCOPE)
-  else ()
-    if (CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+  else()
+    if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
       set(${OUT_VAR} ON PARENT_SCOPE)
-    else ()
+    else()
       set(${OUT_VAR} OFF PARENT_SCOPE)
-    endif ()
-  endif ()
+    endif()
+  endif()
 endfunction()
 
 # Generate a tiny dummy .cc to force a real library for IDE indexing.
 function(PTN_GENERATE_DUMMY_SOURCE OUT_ABS_PATH)
   set(_path "${CMAKE_CURRENT_SOURCE_DIR}/cmake/patternia_dummy.cc")
-  if (NOT EXISTS "${_path}")
+
+  if(NOT EXISTS "${_path}")
     file(WRITE "${_path}" "// IDE-only dummy TU\n#include \"ptn/patternia.hpp\"\n")
-  endif ()
+  endif()
+
   set(${OUT_ABS_PATH} "${_path}" PARENT_SCOPE)
 endfunction()
 
 function(PTN_JOIN_HEADERS OUT_VAR)
   set(_accum)
-  foreach (_h IN LISTS ARGN)
+
+  foreach(_h IN LISTS ARGN)
     list(APPEND _accum "${_h}")
-  endforeach ()
+  endforeach()
+
   set(${OUT_VAR} "${_accum}" PARENT_SCOPE)
 endfunction()
 
-
 # ========== Master project detection and defaulted options ==========
-
 PTN_IS_MASTER_PROJECT(_PTN_MASTER_PROJECT)
 PTN_SET_IF_UNDEFINED(PTN_MASTER_PROJECT ${_PTN_MASTER_PROJECT})
 
@@ -74,7 +73,6 @@ option(PTN_BUILD_BENCHMARKS "Build benchmarks" ${PTN_MASTER_PROJECT})
 option(PTN_DEV_INDEX "Create local indexable target for IDEs (not installed)" ON)
 option(PTN_SKIP_COMPILER_CHECK "Skip compiler version check" OFF)
 
-
 # ========== Public headers ==========
 PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/config.hpp
@@ -83,12 +81,7 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/dsl/case_expr.hpp
   include/ptn/patterns/relational.hpp
   include/ptn/patterns/value.hpp
-  include/ptn/dispatch/traits.hpp
-  include/ptn/dispatch/linear_fallback.hpp
-  include/ptn/dispatch/apply.hpp
-  include/ptn/dispatch/value/value_switch.hpp
 )
-
 
 # ========== Public interface target ==========
 add_library(patternia INTERFACE)
@@ -102,17 +95,16 @@ target_include_directories(patternia
 )
 
 # If available, attach file sets for better IDE awareness.
-if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.23)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.23)
   target_sources(patternia INTERFACE
     FILE_SET HEADERS
     BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
     FILES ${PTN_HEADERS}
   )
-endif ()
-
+endif()
 
 # ========== Local-only index target for IDEs ==========
-if (PTN_MASTER_PROJECT AND PTN_DEV_INDEX)
+if(PTN_MASTER_PROJECT AND PTN_DEV_INDEX)
   PTN_GENERATE_DUMMY_SOURCE(_PTN_DUMMY_TU)
 
   add_library(ptn.index STATIC
@@ -126,29 +118,29 @@ if (PTN_MASTER_PROJECT AND PTN_DEV_INDEX)
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
+
   # Inherit public interface properties from the INTERFACE target
   target_link_libraries(ptn.index PUBLIC patternia)
 
   # Not installed, not exported by design.
-endif ()
-
+endif()
 
 # ========== Optional: compiler version check ==========
-
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-if (NOT PTN_SKIP_COMPILER_CHECK)
+
+if(NOT PTN_SKIP_COMPILER_CHECK)
   # Provide your own cmake/CheckCompilerVersion.cmake for hard gating if needed.
   include(CheckCompilerVersion OPTIONAL RESULT_VARIABLE _PTN_HAS_COMPILER_CHECK)
-  if (NOT _PTN_HAS_COMPILER_CHECK)
-    message(STATUS "[patternia] Skipping compiler check (module not found).")
-  endif ()
-endif ()
 
+  if(NOT _PTN_HAS_COMPILER_CHECK)
+    message(STATUS "[patternia] Skipping compiler check (module not found).")
+  endif()
+endif()
 
 # ========== Tests (optional, master default ON) ==========
-
-if (PTN_BUILD_TESTS)
+if(PTN_BUILD_TESTS)
   include(FetchContent)
+
   # Configure GoogleTest (lightweight settings)
   set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
   set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
@@ -172,12 +164,10 @@ if (PTN_BUILD_TESTS)
   )
   include(GoogleTest)
   gtest_discover_tests(ptn_tests)
-endif ()
-
+endif()
 
 # ========== Benchmarks (optional, master default ON) ==========
-
-if (PTN_BUILD_BENCHMARKS)
+if(PTN_BUILD_BENCHMARKS)
   include(FetchContent)
   find_package(Threads REQUIRED)
   set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
@@ -201,22 +191,20 @@ if (PTN_BUILD_BENCHMARKS)
     Threads::Threads
   )
   target_compile_options(bench_patternia PRIVATE -O3 -march=native)
-endif ()
-
+endif()
 
 # ========== Install / Export (only the INTERFACE target is exported) ==========
-
-if (PTN_INSTALL)
+if(PTN_INSTALL)
   include(CMakePackageConfigHelpers)
 
   # Install the INTERFACE target and its headers.
-  if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.23)
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.23)
     install(TARGETS patternia
       EXPORT patterniaTargets
       FILE_SET HEADERS
       INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     )
-  else ()
+  else()
     # Fallback for older CMake: install the include tree explicitly.
     install(TARGETS patternia
       EXPORT patterniaTargets
@@ -224,7 +212,7 @@ if (PTN_INSTALL)
     )
     install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
       DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-  endif ()
+  endif()
 
   # Package config files.
   set(PTN_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/patternia)
@@ -257,4 +245,4 @@ if (PTN_INSTALL)
     FILE "${CMAKE_CURRENT_BINARY_DIR}/patterniaTargets.cmake"
     NAMESPACE patternia::
   )
-endif ()
+endif()
