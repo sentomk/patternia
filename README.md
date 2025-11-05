@@ -7,14 +7,14 @@ A header-only, zero-overhead, compile-time pattern matching library for modern C
 - [Features](#features)
 - [Examples](#examples)
 - [Installation](#installation)
-- [Roadmap]
+- [Roadmap](#patternia-technology-roadmap)
 
 ### Features
 
 - **Header-only**  
   No source files to compile—simply include the headers and you’re ready to go.
 - **Compile-time pattern matching**  
-  Uses C++20/23 `constexpr`, `concepts`, and template metaprogramming to evaluate patterns entirely at compile time.
+  Entirely inlined and constexpr-friendly; no runtime closure or lambda overhead.
 - **Rich built-in patterns**
   - _Value patterns_ (`value(v)`, `ci_value(v)`) for equality (and case-insensitive)
   - _Relational patterns_ (`lt(v)`, `le(v)`, `gt(v)`, `ge(v)`, `eq(v)`, `ne(v)`) for ordering comparisons
@@ -124,7 +124,7 @@ A header-only, zero-overhead, compile-time pattern matching library for modern C
 
 Ensure your development environment has the following tools installed and configured:
 
-- [CMake (≥3.21)](https://cmake.org/)
+- [CMake (≥3.14)](https://cmake.org/)
 - **Minimum**: C++17
 - **Recommended compilers**: GCC >= 11, Clang >= 12, MSVC >= Visual Studio 2019
 
@@ -133,10 +133,10 @@ Ensure your development environment has the following tools installed and config
 Add the following to your **project’s top-level `CMakeLists.txt`**:
 
 ```cmake
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.14)
 project(your_project_name LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(FetchContent)
@@ -199,3 +199,18 @@ cmake -S . -B build -G Ninja \
   -DHAVE_STD_REGEX=ON
 cmake --build build
 ```
+
+### Patternia Technology Roadmap
+
+<br>
+
+|             **Phase**              | **Version** |                  **Goal**                  |    **Status**     |
+| :--------------------------------: | :---------: | :----------------------------------------: | :---------------: |
+|       **P0-Core Foundation**       |  `v0.3.x`   |        Minimal DSL and core engine         |      ✅ Done      |
+|  **P1 – Predicate & Type Layer**   |  `v0.4.x`   |    Extend to predicates and type checks    |  🚧 In progress   |
+| **P2 – Logical & Wildcard Layer**  |  `v0.5.x`   |     Add logical composition & wildcard     |  🚧 In progress   |
+|    **P3 – Structured Matching**    |  `v0.6.x`   |         Tuple and guarded matching         |    🧩 Planned     |
+| **P4 – Compile-Time Optimization** |  `v0.7.x`   |    Constexpr dispatch & concept checks     |    🧩 Planned     |
+|   **P5 – Expression DSL Fusion**   |  `v0.8.x`   |     Operator-based pattern composition     |    🧩 Planned     |
+|     **P6 – Reflection Layer**      |  `v0.9.x`   | Structural pattern matching via reflection |  🔬 Experimental  |
+|     **P7 – Runtime Dispatch**      |  `v1.0.0`   |      Fast runtime jump-table dispatch      | 🚀 Target Release |
