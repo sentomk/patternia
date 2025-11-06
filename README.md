@@ -146,7 +146,7 @@ include(FetchContent)
 FetchContent_Declare(
         patternia
         GIT_REPOSITORY https://github.com/SentoMK/patternia.git
-        GIT_TAG v0.3.2
+        GIT_TAG v0.4.1
 )
 FetchContent_MakeAvailable(patternia)
 
