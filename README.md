@@ -45,50 +45,77 @@ A header-only, zero-overhead, compile-time pattern matching library for modern C
 >
 > Always prefer `.when(pattern >> handler)` in user code.
 
-- #### 🔹Value pattern
+#### 🛠️ Optional: Recommended Code Style
+
+To make your chained `.when()` and `.otherwise()` expressions stay perfectly aligned, add this minimal `.clang-format` to your project root:
+
+```yaml
+# patternia .clang-format (minimal)
+BasedOnStyle: LLVM
+IndentWidth: 2 # or 4
+ContinuationIndentWidth: 4 # or 6
+ColumnLimit: 0
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBinaryOperators: None
+```
+✅ Resulting style:
+
+```cpp
+auto out =
+    match(5)
+      .when(lt(0) >> "neg")
+      .when(gt(0) >> "pos")
+      .otherwise("other");
+```
+
+#### 🔹Value pattern
 
   ```cpp
   int x = 42;
-  auto result = match(x)
-    .when(value(0) >> []{ return "zero"; })
-    .when(value(42) >> []{ return "answer"; })
-    .otherwise([]{ return "other"; });
+  auto result =
+      match(x)
+          .when(value(0) >> "zero")
+          .when(value(42) >> "answer")
+          .otherwise("other");
   std::cout << result << "\n"; // → "answer"
   ```
 
-- #### 🔹Relational pattern
+#### 🔹Relational pattern
 
   ```cpp
   int age = 30;
-  auto category = match(age)
-      .when(lt(18) >> "minor")
-      .when(between(18, 65, false) >> "adult")
-      .when(ge(65) >> "senior")
-      .otherwise("unknown");
+  auto category =
+      match(age)
+          .when(lt(18) >> "minor")
+          .when(between(18, 65, false) >> "adult")
+          .when(ge(65) >> "senior")
+          .otherwise("unknown");
   ```
 
-- #### 🔹 Predicate pattern (new in v0.4.1)
+#### 🔹 Predicate pattern (new in v0.4.1)
 
   ```cpp
-  auto is_even = pred([](int x){ return x % 2 == 0; });
-  auto is_pos  = pred([](int x){ return x > 0; });
+  auto is_even = pred([](int x) { return x % 2 == 0; });
+  auto is_pos = pred([](int x) { return x > 0; });
 
-  auto out = match(5)
-      .when(is_even && is_pos >> []{ return "even positive"; })
-      .when(!is_even >> []{ return "odd"; })
-      .otherwise([]{ return "other"; });
+  auto out =
+      match(5)
+          .when(is_even && is_pos >> [] { return "even positive"; })
+          .when(!is_even >> [] { return "odd"; })
+          .otherwise([] { return "other"; });
   std::cout << out; // "odd"
   ```
 
-- #### 🔹 Mixed example
+#### 🔹 Mixed example
 
   ```cpp
   std::string cmd = "StArT";
   match(cmd)
-      .when(ci_value("start") >> []{ std::cout << "starting...\n"; })
-      .when(ci_value("stop")  >> []{ std::cout << "stopping...\n"; })
-      .when(pred([](auto& s){ return s.size() > 10; }) >> []{ std::cout << "too long\n"; })
-      .otherwise([]{ std::cout << "unknown command\n"; });
+      .when(ci_value("start") >> [] { std::cout << "starting...\n"; })
+      .when(ci_value("stop") >> [] { std::cout << "stopping...\n"; })
+      .when(pred([](auto &s) { return s.size() > 10; }) >> [] { std::cout << "too long\n"; })
+      .otherwise([] { std::cout << "unknown command\n"; });
   ```
 
 ---
