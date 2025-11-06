@@ -104,6 +104,28 @@ namespace ptn::core {
         : value_(std::forward<TV2>(v)), cases_(std::forward<Tuple>(cs)) {
     }
 
+    // with (lvalue)
+    template <typename Pattern, typename Handler>
+    constexpr auto with(Pattern p, Handler h) & {
+      using pair_t   = std::pair<Pattern, Handler>;
+      auto new_cases = std::tuple_cat(
+          cases_, std::make_tuple(pair_t{std::move(p), std::move(h)}));
+      // use brace-init to construct the returned match_builder
+      return match_builder<TV, Cases..., pair_t>(
+          value_, std::move(new_cases), ctor_tag_t{});
+    }
+
+    // with (rvalue)
+    template <typename Pattern, typename Handler>
+    constexpr auto with(Pattern p, Handler h) && {
+      using pair_t   = std::pair<Pattern, Handler>;
+      auto new_cases = std::tuple_cat(
+          std::move(cases_),
+          std::make_tuple(pair_t{std::move(p), std::move(h)}));
+      return match_builder<TV, Cases..., pair_t>(
+          std::move(value_), std::move(new_cases), ctor_tag_t{});
+    }
+
     // try_cases
     template <std::size_t I = 0, typename OutT>
     constexpr void try_cases(OutT &out, bool &done) {
@@ -132,28 +154,6 @@ namespace ptn::core {
       using result_t = match_builder<std::decay_t<VArg>, Cases...>;
       return result_t(
           std::forward<VArg>(v), std::forward<Tuple>(cs), ctor_tag{});
-    }
-
-    // with (lvalue)
-    template <typename Pattern, typename Handler>
-    constexpr auto with(Pattern p, Handler h) & {
-      using pair_t   = std::pair<Pattern, Handler>;
-      auto new_cases = std::tuple_cat(
-          cases_, std::make_tuple(pair_t{std::move(p), std::move(h)}));
-      // use brace-init to construct the returned match_builder
-      return match_builder<TV, Cases..., pair_t>(
-          value_, std::move(new_cases), ctor_tag_t{});
-    }
-
-    // with (rvalue)
-    template <typename Pattern, typename Handler>
-    constexpr auto with(Pattern p, Handler h) && {
-      using pair_t   = std::pair<Pattern, Handler>;
-      auto new_cases = std::tuple_cat(
-          std::move(cases_),
-          std::make_tuple(pair_t{std::move(p), std::move(h)}));
-      return match_builder<TV, Cases..., pair_t>(
-          std::move(value_), std::move(new_cases), ctor_tag_t{});
     }
 
     // otherwise
