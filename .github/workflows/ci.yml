@@ -1,29 +1,35 @@
-name: Gate CI (runs on PRs into B)
+name: patternia CI
 
 on:
-  pull_request_target:
-    branches: [ 'ci/workflows' ]
-    types: [ opened, synchronize, reopened ]
-
-permissions:
-  contents: read
+  push:
+    branches: [main, dev]
+    paths-ignore:
+      - "README.md"
+      - "CONTRIBUTING.md"
+      - "docs/**"
+      - "LICENSE"
+      - ".github/ISSUE_TEMPLATE/**"
+  pull_request:
+    branches: [main, dev]
+    paths-ignore:
+      - "README.md"
+      - "CONTRIBUTING.md"
+      - "docs/**"
+      - "LICENSE"
+      - ".github/ISSUE_TEMPLATE/**"
 
 jobs:
-  build-test:
+  build-and-test:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
-      actions: read
+
     steps:
-      - name: Checkout PR HEAD safely
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-          
-      - run: |
-          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
-          cmake --build build --parallel
-          ctest --test-dir build --output-on-failure --parallel
+      - uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Run Tests
+        run: ctest --test-dir build --output-on-failure
