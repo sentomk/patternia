@@ -41,7 +41,8 @@ A header-only, zero-overhead, compile-time pattern matching library for modern C
 
 ### Examples
 
-> ⚠️ From v0.4.0+, `.with()` is considered **internal API**.  
+> ⚠️ From v0.4.0+, `.with()` is considered **internal API**.
+>
 > Always prefer `.when(pattern >> handler)` in user code.
 
 - #### 🔹Value pattern
