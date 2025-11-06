@@ -7,7 +7,7 @@ endif()
 
 # ========== Project ==========
 project(patternia
-  VERSION 0.3.2
+  VERSION 0.4.1
   DESCRIPTION "Header-only pattern matching library for modern C++"
   LANGUAGES CXX
 )
@@ -81,6 +81,7 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/dsl/case_expr.hpp
   include/ptn/patterns/relational.hpp
   include/ptn/patterns/value.hpp
+  include/ptn/patterns/predicate.hpp
 )
 
 # ========== Public interface target ==========
@@ -156,6 +157,7 @@ if(PTN_BUILD_TESTS)
   add_executable(ptn_tests
     tests/tests_value_pattern.cpp
     tests/tests_relational_pattern.cpp
+    tests/tests_predicate_pattern.cpp
   )
   target_link_libraries(ptn_tests PRIVATE
     patternia
