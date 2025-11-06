@@ -91,6 +91,10 @@ namespace ptn::core {
     TV                   value_;
     std::tuple<Cases...> cases_;
     using ctor_tag_t = ptn::core::ctor_tag;
+
+    template <typename P, typename H>
+    friend struct ptn::dsl::case_expr;
+
     /* make all specializations of match_builder mutual friends  */
     template <typename, typename...>
     friend class match_builder;
