@@ -7,6 +7,24 @@
 #include "ptn/core/match_builder.hpp" // core API
 #include "ptn/config.hpp"
 
+#if PTN_ENABLE_VALUE_PATTERN
+// clang-format off
+#  include <ptn/patterns/value.hpp>
+// clang-format on
+#endif
+
+#if PTN_ENABLE_RELATIONAL_PATTERN
+// clang-format off
+#include <ptn/patterns/relational.hpp>
+// clang-format on
+#endif
+
+#if PTN_ENABLE_PREDICATE_PATTERN
+// clang-format off
+#include <ptn/patterns/predicate.hpp>
+// clang-format on
+#endif
+
 namespace ptn {
 
   using namespace core;
@@ -21,18 +39,10 @@ namespace ptn {
     return core::match_builder<V>::create(
         V(std::forward<T>(value)), std::tuple<>{});
   }
+
+  using namespace patterns;
+  using namespace patterns::ops;
+
 }; // namespace ptn
-
-#if PTN_ENABLE_VALUE_PATTERN
-// clang-format off
-#  include <ptn/patterns/value.hpp>
-// clang-format on
-#endif
-
-#if PTN_ENABLE_RELATIONAL_PATTERN
-// clang-format off
-#include <ptn/patterns/relational.hpp>
-// clang-format on
-#endif
 
 #endif // PATTERNIA_HPP
