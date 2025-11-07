@@ -2,7 +2,20 @@
 
 A header-only, zero-overhead, compile-time pattern matching library for modern C++.
 
-<img width="1192" height="636" alt="code" src="https://github.com/user-attachments/assets/2f3d62b1-489f-4803-a5c0-63f8d024159f" />
+<p align="center">
+  <img 
+    src="https://github.com/user-attachments/assets/2f3d62b1-489f-4803-a5c0-63f8d024159f"
+    alt="Patternia DSL Example"
+    width="70%"
+    style="
+      border: 1px solid #444;
+      border-radius: 8px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.25);
+    "
+  />
+</p>
+
+
 
 ---
 
