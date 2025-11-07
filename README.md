@@ -2,6 +2,10 @@
 
 A header-only, zero-overhead, compile-time pattern matching library for modern C++.
 
+<img width="1192" height="636" alt="code" src="https://github.com/user-attachments/assets/2f3d62b1-489f-4803-a5c0-63f8d024159f" />
+
+---
+
 ### Table of Contents
 
 - [Features](#features)
@@ -101,22 +105,66 @@ auto out =
 
   auto out =
       match(5)
-          .when(is_even && is_pos >> [] { return "even positive"; })
-          .when(!is_even >> [] { return "odd"; })
-          .otherwise([] { return "other"; });
+          .when((is_even && is_pos) >> "even positive")
+          .when((!is_even) >> "odd")
+          .otherwise("other");
   std::cout << out; // "odd"
   ```
 
 #### 🔹 Mixed example
 
-  ```cpp
-  std::string cmd = "StArT";
+```cpp
+std::string cmd = "StArT";
+auto msg =
   match(cmd)
-      .when(ci_value("start") >> [] { std::cout << "starting...\n"; })
-      .when(ci_value("stop") >> [] { std::cout << "stopping...\n"; })
-      .when(pred([](auto &s) { return s.size() > 10; }) >> [] { std::cout << "too long\n"; })
-      .otherwise([] { std::cout << "unknown command\n"; });
-  ```
+      .when(ci_value("start") >> "starting...\n")
+      .when(ci_value("stop") >> "stopping...\n")
+      .when(pred([](auto &s) { return s.size() > 10; }) >> "too long\n")
+      .otherwise("unknown command\n");
+
+std::cout << msg;
+```
+
+#### 💡 Full Example
+
+```cpp
+#include "ptn/patternia.hpp"
+#include <iostream>
+using namespace ptn;
+
+struct User { std::string name; int age; bool active; };
+
+int main() {
+    User u{"Alice", 23, true};
+
+    auto info = match(u)
+        .when(pred([](auto& x){ return x.age >= 18 && x.active; }) >>
+              [](auto& x){ return x.name + " is an active adult"; })
+        .when(pred([](auto& x){ return x.age < 18; }) >>
+              [](auto& x){ return x.name + " is underage"; })
+        .otherwise([](auto& x){ return x.name + " is inactive"; });
+
+    auto grade = match(85)
+        .when(ge(90) >> "A")
+        .when(between(75, 89, true) >> "B")
+        .otherwise("C");
+
+    match(std::string{"Start"})
+        .when(ci_value("start") >> []{ std::cout << "Starting...\n"; })
+        .when(ci_value("stop")  >> []{ std::cout << "Stopping...\n"; })
+        .otherwise([]{ std::cout << "Unknown command\n"; });
+
+    std::cout << info << "\nGrade: " << grade << "\n";
+}
+```
+
+**Output:**
+
+```bash
+Alice is an active adult
+Starting...
+Grade: B
+```
 
 ---
 
