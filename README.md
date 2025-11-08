@@ -1,18 +1,7 @@
-# Patternia
-
-[![C++17+](https://img.shields.io/badge/C%2B%2B-17%2B-blue.svg?style=flat-square&logo=c%2B%2B&logoColor=white)](https://isocpp.org/)
-[![Build](https://github.com/SentoMK/patternia/actions/workflows/ci.yml/badge.svg?branch=main&style=flat-square)](https://github.com/SentoMK/patternia/actions)
-[![License](https://img.shields.io/github/license/SentoMK/patternia?style=flat-square)](LICENSE)
-[![Version](https://img.shields.io/github/v/release/SentoMK/patternia?style=flat-square&color=orange)](https://github.com/SentoMK/patternia/releases)
-
-
-A header-only, zero-overhead, compile-time pattern matching library for modern C++.
-
 <p align="center">
   <img 
-    src="https://github.com/user-attachments/assets/2f3d62b1-489f-4803-a5c0-63f8d024159f"
-    alt="Patternia DSL Example"
-    width="70%"
+    src="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/F70B8D1A-52D6-4761-A21F-8659FCB16EB3.jpeg"
+    width="100%"
     style="
       border: 1px solid #444;
       border-radius: 8px;
@@ -21,7 +10,13 @@ A header-only, zero-overhead, compile-time pattern matching library for modern C
   />
 </p>
 
+[![C++17+](https://img.shields.io/badge/C%2B%2B-17%2B-blue.svg?style=flat-square&logo=c%2B%2B&logoColor=white)](https://isocpp.org/)
+[![Build](https://github.com/SentoMK/patternia/actions/workflows/ci.yml/badge.svg?branch=main&style=flat-square)](https://github.com/SentoMK/patternia/actions)
+[![License](https://img.shields.io/github/license/SentoMK/patternia?style=flat-square)](LICENSE)
+[![Version](https://img.shields.io/github/v/release/SentoMK/patternia?style=flat-square&color=orange)](https://github.com/SentoMK/patternia/releases)
 
+
+A header-only, zero-overhead, compile-time pattern matching library for modern C++.
 
 ---
 
