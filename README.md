@@ -1,5 +1,11 @@
 ## patternia
 
+[![C++17+](https://img.shields.io/badge/C%2B%2B-17%2B-blue.svg?style=flat-square&logo=c%2B%2B&logoColor=white)](https://isocpp.org/)
+[![Build](https://github.com/SentoMK/patternia/actions/workflows/ci.yml/badge.svg?branch=main&style=flat-square)](https://github.com/SentoMK/patternia/actions)
+[![License](https://img.shields.io/github/license/SentoMK/patternia?style=flat-square)](LICENSE)
+[![Version](https://img.shields.io/github/v/release/SentoMK/patternia?style=flat-square&color=orange)](https://github.com/SentoMK/patternia/releases)
+
+
 A header-only, zero-overhead, compile-time pattern matching library for modern C++.
 
 <p align="center">
