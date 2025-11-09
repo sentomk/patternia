@@ -42,7 +42,6 @@ namespace ptn {
 
   using namespace patterns;
   using namespace patterns::ops;
-
 }; // namespace ptn
 
 #endif // PATTERNIA_HPP

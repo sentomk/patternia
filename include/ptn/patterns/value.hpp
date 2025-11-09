@@ -4,6 +4,7 @@
 #include <string_view>
 #include <type_traits>
 #include <utility>
+#include "pattern_tag.hpp"
 #include "ptn/config.hpp"
 
 namespace ptn::patterns {
@@ -16,7 +17,7 @@ namespace ptn::patterns {
       std::decay_t<V>>;
 
   template <typename V, typename Cmp = std::equal_to<>>
-  struct value_pattern {
+  struct value_pattern : pattern_tag {
     using store_t = value_store_t<V>;
 
     store_t v;
@@ -44,7 +45,7 @@ namespace ptn::patterns {
   }
 
   /* case insensitive comparator */
-  struct iequal_ascii {
+  struct iequal_ascii : pattern_tag {
     static constexpr char tolower_ascii(char c) {
       return (c >= 'A' && c <= 'Z') ? char(c - 'A' + 'a') : c;
     }

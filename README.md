@@ -15,8 +15,8 @@
 [![License](https://img.shields.io/github/license/SentoMK/patternia?style=flat-square)](LICENSE)
 [![Version](https://img.shields.io/github/v/release/SentoMK/patternia?style=flat-square&color=orange)](https://github.com/SentoMK/patternia/releases)
 
+**A header-only, zero-overhead, compile-time pattern matching library for modern C++.**
 
-A header-only, zero-overhead, compile-time pattern matching library for modern C++.
 
 ---
 
@@ -77,6 +77,7 @@ BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBinaryOperators: None
 ```
+
 ✅ Resulting style:
 
 ```cpp
@@ -89,41 +90,41 @@ auto out =
 
 #### 🔹Value pattern
 
-  ```cpp
-  int x = 42;
-  auto result =
-      match(x)
-          .when(value(0) >> "zero")
-          .when(value(42) >> "answer")
-          .otherwise("other");
-  std::cout << result << "\n"; // → "answer"
-  ```
+```cpp
+int x = 42;
+auto result =
+    match(x)
+        .when(value(0) >> "zero")
+        .when(value(42) >> "answer")
+        .otherwise("other");
+std::cout << result << "\n"; // → "answer"
+```
 
 #### 🔹Relational pattern
 
-  ```cpp
-  int age = 30;
-  auto category =
-      match(age)
-          .when(lt(18) >> "minor")
-          .when(between(18, 65, false) >> "adult")
-          .when(ge(65) >> "senior")
-          .otherwise("unknown");
-  ```
+```cpp
+int age = 30;
+auto category =
+    match(age)
+        .when(lt(18) >> "minor")
+        .when(between(18, 65, false) >> "adult")
+        .when(ge(65) >> "senior")
+        .otherwise("unknown");
+```
 
 #### 🔹 Predicate pattern (new in v0.4.1)
 
-  ```cpp
-  auto is_even = pred([](int x) { return x % 2 == 0; });
-  auto is_pos = pred([](int x) { return x > 0; });
+```cpp
+auto is_even = pred([](int x) { return x % 2 == 0; });
+auto is_pos = pred([](int x) { return x > 0; });
 
-  auto out =
-      match(5)
-          .when((is_even && is_pos) >> "even positive")
-          .when((!is_even) >> "odd")
-          .otherwise("other");
-  std::cout << out; // "odd"
-  ```
+auto out =
+    match(5)
+        .when((is_even && is_pos) >> "even positive")
+        .when((!is_even) >> "odd")
+        .otherwise("other");
+std::cout << out; // "odd"
+```
 
 #### 🔹 Mixed example
 
