@@ -3,19 +3,75 @@ name: patternia Full CI
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 jobs:
-  full-build:
-    runs-on: ubuntu-latest
+  build-test:
+    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.build_type }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        compiler: [gcc, clang, msvc]
+        build_type: [Debug, Release]
+        exclude:
+          # macOS default
+          - os: macos-latest
+            compiler: gcc
+          - os: macos-latest
+            compiler: msvc
+          # Windows: only MSVC
+          - os: windows-latest
+            compiler: gcc
+          - os: windows-latest
+            compiler: clang
+          # Ubuntu: without MSVC
+          - os: ubuntu-latest
+            compiler: msvc
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+      # ---------- Linux ----------
+      - name: Set up compiler (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          if [ "${{ matrix.compiler }}" = "clang" ]; then
+            sudo apt-get install -y clang
+            echo "CXX=clang++" >> $GITHUB_ENV
+          else
+            sudo apt-get install -y g++
+            echo "CXX=g++" >> $GITHUB_ENV
+          fi
 
+      # ---------- macOS ----------
+      - name: Set up compiler (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          echo "CXX=clang++" >> $GITHUB_ENV
+          echo "Using AppleClang $(clang++ --version | head -n 1)"
+
+      # ---------- Windows ----------
+      - name: Set up MSVC environment (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Select MSVC compiler (Windows)
+        if: matrix.os == 'windows-latest'
+        run: echo "CXX=cl.exe" >> $GITHUB_ENV
+
+      # ---------- Configure CMake ----------
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_CXX_COMPILER=${{ env.CXX }}
+
+      # ---------- Build ----------
       - name: Build
         run: cmake --build build --parallel
 
+      # ---------- Run Tests ----------
       - name: Run Tests
         run: ctest --test-dir build --output-on-failure
