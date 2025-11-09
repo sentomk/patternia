@@ -82,6 +82,7 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/patterns/relational.hpp
   include/ptn/patterns/value.hpp
   include/ptn/patterns/predicate.hpp
+  include/ptn/patterns/pattern_tag.hpp
 )
 
 # ========== Public interface target ==========

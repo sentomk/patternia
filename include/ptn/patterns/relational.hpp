@@ -3,6 +3,7 @@
 #include <functional>  // std::less<>
 #include <type_traits> // std::decay_t
 #include <utility>     // std::forward
+#include "ptn/patterns/pattern_tag.hpp"
 
 namespace ptn::patterns {
   /* enhance this alias later to support string_view */
@@ -11,7 +12,7 @@ namespace ptn::patterns {
 
   // x < v
   template <typename V, typename Cmp = std::less<>>
-  struct lt_pattern {
+  struct lt_pattern : pattern_tag {
     rel_store_t<V> v;
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
@@ -28,7 +29,7 @@ namespace ptn::patterns {
 
   // x <= v  <=>  !(v < x)
   template <typename V, typename Cmp = std::less<>>
-  struct le_pattern {
+  struct le_pattern : pattern_tag {
     rel_store_t<V> v;
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
@@ -44,7 +45,7 @@ namespace ptn::patterns {
 
   // x > v  <=>  (v < x)
   template <typename V, typename Cmp = std::less<>>
-  struct gt_pattern {
+  struct gt_pattern : pattern_tag {
     rel_store_t<V> v;
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
@@ -61,7 +62,7 @@ namespace ptn::patterns {
 
   // x >= v  <=>  !(x < v)
   template <typename V, typename Cmp = std::less<>>
-  struct ge_pattern {
+  struct ge_pattern : pattern_tag {
     rel_store_t<V> v;
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
@@ -77,7 +78,7 @@ namespace ptn::patterns {
 
   // x == v
   template <typename V, typename Cmp = std::equal_to<>>
-  struct eq_pattern {
+  struct eq_pattern : pattern_tag {
     rel_store_t<V> v;
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
@@ -93,7 +94,7 @@ namespace ptn::patterns {
 
   // x != v
   template <typename V, typename Cmp = std::not_equal_to<>>
-  struct ne_pattern {
+  struct ne_pattern : pattern_tag {
     rel_store_t<V> v;
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
@@ -144,7 +145,7 @@ namespace ptn::patterns {
     closed==false -> (lo, hi) :  (lo < x) &&  (x < hi)
   */
   template <typename L, typename R, typename Cmp = std::less<>>
-  struct between_pattern {
+  struct between_pattern : pattern_tag {
     rel_store_t<L> lo;
     rel_store_t<R> hi;
     bool           closed{};
