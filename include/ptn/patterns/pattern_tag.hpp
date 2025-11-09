@@ -3,6 +3,7 @@
 
 namespace ptn::patterns {
 
+  // pattern_tag
   struct pattern_tag {
     static constexpr bool is_pattern = true;
   };
