@@ -20,6 +20,9 @@ namespace ptn::patterns {
     Cmp cmp{};
 #endif
 
+    constexpr lt_pattern(rel_store_t<V> val, Cmp c = {})
+        : v(std::move(val)), cmp(std::move(c)) {
+    }
     template <typename X>
     constexpr bool operator()(X const &x) const
         noexcept(noexcept(std::declval<const Cmp &>()(x, v))) {
@@ -36,6 +39,10 @@ namespace ptn::patterns {
 #else
     Cmp cmp{};
 #endif
+
+    constexpr le_pattern(rel_store_t<V> val, Cmp c = {})
+        : v(std::move(val)), cmp(std::move(c)) {
+    }
     template <typename X>
     constexpr bool operator()(X const &x) const
         noexcept(noexcept(std::declval<const Cmp &>()(v, x))) {
@@ -53,6 +60,9 @@ namespace ptn::patterns {
     Cmp cmp{};
 #endif
 
+    constexpr gt_pattern(rel_store_t<V> val, Cmp c = {})
+        : v(std::move(val)), cmp(std::move(c)) {
+    }
     template <typename X>
     constexpr bool operator()(X const &x) const
         noexcept(noexcept(std::declval<const Cmp &>()(v, x))) {
@@ -69,6 +79,9 @@ namespace ptn::patterns {
 #else
     Cmp cmp{};
 #endif
+    constexpr ge_pattern(rel_store_t<V> val, Cmp c = {})
+        : v(std::move(val)), cmp(std::move(c)) {
+    }
     template <typename X>
     constexpr bool operator()(X const &x) const
         noexcept(noexcept(std::declval<const Cmp &>()(x, v))) {
@@ -85,6 +98,10 @@ namespace ptn::patterns {
 #else
     Cmp cmp{};
 #endif
+
+    constexpr eq_pattern(rel_store_t<V> val, Cmp c = {})
+        : v(std::move(val)), cmp(std::move(c)) {
+    }
     template <typename X>
     constexpr bool operator()(X const &x) const
         noexcept(noexcept(std::declval<const Cmp &>()(x, v))) {
@@ -101,6 +118,10 @@ namespace ptn::patterns {
 #else
     Cmp cmp{};
 #endif
+
+    constexpr ne_pattern(rel_store_t<V> val, Cmp c = {})
+        : v(std::move(val)), cmp(std::move(c)) {
+    }
     template <typename X>
     constexpr bool operator()(X const &x) const
         noexcept(noexcept(std::declval<const Cmp &>()(x, v))) {
@@ -111,32 +132,32 @@ namespace ptn::patterns {
   /* Factories */
   template <typename V>
   constexpr auto lt(V &&v) {
-    return lt_pattern<rel_store_t<V>>{rel_store_t<V>(std::forward<V>(v))};
+    return lt_pattern<rel_store_t<V>>(rel_store_t<V>(std::forward<V>(v)));
   }
 
   template <typename V>
   constexpr auto le(V &&v) {
-    return le_pattern<rel_store_t<V>>{rel_store_t<V>(std::forward<V>(v))};
+    return le_pattern<rel_store_t<V>>(rel_store_t<V>(std::forward<V>(v)));
   }
 
   template <typename V>
   constexpr auto gt(V &&v) {
-    return gt_pattern<rel_store_t<V>>{rel_store_t<V>(std::forward<V>(v))};
+    return gt_pattern<rel_store_t<V>>(rel_store_t<V>(std::forward<V>(v)));
   }
 
   template <typename V>
   constexpr auto ge(V &&v) {
-    return ge_pattern<rel_store_t<V>>{rel_store_t<V>(std::forward<V>(v))};
+    return ge_pattern<rel_store_t<V>>(rel_store_t<V>(std::forward<V>(v)));
   }
 
   template <typename V>
   constexpr auto eq(V &&v) {
-    return eq_pattern<rel_store_t<V>>{rel_store_t<V>(std::forward<V>(v))};
+    return eq_pattern<rel_store_t<V>>(rel_store_t<V>(std::forward<V>(v)));
   }
 
   template <typename V>
   constexpr auto ne(V &&v) {
-    return ne_pattern<rel_store_t<V>>{rel_store_t<V>(std::forward<V>(v))};
+    return ne_pattern<rel_store_t<V>>(rel_store_t<V>(std::forward<V>(v)));
   }
 
   /*
@@ -154,6 +175,12 @@ namespace ptn::patterns {
 #else
     Cmp cmp{};
 #endif
+
+    constexpr between_pattern(
+        rel_store_t<L> lo_, rel_store_t<R> hi_, bool closed_, Cmp c = {})
+        : lo(std::move(lo_)), hi(std::move(hi_)), closed(closed_),
+          cmp(std::move(c)) {
+    }
     template <typename X>
     constexpr bool operator()(X const &x) const noexcept(
         noexcept(std::declval<const Cmp &>()(x, lo)) &&
@@ -171,9 +198,9 @@ namespace ptn::patterns {
 
   template <typename L, typename R>
   constexpr auto between(L &&lo, R &&hi, bool closed = true) {
-    return between_pattern<rel_store_t<L>, rel_store_t<R>>{
+    return between_pattern<rel_store_t<L>, rel_store_t<R>>(
         rel_store_t<L>(std::forward<L>(lo)),
         rel_store_t<R>(std::forward<R>(hi)),
-        closed};
+        closed);
   }
 } // namespace ptn::patterns

@@ -28,6 +28,9 @@ namespace ptn::patterns {
     Cmp cmp{};
 #endif
 
+    constexpr value_pattern(store_t val, Cmp c = {})
+        : v(std::move(val)), cmp(std::move(c)) {
+    }
     /* allow matching end x to be compared heterogeneously with stored v */
     template <typename X>
     constexpr bool operator()(X const &x) const
@@ -41,7 +44,7 @@ namespace ptn::patterns {
   template <typename V>
   constexpr auto value(V &&v) {
     using store_t = value_store_t<V>;
-    return value_pattern<store_t>{store_t(std::forward<V>(v))};
+    return value_pattern<store_t>(store_t(std::forward<V>(v)));
   }
 
   /* case insensitive comparator */
@@ -88,7 +91,7 @@ namespace ptn::patterns {
   template <typename V>
   constexpr auto ci_value(V &&v) {
     using store_t = value_store_t<V>;
-    return value_pattern<store_t, iequal_ascii>{
-        store_t(std::forward<V>(v)), iequal_ascii{}};
+    return value_pattern<store_t, iequal_ascii>(
+        store_t(std::forward<V>(v)), iequal_ascii{});
   }
 } // namespace ptn::patterns
