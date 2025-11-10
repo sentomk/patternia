@@ -1,6 +1,0 @@
-@PACKAGE_INIT@
-
-set(patternia_VERSION_MAJOR @PROJECT_VERSION_MAJOR@)
-set(patternia_VERSION_MINOR @PROJECT_VERSION_MINOR@)
-
-include("${CMAKE_CURRENT_LIST_DIR}/patterniaTargets.cmake")
