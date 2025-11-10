@@ -1,14 +1,16 @@
-<p align="center">
-  <img 
-    src="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/F70B8D1A-52D6-4761-A21F-8659FCB16EB3.jpeg"
-    width="100%"
-    style="
-      border: 1px solid #444;
-      border-radius: 8px;
-      box-shadow: 0 0 12px rgba(0,0,0,0.25);
-    "
-  />
-</p>
+<br><br>
+
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/8f7145e0-104c-4063-a5e6-aec5acdb7814">
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/e23ad7fb-2db5-41d6-8642-006b3b189533">
+    <img alt="Patternia logo"
+         width="420"
+         style="max-width: 90%; height: auto; margin-top: 10px;">
+  </picture>
+</div>
+
+<br><br>
 
 [![C++17+](https://img.shields.io/badge/C%2B%2B-17%2B-blue.svg?style=flat-square&logo=c%2B%2B&logoColor=white)](https://isocpp.org/)
 [![Build](https://github.com/SentoMK/patternia/actions/workflows/ci.yml/badge.svg?branch=main&style=flat-square)](https://github.com/SentoMK/patternia/actions)
@@ -17,6 +19,7 @@
 
 **A header-only, zero-overhead, compile-time pattern matching library for modern C++.**
 
+<br>
 
 ---
 
