@@ -94,3 +94,10 @@ secrets.yml
 !benchmarks/**
 !cmake/**
 cmake/patternia_dummy.cc
+
+# ===== Patternia documentation build =====
+docs/_build/
+docs/xml/
+docs/docs/
+docs/latex/
+docs/doxygen_warnings.log
