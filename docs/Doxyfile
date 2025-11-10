@@ -1,5 +1,5 @@
 PROJECT_NAME           = Patternia
-OUTPUT_DIRECTORY       = docs
+OUTPUT_DIRECTORY       = .
 GENERATE_HTML          = NO
 GENERATE_XML           = YES
 XML_OUTPUT             = xml
