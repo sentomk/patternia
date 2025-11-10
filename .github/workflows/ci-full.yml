@@ -1,77 +1,101 @@
-name: patternia Full CI
+name: CI (Full Matrix)
 
 on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  build-test:
-    name: ${{ matrix.os }} / ${{ matrix.compiler }} / ${{ matrix.build_type }}
+  build-and-test:
+    name: "${{ matrix.compiler }} C++${{ matrix.std }}"
     runs-on: ${{ matrix.os }}
+
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        compiler: [gcc, clang, msvc]
-        build_type: [Debug, Release]
-        exclude:
-          # macOS default
-          - os: macos-latest
-            compiler: gcc
-          - os: macos-latest
-            compiler: msvc
-          # Windows: only MSVC
-          - os: windows-latest
-            compiler: gcc
-          - os: windows-latest
-            compiler: clang
-          # Ubuntu: without MSVC
+        include:
+          # ===== Linux (GCC) =====
           - os: ubuntu-latest
+            compiler: gcc-11
+            cxx: g++-11
+            std: 17
+          - os: ubuntu-latest
+            compiler: gcc-11
+            cxx: g++-11
+            std: 20
+          - os: ubuntu-latest
+            compiler: gcc-13
+            cxx: g++-13
+            std: 23
+          - os: ubuntu-latest
+            compiler: gcc-13
+            cxx: g++-13
+            std: 26
+
+          # ===== Linux (Clang) =====
+          - os: ubuntu-latest
+            compiler: clang-16
+            cxx: clang++-16
+            std: 17
+          - os: ubuntu-latest
+            compiler: clang-16
+            cxx: clang++-16
+            std: 20
+          - os: ubuntu-latest
+            compiler: clang-18
+            cxx: clang++-18
+            std: 23
+          - os: ubuntu-latest
+            compiler: clang-18
+            cxx: clang++-18
+            std: 26
+
+          # ===== Windows (MSVC) =====
+          - os: windows-latest
             compiler: msvc
+            std: 20
+          - os: windows-latest
+            compiler: msvc
+            std: 23
+          - os: windows-latest
+            compiler: msvc
+            std: 26
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # ---------- Linux ----------
-      - name: Set up compiler (Linux)
-        if: matrix.os == 'ubuntu-latest'
+      # Install necessary compilers on Linux
+      - name: Setup Compiler (Linux)
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          if [ "${{ matrix.compiler }}" = "clang" ]; then
-            sudo apt-get install -y clang
-            echo "CXX=clang++" >> $GITHUB_ENV
-          else
-            sudo apt-get install -y g++
-            echo "CXX=g++" >> $GITHUB_ENV
+          if [[ "${{ matrix.compiler }}" == gcc* ]]; then
+            sudo apt-get install -y ${{ matrix.compiler }}
+            sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/${{ matrix.cxx }} 100
+          elif [[ "${{ matrix.compiler }}" == clang* ]]; then
+            sudo apt-get install -y ${{ matrix.compiler }}
+            sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/${{ matrix.cxx }} 100
           fi
 
-      # ---------- macOS ----------
-      - name: Set up compiler (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          echo "CXX=clang++" >> $GITHUB_ENV
-          echo "Using AppleClang $(clang++ --version | head -n 1)"
-
-      # ---------- Windows ----------
-      - name: Set up MSVC environment (Windows)
-        if: matrix.os == 'windows-latest'
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
-      - name: Select MSVC compiler (Windows)
-        if: matrix.os == 'windows-latest'
-        run: echo "CXX=cl.exe" >> $GITHUB_ENV
-
-      # ---------- Configure CMake ----------
+      # Configure build (CMake)
       - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_CXX_COMPILER=${{ env.CXX }}
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_CXX_STANDARD=${{ matrix.std }} \
+            -DBUILD_TESTS=ON \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx || 'cl' }}
 
-      # ---------- Build ----------
+      # Build
       - name: Build
-        run: cmake --build build --parallel
+        run: cmake --build build --config Release -j$(nproc)
 
-      # ---------- Run Tests ----------
-      - name: Run Tests
+      # Run tests
+      - name: Run tests
+        if: runner.os != 'Windows'
         run: ctest --test-dir build --output-on-failure
+      - name: Run tests (Windows)
+        if: runner.os == 'Windows'
+        run: ctest --test-dir build -C Release --output-on-failure
