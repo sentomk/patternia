@@ -1,12 +1,12 @@
 <br><br>
 
-<div style="text-align: center;">
-  <picture style="display: inline-block; transform: translateX(-18px);">
+<div align="center">
+  <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/8f7145e0-104c-4063-a5e6-aec5acdb7814">
     <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/e23ad7fb-2db5-41d6-8642-006b3b189533">
     <img alt="Patternia logo"
          width="420"
-         style="max-width: 90%; height: auto; margin-top: 10px;">
+         style="max-width: 90%; height: auto; margin-top: 10px; transform: translateX(-18px);">
   </picture>
 </div>
 
