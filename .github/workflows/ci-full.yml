@@ -121,7 +121,7 @@ jobs:
             -DPTN_SKIP_COMPILER_CHECK=ON
 
       - name: Build
-        run: cmake --build build --config Release -j$(nproc || 2)
+        run: cmake --build build --config Release --parallel
 
       - name: Run tests
         run: ctest --test-dir build --output-on-failure
