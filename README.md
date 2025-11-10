@@ -1,9 +1,9 @@
-<br><br>
+<img width="1940" height="872" alt="image" src="https://github.com/user-attachments/assets/f498c56c-f18c-4023-991d-1ab642328f51" /><br><br>
 
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/Group%207.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/Group%206.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/Group%207.png">
+    <source media="(prefers-color-scheme: light)" srcset="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/Group%206.png">
     <img alt="Patternia logo"
          width="420"
          style="max-width: 90%; height: auto; margin-top: 10px; transform: translateX(-2px);">
