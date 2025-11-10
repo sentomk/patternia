@@ -26,7 +26,8 @@ _ptn_report_detected()
 
 # Minimums (configurable via cache)
 set(PTN_MIN_GNU_VERSION "11" CACHE STRING "Minimum supported GCC version")
-set(PTN_MIN_CLANG_VERSION "18" CACHE STRING "Minimum supported Clang/clang-cl version")
+set(PTN_MIN_CLANG_VERSION "12" CACHE STRING "Minimum supported pure Clang version")
+set(PTN_MIN_CLANG_CL_VERSION "18" CACHE STRING "Minimum supported clang-cl version")
 set(PTN_MIN_APPLECLANG_VERSION "14" CACHE STRING "Minimum supported AppleClang version")
 set(PTN_MIN_MSVC_VERSION_STR "19.30" CACHE STRING "Minimum supported MSVC (cl.exe) version")
 
@@ -63,9 +64,9 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 elseif(_ptn_is_clang_cl)
   # clang-cl path: need both Clang >= 18 and MSVC >= 19.30
   # Clang version
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS PTN_MIN_CLANG_VERSION)
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS PTN_MIN_CLANG_CL_VERSION)
     message(FATAL_ERROR
-      "[patternia] clang-cl ${CMAKE_CXX_COMPILER_VERSION} detected, but Clang >= ${PTN_MIN_CLANG_VERSION} is required for MSVC toolchain.\n"
+      "[patternia] clang-cl ${CMAKE_CXX_COMPILER_VERSION} detected, but Clang >= ${PTN_MIN_CLANG_CL_VERSION} is required for MSVC toolchain.\n"
       "Please upgrade LLVM/Clang.")
   endif()
 
