@@ -8,4 +8,3 @@ FILE_PATTERNS          = *.hpp
 RECURSIVE              = YES
 EXTRACT_ALL            = YES
 QUIET                  = YES
-OPTIMIZE_OUTPUT_FOR_CPLUSPLUS = YES
