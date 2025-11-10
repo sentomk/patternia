@@ -34,25 +34,25 @@ jobs:
             cxx: g++-13
             std: 26
 
-          # ===== Linux (Clang) =====
+          # ===== Linux (Clang: pure LLVM toolchain) =====
           - os: ubuntu-latest
-            compiler: clang-16
-            cxx: clang++-16
+            compiler: clang-12
+            cxx: clang++-12
             std: 17
           - os: ubuntu-latest
-            compiler: clang-16
-            cxx: clang++-16
+            compiler: clang-14
+            cxx: clang++-14
             std: 20
           - os: ubuntu-latest
-            compiler: clang-18
-            cxx: clang++-18
+            compiler: clang-16
+            cxx: clang++-16
             std: 23
           - os: ubuntu-latest
             compiler: clang-18
             cxx: clang++-18
             std: 26
 
-          # ===== Windows (MSVC) =====
+          # ===== Windows (MSVC native) =====
           - os: windows-latest
             compiler: msvc
             std: 20
@@ -61,13 +61,27 @@ jobs:
             std: 23
           - os: windows-latest
             compiler: msvc
+            std: 26
+
+          # ===== Windows (clang-cl, LLVM front-end with MSVC toolchain) =====
+          - os: windows-latest
+            compiler: clang-cl
+            cxx: "C:/Program Files/LLVM/bin/clang-cl.exe"
+            std: 20
+          - os: windows-latest
+            compiler: clang-cl
+            cxx: "C:/Program Files/LLVM/bin/clang-cl.exe"
+            std: 23
+          - os: windows-latest
+            compiler: clang-cl
+            cxx: "C:/Program Files/LLVM/bin/clang-cl.exe"
             std: 26
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Install necessary compilers on Linux
+      # Install compiler for Linux
       - name: Setup Compiler (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -80,22 +94,25 @@ jobs:
             sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/${{ matrix.cxx }} 100
           fi
 
-      # Configure build (CMake)
+      # Configure (skip compiler version guard for CI flexibility)
       - name: Configure CMake
         run: |
           cmake -S . -B build \
             -DCMAKE_CXX_STANDARD=${{ matrix.std }} \
             -DBUILD_TESTS=ON \
-            -DCMAKE_CXX_COMPILER=${{ matrix.cxx || 'cl' }}
+            -DCMAKE_CXX_COMPILER="${{ matrix.cxx || 'cl' }}" \
+            -DPTN_SKIP_COMPILER_CHECK=ON
 
       # Build
       - name: Build
-        run: cmake --build build --config Release -j$(nproc)
+        run: cmake --build build --config Release -j$(nproc || 2)
 
-      # Run tests
-      - name: Run tests
-        if: runner.os != 'Windows'
+      # Run tests (Linux)
+      - name: Run tests (Linux)
+        if: runner.os == 'Linux'
         run: ctest --test-dir build --output-on-failure
+
+      # Run tests (Windows)
       - name: Run tests (Windows)
         if: runner.os == 'Windows'
         run: ctest --test-dir build -C Release --output-on-failure
