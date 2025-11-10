@@ -6,7 +6,7 @@
     <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/e23ad7fb-2db5-41d6-8642-006b3b189533">
     <img alt="Patternia logo"
          width="420"
-         style="max-width: 90%; height: auto; margin-top: 10px; margin-left: -8px;">
+         style="max-width: 90%; height: auto; margin-top: 10px; margin-left: -12px;">
   </picture>
 </div>
 
