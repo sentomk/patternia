@@ -3,10 +3,10 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="prev" title="Patternia Documentation" href="../index.html">
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="prev" title="API Reference" href="index.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>Patternia Entry Point - Patternia 0.4.2 documentation</title>
+        <title>patternia API - patternia 0.4.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Patternia 0.4.2 documentation</div></a>
+      <a href="../index.html"><div class="brand">patternia 0.4.2 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
-  <span class="sidebar-brand-text">Patternia 0.4.2 documentation</span>
+  <span class="sidebar-brand-text">patternia 0.4.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -190,9 +190,12 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+  <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="current">
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Patternia Entry Point</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">patternia API</a></li>
+</ul>
+</li>
 </ul>
 
 </div>
@@ -213,7 +216,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/api/core_dsl.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/api/patternia.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -231,28 +234,20 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="patternia-entry-point">
-<h1>Patternia Entry Point<a class="headerlink" href="#patternia-entry-point" title="Link to this heading">¶</a></h1>
-<p>The <cite>match()</cite> function is the public entry to the DSL:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">gt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;positive&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;negative&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;zero&quot;</span><span class="p">);</span>
-</pre></div>
-</div>
-<p>Public entry header for Patternia — the modern C++ pattern matching DSL. </p>
-<p>This header serves as the unified interface for end users. It includes the core DSL (<code class="docutils literal notranslate"><span class="pre">match_builder</span></code>) and all enabled pattern modules (value, relational, predicate, etc.), providing a fluent interface:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ci_value</span><span class="p">(</span><span class="s">&quot;start&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;starting&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ci_value</span><span class="p">(</span><span class="s">&quot;stop&quot;</span><span class="p">)</span><span class="w">  </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;stopping&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;unknown&quot;</span><span class="p">);</span>
-</pre></div>
-</div>
+          <section id="patternia-api">
+<h1>patternia API<a class="headerlink" href="#patternia-api" title="Link to this heading">¶</a></h1>
 <dl class="cpp type">
 <dt class="sig sig-object cpp" id="_CPPv43ptn">
 <span id="_CPPv33ptn"></span><span id="_CPPv23ptn"></span><span id="ptn"></span><span class="target" id="namespaceptn"></span><span class="k"><span class="pre">namespace</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ptn</span></span></span><a class="headerlink" href="#_CPPv43ptn" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN3ptn5matchEDaRR1T">
+<span id="_CPPv3I0EN3ptn5matchERR1T"></span><span id="_CPPv2I0EN3ptn5matchERR1T"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="namespaceptn_1a8cb579a294993036bbe0b7800ab64763"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">match</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0EN3ptn5matchEDaRR1T" title="ptn::match::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">is_nothrow_constructible_v</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">decay_t</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0EN3ptn5matchEDaRR1T" title="ptn::match::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN3ptn5matchEDaRR1T" title="ptn::match::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv4I0EN3ptn5matchEDaRR1T" title="Link to this definition">¶</a><br /></dt>
 <dd></dd></dl>
+
+</div>
+</dd></dl>
 
 </section>
 
@@ -262,14 +257,14 @@
         
         <div class="related-pages">
           
-          <a class="prev-page" href="../index.html">
+          <a class="prev-page" href="index.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Home</div>
+                <div class="title">API Reference</div>
                 
               </div>
             </a>
@@ -277,7 +272,7 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 
+                Copyright &#169; 2025, sentomk
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -303,8 +298,11 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Patternia Entry Point</a><ul>
-<li><a class="reference internal" href="#_CPPv43ptn"><code class="docutils literal notranslate"><span class="pre">ptn</span></code></a></li>
+<li><a class="reference internal" href="#">patternia API</a><ul>
+<li><a class="reference internal" href="#_CPPv43ptn"><code class="docutils literal notranslate"><span class="pre">ptn</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4I0EN3ptn5matchEDaRR1T"><code class="docutils literal notranslate"><span class="pre">match()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
