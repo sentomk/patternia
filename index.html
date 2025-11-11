@@ -3,13 +3,16 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="API Reference" href="api/index.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html">
+        <link rel="prefetch" href="_static/logo-light.png" as="image">
+        <link rel="prefetch" href="_static/logo-dark.png" as="image">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
-        <title>patternia 0.4.2 documentation</title>
+    <link rel="shortcut icon" href="_static/favicon.ico"><!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
+        <title>patternia</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=dbec6e1d" />
     
     
 
@@ -161,7 +164,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">patternia 0.4.2 documentation</div></a>
+      <a href="#"><div class="brand">patternia</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -172,7 +175,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
@@ -181,8 +184,11 @@
     <div class="sidebar-container">
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/logo-light.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/logo-dark.png" alt="Dark Logo"/>
+  </div>
   
-  <span class="sidebar-brand-text">patternia 0.4.2 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -190,14 +196,7 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
-<ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/patternia.html">patternia API</a></li>
-</ul>
-</li>
-</ul>
-
+  
 </div>
 </div>
 
@@ -216,7 +215,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/index.rst.txt" title="View this page">
+  <a class="muted-link" href="_sources/index.md.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -229,27 +228,50 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="patternia-documentation">
-<h1>patternia Documentation<a class="headerlink" href="#patternia-documentation" title="Link to this heading">¶</a></h1>
-<p>Welcome to <strong>patternia</strong>, a modern C++ pattern matching DSL.</p>
-<div class="toctree-wrapper compound">
+          <section id="patternia">
+<h1>patternia<a class="headerlink" href="#patternia" title="Link to this heading">¶</a></h1>
+<hr class="docutils" />
+<p>patternia is a <strong>header-only pattern matching DSL</strong> for modern C++.</p>
+<p>It provides a <strong>declarative</strong> and <strong>composable</strong> way to express conditional logic —<br />
+bringing clarity and structure to branching code without macros or runtime cost.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">   </span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+
+<span class="w">   </span><span class="k">auto</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+<span class="w">       </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ci_value</span><span class="p">(</span><span class="s">&quot;start&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;starting&quot;</span><span class="p">)</span>
+<span class="w">       </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ci_value</span><span class="p">(</span><span class="s">&quot;stop&quot;</span><span class="p">)</span><span class="w">  </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;stopping&quot;</span><span class="p">)</span>
+<span class="w">       </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;unknown&quot;</span><span class="p">);</span>
+</pre></div>
 </div>
-<div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/patternia.html">patternia API</a></li>
+<hr class="docutils" />
+<section id="why-patternia">
+<h2>Why patternia?<a class="headerlink" href="#why-patternia" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Write <strong>expressive branching logic</strong> without <code class="docutils literal notranslate"><span class="pre">if</span></code> or <code class="docutils literal notranslate"><span class="pre">switch</span></code></p></li>
+<li><p>Build patterns with <strong>value</strong>, <strong>relational</strong>, and <strong>predicate</strong> combinators</p></li>
+<li><p><strong>Compile-time evaluation</strong> — zero overhead, constexpr-capable</p></li>
+<li><p>Fully <strong>header-only</strong>, works with GCC, Clang, and MSVC</p></li>
 </ul>
-</li>
-</ul>
+<hr class="docutils" />
+<p><strong>Example: numeric range matching</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">   </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
+<span class="w">   </span><span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">       </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;negative&quot;</span><span class="p">)</span>
+<span class="w">       </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">between</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;in range&quot;</span><span class="p">)</span>
+<span class="w">       </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;out of range&quot;</span><span class="p">);</span>
+</pre></div>
 </div>
-<div class="toctree-wrapper compound">
-</div>
+</section>
+<hr class="docutils" />
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
+<p>See the <a class="reference internal" href="usage.html"><span class="doc">Usage</span></a> section for installation and examples.</p>
+<p>For a five-minute tutorial, check out <span class="xref std std-doc">Quick Start</span>.</p>
+</section>
 </section>
 
         </article>
@@ -257,15 +279,7 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="api/index.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">API Reference</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
+          
           
         </div>
         <div class="bottom-of-page">
@@ -285,13 +299,33 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">patternia</a><ul>
+<li><a class="reference internal" href="#why-patternia">Why patternia?</a></li>
+<li><a class="reference internal" href="#getting-started">Getting Started</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=ff822928"></script>
+</div><script src="_static/documentation_options.js?v=9dc614e0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
