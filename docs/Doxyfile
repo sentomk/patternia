@@ -1,10 +1,14 @@
-PROJECT_NAME           = Patternia
-OUTPUT_DIRECTORY       = .
-GENERATE_HTML          = NO
-GENERATE_XML           = YES
-XML_OUTPUT             = xml
-INPUT                  = ../include
-FILE_PATTERNS          = *.hpp
-RECURSIVE              = YES
-EXTRACT_ALL            = YES
-QUIET                  = YES
+INPUT = ../include
+RECURSIVE = YES
+
+GENERATE_XML = YES
+XML_OUTPUT = xml
+
+GENERATE_HTML = YES
+OUTPUT_DIRECTORY = build/doxygen
+
+EXTRACT_ALL = YES
+QUIET = YES
+FILE_PATTERNS = *.hpp
+
+GENERATE_LATEX = NO
