@@ -1,10 +1,24 @@
-Patternia Documentation
-========================
+patternia Documentation
+=======================
 
-A modern header-only pattern matching DSL for C++17+.
+Welcome to **patternia**, a modern C++ pattern matching DSL.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: User Guide
 
-   api/core_dsl
+   getting_started
+   design
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference
+
+   api/index
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Development
+
+  ..  dev/contributing
+  ..  dev/changelog
