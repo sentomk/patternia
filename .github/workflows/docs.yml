@@ -32,6 +32,7 @@ jobs:
       - name: Build documentation (Doxygen + Sphinx)
         run: |
           cd docs
+          mkdir -p build/doxygen
           doxygen Doxyfile
           sphinx-build -b html source build/html
 
