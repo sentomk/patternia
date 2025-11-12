@@ -3,13 +3,13 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Quickstart" href="guide/quickstart.html">
         <link rel="prefetch" href="_static/logo-light.png" as="image">
         <link rel="prefetch" href="_static/logo-dark.png" as="image">
 
     <link rel="shortcut icon" href="_static/favicon.ico"><!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
         <title>patternia</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=580074bf" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=dbec6e1d" />
@@ -19,20 +19,26 @@
 
 <style>
   body {
-    --color-code-background: #f2f2f2;
-  --color-code-foreground: #1e1e1e;
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  --color-brand-primary: #2d74da;
+  --color-brand-content: #007acc;
   
   }
   @media not print {
     body[data-theme="dark"] {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #8ab4f8;
+  --color-brand-content: #80bfff;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #8ab4f8;
+  --color-brand-content: #80bfff;
   
       }
     }
@@ -196,7 +202,12 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="guide/quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">Patternia API Reference</a></li>
+</ul>
+
 </div>
 </div>
 
@@ -235,16 +246,15 @@
         <article role="main" id="furo-main-content">
           <section id="patternia">
 <h1>patternia<a class="headerlink" href="#patternia" title="Link to this heading">¶</a></h1>
-<hr class="docutils" />
 <p>patternia is a <strong>header-only pattern matching DSL</strong> for modern C++.</p>
-<p>It provides a <strong>declarative</strong> and <strong>composable</strong> way to express conditional logic —<br />
+<p>It provides a <strong>declarative</strong> and <strong>composable</strong> way to express conditional logic —
 bringing clarity and structure to branching code without macros or runtime cost.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">   </span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
 
-<span class="w">   </span><span class="k">auto</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
-<span class="w">       </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ci_value</span><span class="p">(</span><span class="s">&quot;start&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;starting&quot;</span><span class="p">)</span>
-<span class="w">       </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ci_value</span><span class="p">(</span><span class="s">&quot;stop&quot;</span><span class="p">)</span><span class="w">  </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;stopping&quot;</span><span class="p">)</span>
-<span class="w">       </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;unknown&quot;</span><span class="p">);</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ci_value</span><span class="p">(</span><span class="s">&quot;start&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;starting&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ci_value</span><span class="p">(</span><span class="s">&quot;stop&quot;</span><span class="p">)</span><span class="w">  </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;stopping&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;unknown&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 <hr class="docutils" />
@@ -257,20 +267,31 @@ bringing clarity and structure to branching code without macros or runtime cost.
 <li><p>Fully <strong>header-only</strong>, works with GCC, Clang, and MSVC</p></li>
 </ul>
 <hr class="docutils" />
-<p><strong>Example: numeric range matching</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">   </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
-<span class="w">   </span><span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">       </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;negative&quot;</span><span class="p">)</span>
-<span class="w">       </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">between</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;in range&quot;</span><span class="p">)</span>
-<span class="w">       </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;out of range&quot;</span><span class="p">);</span>
+<section id="example-numeric-range-matching">
+<h3>Example: numeric range matching<a class="headerlink" href="#example-numeric-range-matching" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;negative&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">between</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;in range&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;out of range&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
+</section>
 </section>
 <hr class="docutils" />
 <section id="getting-started">
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
 <p>See the <a class="reference internal" href="usage.html"><span class="doc">Usage</span></a> section for installation and examples.</p>
-<p>For a five-minute tutorial, check out <span class="xref std std-doc">Quick Start</span>.</p>
+<p>For a five-minute tutorial, check out <a class="reference internal" href="guide/quickstart.html"><span class="doc">Quick Start</span></a>.</p>
+<hr class="docutils" />
+<div class="toctree-wrapper compound">
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This documentation is generated using <strong>Doxygen + Breathe + Sphinx (Furo)</strong>.
+Source code is available at: https://github.com/sentomk/patternia</p>
+<p>© 2025 sentomk — MIT License.</p>
+</div>
 </section>
 </section>
 
@@ -279,7 +300,15 @@ bringing clarity and structure to branching code without macros or runtime cost.
       <footer>
         
         <div class="related-pages">
-          
+          <a class="next-page" href="guide/quickstart.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Quickstart</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
           
         </div>
         <div class="bottom-of-page">
@@ -312,7 +341,10 @@ bringing clarity and structure to branching code without macros or runtime cost.
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">patternia</a><ul>
-<li><a class="reference internal" href="#why-patternia">Why patternia?</a></li>
+<li><a class="reference internal" href="#why-patternia">Why patternia?</a><ul>
+<li><a class="reference internal" href="#example-numeric-range-matching">Example: numeric range matching</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#getting-started">Getting Started</a></li>
 </ul>
 </li>
