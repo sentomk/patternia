@@ -2,7 +2,7 @@ name: patternia CI
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main, dev-main]
     paths-ignore:
       - "README.md"
       - "CONTRIBUTING.md"
@@ -10,7 +10,7 @@ on:
       - "LICENSE"
       - ".github/ISSUE_TEMPLATE/**"
   pull_request:
-    branches: [main, dev]
+    branches: [main, dev-main]
     paths-ignore:
       - "README.md"
       - "CONTRIBUTING.md"
