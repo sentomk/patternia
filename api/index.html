@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="prev" title="Usage" href="../usage.html">
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="prev" title="Quickstart" href="../guide/quickstart.html">
         <link rel="prefetch" href="../_static/logo-light.png" as="image">
         <link rel="prefetch" href="../_static/logo-dark.png" as="image">
 
@@ -203,8 +203,8 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../guide/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/quickstart.html">Quickstart</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Patternia API Reference</a></li>
 </ul>
 
@@ -246,16 +246,119 @@
         <article role="main" id="furo-main-content">
           <section id="patternia-api-reference">
 <h1>Patternia API Reference<a class="headerlink" href="#patternia-api-reference" title="Link to this heading">¶</a></h1>
-<p>patternia provides a <strong>header-only DSL</strong> for expressive pattern matching in modern C++.</p>
+<p>Patternia is a modern <strong>header-only pattern matching DSL</strong> for expressive and declarative logic in C++17 and above.</p>
+<p>This API Reference is generated using <strong>Doxygen + Breathe + MyST</strong>, and reflects
+the full public surface of the Patternia library.</p>
 <hr class="docutils" />
-<section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
-<p>This document describes the public API defined in<br />
-<a class="reference external" href="https://github.com/sentomk/patternia/blob/main/include/ptn/patternia.hpp"><code class="docutils literal notranslate"><span class="pre">include/ptn/patternia.hpp</span></code></a>.</p>
+<section id="core-layer-core">
+<h2>Core Layer (<code class="docutils literal notranslate"><span class="pre">core</span></code>)<a class="headerlink" href="#core-layer-core" title="Link to this heading">¶</a></h2>
+<p>The <strong>Core Layer</strong> defines the matching engine (<code class="docutils literal notranslate"><span class="pre">match_builder</span></code>),
+the DSL bridge (<code class="docutils literal notranslate"><span class="pre">case_expr</span></code>), and the entry-point function <code class="docutils literal notranslate"><span class="pre">match()</span></code>.</p>
+<dl>
+<dt class="sig sig-object cpp">
+<span class="target" id="group__core"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Core</span> <span class="pre">Layer</span></span></dt>
+<dd><dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4I0DpEN3ptn4core13match_builderE">
+<span id="_CPPv3I0DpEN3ptn4core13match_builderE"></span><span id="_CPPv2I0DpEN3ptn4core13match_builderE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TV</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="sig-name descname"><span class="n"><span class="pre">Cases</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classptn_1_1core_1_1match__builder"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">match_builder</span></span></span><a class="headerlink" href="#_CPPv4I0DpEN3ptn4core13match_builderE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0ENO3ptn4core13match_builder9otherwiseEDaRR1H">
+<span id="_CPPv3I0ENO3ptn4core13match_builder9otherwiseERR1H"></span><span id="_CPPv2I0ENO3ptn4core13match_builder9otherwiseERR1H"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">H</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classptn_1_1core_1_1match__builder_1afd952636a883d0512c7782070e9cb337"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">otherwise</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0ENO3ptn4core13match_builder9otherwiseEDaRR1H" title="ptn::core::match_builder::otherwise::H"><span class="n"><span class="pre">H</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">fallback</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;&amp;</span></span><a class="headerlink" href="#_CPPv4I0ENO3ptn4core13match_builder9otherwiseEDaRR1H" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00ENR3ptn4core13match_builder4whenEDaRRN3dsl9case_exprI7Pattern7HandlerEE">
+<span id="_CPPv3I00ENR3ptn4core13match_builder4whenERRN3dsl9case_exprI7Pattern7HandlerEE"></span><span id="_CPPv2I00ENR3ptn4core13match_builder4whenERRN3dsl9case_exprI7Pattern7HandlerEE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Pattern</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Handler</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classptn_1_1core_1_1match__builder_1a2e525563c5fc80a9922b057df2c11ac4"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">when</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">dsl</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">case_expr</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00ENR3ptn4core13match_builder4whenEDaRRN3dsl9case_exprI7Pattern7HandlerEE" title="ptn::core::match_builder::when::Pattern"><span class="n"><span class="pre">Pattern</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00ENR3ptn4core13match_builder4whenEDaRRN3dsl9case_exprI7Pattern7HandlerEE" title="ptn::core::match_builder::when::Handler"><span class="n"><span class="pre">Handler</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">e</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><a class="headerlink" href="#_CPPv4I00ENR3ptn4core13match_builder4whenEDaRRN3dsl9case_exprI7Pattern7HandlerEE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00ENO3ptn4core13match_builder4whenEDaRRN3dsl9case_exprI7Pattern7HandlerEE">
+<span id="_CPPv3I00ENO3ptn4core13match_builder4whenERRN3dsl9case_exprI7Pattern7HandlerEE"></span><span id="_CPPv2I00ENO3ptn4core13match_builder4whenERRN3dsl9case_exprI7Pattern7HandlerEE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Pattern</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Handler</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classptn_1_1core_1_1match__builder_1a8059ada29c40d3b1e7aa6907110d8d9a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">when</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">dsl</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">case_expr</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00ENO3ptn4core13match_builder4whenEDaRRN3dsl9case_exprI7Pattern7HandlerEE" title="ptn::core::match_builder::when::Pattern"><span class="n"><span class="pre">Pattern</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I00ENO3ptn4core13match_builder4whenEDaRRN3dsl9case_exprI7Pattern7HandlerEE" title="ptn::core::match_builder::when::Handler"><span class="n"><span class="pre">Handler</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">e</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;&amp;</span></span><a class="headerlink" href="#_CPPv4I00ENO3ptn4core13match_builder4whenEDaRRN3dsl9case_exprI7Pattern7HandlerEE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I00EN3ptn4core13match_builder6createE13match_builderINSt7decay_tI4VArgEEDp5CasesERR4VArgRR5Tuple">
+<span id="_CPPv3I00EN3ptn4core13match_builder6createERR4VArgRR5Tuple"></span><span id="_CPPv2I00EN3ptn4core13match_builder6createERR4VArgRR5Tuple"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">VArg</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Tuple</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classptn_1_1core_1_1match__builder_1a7e94861b70725328c0d11449a0af46a7"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">create</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I00EN3ptn4core13match_builder6createE13match_builderINSt7decay_tI4VArgEEDp5CasesERR4VArgRR5Tuple" title="ptn::core::match_builder::create::VArg"><span class="n"><span class="pre">VArg</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">v</span></span>, <a class="reference internal" href="#_CPPv4I00EN3ptn4core13match_builder6createE13match_builderINSt7decay_tI4VArgEEDp5CasesERR4VArgRR5Tuple" title="ptn::core::match_builder::create::Tuple"><span class="n"><span class="pre">Tuple</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cs</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0DpEN3ptn4core13match_builderE" title="ptn::core::match_builder"><span class="n"><span class="pre">match_builder</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">decay_t</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I00EN3ptn4core13match_builder6createE13match_builderINSt7decay_tI4VArgEEDp5CasesERR4VArgRR5Tuple" title="ptn::core::match_builder::create::VArg"><span class="n"><span class="pre">VArg</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0DpEN3ptn4core13match_builderE" title="ptn::core::match_builder::Cases"><span class="n"><span class="pre">Cases</span></span></a><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4I00EN3ptn4core13match_builder6createE13match_builderINSt7decay_tI4VArgEEDp5CasesERR4VArgRR5Tuple" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-friends">Friends</p>
+<dl>
+<dt class="sig sig-object cpp">
+<em class="property"><span class="pre">friend</span> <span class="pre">struct</span></em> <span class="pre">ptn::dsl::case_expr</span></dt>
+</dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <hr class="docutils" />
-<section id="core-interfaces">
-<h2>Core Interfaces<a class="headerlink" href="#core-interfaces" title="Link to this heading">¶</a></h2>
+<section id="pattern-layer-patterns">
+<h2>Pattern Layer (<code class="docutils literal notranslate"><span class="pre">patterns</span></code>)<a class="headerlink" href="#pattern-layer-patterns" title="Link to this heading">¶</a></h2>
+<p>The <strong>Pattern Layer</strong> provides the built-in patterns shipped with Patternia:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">value_pattern</span></code></p></li>
+<li><p>relational patterns (<code class="docutils literal notranslate"><span class="pre">lt</span></code>, <code class="docutils literal notranslate"><span class="pre">le</span></code>, <code class="docutils literal notranslate"><span class="pre">gt</span></code>, <code class="docutils literal notranslate"><span class="pre">ge</span></code>, <code class="docutils literal notranslate"><span class="pre">eq</span></code>, <code class="docutils literal notranslate"><span class="pre">ne</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">predicate_pattern</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">and_pattern</span></code> / <code class="docutils literal notranslate"><span class="pre">or_pattern</span></code> / <code class="docutils literal notranslate"><span class="pre">not_pattern</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pattern_tag</span></code> and <code class="docutils literal notranslate"><span class="pre">pattern_base</span></code></p></li>
+</ul>
+<dl>
+<dt class="sig sig-object cpp">
+<span class="target" id="group__patterns"></span><em><span class="pre">group</span></em> <span class="sig-name descname"><span class="pre">Pattern</span> <span class="pre">Layer</span></span></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E5valueDaRR1V">
+<span id="_CPPv3I0E5valueRR1V"></span><span id="_CPPv2I0E5valueRR1V"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">V</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="group__patterns_1ga6ad3222f48560891e67f44da03619109"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">value</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E5valueDaRR1V" title="value::V"><span class="n"><span class="pre">V</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">v</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E5valueDaRR1V" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0E8ci_valueDaRR1V">
+<span id="_CPPv3I0E8ci_valueRR1V"></span><span id="_CPPv2I0E8ci_valueRR1V"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">V</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="group__patterns_1gacf0fb2f8d37e6dd62f45801577dd7c78"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ci_value</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0E8ci_valueDaRR1V" title="ci_value::V"><span class="n"><span class="pre">V</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">v</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0E8ci_valueDaRR1V" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N3ptn8patterns12iequal_asciiE">
+<span id="_CPPv3N3ptn8patterns12iequal_asciiE"></span><span id="_CPPv2N3ptn8patterns12iequal_asciiE"></span><span id="ptn::patterns::iequal_ascii"></span><span class="target" id="structptn_1_1patterns_1_1iequal__ascii"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">iequal_ascii</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv43ptn" title="ptn"><span class="n"><span class="pre">ptn</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">detail</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">pattern_tag</span></span><a class="headerlink" href="#_CPPv4N3ptn8patterns12iequal_asciiE" title="Link to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK3ptn8patterns12iequal_asciiclENSt11string_viewENSt11string_viewE">
+<span id="_CPPv3NK3ptn8patterns12iequal_asciiclENSt11string_viewENSt11string_viewE"></span><span id="_CPPv2NK3ptn8patterns12iequal_asciiclENSt11string_viewENSt11string_viewE"></span><span id="ptn::patterns::iequal_ascii::call-operator__std::string_view.std::string_viewCCE"></span><span class="target" id="structptn_1_1patterns_1_1iequal__ascii_1a81ee5099e8eebe434df168738dc3e3f1"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">()</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">a</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK3ptn8patterns12iequal_asciiclENSt11string_viewENSt11string_viewE" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I000ENK3ptn8patterns12iequal_asciiclEbRK1ARK1B">
+<span id="_CPPv3I000ENK3ptn8patterns12iequal_asciiclERK1ARK1B"></span><span id="_CPPv2I000ENK3ptn8patterns12iequal_asciiclERK1ARK1B"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">A</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">B</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">enable_if_t</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">is_convertible_v</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I000ENK3ptn8patterns12iequal_asciiclEbRK1ARK1B" title="ptn::patterns::iequal_ascii::operator()::A"><span class="n"><span class="pre">A</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="o"><span class="pre">&amp;&amp;</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">is_convertible_v</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I000ENK3ptn8patterns12iequal_asciiclEbRK1ARK1B" title="ptn::patterns::iequal_ascii::operator()::B"><span class="n"><span class="pre">B</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structptn_1_1patterns_1_1iequal__ascii_1a23d2b08553cdecf2afa977d4ed8a59db"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">()</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I000ENK3ptn8patterns12iequal_asciiclEbRK1ARK1B" title="ptn::patterns::iequal_ascii::operator()::A"><span class="n"><span class="pre">A</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">a</span></span>, <a class="reference internal" href="#_CPPv4I000ENK3ptn8patterns12iequal_asciiclEbRK1ARK1B" title="ptn::patterns::iequal_ascii::operator()::B"><span class="n"><span class="pre">B</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4I000ENK3ptn8patterns12iequal_asciiclEbRK1ARK1B" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N3ptn8patterns12iequal_ascii13tolower_asciiEc">
+<span id="_CPPv3N3ptn8patterns12iequal_ascii13tolower_asciiEc"></span><span id="_CPPv2N3ptn8patterns12iequal_ascii13tolower_asciiEc"></span><span id="ptn::patterns::iequal_ascii::tolower_ascii__cCE"></span><span class="target" id="structptn_1_1patterns_1_1iequal__ascii_1af607fc74a6cc63bdf784ee5d3f4c2f31"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tolower_ascii</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">c</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N3ptn8patterns12iequal_ascii13tolower_asciiEc" title="Link to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="main-public-header">
+<h2>Main Public Header<a class="headerlink" href="#main-public-header" title="Link to this heading">¶</a></h2>
+<p>Most users will interact with Patternia via the single entry header:</p>
 <dl class="cpp type">
 <dt class="sig sig-object cpp" id="_CPPv43ptn">
 <span id="_CPPv33ptn"></span><span id="_CPPv23ptn"></span><span id="ptn"></span><span class="target" id="namespaceptn"></span><span class="k"><span class="pre">namespace</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ptn</span></span></span><a class="headerlink" href="#_CPPv43ptn" title="Link to this definition">¶</a><br /></dt>
@@ -269,6 +372,21 @@
 </div>
 </dd></dl>
 
+<blockquote>
+<div><p>This aggregates the entire DSL, pattern modules, and core engine into a single interface.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="navigation">
+<h2>Navigation<a class="headerlink" href="#navigation" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>User Guide</strong> — How to write patterns and match expressions</p></li>
+<li><p><strong>Design Notes</strong> — Architecture of Core/Pattern/Type layers</p></li>
+<li><p><strong>Release Notes</strong> — Version history and migration notes</p></li>
+</ul>
+<hr class="docutils" />
+<p>Patternia aims to be expressive, extensible, and pleasant to use —
+<strong>logic should feel beautiful</strong>.</p>
 </section>
 </section>
 
@@ -278,14 +396,14 @@
         
         <div class="related-pages">
           
-          <a class="prev-page" href="../usage.html">
+          <a class="prev-page" href="../guide/quickstart.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Usage</div>
+                <div class="title">Quickstart</div>
                 
               </div>
             </a>
@@ -320,14 +438,35 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Patternia API Reference</a><ul>
-<li><a class="reference internal" href="#overview">Overview</a></li>
-<li><a class="reference internal" href="#core-interfaces">Core Interfaces</a><ul>
+<li><a class="reference internal" href="#core-layer-core">Core Layer (<code class="docutils literal notranslate"><span class="pre">core</span></code>)</a><ul>
+<li><a class="reference internal" href="#_CPPv4I0DpEN3ptn4core13match_builderE"><code class="docutils literal notranslate"><span class="pre">ptn::core::match_builder</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4I0ENO3ptn4core13match_builder9otherwiseEDaRR1H"><code class="docutils literal notranslate"><span class="pre">otherwise()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I00ENR3ptn4core13match_builder4whenEDaRRN3dsl9case_exprI7Pattern7HandlerEE"><code class="docutils literal notranslate"><span class="pre">when()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I00ENO3ptn4core13match_builder4whenEDaRRN3dsl9case_exprI7Pattern7HandlerEE"><code class="docutils literal notranslate"><span class="pre">when()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I00EN3ptn4core13match_builder6createE13match_builderINSt7decay_tI4VArgEEDp5CasesERR4VArgRR5Tuple"><code class="docutils literal notranslate"><span class="pre">create()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pattern-layer-patterns">Pattern Layer (<code class="docutils literal notranslate"><span class="pre">patterns</span></code>)</a><ul>
+<li><a class="reference internal" href="#_CPPv4I0E5valueDaRR1V"><code class="docutils literal notranslate"><span class="pre">value()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I0E8ci_valueDaRR1V"><code class="docutils literal notranslate"><span class="pre">ci_value()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N3ptn8patterns12iequal_asciiE"><code class="docutils literal notranslate"><span class="pre">ptn::patterns::iequal_ascii</span></code></a><ul>
+<li><a class="reference internal" href="#_CPPv4NK3ptn8patterns12iequal_asciiclENSt11string_viewENSt11string_viewE"><code class="docutils literal notranslate"><span class="pre">operator()()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4I000ENK3ptn8patterns12iequal_asciiclEbRK1ARK1B"><code class="docutils literal notranslate"><span class="pre">operator()()</span></code></a></li>
+<li><a class="reference internal" href="#_CPPv4N3ptn8patterns12iequal_ascii13tolower_asciiEc"><code class="docutils literal notranslate"><span class="pre">tolower_ascii()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#main-public-header">Main Public Header</a><ul>
 <li><a class="reference internal" href="#_CPPv43ptn"><code class="docutils literal notranslate"><span class="pre">ptn</span></code></a><ul>
 <li><a class="reference internal" href="#_CPPv4I0EN3ptn5matchEDaRR1T"><code class="docutils literal notranslate"><span class="pre">match()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#navigation">Navigation</a></li>
 </ul>
 </li>
 </ul>
