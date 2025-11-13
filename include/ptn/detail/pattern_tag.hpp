@@ -7,7 +7,7 @@
  * @file pattern_tag.hpp
  * @brief Marker base type and detection utilities for Patternia patterns.
  *
- * This header defines the @ref ptn::patterns::pattern_tag base struct and the
+ * This header defines the @ref ptn::detail::pattern_tag base struct and the
  * compile-time facilities for identifying "pattern-like" types.
  *
  * A type is considered *pattern-like* if:

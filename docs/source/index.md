@@ -49,14 +49,7 @@ For a five-minute tutorial, check out {doc}`Quick Start <guide/quickstart>`.
 :maxdepth: 2
 :hidden:
 
-guide/quickstart
 usage
+guide/quickstart
 api/index
-```
-
-```{note}
-This documentation is generated using **Doxygen + Breathe + Sphinx (Furo)**.
-Source code is available at: https://github.com/sentomk/patternia
-
-© 2025 sentomk — MIT License.
 ```

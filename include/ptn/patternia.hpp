@@ -7,6 +7,27 @@
 #include "ptn/config.hpp"
 
 /**
+ * @file patternia.hpp
+ * @brief Public entry header for Patternia — the modern C++ pattern matching
+ * DSL.
+ */
+
+/** @defgroup core Core Layer
+ *  Core matching engine: match_builder, DSL, and evaluation logic.
+ */
+
+/** @defgroup patterns Pattern Layer
+ *  Built-in pattern implementations such as value_pattern,
+ *  relational patterns (lt/le/gt/ge), and predicate patterns.
+ */
+
+#include <tuple>
+#include <type_traits>
+#include <utility>
+#include "ptn/core/match_builder.hpp" // core API
+#include "ptn/config.hpp"
+
+/**
  * @defgroup main Main API
  * @brief Core public interface of Patternia.
  *
