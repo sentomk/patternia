@@ -1,5 +1,11 @@
 #pragma once
 
+#include <tuple>
+#include <type_traits>
+#include <utility>
+#include "ptn/core/match_builder.hpp" // core API
+#include "ptn/config.hpp"
+
 /**
  * @file patternia.hpp
  * @brief Public entry header for Patternia — the modern C++ pattern matching
