@@ -1,11 +1,17 @@
 #pragma once
 
+#include <tuple>
+#include <type_traits>
+#include <utility>
+#include "ptn/core/match_builder.hpp" // core API
+#include "ptn/config.hpp"
+
 /**
  * @defgroup main Main API
  * @brief Core public interface of Patternia.
  *
  * @file patternia.hpp
- * @brief Public entry header for `patternia`
+ * @brief Public entry header for Patternia
  * @details
  * This header serves as the unified interface for end users.
  * It includes the core DSL (`match_builder`) and all enabled pattern modules.
@@ -25,12 +31,6 @@
  * @copyright Copyright (c) 2025
  *
  */
-
-#include <tuple>
-#include <type_traits>
-#include <utility>
-#include "ptn/core/match_builder.hpp" // core API
-#include "ptn/config.hpp"
 
 #if PTN_ENABLE_VALUE_PATTERN
 // clang-format off
@@ -52,7 +52,7 @@
 
 /**
  * @namespace ptn
- * @brief Root namespace for `patternia`.
+ * @brief Root namespace for Patternia.
  * @details
  * Contains all top-level APIs:
  * - `match()` — entry point to create a matching builder.
