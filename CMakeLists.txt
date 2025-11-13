@@ -78,12 +78,13 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/config.hpp
   include/ptn/patternia.hpp
   include/ptn/core/match_builder.hpp
-  include/ptn/dsl/case_expr.hpp
+  include/ptn/core/dsl/case_expr.hpp
   include/ptn/patterns/relational.hpp
   include/ptn/patterns/value.hpp
   include/ptn/patterns/predicate.hpp
-  include/ptn/patterns/pattern_tag.hpp
   include/ptn/patterns/type.hpp
+  include/ptn/patterns/pattern_base.hpp
+  include/ptn/detail/pattern_tag.hpp
 )
 
 # ========== Public interface target ==========
