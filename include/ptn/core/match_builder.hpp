@@ -11,47 +11,77 @@
 #include <concepts>
 #endif
 
-#include "ptn/dsl/case_expr.hpp"
-#if PTN_ENABLE_VALUE_PATTERN
-#include "ptn/patterns/value.hpp"
-#endif
+#include "ptn/core/dsl/case_expr.hpp"
+
+/**
+ * @file match_builder.hpp
+ * @brief Core matching engine that evaluates pattern-handler pairs.
+ *
+ * This header implements Patternia’s *Core Layer*.
+ * `match_builder` owns:
+ *   - a subject value
+ *   - a compile-time tuple of (Pattern, Handler) pairs
+ *
+ * The builder supports:
+ *   - `.when(Pattern >> Handler)` to append a new case
+ *   - `.otherwise(handler)` to perform final evaluation
+ *
+ * All patterns in Patternia must implement:
+ *   - `bool match(subject) const`
+ *   - `bind(subject)` (default provided by pattern_base)
+ *
+ * @ingroup core
+ */
 
 namespace ptn {
-  /* free match function forward declaration */
+
+  /**
+   * @brief Forward declaration of free-function `match()`.
+   */
   template <typename T>
   constexpr auto
   match(T &&) noexcept(std::is_nothrow_constructible_v<std::decay_t<T>, T &&>);
 } // namespace ptn
 
 namespace ptn::detail {
+
 #if PTN_USE_CONCEPTS
+
   template <typename H, typename X>
   concept Invocable1 = std::is_invocable_v<H &, X &>;
+
   template <typename H>
   concept Invocable0 = std::is_invocable_v<H &>;
 
-  // handler callable with (x)
+  /**
+   * @brief Invoke handler `h(x)` if available.
+   */
   template <typename H, typename X>
     requires Invocable1<H, X>
   constexpr decltype(auto) run_handler(H &h, X &x) {
     return std::invoke(h, x);
   }
 
-  // not callable with (x) but callable with ()
+  /**
+   * @brief Invoke handler `h()` if `(x)` overload is not available.
+   */
   template <typename H, typename X>
     requires(!Invocable1<H, X> && Invocable0<H>)
-  constexpr decltype(auto) run_handler(H &h, X & /*x*/) {
+  constexpr decltype(auto) run_handler(H &h, X &) {
     return std::invoke(h);
   }
 
-  // neither callable -> treat handler as plain value and return it
+  /**
+   * @brief Fallback: return handler as value.
+   */
   template <typename H, typename X>
     requires(!Invocable1<H, X> && !Invocable0<H>)
-  constexpr decltype(auto) run_handler(H &h, X & /*x*/) {
+  constexpr decltype(auto) run_handler(H &h, X &) {
     return (h);
   }
-#else
-  // C++17 fallback: use SFINAE overloads
+
+#else // C++17 fallback
+
   template <
       typename H,
       typename X,
@@ -66,7 +96,7 @@ namespace ptn::detail {
       typename = void,
       typename = std::enable_if_t<
           !std::is_invocable_v<H &, X &> && std::is_invocable_v<H &>>>
-  constexpr decltype(auto) run_handler(H &h, X & /*x*/) {
+  constexpr decltype(auto) run_handler(H &h, X &) {
     return std::invoke(h);
   }
 
@@ -77,28 +107,56 @@ namespace ptn::detail {
       typename = void,
       typename = std::enable_if_t<
           !std::is_invocable_v<H &, X &> && !std::is_invocable_v<H &>>>
-  constexpr decltype(auto) run_handler(H &h, X & /*x*/) {
+  constexpr decltype(auto) run_handler(H &h, X &) {
     return (h);
   }
+
 #endif
 } // namespace ptn::detail
 
 namespace ptn::core {
+
+  /**
+   * @brief Tag used to disambiguate private constructors.
+   */
   struct ctor_tag {};
 
+  /**
+   * @class match_builder
+   * @brief Core engine storing subject and case list, evaluated via
+   * `.otherwise()`.
+   *
+   * @tparam TV     Type of stored subject.
+   * @tparam Cases  Variadic pack of `(Pattern, Handler)` pairs.
+   *
+   * ### Example
+   * @code
+   * match(x)
+   *   .when(value(10) >> "ten")
+   *   .when(pred(is_even) >> "even")
+   *   .otherwise("other");
+   * @endcode
+   *
+   * This class is immutable: each `.when()` returns a new type with the added
+   * case.
+   *
+   * @ingroup core
+   */
   template <typename TV, typename... Cases>
   class match_builder {
-    TV                   value_;
-    std::tuple<Cases...> cases_;
+    TV                   value_; ///< Subject value
+    std::tuple<Cases...> cases_; ///< Stored (Pattern, Handler) pairs
     using ctor_tag_t = ptn::core::ctor_tag;
 
     template <typename P, typename H>
     friend struct ptn::dsl::case_expr;
 
-    /* make all specializations of match_builder mutual friends  */
     template <typename, typename...>
     friend class match_builder;
 
+    /**
+     * @brief Private constructor used by `create()`.
+     */
     template <typename TV2, typename Tuple>
 #if PTN_USE_CONCEPTS
       requires std::constructible_from<TV, TV2 &&> &&
@@ -108,36 +166,50 @@ namespace ptn::core {
         : value_(std::forward<TV2>(v)), cases_(std::forward<Tuple>(cs)) {
     }
 
-    // with (lvalue)
+    // Append a case (lvalue)
     template <typename Pattern, typename Handler>
     constexpr auto with(Pattern p, Handler h) & {
       using pair_t   = std::pair<Pattern, Handler>;
       auto new_cases = std::tuple_cat(
           cases_, std::make_tuple(pair_t{std::move(p), std::move(h)}));
-      // use brace-init to construct the returned match_builder
+
       return match_builder<TV, Cases..., pair_t>(
           value_, std::move(new_cases), ctor_tag_t{});
     }
 
-    // with (rvalue)
+    // Append a case (rvalue)
     template <typename Pattern, typename Handler>
     constexpr auto with(Pattern p, Handler h) && {
       using pair_t   = std::pair<Pattern, Handler>;
       auto new_cases = std::tuple_cat(
           std::move(cases_),
           std::make_tuple(pair_t{std::move(p), std::move(h)}));
+
       return match_builder<TV, Cases..., pair_t>(
           std::move(value_), std::move(new_cases), ctor_tag_t{});
     }
 
-    // try_cases
+    // Recursive case matching
+    /**
+     * @brief Try each case in order.
+     *
+     * Stops when:
+     *  - a pattern matches (via `pattern.match(value_)`), or
+     *  - all cases exhausted.
+     *
+     * @tparam I     Current tuple index.
+     * @tparam OutT  Output type inferred from handlers.
+     */
     template <std::size_t I = 0, typename OutT>
     constexpr void try_cases(OutT &out, bool &done) {
       if constexpr (I < sizeof...(Cases)) {
         auto &c            = std::get<I>(cases_);
         auto &[p, handler] = c;
 
-        if (!done && p(value_)) {
+        // *** IMPORTANT ***
+        // Unified Pattern Layer API:
+        // Pattern must implement match(value)
+        if (!done && p.match(value_)) {
           out  = static_cast<OutT>(ptn::detail::run_handler(handler, value_));
           done = true;
         }
@@ -148,7 +220,7 @@ namespace ptn::core {
     }
 
   public:
-    // Correctly place template & requires for create
+    // Builder creation (called from ptn::match())
     template <typename VArg, typename Tuple>
 #if PTN_USE_CONCEPTS
       requires std::constructible_from<std::tuple<Cases...>, Tuple>
@@ -160,60 +232,37 @@ namespace ptn::core {
           std::forward<VArg>(v), std::forward<Tuple>(cs), ctor_tag{});
     }
 
-    // otherwise
+    // otherwise()
+    /**
+     * @brief Finalize matching.
+     *
+     * Computes a common return type from all handlers in all cases,
+     * applies the first matching handler, or the fallback if none match.
+     */
     template <typename H>
-    constexpr auto otherwise(H &&h) && {
+    constexpr auto otherwise(H &&fallback) && {
       using R = std::common_type_t<
           decltype(ptn::detail::run_handler(
               std::declval<typename Cases::second_type &>(),
               std::declval<TV &>()))...,
           decltype(ptn::detail::run_handler(
               std::declval<std::decay_t<H> &>(), std::declval<TV &>()))>;
+
       R    out{};
       bool done = false;
 
       try_cases(out, done);
 
       if (!done)
-        out = static_cast<R>(ptn::detail::run_handler(h, value_));
+        out = static_cast<R>(ptn::detail::run_handler(fallback, value_));
 
       return out;
     }
 
-#if PTN_ENABLE_VALUE_PATTERN
-    // with_value
-    template <class V, class H>
-    constexpr auto with_value(V &&v, H &&h) & {
-      using ptn::patterns::value;
-      return with(value(std::forward<V>(v)), std::forward<H>(h));
-    }
-
-    template <class V, class H>
-    constexpr auto with_value(V &&v, H &&h) && {
-      using ptn::patterns::value;
-      return std::move(*this).with(
-          value(std::forward<V>(v)), std::forward<H>(h));
-    }
-
-    // with_value_cmp
-    template <class V, class Cmp, class H>
-    constexpr auto with_value_cmp(V &&v, Cmp &&cmp, H &&h) & {
-      using store_t = ptn::patterns::value_store_t<V>;
-      auto p        = ptn::patterns::value_pattern<store_t, std::decay_t<Cmp>>{
-          store_t(std::forward<V>(v)), std::forward<Cmp>(cmp)};
-      return with(std::move(p), std::forward<H>(h));
-    }
-
-    template <class V, class Cmp, class H>
-    constexpr auto with_value_cmp(V &&v, Cmp &&cmp, H &&h) && {
-      using store_t = ptn::patterns::value_store_t<V>;
-      auto p        = ptn::patterns::value_pattern<store_t, std::decay_t<Cmp>>{
-          store_t(std::forward<V>(v)), std::forward<Cmp>(cmp)};
-      return std::move(*this).with(std::move(p), std::forward<H>(h));
-    }
-#endif
-
-    // when
+    // when()
+    /**
+     * @brief Add a pattern-handler case from a `case_expr`.
+     */
     template <typename Pattern, typename Handler>
     constexpr auto when(dsl::case_expr<Pattern, Handler> &&e) & {
       return this->with(std::move(e.pattern), std::move(e.handler));
@@ -224,4 +273,5 @@ namespace ptn::core {
       return std::move(*this).with(std::move(e.pattern), std::move(e.handler));
     }
   };
+
 } // namespace ptn::core
