@@ -111,7 +111,7 @@ TEST(RelationalPattern, MixWithValuePattern) {
   int  x   = 10;
   auto out = match(x)
                  .when(lt(10) >> [](int) { return std::string{"lt10"}; })
-                 .when(value(10) >> [](int) { return std::string{"eq10"}; })
+                 .when(lit(10) >> [](int) { return std::string{"eq10"}; })
                  .when(ge(11) >> [](int) { return std::string{">=11"}; })
                  .otherwise([](int) { return std::string{"other"}; });
   EXPECT_EQ(out, "eq10");

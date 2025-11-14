@@ -15,6 +15,10 @@
   #define PTN_ENABLE_PREDICATE_PATTERN 1
 #endif
 
+#ifndef PTN_ENABLE_TYPE
+  #define PTN_ENABLE_TYPE 1
+#endif
+
 #if defined(__cpp_concepts) && __cpp_concepts >= 201907L
   #define PTN_USE_CONCEPTS 1
 #else

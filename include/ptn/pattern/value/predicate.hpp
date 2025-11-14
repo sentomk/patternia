@@ -3,7 +3,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "ptn/patterns/pattern_base.hpp"
+#include "ptn/pattern/pattern_base.hpp"
 #include "ptn/config.hpp"
 
 /**
@@ -18,10 +18,10 @@
  * All predicate-style patterns are *Filter Patterns*: they override `match()`
  * but leave `bind()` to the default identity implementation in pattern_base.
  *
- * @ingroup patterns
+ * Part of the Pattern Layer (namespace ptn::pattern::value)
  */
 
-namespace ptn::patterns {
+namespace ptn::pattern::value {
 
   // predicate_pattern: wraps any callable returning bool
 
@@ -29,16 +29,10 @@ namespace ptn::patterns {
    * @brief A pattern wrapping any callable returning something convertible to
    * bool.
    *
-   * Example:
-   * @code {.cpp}
-   * match(x)
-   *   .when(pred([](int v){ return v % 2 == 0; }) >> "even");
-   * @endcode
-   *
    * @tparam F A callable type that must support the expression `fn(x)`.
    */
   template <typename F>
-  struct predicate_pattern : pattern_base<predicate_pattern<F>> {
+  struct predicate_pattern : pattern::pattern_base<predicate_pattern<F>> {
 
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] F fn;
@@ -80,7 +74,7 @@ namespace ptn::patterns {
    * `match(x)` succeeds if both `l.match(x)` and `r.match(x)` succeed.
    */
   template <typename L, typename R>
-  struct and_pattern : pattern_base<and_pattern<L, R>> {
+  struct and_pattern : pattern::pattern_base<and_pattern<L, R>> {
 
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] L l;
@@ -112,7 +106,7 @@ namespace ptn::patterns {
    * `match(x)` succeeds iff either `l.match(x)` or `r.match(x)` succeeds.
    */
   template <typename L, typename R>
-  struct or_pattern : pattern_base<or_pattern<L, R>> {
+  struct or_pattern : pattern::pattern_base<or_pattern<L, R>> {
 
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] L l;
@@ -138,7 +132,7 @@ namespace ptn::patterns {
 
   // not
   template <typename P>
-  struct not_pattern : pattern_base<not_pattern<P>> {
+  struct not_pattern : pattern::pattern_base<not_pattern<P>> {
 
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] P p;
@@ -159,72 +153,4 @@ namespace ptn::patterns {
     }
   };
 
-  // DSL operators
-
-  namespace ops {
-
-#if defined(PTN_USE_CONCEPTS) && PTN_USE_CONCEPTS
-
-    /**
-     * @brief Pattern logical AND operator.
-     */
-    template <pattern_like L, pattern_like R>
-    constexpr auto operator&&(L &&l, R &&r) {
-      return and_pattern<std::decay_t<L>, std::decay_t<R>>(
-          std::forward<L>(l), std::forward<R>(r));
-    }
-
-    /**
-     * @brief Pattern logical OR operator.
-     */
-    template <pattern_like L, pattern_like R>
-    constexpr auto operator||(L &&l, R &&r) {
-      return or_pattern<std::decay_t<L>, std::decay_t<R>>(
-          std::forward<L>(l), std::forward<R>(r));
-    }
-
-    /**
-     * @brief Pattern logical NOT operator.
-     */
-    template <pattern_like P>
-    constexpr auto operator!(P &&p) {
-      return not_pattern<std::decay_t<P>>(std::forward<P>(p));
-    }
-
-#else // C++17 fallback
-
-    template <
-        typename L,
-        typename R,
-        typename = std::enable_if_t<
-            ptn::detail::is_pattern_like<std::decay_t<L>>::value &&
-            ptn::detail::is_pattern_like<std::decay_t<R>>::value>>
-    constexpr auto operator&&(L &&l, R &&r) {
-      return and_pattern<std::decay_t<L>, std::decay_t<R>>(
-          std::forward<L>(l), std::forward<R>(r));
-    }
-
-    template <
-        typename L,
-        typename R,
-        typename = std::enable_if_t<
-            ptn::detail::is_pattern_like<std::decay_t<L>>::value &&
-            ptn::detail::is_pattern_like<std::decay_t<R>>::value>>
-    constexpr auto operator||(L &&l, R &&r) {
-      return or_pattern<std::decay_t<L>, std::decay_t<R>>(
-          std::forward<L>(l), std::forward<R>(r));
-    }
-
-    template <
-        typename P,
-        typename = std::enable_if_t<
-            ptn::detail::is_pattern_like<std::decay_t<P>>::value>>
-    constexpr auto operator!(P &&p) {
-      return not_pattern<std::decay_t<P>>(std::forward<P>(p));
-    }
-
-#endif
-
-  } // namespace ops
-
-} // namespace ptn::patterns
+} // namespace ptn::pattern::value

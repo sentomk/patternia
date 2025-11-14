@@ -79,12 +79,19 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/patternia.hpp
   include/ptn/core/match_builder.hpp
   include/ptn/core/dsl/case_expr.hpp
-  include/ptn/patterns/relational.hpp
-  include/ptn/patterns/value.hpp
-  include/ptn/patterns/predicate.hpp
-  include/ptn/patterns/type.hpp
-  include/ptn/patterns/pattern_base.hpp
-  include/ptn/detail/pattern_tag.hpp
+
+  # Value Pattern Layer
+  include/ptn/pattern/value/relational.hpp
+  include/ptn/pattern/value/literal.hpp
+  include/ptn/pattern/value/predicate.hpp
+
+  # Core Pattern
+  include/ptn/pattern/pattern_base.hpp
+  include/ptn/pattern/pattern_traits.hpp
+
+  # Type Layer
+  include/ptn/pattern/type/type_of.hpp
+  include/ptn/pattern/type/type.hpp
 )
 
 # ========== Public interface target ==========
@@ -158,7 +165,7 @@ if(PTN_BUILD_TESTS)
 
   enable_testing()
   add_executable(ptn_tests
-    tests/tests_value_pattern.cpp
+    tests/tests_literal_pattern.cpp
     tests/tests_relational_pattern.cpp
     tests/tests_predicate_pattern.cpp
   )
