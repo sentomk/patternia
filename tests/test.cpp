@@ -1,11 +1,9 @@
 #include "ptn/patternia.hpp"
+#include <vector>
 
 using namespace ptn;
 
 int main() {
-  int  x   = 42;
-  auto res = match(type_of(x))
-                 .when(type_is<int> >> "int")
-                 .when(type_is<char> >> "char")
-                 .otherwise("unkown");
+  std::vector<int> v;
+  auto out = match(v).when(type::from<std::vector> >> "vector").otherwise("no");
 }

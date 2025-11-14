@@ -89,9 +89,12 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/pattern/pattern_base.hpp
   include/ptn/pattern/pattern_traits.hpp
 
-  # Type Layer
+  # Type Pattern Layer
   include/ptn/pattern/type/type_of.hpp
   include/ptn/pattern/type/type.hpp
+
+  # Type Meta Layer
+  include/ptn/type/meta.hpp
 )
 
 # ========== Public interface target ==========
