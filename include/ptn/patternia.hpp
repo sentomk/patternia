@@ -76,7 +76,6 @@ namespace ptn {
 #if PTN_ENABLE_TYPE
 #include "ptn/pattern/type/type.hpp"
   namespace type = ptn::pattern::type;
-  using pattern::type::type_is;
   using pattern::type::type_of;
   using pattern::type::type_tag;
 #endif

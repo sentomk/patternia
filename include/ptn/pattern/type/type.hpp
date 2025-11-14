@@ -124,7 +124,4 @@ namespace ptn::pattern::type {
   template <typename T>
   using type_tag = is_pattern<T>;
 
-  template <typename T>
-  inline constexpr auto type_is = is<T>;
-
 } // namespace ptn::pattern::type

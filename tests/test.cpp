@@ -1,4 +1,5 @@
 #include "ptn/patternia.hpp"
+#include "ptn/type/type_tag.hpp"
 #include <vector>
 
 using namespace ptn;
