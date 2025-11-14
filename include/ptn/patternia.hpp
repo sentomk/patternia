@@ -1,108 +1,82 @@
 #pragma once
-
-#include <tuple>
-#include <type_traits>
-#include <utility>
-#include "ptn/core/match_builder.hpp" // core API
-#include "ptn/config.hpp"
-
 /**
  * @file patternia.hpp
  * @brief Public entry header for Patternia — the modern C++ pattern matching
  * DSL.
- */
-
-/** @defgroup core Core Layer
- *  Core matching engine: match_builder, DSL, and evaluation logic.
- */
-
-/** @defgroup patterns Pattern Layer
- *  Built-in pattern implementations such as value_pattern,
- *  relational patterns (lt/le/gt/ge), and predicate patterns.
+ *
+ * Provides a unified interface for end users. It pulls in:
+ *   - Core Layer (`match_builder`)
+ *   - Pattern Layer (value, relational, predicate)
+ *   - Type Layer (optional)
+ *   - DSL operators: >>, &&, ||, !
+ *
  */
 
 #include <tuple>
 #include <type_traits>
 #include <utility>
-#include "ptn/core/match_builder.hpp" // core API
+
 #include "ptn/config.hpp"
+#include "ptn/core/match_builder.hpp"
+#include "ptn/core/dsl/case_expr.hpp"
+#include "ptn/core/dsl/operators.hpp"
 
-/**
- * @defgroup main Main API
- * @brief Core public interface of Patternia.
- *
- * @file patternia.hpp
- * @brief Public entry header for Patternia
- * @details
- * This header serves as the unified interface for end users.
- * It includes the core DSL (`match_builder`) and all enabled pattern modules.
- * ### Example
- * @code {.cpp}
- * using namespace ptn;
- * auto res = match(cmd)
- *     .when(ci_value("start") >> "starting...")
- *     .when(ci_value("stop")  >> "stopping...")
- *     .otherwise("unkown");
- * @endcode
- *
- * @ingroup main
- * @version 0.4.2
- * @date 2025-11-11
- * @author sentomk (sentomk040924@gmail.com)
- * @copyright Copyright (c) 2025
- *
- */
-
+// -------- Pattern Layer --------
 #if PTN_ENABLE_VALUE_PATTERN
-// clang-format off
-#  include <ptn/patterns/value.hpp>
-// clang-format on
+#include "ptn/pattern/value/literal.hpp"
 #endif
 
 #if PTN_ENABLE_RELATIONAL_PATTERN
-// clang-format off
-#include <ptn/patterns/relational.hpp>
-// clang-format on
+#include "ptn/pattern/value/relational.hpp"
 #endif
 
 #if PTN_ENABLE_PREDICATE_PATTERN
-// clang-format off
-#include <ptn/patterns/predicate.hpp>
-// clang-format on
+#include "ptn/pattern/value/predicate.hpp"
+#endif
+
+// -------- Type Layer --------
+#if PTN_ENABLE_TYPE
+#include "ptn/pattern/type/type.hpp"
+#include "ptn/pattern/type/type_of.hpp"
 #endif
 
 /**
  * @namespace ptn
- * @brief Root namespace for Patternia.
- * @details
- * Contains all top-level APIs:
- * - `match()` — entry point to create a matching builder.
- * - DSL operators and combinators (`>>`, `&&`, `||`, etc.).
- * - Built-in pattern modules under `ptn::patterns`.
- * @see ptn::core::match_builder
- * @ingroup main
+ * @brief Root namespace for Patternia — all public APIs live here.
+ *
+ * Contains:
+ *   - `match()` — entry point to pattern matching
+ *   - Pattern Layer (value/relational/predicate)
+ *   - Type Layer (enabled optionally)
+ *   - DSL namespace (`ptn::dsl` and `ptn::dsl::ops`)
+ *
+ * The DSL operators are intentionally *not* injected into `ptn`
+ * to avoid namespace pollution. Users should explicitly:
+ *
  */
 namespace ptn {
 
-  /**
-   * @fn template <typename T> constexpr auto ptn::match(T &&value)
-   * @brief Creates a match builder for the given subject.
-   * @tparam T The type of the subject to match.
-   * @param value The value to match against patterns.
-   * @return A `match_builder` instance initialized with the given value.
-   */
+  /// @brief Entry function for the pattern matching DSL.
   template <typename T>
   constexpr auto match(T &&value) noexcept(
       std::is_nothrow_constructible_v<std::decay_t<T>, T &&>) {
+
     using V = std::decay_t<T>;
     return core::match_builder<V>::create(
         V(std::forward<T>(value)), std::tuple<>{});
   }
 
-  /// @brief Import all submodules for convenient user access.
-  using namespace core;          ///< Core match builder and traits.
-  using namespace dsl;           ///< DSL syntax utilities (e.g. `>>`).
-  using namespace patterns;      ///< Built-in pattern categories.
-  using namespace patterns::ops; ///< Operators (`&&`, `||`, `!` etc.).
+  // ---- Re-export public namespaces ----
+  using namespace core;           // match_builder, etc.
+  using namespace dsl;            // case_expr, DSL constructs
+  using namespace pattern::value; // literal / relational / predicate patterns
+  using namespace ptn::dsl::ops;  // all DSL operators: >> && || !
 
-}; // namespace ptn
+  // ---- Export Type Layer (ONLY selected symbols) ----
+#if PTN_ENABLE_TYPE
+  using pattern::type::type_is;
+  using pattern::type::type_of;
+  using pattern::type::type_tag;
+#endif
+
+} // namespace ptn

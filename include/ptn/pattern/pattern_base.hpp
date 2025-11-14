@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ptn/detail/pattern_tag.hpp" // marker
+#include "ptn/pattern/pattern_traits.hpp" // marker
 #include "ptn/config.hpp"
 #include <utility>
 
@@ -15,10 +15,10 @@
  *   - default forwarding for `bind(subject)`
  *   - default no-op bind for predicate-like patterns
  *
- * @ingroup patterns
+ * Part of Pattern Layer (ptn::pattern)
  */
 
-namespace ptn::patterns {
+namespace ptn::pattern {
 
   /* forward declare */
   template <typename Derived>
@@ -46,7 +46,7 @@ namespace ptn::patterns {
    * If bind() is not implemented, pattern_base returns subject unchanged.
    */
   template <typename Derived>
-  struct pattern_base : ptn::detail::pattern_tag {
+  struct pattern_base : detail::pattern_tag {
 
     /**
      * @brief default match() forwarding to Derived::match()
@@ -71,4 +71,4 @@ namespace ptn::patterns {
     }
   };
 
-} // namespace ptn::patterns
+} // namespace ptn::pattern

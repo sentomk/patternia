@@ -4,31 +4,22 @@
 #include <string_view>
 #include <type_traits>
 #include <utility>
-#include "ptn/patterns/pattern_base.hpp" // use pattern_base
+#include "ptn/pattern/pattern_base.hpp" // use pattern_base
 #include "ptn/config.hpp"
 
 /**
- * @file value.hpp
- * @brief Value-based patterns (`value()` and `ci_value()`).
+ * @file literal_pattern.hpp
+ * @brief Value-based patterns (`lit()` and `lit_ci()`).
  *
  * This module provides the canonical equality-comparison pattern for Patternia.
- * A `value_pattern<T>` stores a reference value and matches subjects via an
+ * A `literal_pattern<T>` stores a reference value and matches subjects via an
  * equality comparator (default: `std::equal_to<>`).
  *
- * Example:
- * @code {.cpp}
- * using namespace ptn::patterns;
  *
- * match(cmd)
- *     .when(value("start") >> []{ return "starting"; })
- *     .when(ci_value("STOP") >> []{ return "stopping"; })
- *     .otherwise("unknown");
- * @endcode
- *
- * @ingroup patterns
+ * Part of the Pattern Layer (namespace ptn::pattern::value)
  */
 
-namespace ptn::patterns {
+namespace ptn::pattern::value {
 
   /**
    * @brief Selects the internal storage type for value-like patterns.
@@ -40,7 +31,7 @@ namespace ptn::patterns {
    */
   template <typename V>
   /* if is c-style string/array or others */
-  using value_store_t = std::conditional_t<
+  using literal_store_t = std::conditional_t<
       std::is_array_v<std::remove_reference_t<V>> ||
           std::is_same_v<std::decay_t<V>, const char *>,
       std::string_view,
@@ -54,18 +45,13 @@ namespace ptn::patterns {
    * @tparam Cmp Comparator type (`Cmp(a, b)` → bool). Default:
    * `std::equal_to<>`.
    *
-   * The comparison is performed as:
-   * @code
-   *   cmp(subject, stored_value)
-   * @endcode
-   *
    * This pattern inherits from pattern_base, therefore supporting:
    * - `match(subject)` via CRTP forwarding
    * - `bind(subject)` defaulting to returning the subject unchanged
    */
   template <typename V, typename Cmp = std::equal_to<>>
-  struct value_pattern : pattern_base<value_pattern<V, Cmp>> {
-    using store_t = value_store_t<V>;
+  struct literal_pattern : pattern::pattern_base<literal_pattern<V, Cmp>> {
+    using store_t = literal_store_t<V>;
 
     /** @brief Stored value for matching. */
     store_t v;
@@ -79,11 +65,11 @@ namespace ptn::patterns {
 #endif
 
     /**
-     * @brief Constructs a value_pattern with a stored value and comparator.
+     * @brief Constructs a literal_pattern with a stored value and comparator.
      * @param val Value to store.
      * @param c   Comparator instance (default-constructed by default).
      */
-    constexpr value_pattern(store_t val, Cmp c = {})
+    constexpr literal_pattern(store_t val, Cmp c = {})
         : v(std::move(val)), cmp(std::move(c)) {
     }
 
@@ -109,9 +95,6 @@ namespace ptn::patterns {
      * @brief Binding result for value-patterns.
      *
      * Returns the stored value `v`, enabling value extraction:
-     * @code
-     * when(value(42) >> [](auto n){ return n + 1; })
-     * @endcode
      */
     template <typename X>
     constexpr const store_t &bind(X const &) const noexcept {
@@ -124,17 +107,11 @@ namespace ptn::patterns {
    *
    * Automatically adapts C-style strings into `std::string_view`, otherwise
    * stores values as `std::decay_t<V>`.
-   *
-   * @tparam V Input value type (deduced).
-   * @param v  Value to store.
-   * @return A `value_pattern` storing the adapted value.
-   *
-   * @ingroup patterns
    */
   template <typename V>
-  constexpr auto value(V &&v) {
-    using store_t = value_store_t<V>;
-    return value_pattern<store_t>(store_t(std::forward<V>(v)));
+  constexpr auto lit(V &&v) {
+    using store_t = literal_store_t<V>;
+    return literal_pattern<store_t>(store_t(std::forward<V>(v)));
   }
 
   /**
@@ -145,10 +122,8 @@ namespace ptn::patterns {
    *
    * Supports heterogeneous comparisons via transparent operator() overloads
    * accepting any type convertible to `std::string_view`.
-   *
-   * @ingroup patterns
    */
-  struct iequal_ascii : ptn::detail::pattern_tag {
+  struct iequal_ascii : pattern::detail::pattern_tag {
 
     /** @brief ASCII-only lowercase conversion. */
     static constexpr char tolower_ascii(char c) {
@@ -201,24 +176,17 @@ namespace ptn::patterns {
   /**
    * @brief Case-insensitive value-pattern factory.
    *
-   * Equivalent to:
-   * @code
-   * value_pattern<store_t, iequal_ascii>(store_t(v), iequal_ascii{});
-   * @endcode
-   *
    * Used for matching command strings, tokens, or user input without
    * case sensitivity.
    *
    * @tparam V Input value type (deduced).
    * @param v  Value to store.
-   * @return A `value_pattern` using `iequal_ascii` comparator.
-   *
-   * @ingroup patterns
+   * @return A `literal_pattern` using `iequal_ascii` comparator.
    */
   template <typename V>
-  constexpr auto ci_value(V &&v) {
-    using store_t = value_store_t<V>;
-    return value_pattern<store_t, iequal_ascii>(
+  constexpr auto lit_ci(V &&v) {
+    using store_t = literal_store_t<V>;
+    return literal_pattern<store_t, iequal_ascii>(
         store_t(std::forward<V>(v)), iequal_ascii{});
   }
-} // namespace ptn::patterns
+} // namespace ptn::pattern::value

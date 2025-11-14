@@ -4,7 +4,7 @@
 #include <type_traits> // std::decay_t
 #include <utility>     // std::forward
 
-#include "ptn/patterns/pattern_base.hpp"
+#include "ptn/pattern/pattern_base.hpp"
 #include "ptn/config.hpp"
 
 /**
@@ -14,24 +14,10 @@
  * All relational patterns compare a subject value against a stored value using
  * a comparator (default: `std::less<>` or `std::equal_to<>`).
  *
- * These patterns inherit from pattern_base and therefore supply:
- *   - `match(subject)` for matching
- *   - default identity `bind(subject)` unless overridden
- *
- * Example:
- * @code {.cpp}
- * using namespace ptn::patterns;
- *
- * match(x)
- *   .when(lt(10) >> "small")
- *   .when(between(10, 20) >> "medium")
- *   .when(ge(20) >> "large");
- * @endcode
- *
- * @ingroup patterns
+ * Part of Pattern Layer (namespace ptn::pattern::value)
  */
 
-namespace ptn::patterns {
+namespace ptn::pattern::value {
 
   /**
    * @brief Internal storage type for relational values.
@@ -50,7 +36,7 @@ namespace ptn::patterns {
    * @tparam Cmp comparator type (default: `std::less<>`)
    */
   template <typename V, typename Cmp = std::less<>>
-  struct lt_pattern : pattern_base<lt_pattern<V, Cmp>> {
+  struct lt_pattern : pattern::pattern_base<lt_pattern<V, Cmp>> {
     rel_store_t<V> v;
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
@@ -75,7 +61,7 @@ namespace ptn::patterns {
 
   // x <= v  <=>  !(v < x)
   template <typename V, typename Cmp = std::less<>>
-  struct le_pattern : pattern_base<le_pattern<V, Cmp>> {
+  struct le_pattern : pattern::pattern_base<le_pattern<V, Cmp>> {
     rel_store_t<V> v;
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
@@ -100,7 +86,7 @@ namespace ptn::patterns {
 
   // x > v  <=>  (v < x)
   template <typename V, typename Cmp = std::less<>>
-  struct gt_pattern : pattern_base<gt_pattern<V, Cmp>> {
+  struct gt_pattern : pattern::pattern_base<gt_pattern<V, Cmp>> {
     rel_store_t<V> v;
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
@@ -125,7 +111,7 @@ namespace ptn::patterns {
 
   // x >= v  <=>  !(x < v)
   template <typename V, typename Cmp = std::less<>>
-  struct ge_pattern : pattern_base<ge_pattern<V, Cmp>> {
+  struct ge_pattern : pattern::pattern_base<ge_pattern<V, Cmp>> {
     rel_store_t<V> v;
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
@@ -149,7 +135,7 @@ namespace ptn::patterns {
 
   // x == v
   template <typename V, typename Cmp = std::equal_to<>>
-  struct eq_pattern : pattern_base<eq_pattern<V, Cmp>> {
+  struct eq_pattern : pattern::pattern_base<eq_pattern<V, Cmp>> {
     rel_store_t<V> v;
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
@@ -174,7 +160,7 @@ namespace ptn::patterns {
 
   // x != v
   template <typename V, typename Cmp = std::not_equal_to<>>
-  struct ne_pattern : pattern_base<ne_pattern<V, Cmp>> {
+  struct ne_pattern : pattern::pattern_base<ne_pattern<V, Cmp>> {
     rel_store_t<V> v;
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
     [[no_unique_address]] Cmp cmp{};
@@ -248,7 +234,7 @@ namespace ptn::patterns {
    *   `(lo, hi)  → (lo < x) && (x < hi)`
    */
   template <typename L, typename R, typename Cmp = std::less<>>
-  struct between_pattern : pattern_base<between_pattern<L, R, Cmp>> {
+  struct between_pattern : pattern::pattern_base<between_pattern<L, R, Cmp>> {
     rel_store_t<L> lo;
     rel_store_t<R> hi;
     bool           closed{};
@@ -290,4 +276,4 @@ namespace ptn::patterns {
         rel_store_t<R>(std::forward<R>(hi)),
         closed);
   }
-} // namespace ptn::patterns
+} // namespace ptn::pattern::value
