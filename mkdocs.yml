@@ -1,0 +1,79 @@
+site_name: Patternia
+site_url: https://sentomk.github.io/patternia/
+site_author: Y.F. Guo
+site_description: "Patternia — expressive pattern matching for modern C++."
+
+repo_name: sentomk/patternia
+repo_url: https://github.com/sentomk/patternia
+
+theme:
+  name: material
+  language: en
+
+  logo: assets/favicon.svg
+  logo_dark: assets/favicon.svg
+  favicon: assets/favicon.svg
+
+  font:
+    text: Inter
+    code: "JetBrains Mono"
+
+  features:
+    # Navigation
+    - navigation.instant
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - toc.follow
+    - toc.integrate
+
+    # Search
+    - search.suggest
+    - search.highlight
+    - search.share
+
+    # Code
+    - content.code.copy
+
+extra_css:
+
+markdown_extensions:
+  # basic extensions
+  - admonition
+  - toc:
+      permalink: true
+  - tables
+  - attr_list
+
+  # code highlight
+  - codehilite:
+      guess_lang: false
+
+  # powerful markdown super-set
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed
+  - pymdownx.arithmatex
+  - pymdownx.snippets
+  - pymdownx.magiclink
+  - pymdownx.critic
+  - pymdownx.keys
+
+nav:
+  - Home: index.md
+
+  - Guide:
+      - Installation: guide/installation.md
+      - Getting Started: guide/getting-started.md
+
+  - Pattern System:
+      - Value Patterns: patterns/value.md
+      - Type Patterns: patterns/type.md
+
+  - Design Notes:
+      - Roadmap: design/roadmap.md
+
+  - Changelog:
+      - Releases: changelog/releases.md
