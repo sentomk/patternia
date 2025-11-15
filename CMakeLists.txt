@@ -79,6 +79,15 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/patternia.hpp
   include/ptn/core/match_builder.hpp
   include/ptn/core/dsl/case_expr.hpp
+  include/ptn/core/dsl/operators.hpp
+
+  # Meta Utils
+  include/ptn/meta/algorithms.hpp
+  include/ptn/meta/index.hpp
+  include/ptn/meta/meta.hpp
+  include/ptn/meta/template_info.hpp
+  include/ptn/meta/traits.hpp
+  include/ptn/meta/type_list.hpp
 
   # Value Pattern Layer
   include/ptn/pattern/value/relational.hpp
@@ -92,9 +101,6 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   # Type Pattern Layer
   include/ptn/pattern/type/type_of.hpp
   include/ptn/pattern/type/type.hpp
-
-  # Type Meta Layer
-  include/ptn/type/meta.hpp
 )
 
 # ========== Public interface target ==========
@@ -171,6 +177,7 @@ if(PTN_BUILD_TESTS)
     tests/tests_literal_pattern.cpp
     tests/tests_relational_pattern.cpp
     tests/tests_predicate_pattern.cpp
+    tests/tests_type_pattern.cpp
   )
   target_link_libraries(ptn_tests PRIVATE
     patternia
