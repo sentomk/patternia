@@ -2,8 +2,8 @@
 
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/Group%207.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/Group%206.png">
+    <source media="(prefers-color-scheme: dark)" srcset="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/banner-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/banner-dark.svg">
     <img alt="Patternia logo"
          width="420"
          style="max-width: 90%; height: auto; margin-top: 10px; transform: translateX(-2px);">
