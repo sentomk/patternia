@@ -1,103 +1,93 @@
-/* ---------------------------
-   Patternia Custom Theme
-   --------------------------- */
+/* =========================================================
+   Patternia — Dual Theme (Light + Dark)
+   Fully compatible with mkdocs-material
+   ========================================================= */
 
-.md-header,
-.md-tabs {
-  background-color: #071019 !important;
-}
+/* ---------------------------------------------------------
+   LIGHT THEME (scheme: default)
+   --------------------------------------------------------- */
+[data-md-color-scheme="default"] {
+  /* Background / Text */
+  --md-default-bg-color: #F7F9FC;
+  --md-default-fg-color: #0A0F18;
 
-:root {
-  --md-primary-fg-color: #071019;
-  --md-primary-fg-color--light: #0a1520;
-  --md-primary-fg-color--dark: #000000;
+  /* Brand blue */
+  --md-primary-fg-color: #0A1520;
 
+  /* Accent (Patternia Pink) */
   --md-accent-fg-color: #c2185b;
-  --md-accent-fg-color--light: #d83c74;
-  --md-accent-fg-color--dark: #9b1448;
+
+  /* Links */
+  --md-typeset-a-color: #333;
+
+  /* Navigation text */
+  --md-nav-link-color: #28303B;
+  --md-nav-link-color--active: #c2185b;
 }
 
-.md-button,
-.md-typeset .md-button {
-  background-color: var(--md-accent-fg-color) !important;
-  color: white !important;
+[data-md-color-scheme="default"] .md-header,
+[data-md-color-scheme="default"] .md-tabs,
+[data-md-color-scheme="default"] .md-footer {
+  background-color: #0A1520 !important;
+  color: #ffffff !important;
 }
 
-/* 强调文字、链接 hover 等 */
+/* ---------------------------------------------------------
+   DARK THEME (scheme: slate)
+   --------------------------------------------------------- */
+[data-md-color-scheme="slate"] {
+  /* Background / Text */
+  --md-default-bg-color: #0B111A;
+  --md-default-fg-color: #E6E9EF;
+
+  /* Brand dark */
+  --md-primary-fg-color: #071019;
+
+  /* Accent (hot pink) */
+  --md-accent-fg-color: #298be7;
+
+  /* Links */
+  --md-typeset-a-color: #fff;
+
+  /* Navigation text */
+  --md-nav-link-color: #C8CDD6;
+  --md-nav-link-color--active: #298be7;
+}
+
+[data-md-color-scheme="slate"] .md-header,
+[data-md-color-scheme="slate"] .md-tabs,
+[data-md-color-scheme="slate"] .md-footer {
+  background-color: #071019 !important;
+  color: #ffffff !important;
+}
+
+/* ---------------------------------------------------------
+   SHARED STYLES (both light & dark)
+   --------------------------------------------------------- */
+
+.md-nav__link {
+  color: var(--md-nav-link-color) !important;
+}
+
+.md-nav__link--active {
+  color: var(--md-nav-link-color--active) !important;
+  font-weight: 600 !important;
+}
+
 a:hover {
   color: var(--md-accent-fg-color) !important;
 }
 
-/* Increase space between page content and footer */
-.md-main__inner {
-  padding-bottom: 3.5rem !important;
-  /* 56px */
+/* Buttons */
+.md-button,
+.md-typeset .md-button {
+  background-color: var(--md-accent-fg-color) !important;
+  color: #fff !important;
 }
 
-/* Override footer background color */
-.md-footer {
-  background-color: #071019 !important;
-}
-
-.md-footer-nav {
-  background-color: #071019 !important;
-}
-
-.md-footer-meta {
-  background-color: #071019 !important;
-}
-
-/* Entire page background (global) */
+/* Page layout */
+.md-main__inner,
+.md-main,
 body {
-  background-color: #1C222A !important;
-}
-
-/* Main content container */
-.md-main {
-  background-color: #1C222A !important;
-}
-
-/* Optional: content inner area */
-.md-main__inner {
-  background-color: #1C222A !important;
-}
-/* -----------------------------------------
-   1. Sidebar Navigation (Left Panel)
-   ----------------------------------------- */
-/* Remove background band above first child in active group */
-.md-nav__item--active {
-  background: transparent !important;
-}
-
-.md-nav__item--active>.md-nav__list {
-  background: transparent !important;
-}
-
-.md-nav--primary .md-nav__item--active>.md-nav__link {
-  background-color: transparent !important;
-}
-
-.md-nav--primary .md-nav__item--active>.md-nav__link::before {
-  background-color: #c2185b !important;
-}
-
-/* Navigation link (normal) */
-.md-nav__link {
-  color: #d0d6df !important;
-}
-
-/* Active link */
-.md-nav__link--active {
-  color: #c2185b !important;
-  font-weight: 600 !important;
-}
-
-/* Section title */
-.md-nav__title {
-  color: #cdd6e0 !important;
-}
-
-/* Divider line */
-.md-nav--primary .md-nav__item--active>.md-nav__link::before {
-  background-color: #c2185b !important;
+  background-color: var(--md-default-bg-color) !important;
 }

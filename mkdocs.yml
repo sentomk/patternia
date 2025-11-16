@@ -11,12 +11,10 @@ theme:
   language: en
 
   palette:
-    - scheme: default
-      primary: custom-dark
-      accent: custom-pink
     - scheme: slate
-      primary: custom-dark
-      accent: custom-pink
+      primary: custom
+      accent: custom
+      media: "(prefers-color-scheme: dark)"
   custom_dir: docs/overrides
 
   logo: assets/favicon.svg
