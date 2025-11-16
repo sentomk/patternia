@@ -70,9 +70,9 @@ To begin using Patternia, see:
 
 ## Explore the Pattern System
 
+* [Pattern System Architecture](patterns/foreword.md)
 * [Value Patterns](patterns/value.md)
 * [Type Patterns](patterns/type.md)
-* [Variant Patterns](patterns/variant.md)
 
 ---
 

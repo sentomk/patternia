@@ -81,6 +81,7 @@ nav:
       - Getting Started: guide/getting-started.md
 
   - Pattern System:
+      - Foreword: patterns/foreword.md
       - Value Patterns: patterns/value.md
       - Type Patterns: patterns/type.md
 
