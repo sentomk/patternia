@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://sentomk.github.io/patternia/patterns/value/">
       
       
-        <link rel="prev" href="../../guide/getting-started/">
+        <link rel="prev" href="../foreword/">
       
       
         <link rel="next" href="../type/">
@@ -80,6 +80,11 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
+      
+        
+        <a href="#value-patterns-architectural-perspective" class="md-skip">
+          Skip to content
+        </a>
       
     </div>
     <div data-md-component="announce">
@@ -257,7 +262,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+        <a href="../foreword/" class="md-tabs__link">
           
   
   
@@ -578,6 +583,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../foreword/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foreword
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -587,6 +620,26 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Value Patterns
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
         
@@ -604,6 +657,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-unifying-value-level-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Unifying Value-Level Logic
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-enabling-compositional-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Enabling Compositional Semantics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-integrating-with-the-match-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Integrating with the Match Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -926,9 +1042,58 @@
   
 
 
-  <h1>Value Patterns</h1>
-
-
+<h1 id="value-patterns-architectural-perspective">Value Patterns — Architectural Perspective<a class="headerlink" href="#value-patterns-architectural-perspective" title="Permanent link">&para;</a></h1>
+<p>Value Patterns represent the part of the Pattern System concerned with <strong>runtime values</strong>.<br />
+They describe conditions on concrete data: numbers, strings, states, commands, and any object that can be inspected without involving its type structure.</p>
+<p>From an architectural perspective, Value Patterns serve three core roles:</p>
+<hr />
+<h2 id="1-unifying-value-level-logic">1. Unifying Value-Level Logic<a class="headerlink" href="#1-unifying-value-level-logic" title="Permanent link">&para;</a></h2>
+<p>In conventional C++, comparisons and conditions are expressed through imperative constructs:</p>
+<ul>
+<li><code>if (x == 42)</code>  </li>
+<li><code>if (size &lt; capacity)</code>  </li>
+<li><code>if (name == "start")</code>  </li>
+<li><code>if (x &gt; 0 &amp;&amp; x &lt; 10)</code>  </li>
+</ul>
+<p>Each condition is tied to surrounding control flow.<br />
+Value Patterns decouple the <strong>expression of conditions</strong> from <strong>the control structure</strong> that uses them.</p>
+<p>As a result:</p>
+<ul>
+<li>Value conditions become reusable units.</li>
+<li>Complex value logic becomes declarative—described, not executed.</li>
+<li>Matching rules become centralized and maintainable.</li>
+</ul>
+<hr />
+<h2 id="2-enabling-compositional-semantics">2. Enabling Compositional Semantics<a class="headerlink" href="#2-enabling-compositional-semantics" title="Permanent link">&para;</a></h2>
+<p>Patterns obey a formal algebra.<br />
+Value Patterns can be combined with logical operators to describe richer semantics without duplicating comparisons or control logic.</p>
+<p>This provides architectural benefits:</p>
+<ul>
+<li>Conditions become <strong>first-class objects</strong>.  </li>
+<li>Rules can be assembled, reused, refined, or shared across modules.  </li>
+<li>Large matching systems can be built from small, orthogonal components.</li>
+</ul>
+<p>This capability is essential as the library grows toward supporting predicate guards, custom user-defined patterns, and domain-specific pattern sets.</p>
+<hr />
+<h2 id="3-integrating-with-the-match-pipeline">3. Integrating with the Match Pipeline<a class="headerlink" href="#3-integrating-with-the-match-pipeline" title="Permanent link">&para;</a></h2>
+<p>At match time, Value Patterns participate in a common evaluation pipeline:</p>
+<ol>
+<li>The subject is passed to each pattern.  </li>
+<li>The pattern decides, independently, whether the subject satisfies its rule.  </li>
+<li>A matching pattern triggers a handler and short-circuits evaluation.</li>
+</ol>
+<p>Value Patterns do not influence the structure of evaluation—only the semantics of the condition.<br />
+This separation of responsibilities keeps the system modular and allows different pattern families to coexist imperatively.</p>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>Architecturally, Value Patterns:</p>
+<ul>
+<li>Represent value-level semantics in declarative form  </li>
+<li>Promote reusable, composable conditions  </li>
+<li>Integrate seamlessly into the shared match pipeline  </li>
+<li>Prepare the ground for higher-level constructs (predicates, guards, domain-specific rules)</li>
+</ul>
+<p>They are the foundational layer of runtime data dispatch in Patternia.</p>
 
 
 
@@ -964,7 +1129,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../../guide/getting-started/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Getting Started">
+          <a href="../foreword/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Foreword">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -974,7 +1139,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Getting Started
+                Foreword
               </div>
             </div>
           </a>

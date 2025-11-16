@@ -18,7 +18,7 @@
         <link rel="prev" href="../installation/">
       
       
-        <link rel="next" href="../../patterns/value/">
+        <link rel="next" href="../../patterns/foreword/">
       
       
         
@@ -262,7 +262,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../patterns/value/" class="md-tabs__link">
+        <a href="../../patterns/foreword/" class="md-tabs__link">
           
   
   
@@ -710,6 +710,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../patterns/foreword/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foreword
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../patterns/value/" class="md-nav__link">
         
   
@@ -1109,10 +1137,10 @@ Once installed or fetched into your project, you can start using pattern matchin
 <div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">87</span><span class="p">;</span>
 
 <span class="k">auto</span><span class="w"> </span><span class="n">grade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">value</span><span class="p">(</span><span class="n">score</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">60</span><span class="p">)</span><span class="w">  </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;F&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">score</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">90</span><span class="w">        </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;A&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">score</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">80</span><span class="w">        </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;B&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">score</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">70</span><span class="w">        </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lt</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span><span class="w">             </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;F&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// less than</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ge</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span><span class="w">             </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;A&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// greater equal</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ge</span><span class="p">(</span><span class="mi">80</span><span class="p">)</span><span class="w">             </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;B&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ge</span><span class="p">(</span><span class="mi">70</span><span class="p">)</span><span class="w">             </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;D&quot;</span><span class="p">);</span>
 </code></pre></div>
 <hr />
@@ -1186,13 +1214,13 @@ There is no runtime overhead beyond executing the selected handler.</p>
         
         
           
-          <a href="../../patterns/value/" class="md-footer__link md-footer__link--next" aria-label="Next: Value Patterns">
+          <a href="../../patterns/foreword/" class="md-footer__link md-footer__link--next" aria-label="Next: Foreword">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Value Patterns
+                Foreword
               </div>
             </div>
             <div class="md-footer__button md-icon">

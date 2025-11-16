@@ -81,6 +81,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#type-patterns-architectural-perspective" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -257,7 +262,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../value/" class="md-tabs__link">
+        <a href="../foreword/" class="md-tabs__link">
           
   
   
@@ -581,6 +586,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../foreword/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foreword
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../value/" class="md-nav__link">
         
   
@@ -615,6 +648,26 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Patterns
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
         
@@ -632,6 +685,80 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-type-level-semantics-as-first-class-objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Type-Level Semantics as First-Class Objects
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-zero-cost-type-dispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Zero-Cost Type Dispatch
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-unifying-value-and-type-domains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Unifying Value and Type Domains
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-foundation-for-variant-dispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Foundation for Variant Dispatch
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -926,9 +1053,73 @@
   
 
 
-  <h1>Type Patterns</h1>
-
-
+<h1 id="type-patterns-architectural-perspective">Type Patterns — Architectural Perspective<a class="headerlink" href="#type-patterns-architectural-perspective" title="Permanent link">&para;</a></h1>
+<p>Type Patterns define the part of the Pattern System dedicated to <strong>type-level dispatch</strong>.<br />
+They describe conditions about what a value <em>is</em>, rather than how it behaves or what its runtime value contains.</p>
+<p>They solve a central architectural problem in C++ codebases:</p>
+<p><strong>How do we express type-dependent logic without RTTI, virtual inheritance, or manual <code>if constexpr</code> chains?</strong></p>
+<p>Type Patterns provide a unified answer.</p>
+<hr />
+<h2 id="1-type-level-semantics-as-first-class-objects">1. Type-Level Semantics as First-Class Objects<a class="headerlink" href="#1-type-level-semantics-as-first-class-objects" title="Permanent link">&para;</a></h2>
+<p>In typical C++ systems, type-specific logic is embedded in:</p>
+<ul>
+<li>Template specializations  </li>
+<li><code>std::variant</code> visitor lambdas  </li>
+<li>Chains of <code>if constexpr (std::is_same_v&lt;T, ...&gt;)</code>  </li>
+<li>RTTI (<code>typeid</code>, <code>dynamic_cast</code>)  </li>
+</ul>
+<p>These mechanisms work but lack a <em>uniform abstraction</em> for type conditions.</p>
+<p>Type Patterns elevate type checks to <strong>first-class pattern objects</strong>, enabling the same:</p>
+<ul>
+<li>Composition  </li>
+<li>Reuse  </li>
+<li>Declarative structure  </li>
+</ul>
+<p>that Value Patterns provide for runtime data.</p>
+<hr />
+<h2 id="2-zero-cost-type-dispatch">2. Zero-Cost Type Dispatch<a class="headerlink" href="#2-zero-cost-type-dispatch" title="Permanent link">&para;</a></h2>
+<p>All type decisions in Patternia are resolved through normal C++ type inspection and inlining.<br />
+The Pattern System introduces:</p>
+<ul>
+<li>No RTTI  </li>
+<li>No virtual calls  </li>
+<li>No runtime type discrimination  </li>
+<li>No dynamic polymorphism  </li>
+</ul>
+<p>By making type checks structural (not reflective), Patternia provides the performance profile needed for high-throughput or low-latency applications.</p>
+<hr />
+<h2 id="3-unifying-value-and-type-domains">3. Unifying Value and Type Domains<a class="headerlink" href="#3-unifying-value-and-type-domains" title="Permanent link">&para;</a></h2>
+<p>A key architectural goal is that <strong>Value Patterns and Type Patterns participate in the same matching pipeline</strong>.</p>
+<p>This allows rules such as:</p>
+<ul>
+<li>"If the subject is an <code>int</code> <strong>and</strong> greater than zero…"  </li>
+<li>"If the subject is a <code>std::string</code> <strong>and</strong> equals 'start'…"  </li>
+<li>"If the subject is from this template family <strong>and</strong> satisfies a numeric guard…"</li>
+</ul>
+<p>The system does not treat type and value as separate languages.<br />
+They are part of one cohesive pattern algebra.</p>
+<hr />
+<h2 id="4-foundation-for-variant-dispatch">4. Foundation for Variant Dispatch<a class="headerlink" href="#4-foundation-for-variant-dispatch" title="Permanent link">&para;</a></h2>
+<p>The upcoming Variant Layer relies directly on Type Patterns.</p>
+<p>Matching an active alternative of <code>std::variant</code> is fundamentally a type-level operation:</p>
+<ul>
+<li>If the active type is <code>T</code>…  </li>
+<li>If the active type belongs to <code>{A, B, C}</code>…  </li>
+<li>If the alternative is any specialization of a template family…</li>
+</ul>
+<p>Type Patterns make these decisions explicit and reusable.</p>
+<p>In other words, they are not an optional feature; they are a structural part of the library’s dispatch model.</p>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>Architecturally, Type Patterns:</p>
+<ul>
+<li>Represent type-based semantics independently of runtime values  </li>
+<li>Provide a uniform abstraction for type dispatch  </li>
+<li>Integrate with the same compositional model used by Value Patterns  </li>
+<li>Enable zero-overhead matching  </li>
+<li>Form the basis for variant-aware pattern layers</li>
+</ul>
+<p>They are the type-theoretic pillar of Patternia’s Pattern System.</p>
 
 
 
