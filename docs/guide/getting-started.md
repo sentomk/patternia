@@ -88,10 +88,10 @@ Patternia’s relational DSL (`>`, `<`, `>=`, `<=`) works on any comparable valu
 int score = 87;
 
 auto grade = match(score)
-  .when(value(score < 60)  >> "F")
-  .when(score >= 90        >> "A")
-  .when(score >= 80        >> "B")
-  .when(score >= 70        >> "C")
+  .when(lt(60)             >> "F") // less than
+  .when(ge(90)             >> "A") // greater equal
+  .when(ge(80)             >> "B")
+  .when(ge(70)             >> "C")
   .otherwise("D");
 ```
 
