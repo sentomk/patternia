@@ -5,7 +5,7 @@
     <source media="(prefers-color-scheme: light)" 
             srcset="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/banner-dark.svg">
     <img alt="Patternia logo"
-         width="200"
+         width="300"
          style="max-width: 90%; height: auto; margin-top: 10px; transform: translateX(-2px);">
   </picture>
 </div>
