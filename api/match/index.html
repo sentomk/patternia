@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#apimatchmd-english-version" class="md-skip">
+        <a href="#ptnmatch-and-the-match-builder" class="md-skip">
           Skip to content
         </a>
       
@@ -735,6 +735,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           
@@ -777,6 +779,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -785,16 +789,27 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#apimatchmd-english-version" class="md-nav__link">
+  <a href="#1-entry-function-ptnmatch" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📄 api/match.md (English Version)
+        1. Entry Function: ptn::match
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="📄 api/match.md (English Version)">
+    <nav class="md-nav" aria-label="1. Entry Function: ptn::match">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signature
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#description" class="md-nav__link">
@@ -869,7 +884,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#signature" class="md-nav__link">
+  <a href="#signature_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Signature
@@ -904,7 +919,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#signature_1" class="md-nav__link">
+  <a href="#signature_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Signature
@@ -954,7 +969,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#signature_2" class="md-nav__link">
+  <a href="#signature_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Signature
@@ -1222,32 +1237,18 @@
   
 
 
-  <h1>Match()</h1>
-
-<p>That's a great request! Since you are committed to writing the documentation manually (without Doxygen) and your project structure already looks like a documentation site (with <code>index.md</code>, <code>api/match.md</code>, etc.), I will translate the proposed structure for your core API (<code>ptn::match</code> and <code>match_builder</code>) into <strong>professional English Markdown</strong>.</p>
-<p>This format is ideal for static site generators like <strong>MkDocs</strong> (especially with the Material theme), ensuring a clean and modern look.</p>
+<h1 id="ptnmatch-and-the-match-builder"><code>ptn::match()</code> and the Match Builder<a class="headerlink" href="#ptnmatch-and-the-match-builder" title="Permanent link">&para;</a></h1>
+<p>The <code>ptn::match()</code> function is the entry point to the Patternia DSL. It accepts a <strong>Subject Value</strong> to be matched against, and returns a <strong>Match Builder</strong> object, which allows the user to chain calls for adding patterns and handlers.</p>
 <hr />
-<h2 id="apimatchmd-english-version">📄 <code>api/match.md</code> (English Version)<a class="headerlink" href="#apimatchmd-english-version" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="gh"># `ptn::match()` and the Match Builder</span>
-
-The <span class="sb">`ptn::match()`</span> function is the entry point to the Patternia DSL. It accepts a <span class="gs">**Subject Value**</span> to be matched against, and returns a <span class="gs">**Match Builder**</span> object, which allows the user to chain calls for adding patterns and handlers.
-
----
-
-<span class="gu">## 1. Entry Function: `ptn::match`</span>
-
-<span class="gu">### Signature</span>
-
-This function is templated to accept any subject value, preserving its value category (e.g., it stores a copy for an lvalue, or moves the value for an rvalue).
-
-<span class="sb">```cpp</span>
-<span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="w"> </span><span class="p">{</span>
+<h2 id="1-entry-function-ptnmatch">1. Entry Function: <code>ptn::match</code><a class="headerlink" href="#1-entry-function-ptnmatch" title="Permanent link">&para;</a></h2>
+<h3 id="signature">Signature<a class="headerlink" href="#signature" title="Permanent link">&para;</a></h3>
+<p>This function is templated to accept any subject value, preserving its value category (e.g., it stores a copy for an lvalue, or moves the value for an rvalue).</p>
+<div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="w"> </span><span class="p">{</span>
 
 <span class="w">  </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
 <span class="w">  </span><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
 
 <span class="p">}</span><span class="w"> </span><span class="c1">// namespace ptn</span>
-<span class="sb">```</span>
 </code></pre></div>
 <h3 id="description">Description<a class="headerlink" href="#description" title="Permanent link">&para;</a></h3>
 <p>Constructs an instance of the <strong><code>match_builder</code></strong> containing a copy or moved version of the <code>value</code>. This function signifies the beginning of a pattern matching sequence.</p>
@@ -1300,7 +1301,7 @@ This function is templated to accept any subject value, preserving its value cat
 <hr />
 <h2 id="2-the-match-builder-ptncorematch_builder">2. The Match Builder: <code>ptn::core::match_builder</code><a class="headerlink" href="#2-the-match-builder-ptncorematch_builder" title="Permanent link">&para;</a></h2>
 <p>The <code>match_builder</code> is internally an <strong>immutable</strong> class. Each call to <code>.when()</code> returns a <strong>new</strong> builder instance with a different type, which statically records the newly added pattern-handler pair.</p>
-<h3 id="signature">Signature<a class="headerlink" href="#signature" title="Permanent link">&para;</a></h3>
+<h3 id="signature_1">Signature<a class="headerlink" href="#signature_1" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="o">::</span><span class="nn">core</span><span class="w"> </span><span class="p">{</span>
 
 <span class="w">  </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">TV</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Cases</span><span class="o">&gt;</span>
@@ -1311,7 +1312,7 @@ This function is templated to accept any subject value, preserving its value cat
 <h3 id="member-functions">Member Functions<a class="headerlink" href="#member-functions" title="Permanent link">&para;</a></h3>
 <h4 id="a-when">A. <code>.when()</code><a class="headerlink" href="#a-when" title="Permanent link">&para;</a></h4>
 <p>Appends a new pattern-handler pair (a Case) to the matching sequence.</p>
-<h5 id="signature_1">Signature<a class="headerlink" href="#signature_1" title="Permanent link">&para;</a></h5>
+<h5 id="signature_2">Signature<a class="headerlink" href="#signature_2" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Pattern</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">Handler</span><span class="o">&gt;</span>
 <span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">when</span><span class="p">(</span><span class="n">dsl</span><span class="o">::</span><span class="n">case_expr</span><span class="o">&lt;</span><span class="n">Pattern</span><span class="p">,</span><span class="w"> </span><span class="n">Handler</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="p">;</span>
 </code></pre></div>
@@ -1323,7 +1324,7 @@ This function is templated to accept any subject value, preserving its value cat
 <hr />
 <h4 id="b-otherwise">B. <code>.otherwise()</code><a class="headerlink" href="#b-otherwise" title="Permanent link">&para;</a></h4>
 <p>Finalizes the matching sequence, triggering the evaluation and returning the result.</p>
-<h5 id="signature_2">Signature<a class="headerlink" href="#signature_2" title="Permanent link">&para;</a></h5>
+<h5 id="signature_3">Signature<a class="headerlink" href="#signature_3" title="Permanent link">&para;</a></h5>
 <div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">H</span><span class="o">&gt;</span>
 <span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">otherwise</span><span class="p">(</span><span class="n">H</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">fallback</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="p">;</span>
 </code></pre></div>
@@ -1355,8 +1356,6 @@ This function is templated to accept any subject value, preserving its value cat
 <h5 id="returns_2">Returns<a class="headerlink" href="#returns_2" title="Permanent link">&para;</a></h5>
 <p><strong>Type:</strong> <code>R</code> (The common type of all handlers' return values)</p>
 <p>Returns the result of the first successful pattern's handler, or the result of the <code>fallback</code> handler.</p>
-<div class="highlight"><pre><span></span><code>
-</code></pre></div>
 
 
 
