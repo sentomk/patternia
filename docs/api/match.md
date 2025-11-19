@@ -1,12 +1,3 @@
-That's a great request\! Since you are committed to writing the documentation manually (without Doxygen) and your project structure already looks like a documentation site (with `index.md`, `api/match.md`, etc.), I will translate the proposed structure for your core API (`ptn::match` and `match_builder`) into **professional English Markdown**.
-
-This format is ideal for static site generators like **MkDocs** (especially with the Material theme), ensuring a clean and modern look.
-
----
-
-## 📄 `api/match.md` (English Version)
-
-````markdown
 # `ptn::match()` and the Match Builder
 
 The `ptn::match()` function is the entry point to the Patternia DSL. It accepts a **Subject Value** to be matched against, and returns a **Match Builder** object, which allows the user to chain calls for adding patterns and handlers.
@@ -27,7 +18,6 @@ namespace ptn {
 
 } // namespace ptn
 ```
-````
 
 ### Description
 
@@ -138,7 +128,3 @@ Terminates the matching chain and performs evaluation:
 **Type:** `R` (The common type of all handlers' return values)
 
 Returns the result of the first successful pattern's handler, or the result of the `fallback` handler.
-
-```
-
-```
