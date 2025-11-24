@@ -8,57 +8,47 @@
 /**
  * @file literal.hpp
  * @brief Public API for literal value patterns (`lit()` and `lit_ci()`).
- *
- * This module provides the public factory functions for creating literal
- * patterns. These patterns store a reference value and match subjects via
- * equality comparison.
- *
- * The actual implementation types (`literal_pattern<>`, `iequal_ascii`) are in
- * the `detail/` subdirectory and should not be used directly by end users.
- *
- * Part of the Pattern Layer (namespace ptn::pattern::value)
  */
 
 namespace ptn::pattern::value {
 
   /**
-   * @brief Factory function that constructs a value-pattern.
+   * @brief Factory for literal_pattern.
    *
-   * Automatically adapts C-style strings into `std::string_view`, otherwise
-   * stores values as `std::decay_t<V>`.
-   *
-   * @tparam V Input value type (deduced).
-   * @param v  Value to match.
-   * @return A `literal_pattern` configured for equality matching.
-   *
-   * @example
-   * ```cpp
-   * auto p = lit(42);
-   * auto p_str = lit("hello");
-   * auto matches = ptn::match(42).when(p >> "matched").otherwise("no");
-   * ```
+   * Ensures:
+   *   - literal value type is valid for storage and comparison
    */
   template <typename V>
   constexpr auto lit(V &&v) {
-    using store_t = detail::literal_store_t<V>;
+    using store_t = detail::literal_store_t<V>; // custom store type
+
+    // store_t must not be void
+    static_assert(
+        !std::is_void_v<store_t>,
+        "[patternia.lit]: Literal value cannot be of type void.");
+
+    // store_t must not be a reference
+    static_assert(
+        !std::is_reference_v<store_t>,
+        "[patternia.lit]: Literal value must be a value type (non-reference).");
+
+    // store_t must be move-constructible
+    static_assert(
+        std::is_move_constructible_v<store_t>,
+        "[patternia.lit]: Literal value must be move-constructible.");
+
+    // store_t must support equality comparison
+    static_assert(
+        std::is_constructible_v<
+            bool,
+            decltype(std::declval<const store_t &>() == std::declval<const store_t &>())>,
+        "[patternia.lit]: Literal value type must support operator==.");
+
     return detail::literal_pattern<store_t>(store_t(std::forward<V>(v)));
   }
 
   /**
    * @brief Case-insensitive value-pattern factory.
-   *
-   * Used for matching command strings, tokens, or user input without
-   * case sensitivity. Performs ASCII-only case folding.
-   *
-   * @tparam V Input value type (deduced).
-   * @param v  Value to store.
-   * @return A `literal_pattern` using `iequal_ascii` comparator.
-   *
-   * @example
-   * ```cpp
-   * auto p = lit_ci("HELLO");
-   * auto matches = ptn::match("hello").when(p >> "matched").otherwise("no");
-   * ```
    */
   template <typename V>
   constexpr auto lit_ci(V &&v) {

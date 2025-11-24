@@ -283,4 +283,19 @@ namespace ptn::pattern::value::detail {
     }
   };
 
+  // static_assert for relational patterns
+  template <typename T>
+  constexpr void check_rel_value() {
+    static_assert(
+        !std::is_void_v<T>, "[ptn.relational]: value cannot be void.");
+    static_assert(
+        !std::is_reference_v<T>,
+        "[ptn.relational]: value must be a value type.");
+    static_assert(
+        std::is_move_constructible_v<T>,
+        "[ptn.relational]: value must be move-constructible.");
+    static_assert(
+        std::is_invocable_r_v<bool, std::less<>, const T &, const T &>,
+        "[ptn.relational]: type must support operator< (std::less).");
+  }
 } // namespace ptn::pattern::value::detail

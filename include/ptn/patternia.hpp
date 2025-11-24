@@ -56,7 +56,7 @@
  */
 namespace ptn {
 
-  /// @brief Entry function for the pattern matching DSL.
+  /** @brief Entry function for the pattern matching DSL. */
   template <typename T>
   constexpr auto match(T &&value) noexcept(
       std::is_nothrow_constructible_v<std::decay_t<T>, T &&>) {
@@ -64,6 +64,31 @@ namespace ptn {
     using V = std::decay_t<T>;
     return core::match_builder<V>::create(
         V(std::forward<T>(value)), std::tuple<>{});
+  }
+
+  /**
+   * @brief Explicit-typed entry for pattern matching.
+   * Usage: match<U>(value)
+   *
+   * U can be a value type, reference type, or a meta type such as deduce_t.
+   */
+  template <typename U, typename T>
+  constexpr auto match(T &&value) -> std::enable_if_t<
+      !std::is_same_v<std::decay_t<U>, std::decay_t<T>>,
+      core::match_builder<U>> {
+    // Allow either direct construction OR binding through a helper trait
+    constexpr bool subject_constructible =
+        std::is_constructible_v<U, T &&> || std::is_constructible_v<U, T>;
+
+    static_assert(
+        subject_constructible,
+        "[patternia.match]: Explicit subject type U cannot be constructed "
+        "from the given value. Check match<U>(value).");
+
+    // Perfect forwarding into U
+    U subject = static_cast<U>(std::forward<T>(value));
+
+    return core::match_builder<U>::create(std::move(subject), std::tuple<>{});
   }
 
   // ---- Re-export public namespaces ----
