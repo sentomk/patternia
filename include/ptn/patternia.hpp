@@ -67,15 +67,13 @@ namespace ptn {
   }
 
   // ---- Re-export public namespaces ----
-  using namespace core;           // match_builder, etc.
-  using namespace dsl;            // case_expr, DSL constructs
   using namespace pattern::value; // literal / relational / predicate patterns
-  using namespace ptn::dsl::ops;  // all DSL operators: >> && || !
+  using namespace dsl::ops;       // all DSL operators: >> && || !
 
   // ---- Export Type Layer (ONLY selected symbols) ----
 #if PTN_ENABLE_TYPE
 #include "ptn/pattern/type/type.hpp"
-  namespace type = ptn::pattern::type;
+  namespace type = pattern::type;
   using pattern::type::type_of;
   using pattern::type::type_tag;
 #endif
