@@ -78,7 +78,9 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/config.hpp
   include/ptn/patternia.hpp
   include/ptn/core/match_builder.hpp
+  include/ptn/core/detail/match_builder_detail.hpp
   include/ptn/core/dsl/case_expr.hpp
+  include/ptn/core/dsl/detail/case_expr_detail.hpp
   include/ptn/core/dsl/operators.hpp
 
   # Meta Utils
@@ -91,16 +93,20 @@ PTN_JOIN_HEADERS(PTN_HEADERS
 
   # Value Pattern Layer
   include/ptn/pattern/value/relational.hpp
+  include/ptn/pattern/value/detail/relational_pattern.hpp
   include/ptn/pattern/value/literal.hpp
+  include/ptn/pattern/value/detail/literal_pattern.hpp
   include/ptn/pattern/value/predicate.hpp
+  include/ptn/pattern/value/detail/predicate_pattern.hpp
 
   # Core Pattern
-  include/ptn/pattern/pattern_base.hpp
-  include/ptn/pattern/pattern_traits.hpp
+  include/ptn/pattern/detail/pattern_base.hpp
+  include/ptn/pattern/detail/pattern_traits.hpp
 
   # Type Pattern Layer
   include/ptn/pattern/type/type_of.hpp
   include/ptn/pattern/type/type.hpp
+  include/ptn/pattern/type/detail/type_pattern.hpp
 )
 
 # ========== Public interface target ==========

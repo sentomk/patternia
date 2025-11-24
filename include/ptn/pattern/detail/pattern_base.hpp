@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ptn/pattern/pattern_traits.hpp" // marker
+#include "ptn/pattern/detail/pattern_traits.hpp" // marker
 #include "ptn/config.hpp"
 #include <utility>
 
@@ -18,7 +18,7 @@
  * Part of Pattern Layer (ptn::pattern)
  */
 
-namespace ptn::pattern {
+namespace ptn::pattern::detail {
 
   /* forward declare */
   template <typename Derived>
@@ -71,4 +71,4 @@ namespace ptn::pattern {
     }
   };
 
-} // namespace ptn::pattern
+} // namespace ptn::pattern::detail
