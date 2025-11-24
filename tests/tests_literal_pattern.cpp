@@ -90,8 +90,9 @@ TEST(LiteralPattern, DoubleApproxEqual_CustomComparator) {
   double x   = 3.141592;
   auto   out = match(x)
                  .when(
-                     literal_pattern<double, approx_equal>{
-                         3.141593, approx_equal{1e-5}} >>
+                     ptn::pattern::value::detail::
+                         literal_pattern<double, approx_equal>{
+                             3.141593, approx_equal{1e-5}} >>
                      [](double) { return std::string{"ok"}; })
                  .otherwise([](double) { return std::string{"no"}; });
   EXPECT_EQ(out, "ok");
@@ -114,7 +115,8 @@ TEST(LiteralPattern, UserType_CustomComparator_ByField) {
   auto  out =
       match(p)
           .when(
-              literal_pattern<Point, eq_by_x>{Point{10, 999}, eq_by_x{}} >>
+              ptn::pattern::value::detail::literal_pattern<Point, eq_by_x>{
+                  Point{10, 999}, eq_by_x{}} >>
               [](const Point &) { return std::string{"x"}; })
           .otherwise([](const Point &) { return std::string{"other"}; });
   EXPECT_EQ(out, "x");
