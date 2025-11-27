@@ -77,11 +77,13 @@ option(PTN_SKIP_COMPILER_CHECK "Skip compiler version check" OFF)
 PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/config.hpp
   include/ptn/patternia.hpp
-  include/ptn/core/match_builder.hpp
-  include/ptn/core/detail/match_builder_detail.hpp
-  include/ptn/core/dsl/case_expr.hpp
-  include/ptn/core/dsl/detail/case_expr_detail.hpp
-  include/ptn/core/dsl/operators.hpp
+
+  # Core Layer
+  include/ptn/core/fwd.h
+  include/ptn/core/engine/builder.hpp
+  include/ptn/core/engine/match.hpp
+  include/ptn/core/engine/detail/builder_impl.hpp
+  include/ptn/core/engine/detail/match_impl.hpp
 
   # Meta Utils
   include/ptn/meta/algorithms.hpp
