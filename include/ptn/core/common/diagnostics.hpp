@@ -75,12 +75,12 @@ namespace ptn::core::common {
   constexpr void static_assert_valid_pattern() {
 #if PTN_USE_CONCEPTS
     static_assert(
-        pattern_like<Pattern>,
+        ptn::pattern::detail::pattern<Pattern>,
         "[Patternia Error] The provided type is not a valid pattern. "
         "A pattern must be invocable with a subject and return a boolean.");
 #else
     static_assert(
-        is_pattern_v<Pattern>,
+        ptn::pat::base::is_pattern_v<Pattern>,
         "[Patternia Error] The provided type is not a valid pattern. "
         "A pattern must be invocable with a subject and return a boolean.");
 #endif

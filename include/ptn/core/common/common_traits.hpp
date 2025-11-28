@@ -6,6 +6,7 @@
  */
 
 #include "ptn/config.hpp"
+#include "ptn/pattern/base/fwd.h"
 #include <type_traits>
 #include <tuple>
 #include <utility>
@@ -63,48 +64,6 @@ namespace ptn::core::common {
   template <typename Case>
   using case_handler_t = typename case_handler<Case>::type;
 
-  /** Pattern Interface Definition */
-#if PTN_USE_CONCEPTS
-  /// @brief Concept that defines a valid pattern.
-  /// A pattern must be invocable with a subject and return a boolean.
-  template <typename P>
-  concept pattern_like = requires(const P &p, auto &&subj) {
-    { p.match(subj) } -> std::convertible_to<bool>;
-  };
-#else
-  /// @brief C++17 SFINAE fallback for `pattern_like`.
-  template <typename P, typename = void>
-  struct is_pattern : std::false_type {};
-
-  template <typename P>
-  struct is_pattern<
-      P,
-      std::void_t<decltype(std::declval<const P &>().match(
-          std::declval<decltype(std::forward_as_tuple(std::declval<P>()))>()))>>
-      : std::true_type {};
-
-  template <typename P>
-  inline constexpr bool is_pattern_v = is_pattern<P>::value;
-#endif
-
-  /** Core Abstraction: `binding_args` */
-
-  /// @brief Primary template for pattern binding results.
-  ///
-  /// This trait defines the contract for what a pattern "binds" from a subject.
-  /// It must be specialized for each concrete pattern type. The default
-  /// implementation assumes the pattern binds the entire subject.
-  ///
-  /// @tparam Pattern The pattern type.
-  /// @tparam Subject The subject type being matched.
-  template <typename Pattern, typename Subject>
-  struct binding_args {
-    using tuple_type = std::tuple<Subject>; // Default: bind the whole subject.
-  };
-
-  template <typename Pattern, typename Subject>
-  using binding_args_t = typename binding_args<Pattern, Subject>::tuple_type;
-
   /** Handler Invocability Check */
 #if PTN_USE_CONCEPTS
   /// @brief C++20 Concept to check if a handler can be invoked with arguments
@@ -136,7 +95,7 @@ namespace ptn::core::common {
   private:
     using handler_type     = case_handler_t<Case>;
     using pattern_type     = case_pattern_t<Case>;
-    using bound_args_tuple = binding_args_t<pattern_type, Subject>;
+    using bound_args_tuple = pat::base::binding_args_t<pattern_type, Subject>;
 
   public:
     static constexpr bool value =
@@ -157,7 +116,7 @@ namespace ptn::core::common {
   private:
     using handler_type     = case_handler_t<Case>;
     using pattern_type     = case_pattern_t<Case>;
-    using bound_args_tuple = binding_args_t<pattern_type, Subject>;
+    using bound_args_tuple = pat::base::binding_args_t<pattern_type, Subject>;
 
   public:
     using type = decltype(std::apply(
