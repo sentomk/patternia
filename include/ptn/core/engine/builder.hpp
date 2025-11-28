@@ -31,6 +31,6 @@ namespace ptn::core {
    * @brief Public alias forwarding to the actual implementation.
    */
   template <typename TV, typename Cases>
-  using match_builder = detail::match_builder<TV, Cases>;
+  using match_builder = engine::detail::match_builder<TV, Cases>;
 
 } // namespace ptn::core

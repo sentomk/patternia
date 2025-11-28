@@ -4,18 +4,10 @@
  * @file case_expr_impl.hpp (detail)
  * @brief Internal implementation of case expressions.
  *
- * This is an internal header containing the implementation of:
- * - `case_expr<Pattern, Handler>`: Represents a single case in match() DSL.
- *
- * Users should create case expressions using the `>>` operator defined in
- * `ptn/core/dsl/operators.hpp` instead of directly instantiating this type.
- *
- * Part of the Core Layer (namespace ptn::dsl::detail)
- *
  * @internal This is an internal implementation detail.
  */
 
-namespace ptn::dsl::detail {
+namespace ptn::core::dsl::detail {
 
   /**
    * @brief Internal representation of a pattern-handler pair (case).
@@ -36,4 +28,4 @@ namespace ptn::dsl::detail {
     Handler handler; ///< The handler to execute if pattern matches
   };
 
-} // namespace ptn::dsl::detail
+} // namespace ptn::core::dsl::detail

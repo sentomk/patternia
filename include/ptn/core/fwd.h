@@ -1,50 +1,69 @@
 #pragma once
+
 /**
  * @file fwd.hpp
  * @brief Forward declarations for Patternia Core Layer.
  */
 
+#include "ptn/config.hpp" // For PTN_USE_CONCEPTS
+
+#if PTN_USE_CONCEPTS
+#include <concepts>
+#endif
+
 namespace ptn {
-  /* Entry function: match() */
+
+  /* --- Public API --- */
+
   template <typename T>
   constexpr auto match(T &&);
 
   template <typename U, typename T>
   constexpr auto match(T &&);
 
-  /* Core builder type (public-facing alias) */
   namespace core {
-
-    /**
-     * @brief Public-facing builder template.
-     *
-     * Actual implementation is in namespace ptn::core::detail::match_builder.
-     */
     template <typename TV, typename... Cases>
-    class match_builder; // only forward declared here
+    class match_builder; // Public-facing alias
+  }
 
-  } // namespace core
+  /* --- Core Internals --- */
 
-  /* Core internals (detail) */
-  namespace core::detail {
-
-    /**
-     * @brief Internal builder implementation.
-     */
+  namespace core::engine::detail {
     template <typename TV, typename... Cases>
-    class match_builder;
+    class match_builder; // Internal implementation
+  }
 
-    /**
-     * @brief Single-case evaluation (pattern + handler).
-     */
-    template <typename Case, typename Subject>
-    struct case_eval;
+  namespace core::dsl::detail {
+    template <typename Pattern, typename Handler>
+    struct case_expr;
+  }
 
-    /**
-     * @brief Full evaluation logic for the match builder.
-     */
-    struct match_impl;
+  /* --- Common Traits (Forward Declarations) --- */
 
-  } // namespace core::detail
+  namespace core::common {
+
+#if PTN_USE_CONCEPTS
+    /// @brief Concept that defines a valid pattern.
+    template <typename P>
+    concept pattern_like = requires(const P &p, auto &&subj) {
+      { p.match(subj) } -> std::convertible_to<bool>;
+    };
+#else
+    /// @brief C++17 SFINAE fallback for `pattern_like`.
+    template <typename P, typename = void>
+    struct is_pattern;
+
+    template <typename P>
+    inline constexpr bool is_pattern_v = is_pattern<P>::value;
+#endif
+
+    /// @brief Forward declaration of the core binding trait.
+    ///
+    /// This is the primary template. Specializations for concrete patterns
+    /// should be provided in the same header as the pattern definition.
+    template <typename Pattern, typename Subject>
+    struct binding_args;
+
+  } // namespace core::common
 
 } // namespace ptn

@@ -3,7 +3,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace ptn::dsl::detail {
+namespace ptn::core::dsl::detail {
   template <typename P, typename H>
   struct case_expr;
 }
@@ -36,12 +36,12 @@ namespace ptn::pattern::detail {
   extern const bool is_pattern_v;
 } // namespace ptn::pattern::detail
 
-namespace ptn::dsl::ops {
+namespace ptn::core::dsl::ops {
 
   // ========== operator>> (pattern >> handler) ==========
   template <typename P, typename H>
   constexpr auto operator>>(P &&p, H &&h) {
-    return ptn::dsl::detail::case_expr<std::decay_t<P>, std::decay_t<H>>{
+    return detail::case_expr<std::decay_t<P>, std::decay_t<H>>{
         std::forward<P>(p), std::forward<H>(h)};
   }
 
@@ -105,4 +105,4 @@ namespace ptn::dsl::ops {
 
 #endif
 
-} // namespace ptn::dsl::ops
+} // namespace ptn::core::dsl::ops

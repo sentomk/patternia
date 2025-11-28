@@ -80,10 +80,17 @@ PTN_JOIN_HEADERS(PTN_HEADERS
 
   # Core Layer
   include/ptn/core/fwd.h
+  include/ptn/core/common/common_traits.hpp
+  include/ptn/core/common/diagnostics.hpp
+  include/ptn/core/common/eval.hpp
+  include/ptn/core/common/optimize.hpp
   include/ptn/core/engine/builder.hpp
   include/ptn/core/engine/match.hpp
   include/ptn/core/engine/detail/builder_impl.hpp
   include/ptn/core/engine/detail/match_impl.hpp
+  include/ptn/core/dsl/case_expr.hpp
+  include/ptn/core/dsl/operators.hpp
+  include/ptn/core/dsl/detail/case_expr_impl.hpp
 
   # Meta Utils
   include/ptn/meta/algorithms.hpp
@@ -273,6 +280,5 @@ if(PTN_INSTALL)
   export(
     EXPORT patterniaTargets
     FILE "${CMAKE_CURRENT_BINARY_DIR}/patterniaTargets.cmake"
-    NAMESPACE patternia::
   )
 endif()

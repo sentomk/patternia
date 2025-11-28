@@ -9,9 +9,10 @@
 #include <utility>
 
 #include "ptn/config.hpp"
+#include "ptn/core/common/diagnostics.hpp"
 #include "ptn/core/engine/detail/match_impl.hpp"
 
-namespace ptn::core::detail {
+namespace ptn::core::engine::detail {
 
   template <typename TV, typename... Cases>
   class match_builder {
@@ -51,6 +52,21 @@ namespace ptn::core::detail {
     constexpr auto when(CaseExpr &&expr) && {
       using new_case_type = std::decay_t<CaseExpr>;
 
+      // Compile-time validation of the new case.
+      static_assert(
+          ptn::core::common::is_case_expr_v<new_case_type>,
+          "Argument to .when() must be a case expression created with the '>>' "
+          "operator.");
+      static_assert(
+          ptn::core::common::
+              is_handler_invocable_v<new_case_type, subject_type>,
+#if PTN_USE_CONCEPTS
+          "Handler cannot be invoked with the arguments bound by the pattern."
+#else
+          "Handler signature does not match the pattern's binding result."
+#endif
+      );
+
       auto new_cases = std::tuple_cat(
           std::move(cases_),
           std::tuple<new_case_type>(std::forward<CaseExpr>(expr)));
@@ -62,14 +78,25 @@ namespace ptn::core::detail {
 
     /**
      * @brief Add a new case (lvalue-qualified).
-     *
-     * This overload allows code like:
-     *   auto b = match(x);
-     *   auto b2 = b.when(...);
      */
+
     template <typename CaseExpr>
     constexpr auto when(CaseExpr &&expr) const & {
       using new_case_type = std::decay_t<CaseExpr>;
+
+      static_assert(
+          ptn::core::common::is_case_expr_v<new_case_type>,
+          "Argument to .when() must be a case expression created with the '>>' "
+          "operator.");
+      static_assert(
+          ptn::core::common::
+              is_handler_invocable_v<new_case_type, subject_type>,
+#if PTN_USE_CONCEPTS
+          "Handler cannot be invoked with the arguments bound by the pattern."
+#else
+          "Handler signature does not match the pattern's binding result."
+#endif
+      );
 
       auto new_cases = std::tuple_cat(
           cases_, std::tuple<new_case_type>(std::forward<CaseExpr>(expr)));
@@ -87,9 +114,13 @@ namespace ptn::core::detail {
      */
     template <typename Otherwise>
     constexpr decltype(auto) otherwise(Otherwise &&otherwise_handler) && {
+
+      ptn::core::common::
+          static_assert_valid_match<subject_type, Otherwise, Cases...>();
+
       return match_impl::eval(
           subject_, cases_, std::forward<Otherwise>(otherwise_handler));
     }
   };
 
-} // namespace ptn::core::detail
+} // namespace ptn::core::engine::detail
