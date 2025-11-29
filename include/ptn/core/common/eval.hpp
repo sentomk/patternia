@@ -14,6 +14,44 @@
 
 namespace ptn::core::common {
 
+  // --- SFINAE Helper for C++17 ---
+  namespace detail {
+    // A helper to provide a `void` type for SFINAE.
+    template <typename... Ts>
+    struct void_type {
+      using type = void;
+    };
+
+    // Detects if `p.match(s)` is a valid expression.
+    template <typename P, typename S, typename = void>
+    struct has_match_member : std::false_type {};
+
+    template <typename P, typename S>
+    struct has_match_member<
+        P,
+        S,
+        typename void_type<decltype(std::declval<P>().match(
+            std::declval<S>()))>::type> : std::true_type {};
+
+    template <typename P, typename S>
+    constexpr bool has_match_member_v = has_match_member<P, S>::value;
+
+    // Detects if `p.bind(s)` is a valid expression.
+    template <typename P, typename S, typename = void>
+    struct has_bind_member : std::false_type {};
+
+    template <typename P, typename S>
+    struct has_bind_member<
+        P,
+        S,
+        typename void_type<decltype(std::declval<P>().bind(
+            std::declval<S>()))>::type> : std::true_type {};
+
+    template <typename P, typename S>
+    constexpr bool has_bind_member_v = has_bind_member<P, S>::value;
+  } // namespace detail
+  // ---------------------------------
+
   /** Case Matching */
 
   /// @brief Checks if a case's pattern matches a subject.
@@ -27,20 +65,32 @@ namespace ptn::core::common {
     static constexpr bool
     matches(const case_type &c, const subject_type &subject) {
       // Supports both class-based patterns with a .match() method and
-      // functional patterns.
-      if constexpr (std::is_member_function_pointer_v<
-                        decltype(&pattern_type::match)>) {
+      // functional patterns (via std::invoke).
+#if PTN_USE_CONCEPTS
+      if constexpr (requires(const pattern_type &p, const subject_type &s) {
+                      { p.match(s) } -> std::convertible_to<bool>;
+                    }) {
         return c.pattern.match(subject);
       }
       else {
         return static_cast<bool>(std::invoke(c.pattern, subject));
       }
+#else
+      // Use a robust SFINAE check instead of the faulty member function
+      // pointer check.
+      if constexpr (detail::has_match_member_v<pattern_type, subject_type>) {
+        return c.pattern.match(subject);
+      }
+      else {
+        return static_cast<bool>(std::invoke(c.pattern, subject));
+      }
+#endif
     }
   };
 
   /** Handler Invocation Logic */
 
-  /// @brief Invokes a handler with values bound by its pattern.
+  /// @brief Invokes a handler with the subject and values bound by its pattern.
   template <typename Case, typename Subject>
   constexpr decltype(auto) invoke_handler(const Case &c, Subject &&subject) {
     using pattern_type = case_pattern_t<Case>;
@@ -54,11 +104,9 @@ namespace ptn::core::common {
         "Pattern must have a 'bind(subject)' method that returns a tuple of "
         "bound values.");
 #else
-    // C++17 SFINAE trick to check if `bind` is a valid expression.
+    // Use the robust SFINAE check instead of the faulty sizeof trick.
     static_assert(
-        sizeof(
-            decltype(std::declval<const pattern_type &>().bind(std::declval<Subject>()), void())) !=
-            0,
+        detail::has_bind_member_v<pattern_type, Subject>,
         "Pattern must have a 'bind(subject)' method that returns a tuple of "
         "bound values.");
 #endif
@@ -66,8 +114,13 @@ namespace ptn::core::common {
     // Let the pattern perform the binding.
     auto bound_values = c.pattern.bind(std::forward<Subject>(subject));
 
-    // Apply the handler to the bound values.
-    return std::apply(c.handler, std::move(bound_values));
+    // Combine the subject and bound values into a single tuple.
+    auto full_args = std::tuple_cat(
+        std::forward_as_tuple(std::forward<Subject>(subject)),
+        std::move(bound_values));
+
+    // Apply the handler to the full set of arguments.
+    return std::apply(c.handler, std::move(full_args));
   }
 
   /** Case Sequence Evaluation */

@@ -73,7 +73,9 @@ namespace ptn::core::common {
     // Simulates the call: pattern.bind(s) -> args..., handler(args...)
     std::apply(
         std::forward<Case>(c).handler,
-        std::forward<Case>(c).pattern.bind(std::forward<Subject>(s)));
+        std::tuple_cat(
+            std::forward_as_tuple(std::forward<Subject>(s)),
+            std::forward<Case>(c).pattern.bind(std::forward<Subject>(s))));
   };
 
   template <typename Case, typename Subject>
@@ -97,10 +99,15 @@ namespace ptn::core::common {
     using pattern_type     = case_pattern_t<Case>;
     using bound_args_tuple = pat::base::binding_args_t<pattern_type, Subject>;
 
+    using full_invoke_args_tuple = decltype(std::tuple_cat(
+        std::declval<std::tuple<const Subject &>>(),
+        std::declval<bound_args_tuple>()));
+
   public:
     static constexpr bool value =
-        decltype(detail::is_applicable_impl<handler_type, bound_args_tuple>(
-            nullptr))::value;
+        decltype(detail::
+                     is_applicable_impl<handler_type, full_invoke_args_tuple>(
+                         nullptr))::value;
   };
 
   template <typename Case, typename Subject>
@@ -118,16 +125,21 @@ namespace ptn::core::common {
     using pattern_type     = case_pattern_t<Case>;
     using bound_args_tuple = pat::base::binding_args_t<pattern_type, Subject>;
 
+    using full_invoke_args_tuple = decltype(std::tuple_cat(
+        std::declval<std::tuple<const Subject &>>(),
+        std::declval<bound_args_tuple>()));
+
   public:
     using type = decltype(std::apply(
-        std::declval<handler_type>(), std::declval<bound_args_tuple>()));
+        std::declval<handler_type>(), std::declval<full_invoke_args_tuple>()));
   };
 
   template <typename Subject, typename Case>
   using case_result_t = typename case_result<Subject, Case>::type;
 
-  /// @brief Helper to deduce the result type of an `otherwise` handler.
   namespace detail {
+
+    /// @brief Helper to deduce the result type of an `otherwise` handler.
     template <typename O, typename S>
     static constexpr auto get_otherwise_result_impl(int)
         -> decltype(std::declval<O>()(std::declval<S &>()));
@@ -135,6 +147,7 @@ namespace ptn::core::common {
     template <typename O, typename S>
     static constexpr auto get_otherwise_result_impl(...)
         -> decltype(std::declval<O>()());
+
   } // namespace detail
 
   template <typename Otherwise, typename Subject>

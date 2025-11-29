@@ -2,13 +2,6 @@
 /**
  * @file type_list.hpp
  * @brief Compile-time type sequence (type_list) and basic list combinators.
- *
- * This header defines:
- *   - ptn::meta::type_list<Ts...>   : simple type-level container
- *   - concat                        : concatenate two type_lists
- *   - append                        : append a single type
- *   - prepend                       : prepend a single type
- *   - nth_type<N, TL>               : get the N-th type from a type_list
  */
 
 #include <cstddef>
@@ -17,10 +10,6 @@ namespace ptn::meta {
 
   /**
    * @brief Simple compile-time container for a pack of types.
-   *
-   * Provides:
-   *   - a `size` constant
-   *   - a convenient representation for type-level computations
    */
   template <typename... Ts>
   struct type_list {
