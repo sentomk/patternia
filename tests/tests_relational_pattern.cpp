@@ -6,6 +6,8 @@
 #include <limits>
 
 using namespace ptn;
+using namespace ptn::pat::value;
+using namespace ptn::core::dsl::ops;
 
 TEST(RelationalPattern, IntBasicComparisons) {
   int  x   = 10;
@@ -136,18 +138,19 @@ TEST(RelationalPattern, ExtremeValues) {
 }
 
 TEST(RelationalPattern, Interval_OpenClosed_0_10) {
-  int  x   = 10;
-  auto out = match(x)
-                 .when(
-                     pred([](int v) { return gt(0)(v) && le(10)(v); }) >>
-                     [](int) { return std::string{"(0,10]"}; })
-                 .otherwise([](int) { return std::string{"other"}; });
+  int  x = 10;
+  auto out =
+      match(x)
+          .when(
+              pred([](int v) { return gt(0).match(v) && le(10).match(v); }) >>
+              [](int) { return std::string{"(0,10]"}; })
+          .otherwise([](int) { return std::string{"other"}; });
   EXPECT_EQ(out, "(0,10]");
 
   x   = 1;
   out = match(x)
             .when(
-                pred([](int v) { return gt(0)(v) && le(10)(v); }) >>
+                pred([](int v) { return gt(0).match(v) && le(10).match(v); }) >>
                 [](int) { return std::string{"(0,10]"}; })
             .otherwise([](int) { return std::string{"other"}; });
   EXPECT_EQ(out, "(0,10]");
@@ -157,7 +160,9 @@ TEST(RelationalPattern, DoubleRange_Inclusive) {
   double x   = 1.0;
   auto   out = match(x)
                  .when(
-                     pred([](double v) { return ge(1.0)(v) && le(2.0)(v); }) >>
+                     pred([](double v) {
+                       return ge(1.0).match(v) && le(2.0).match(v);
+                     }) >>
                      [](double) { return std::string{"[1,2]"}; })
                  .otherwise([](double) { return std::string{"other"}; });
   EXPECT_EQ(out, "[1,2]");
@@ -165,7 +170,9 @@ TEST(RelationalPattern, DoubleRange_Inclusive) {
   x   = 2.0;
   out = match(x)
             .when(
-                pred([](double v) { return ge(1.0)(v) && le(2.0)(v); }) >>
+                pred([](double v) {
+                  return ge(1.0).match(v) && le(2.0).match(v);
+                }) >>
                 [](double) { return std::string{"[1,2]"}; })
             .otherwise([](double) { return std::string{"other"}; });
   EXPECT_EQ(out, "[1,2]");

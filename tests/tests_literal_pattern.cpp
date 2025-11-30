@@ -7,6 +7,8 @@
 #include <string_view>
 
 using namespace ptn;
+using namespace ptn::pat::value;
+using namespace ptn::core::dsl::ops;
 
 TEST(LiteralPattern, IntExactMatch) {
   int  x   = 42;
@@ -20,9 +22,9 @@ TEST(LiteralPattern, IntExactMatch) {
 TEST(LiteralPattern, CStringVsString_CaseInsensitive) {
   std::string s   = "Ok";
   auto        out = match(s)
-                 .when(lit("OK") >> [](auto) { return std::string{"cs"}; })
-                 .when(lit_ci("OK") >> [](auto) { return std::string{"ci"}; })
-                 .otherwise([](auto) { return std::string{"other"}; });
+                 .when(lit("OK") >> "cs")
+                 .when(lit_ci("OK") >> "ci")
+                 .otherwise("other");
   EXPECT_EQ(out, "ci");
 }
 
@@ -87,14 +89,14 @@ struct approx_equal {
 };
 
 TEST(LiteralPattern, DoubleApproxEqual_CustomComparator) {
-  double x   = 3.141592;
-  auto   out = match(x)
-                 .when(
-                     ptn::pattern::value::detail::
-                         literal_pattern<double, approx_equal>{
-                             3.141593, approx_equal{1e-5}} >>
-                     [](double) { return std::string{"ok"}; })
-                 .otherwise([](double) { return std::string{"no"}; });
+  double x = 3.141592;
+  auto   out =
+      match(x)
+          .when(
+              ptn::pat::value::detail::literal_pattern<double, approx_equal>{
+                  3.141593, approx_equal{1e-5}} >>
+              [](double) { return std::string{"ok"}; })
+          .otherwise([](double) { return std::string{"no"}; });
   EXPECT_EQ(out, "ok");
 }
 
@@ -112,13 +114,12 @@ struct eq_by_x {
 
 TEST(LiteralPattern, UserType_CustomComparator_ByField) {
   Point p{10, 20};
-  auto  out =
-      match(p)
-          .when(
-              ptn::pattern::value::detail::literal_pattern<Point, eq_by_x>{
-                  Point{10, 999}, eq_by_x{}} >>
-              [](const Point &) { return std::string{"x"}; })
-          .otherwise([](const Point &) { return std::string{"other"}; });
+  auto  out = match(p)
+                 .when(
+                     ptn::pat::value::detail::literal_pattern<Point, eq_by_x>{
+                         Point{10, 999}, eq_by_x{}} >>
+                     [](const Point &) { return std::string{"x"}; })
+                 .otherwise([](const Point &) { return std::string{"other"}; });
   EXPECT_EQ(out, "x");
 }
 

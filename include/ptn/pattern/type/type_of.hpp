@@ -10,9 +10,9 @@
  */
 
 #include <type_traits>
-#include "ptn/pattern/type/type.hpp"
+#include "ptn/pattern/type.hpp"
 
-namespace ptn::pattern::type {
+namespace ptn::pat::type {
 
   /**
    * @brief Returns a `type_tag` representing the static type of `obj`.
@@ -24,4 +24,4 @@ namespace ptn::pattern::type {
     return type_tag<std::decay_t<T>>{};
   }
 
-} // namespace ptn::pattern::type
+} // namespace ptn::pat::type

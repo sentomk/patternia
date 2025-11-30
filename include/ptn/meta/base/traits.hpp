@@ -9,20 +9,14 @@
 
 namespace ptn::meta {
 
-  //====================================================================
   //  remove_cvref_t
-  //====================================================================
-
   /**
    * @brief Remove const/volatile qualifiers and references from T.
    */
   template <typename T>
   using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<T>>;
 
-  //====================================================================
   //  is_spec_of & is_spec_of_v
-  //====================================================================
-
   /**
    * @brief Check whether T is a specialization of a given template.
    *
@@ -41,10 +35,7 @@ namespace ptn::meta {
   template <template <typename...> typename Template, typename T>
   inline constexpr bool is_spec_of_v = is_spec_of<Template, T>::value;
 
-  //====================================================================
   //  is_tmpl & is_tmpl_v
-  //====================================================================
-
   /**
    * @brief Detect whether a type is some template instantiation of the form
    *        Template<Args...> for some Template.
@@ -64,10 +55,7 @@ namespace ptn::meta {
   template <typename T>
   inline constexpr bool is_tmpl_v = is_tmpl<T>::value;
 
-  //====================================================================
   //  Legacy compatibility aliases
-  //====================================================================
-
   /**
    * @brief Backward-compatible alias for is_tmpl.
    *
