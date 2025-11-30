@@ -6,14 +6,11 @@
  */
 
 #include <type_traits>
-#include "ptn/meta/type_list.hpp"
+#include "ptn/meta/dsa/type_list.hpp"
 
 namespace ptn::meta {
 
-  //====================================================================
   //  Fold predicates: all<...>, any<...>, none<...>
-  //====================================================================
-
   /**
    * @brief Logical AND fold over a pack of boolean template arguments.
    */
@@ -32,17 +29,9 @@ namespace ptn::meta {
   template <bool... Bs>
   struct none : std::bool_constant<!any<Bs...>::value> {};
 
-  //====================================================================
   //  map<F, type_list<...>>
-  //====================================================================
-
   /**
    * @brief Apply a unary metafunction F<T> to every type in a type_list.
-   *
-   * Example:
-   *   template <typename T> struct add_const { using type = T const; };
-   *   using in   = type_list<int, float>;
-   *   using out  = map_t<add_const_t, in>; // type_list<int const, float const>
    */
   template <template <typename> typename F, typename TL>
   struct map;
@@ -58,10 +47,7 @@ namespace ptn::meta {
   template <template <typename> typename F, typename TL>
   using map_t = typename map<F, TL>::type;
 
-  //====================================================================
   //  filter<Pred, type_list<...>>
-  //====================================================================
-
   /**
    * @brief Keep only types for which Pred<T>::value == true.
    */

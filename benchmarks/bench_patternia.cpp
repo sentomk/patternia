@@ -4,7 +4,7 @@
 #include <vector>
 
 using namespace ptn;
-using namespace ptn::dsl;
+using namespace ptn::pat::value;
 
 static std::vector<int> generate_int_data(size_t n) {
   std::mt19937                       rng(123);

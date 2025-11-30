@@ -5,14 +5,11 @@
  */
 
 #include <type_traits>
-#include "ptn/meta/type_list.hpp"
+#include "ptn/meta/dsa/type_list.hpp"
 
 namespace ptn::meta {
 
-  //====================================================================
-  //  contains<T, type_list<...>>
-  //====================================================================
-
+  //  contains<T, type_list<...>
   /**
    * @brief Check whether a type_list contains the type T.
    */
@@ -29,10 +26,7 @@ namespace ptn::meta {
   template <typename T, typename TL>
   inline constexpr bool contains_v = contains<T, TL>::value;
 
-  //====================================================================
   //  index_of<T, type_list<...>>
-  //====================================================================
-
   /**
    * @brief Compile-time index of T in a type_list (or -1 if not found).
    *

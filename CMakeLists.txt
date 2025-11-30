@@ -7,7 +7,7 @@ endif()
 
 # ========== Project ==========
 project(patternia
-  VERSION 0.4.1
+  VERSION 0.5.0
   DESCRIPTION "Header-only pattern matching library for modern C++"
   LANGUAGES CXX
 )
@@ -77,36 +77,51 @@ option(PTN_SKIP_COMPILER_CHECK "Skip compiler version check" OFF)
 PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/config.hpp
   include/ptn/patternia.hpp
-  include/ptn/core/match_builder.hpp
-  include/ptn/core/detail/match_builder_detail.hpp
+
+  # Core Layer
+  include/ptn/core/fwd.h
+  include/ptn/core/common/common_traits.hpp
+  include/ptn/core/common/diagnostics.hpp
+  include/ptn/core/common/eval.hpp
+  include/ptn/core/common/optimize.hpp
+  include/ptn/core/engine/builder.hpp
+  include/ptn/core/engine/match.hpp
+  include/ptn/core/engine/detail/builder_impl.hpp
+  include/ptn/core/engine/detail/match_impl.hpp
   include/ptn/core/dsl/case_expr.hpp
-  include/ptn/core/dsl/detail/case_expr_detail.hpp
-  include/ptn/core/dsl/operators.hpp
+  include/ptn/core/dsl/ops.hpp
+  include/ptn/core/dsl/detail/case_expr_impl.hpp
 
   # Meta Utils
-  include/ptn/meta/algorithms.hpp
-  include/ptn/meta/index.hpp
   include/ptn/meta/meta.hpp
-  include/ptn/meta/template_info.hpp
-  include/ptn/meta/traits.hpp
-  include/ptn/meta/type_list.hpp
+  include/ptn/meta/base/traits.hpp
+  include/ptn/meta/dsa/algorithms.hpp
+  include/ptn/meta/dsa/type_list.hpp
+  include/ptn/meta/query/index.hpp
+  include/ptn/meta/query/template_info.hpp
 
-  # Value Pattern Layer
-  include/ptn/pattern/value/relational.hpp
-  include/ptn/pattern/value/detail/relational_pattern.hpp
-  include/ptn/pattern/value/literal.hpp
-  include/ptn/pattern/value/detail/literal_pattern.hpp
-  include/ptn/pattern/value/predicate.hpp
-  include/ptn/pattern/value/detail/predicate_pattern.hpp
+  # Pattern Base
+  include/ptn/pattern/base/fwd.h
+  include/ptn/pattern/base/binding_traits.hpp
+  include/ptn/pattern/base/pattern_base.hpp
+  include/ptn/pattern/base/pattern_kind.hpp
+  include/ptn/pattern/base/pattern_traits.hpp
 
-  # Core Pattern
-  include/ptn/pattern/detail/pattern_base.hpp
-  include/ptn/pattern/detail/pattern_traits.hpp
+  # Pattern Module Headers
+  include/ptn/pattern/type.hpp
+  include/ptn/pattern/value.hpp
 
   # Type Pattern Layer
+  include/ptn/pattern/type/from.hpp
+  include/ptn/pattern/type/in.hpp
+  include/ptn/pattern/type/is.hpp
+  include/ptn/pattern/type/not_in.hpp
   include/ptn/pattern/type/type_of.hpp
-  include/ptn/pattern/type/type.hpp
-  include/ptn/pattern/type/detail/type_pattern.hpp
+
+  # Value Pattern Layer
+  include/ptn/pattern/value/literal.hpp
+  include/ptn/pattern/value/predicate.hpp
+  include/ptn/pattern/value/relational.hpp
 )
 
 # ========== Public interface target ==========
@@ -211,7 +226,6 @@ if(PTN_BUILD_BENCHMARKS)
   add_executable(bench_patternia
     benchmarks/bench_main.cpp
     benchmarks/bench_patternia.cpp
-    benchmarks/bench_patternia_complex.cpp
   )
   target_link_libraries(bench_patternia PRIVATE
     patternia
@@ -252,7 +266,7 @@ if(PTN_INSTALL)
   configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/patterniaConfig.cmake"
-    INSTALL_DESTINATION ${PTN_CMAKE_DIR}
+    INSTALL_DESTINATION "${PTN_CMAKE_DIR}"
   )
 
   install(FILES
@@ -271,6 +285,5 @@ if(PTN_INSTALL)
   export(
     EXPORT patterniaTargets
     FILE "${CMAKE_CURRENT_BINARY_DIR}/patterniaTargets.cmake"
-    NAMESPACE patternia::
   )
 endif()

@@ -1,106 +1,44 @@
+// IWYU pragma: begin_exports
+
 #pragma once
+
 /**
  * @file patternia.hpp
- * @brief Public entry header for Patternia — the modern C++ pattern matching
- * DSL.
+ * @brief The single-entry-point header for the Patternia library.
  *
- * Provides a unified interface for end users. It pulls in:
- *   - Core Layer (`match_builder`)
- *   - Pattern Layer (value, relational, predicate)
- *   - Type Layer (optional)
- *   - DSL operators: >>, &&, ||, !
+ * Include this file to get access to all of Patternia's core pattern matching
+ * capabilities, including value, type, and structural patterns, as well as
+ * the DSL operators and core matching functions.
  *
- */
-
-#include <tuple>
-#include <type_traits>
-#include <utility>
-
-#include "ptn/config.hpp"
-#include "ptn/core/match_builder.hpp"
-#include "ptn/core/dsl/case_expr.hpp"
-#include "ptn/core/dsl/operators.hpp"
-
-// -------- Pattern Layer --------
-#if PTN_ENABLE_VALUE_PATTERN
-#include "ptn/pattern/value/literal.hpp"
-#endif
-
-#if PTN_ENABLE_RELATIONAL_PATTERN
-#include "ptn/pattern/value/relational.hpp"
-#endif
-
-#if PTN_ENABLE_PREDICATE_PATTERN
-#include "ptn/pattern/value/predicate.hpp"
-#endif
-
-// -------- Type Layer --------
-#if PTN_ENABLE_TYPE
-#include "ptn/pattern/type/type.hpp"
-#include "ptn/pattern/type/type_of.hpp"
-#endif
-
-/**
+ * This is the recommended way to use Patternia.
+ *
  * @namespace ptn
- * @brief Root namespace for Patternia — all public APIs live here.
- *
- * Contains:
- *   - `match()` — entry point to pattern matching
- *   - Pattern Layer (value/relational/predicate)
- *   - Type Layer (enabled optionally)
- *   - DSL namespace (`ptn::dsl` and `ptn::dsl::ops`)
- *
- * The DSL operators are intentionally *not* injected into `ptn`
- * to avoid namespace pollution. Users should explicitly:
- *
  */
+
+// --- Core Framework ---
+// The fundamental CRTP base and traits.
+#include "ptn/pattern/base/pattern_base.hpp"
+#include "ptn/pattern/base/pattern_traits.hpp"
+#include "ptn/pattern/base/pattern_kind.hpp"
+
+// --- Core Matching Logic ---
+// The main entry point functions
+#include "ptn/core/engine/match.hpp"
+
+// --- DSL Operators ---
+// Enables the use of `&&`, `||`, `!` for pattern composition.
+#include "ptn/core/dsl/ops.hpp"
+
+// --- All Pattern Modules ---
+// Includes all public pattern factories.
+#include "ptn/pattern/value.hpp" // lit, pred, lt, eq, between, ...
+#include "ptn/pattern/type.hpp"
+
 namespace ptn {
-
-  /** @brief Entry function for the pattern matching DSL. */
-  template <typename T>
-  constexpr auto match(T &&value) noexcept(
-      std::is_nothrow_constructible_v<std::decay_t<T>, T &&>) {
-
-    using V = std::decay_t<T>;
-    return core::match_builder<V>::create(
-        V(std::forward<T>(value)), std::tuple<>{});
-  }
-
-  /**
-   * @brief Explicit-typed entry for pattern matching.
-   * Usage: match<U>(value)
-   *
-   * U can be a value type, reference type, or a meta type such as deduce_t.
-   */
-  template <typename U, typename T>
-  constexpr auto match(T &&value) -> std::enable_if_t<
-      !std::is_same_v<std::decay_t<U>, std::decay_t<T>>,
-      core::match_builder<U>> {
-    // Allow either direct construction OR binding through a helper trait
-    constexpr bool subject_constructible =
-        std::is_constructible_v<U, T &&> || std::is_constructible_v<U, T>;
-
-    static_assert(
-        subject_constructible,
-        "[patternia.match]: Explicit subject type U cannot be constructed "
-        "from the given value. Check match<U>(value).");
-
-    // Perfect forwarding into U
-    U subject = static_cast<U>(std::forward<T>(value));
-
-    return core::match_builder<U>::create(std::move(subject), std::tuple<>{});
-  }
-
-  // ---- Re-export public namespaces ----
-  using namespace pattern::value; // literal / relational / predicate patterns
-  using namespace dsl::ops;       // all DSL operators: >> && || !
-
-  // ---- Export Type Layer (ONLY selected symbols) ----
-#if PTN_ENABLE_TYPE
-#include "ptn/pattern/type/type.hpp"
-  namespace type = pattern::type;
-  using pattern::type::type_of;
-  using pattern::type::type_tag;
-#endif
-
+  using ptn::core::dsl::ops::operator>>;
+  using ptn::core::dsl::ops::operator&&;
+  using ptn::core::dsl::ops::operator||;
+  using ptn::core::dsl::ops::operator!;
 } // namespace ptn
+
+// IWYU pragma: end_exports
