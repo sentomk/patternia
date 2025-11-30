@@ -10,6 +10,8 @@
 #include <type_traits>
 #include <tuple>
 #include <utility>
+#include <string>
+#include <string_view>
 
 #if PTN_USE_CONCEPTS
 #include <concepts>
@@ -90,6 +92,25 @@ namespace ptn::core::common {
 
     template <typename H, typename Tuple>
     static constexpr std::false_type is_applicable_impl(...);
+
+    /**
+     * @brief Detects "value-like" types to enable `pattern >> value` syntax
+     * sugar.
+     */
+    template <typename T>
+    struct is_value_like_impl {
+      using D = std::decay_t<T>;
+
+      static constexpr bool value = std::is_arithmetic_v<D> ||
+                                    std::is_enum_v<D> ||
+                                    std::is_same_v<D, std::string> ||
+                                    std::is_same_v<D, std::string_view> ||
+                                    std::is_convertible_v<D, std::string_view>;
+    };
+
+    template <typename T>
+    inline constexpr bool is_value_like_v =
+        is_value_like_impl<std::decay_t<T>>::value;
   } // namespace detail
 
   template <typename Case, typename Subject>

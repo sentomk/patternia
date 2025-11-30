@@ -22,9 +22,9 @@ TEST(LiteralPattern, IntExactMatch) {
 TEST(LiteralPattern, CStringVsString_CaseInsensitive) {
   std::string s   = "Ok";
   auto        out = match(s)
-                 .when(lit("OK") >> [](auto) { return std::string{"cs"}; })
-                 .when(lit_ci("OK") >> [](auto) { return std::string{"ci"}; })
-                 .otherwise([](auto) { return std::string{"other"}; });
+                 .when(lit("OK") >> "cs")
+                 .when(lit_ci("OK") >> "ci")
+                 .otherwise("other");
   EXPECT_EQ(out, "ci");
 }
 

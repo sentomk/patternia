@@ -1,3 +1,5 @@
+// IWYU pragma: begin_exports
+
 #pragma once
 
 /**
@@ -16,6 +18,8 @@
 // --- Core Framework ---
 // The fundamental CRTP base and traits.
 #include "ptn/pattern/base/pattern_base.hpp"
+#include "ptn/pattern/base/pattern_traits.hpp"
+#include "ptn/pattern/base/pattern_kind.hpp"
 
 // --- Core Matching Logic ---
 // The main entry point functions
@@ -28,3 +32,13 @@
 // --- All Pattern Modules ---
 // Includes all public pattern factories.
 #include "ptn/pattern/value.hpp" // lit, pred, lt, eq, between, ...
+#include "ptn/pattern/type.hpp"
+
+namespace ptn {
+  using ptn::core::dsl::ops::operator>>;
+  using ptn::core::dsl::ops::operator&&;
+  using ptn::core::dsl::ops::operator||;
+  using ptn::core::dsl::ops::operator!;
+} // namespace ptn
+
+// IWYU pragma: end_exports

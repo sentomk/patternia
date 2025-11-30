@@ -22,7 +22,7 @@ namespace ptn::pat::base {
   struct binding_args;
 
   template <typename Pattern, typename Subject>
-  using binding_args_t = typename binding_args<Pattern, Subject>::tuple_type;
+  using binding_args_t = typename binding_args<Pattern, Subject>::type;
 
   /** Pattern identification base */
   // has_match_method

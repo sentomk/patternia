@@ -115,11 +115,27 @@ namespace ptn::core::engine::detail {
     template <typename Otherwise>
     constexpr decltype(auto) otherwise(Otherwise &&otherwise_handler) && {
 
-      ptn::core::common::
-          static_assert_valid_match<subject_type, Otherwise, Cases...>();
+      using OtherwiseDecayed = std::decay_t<Otherwise>;
 
-      return match_impl::eval(
-          subject_, cases_, std::forward<Otherwise>(otherwise_handler));
+      auto final_handler = [&]() {
+        if constexpr (ptn::core::common::detail::is_value_like_v<
+                          OtherwiseDecayed>) {
+          // Case 1: Pass a value
+          return [val = std::forward<Otherwise>(otherwise_handler)](
+                     auto &&...) -> OtherwiseDecayed { return val; };
+        }
+        else {
+          // Case 2: Pass a "handler"
+          return std::forward<Otherwise>(otherwise_handler);
+        }
+      }();
+
+      ptn::core::common::static_assert_valid_match<
+          subject_type,
+          decltype(final_handler),
+          Cases...>();
+
+      return match_impl::eval(subject_, cases_, std::move(final_handler));
     }
   };
 

@@ -7,43 +7,13 @@
 
 #include <type_traits>
 #include <utility>
-#include <string>
-#include <string_view>
 
+#include "ptn/core/common/common_traits.hpp"
 #include "ptn/pattern/value/predicate.hpp"
 #include "ptn/core/dsl/detail/case_expr_impl.hpp"
 #include "ptn/pattern/base/pattern_traits.hpp"
 
 namespace ptn::core::dsl::ops {
-
-  // --- Internal Implementation Details ---
-
-  namespace detail {
-
-    /**
-     * @brief Detects "value-like" types to enable `pattern >> value` syntax
-     * sugar.
-     *
-     * Only types that are clearly values (arithmetic, enum, string) are
-     * considered value-like. Other types (lambdas, function objects, function
-     * pointers) are treated as handlers.
-     */
-    template <typename T>
-    struct is_value_like_impl {
-      using D = std::decay_t<T>;
-
-      static constexpr bool value = std::is_arithmetic_v<D> ||
-                                    std::is_enum_v<D> ||
-                                    std::is_same_v<D, std::string> ||
-                                    std::is_same_v<D, std::string_view> ||
-                                    std::is_convertible_v<D, std::string_view>;
-    };
-
-    template <typename T>
-    inline constexpr bool is_value_like_v =
-        is_value_like_impl<std::decay_t<T>>::value;
-
-  } // namespace detail
 
   // --- Operator Overloads ---
 
@@ -66,14 +36,7 @@ namespace ptn::core::dsl::ops {
     using P = std::decay_t<Pattern>;
     using H = std::decay_t<Handler>;
 
-    // The Pattern should ideally be a valid pattern, but we do not enforce
-    // this constraint here. Let case_expr_impl and pattern_traits handle more
-    // detailed validation. For stricter enforcement, you can add:
-    //
-    // static_assert(pat::detail::is_pattern_v<P>,
-    //   "[patternia]: left operand of >> must be a pattern.");
-
-    if constexpr (detail::is_value_like_v<H>) {
+    if constexpr (ptn::core::common::detail::is_value_like_v<H>) {
       // Pattern >> Value syntax sugar
       auto value_handler = [val = std::forward<Handler>(handler)](
                                auto &&...) -> H { return val; };
@@ -87,7 +50,6 @@ namespace ptn::core::dsl::ops {
           std::forward<Pattern>(pattern), std::forward<Handler>(handler)};
     }
   }
-
   /**
    * @brief Pattern logical composition: &&, ||, !
    *

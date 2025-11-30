@@ -239,38 +239,38 @@ namespace ptn::pat::base {
   // --- for relational patterns ---
   template <typename V, typename Subject>
   struct binding_args<ptn::pat::value::detail::lt_pattern<V>, Subject> {
-    using tuple_type = std::tuple<>;
+    using type = std::tuple<>;
   };
 
   template <typename V, typename Subject>
   struct binding_args<ptn::pat::value::detail::le_pattern<V>, Subject> {
-    using tuple_type = std::tuple<>;
+    using type = std::tuple<>;
   };
 
   template <typename V, typename Subject>
   struct binding_args<ptn::pat::value::detail::gt_pattern<V>, Subject> {
-    using tuple_type = std::tuple<>;
+    using type = std::tuple<>;
   };
 
   template <typename V, typename Subject>
   struct binding_args<ptn::pat::value::detail::ge_pattern<V>, Subject> {
-    using tuple_type = std::tuple<>;
+    using type = std::tuple<>;
   };
 
   template <typename V, typename Subject>
   struct binding_args<ptn::pat::value::detail::eq_pattern<V>, Subject> {
-    using tuple_type = std::tuple<>;
+    using type = std::tuple<>;
   };
 
   template <typename V, typename Subject>
   struct binding_args<ptn::pat::value::detail::ne_pattern<V>, Subject> {
-    using tuple_type = std::tuple<>;
+    using type = std::tuple<>;
   };
 
   // --- for between_pattern ---
   template <typename L, typename R, typename Subject>
   struct binding_args<ptn::pat::value::detail::between_pattern<L, R>, Subject> {
-    using tuple_type = std::tuple<>;
+    using type = std::tuple<>;
   };
 
 } // namespace ptn::pat::base

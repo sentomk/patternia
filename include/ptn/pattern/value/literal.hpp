@@ -184,7 +184,7 @@ namespace ptn::pat::base {
   struct binding_args<
       ptn::pat::value::detail::literal_pattern<V, Cmp>,
       Subject> {
-    using tuple_type = std::tuple<>;
+    using type = std::tuple<>;
   };
 
 } // namespace ptn::pat::base

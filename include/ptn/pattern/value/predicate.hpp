@@ -170,25 +170,25 @@ namespace ptn::pat::base {
   // --- for predicate_pattern ---
   template <typename F, typename Subject>
   struct binding_args<ptn::pat::value::detail::predicate_pattern<F>, Subject> {
-    using tuple_type = std::tuple<>;
+    using type = std::tuple<>;
   };
 
   // --- for and_pattern ---
   template <typename L, typename R, typename Subject>
   struct binding_args<ptn::pat::value::detail::and_pattern<L, R>, Subject> {
-    using tuple_type = std::tuple<>;
+    using type = std::tuple<>;
   };
 
   // --- for or_pattern ---
   template <typename L, typename R, typename Subject>
   struct binding_args<ptn::pat::value::detail::or_pattern<L, R>, Subject> {
-    using tuple_type = std::tuple<>;
+    using type = std::tuple<>;
   };
 
   // --- for not_pattern ---
   template <typename P, typename Subject>
   struct binding_args<ptn::pat::value::detail::not_pattern<P>, Subject> {
-    using tuple_type = std::tuple<>;
+    using type = std::tuple<>;
   };
 
 } // namespace ptn::pat::base

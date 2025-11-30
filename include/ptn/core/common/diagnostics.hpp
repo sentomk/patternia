@@ -33,10 +33,7 @@ namespace ptn::core::common {
 
     // Check: All handlers must have a common return type.
     using common_return_type = match_result_t<Subject, Otherwise, Cases...>;
-    static_assert(
-        !std::is_same_v<common_return_type, void>,
-        "[Patternia Error] All handlers in a match expression (including "
-        "`otherwise`) must have a compatible return type.");
+    (void) sizeof(common_return_type);
   }
 
   /**
