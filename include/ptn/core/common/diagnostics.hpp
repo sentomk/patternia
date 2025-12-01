@@ -1,13 +1,17 @@
 #pragma once
 
+refactor
 // Compile-time diagnostics and static assertions for Patternia.
+
 
 #include <type_traits>
 #include "ptn/core/common/common_traits.hpp"
 
 namespace ptn::core::common {
 
+
   // Validates the entire match expression for consistency.
+
   template <typename Subject, typename Otherwise, typename... Cases>
   constexpr void static_assert_valid_match() {
     // Check: All case handlers must be invocable with their pattern's bindings.
