@@ -1,0 +1,1172 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Patternia — expressive pattern matching for modern C++.">
+      
+      
+        <meta name="author" content="Y.F. Guo">
+      
+      
+        <link rel="canonical" href="https://sentomk.github.io/patternia/patternia_architecture_zh/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Patternia 模式匹配库架构分析 - Patternia</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../overrides/styles.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#patternia" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Patternia" class="md-header__button md-logo" aria-label="Patternia" data-md-component="logo">
+      
+  <img src="../assets/favicon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Patternia
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Patternia 模式匹配库架构分析
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sentomk/patternia" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sentomk/patternia
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guide/installation/" class="md-tabs__link">
+          
+  
+  
+  Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../patterns/foreword/" class="md-tabs__link">
+          
+  
+  
+  Pattern System
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/match/" class="md-tabs__link">
+          
+  
+  
+  API Documents
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../design/roadmap/" class="md-tabs__link">
+          
+  
+  
+  Design Notes
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../changelog/releases/" class="md-tabs__link">
+          
+  
+  
+  Changelog
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Patternia" class="md-nav__button md-logo" aria-label="Patternia" data-md-component="logo">
+      
+  <img src="../assets/favicon.svg" alt="logo">
+
+    </a>
+    Patternia
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sentomk/patternia" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sentomk/patternia
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pattern System
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Pattern System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/foreword/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foreword
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/value/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Value Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../patterns/type/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Documents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Documents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/match/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Match()
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Notes
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design Notes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Changelog
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Releases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="patternia">Patternia 模式匹配库架构分析<a class="headerlink" href="#patternia" title="Permanent link">&para;</a></h1>
+<h2 id="_1">第一部分：命名空间结构<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>Patternia 库采用了清晰的层次化命名空间结构，主要分为以下几个层次：</p>
+<h3 id="ptn">根命名空间 <code>ptn</code><a class="headerlink" href="#ptn" title="Permanent link">&para;</a></h3>
+<p>Patternia 库的根命名空间，所有公共API都位于此命名空间下。</p>
+<h3 id="_2">核心子命名空间<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<h4 id="ptncore"><code>ptn::core</code><a class="headerlink" href="#ptncore" title="Permanent link">&para;</a></h4>
+<p>核心引擎和DSL相关功能
+- <code>ptn::core::common</code> - 通用工具和诊断
+- <code>ptn::core::dsl</code> - 领域特定语言操作符
+- <code>ptn::core::engine</code> - 匹配引擎核心实现</p>
+<h4 id="ptnpat"><code>ptn::pat</code><a class="headerlink" href="#ptnpat" title="Permanent link">&para;</a></h4>
+<p>模式定义和实现
+- <code>ptn::pat::base</code> - 基础模式抽象和特征
+- <code>ptn::pat::value</code> - 值模式（字面量、关系、谓词）
+- <code>ptn::pat::type</code> - 类型模式</p>
+<h4 id="ptnmeta"><code>ptn::meta</code><a class="headerlink" href="#ptnmeta" title="Permanent link">&para;</a></h4>
+<p>元编程工具
+- <code>ptn::meta::base</code> - 基础类型特征
+- <code>ptn::meta::dsa</code> - 数据结构和算法
+- <code>ptn::meta::query</code> - 类型查询工具</p>
+<h3 id="_3">实现细节命名空间<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>ptn::core::engine::detail</code> - 引擎实现细节</li>
+<li><code>ptn::core::dsl::detail</code> - DSL实现细节</li>
+<li><code>ptn::pat::value::detail</code> - 值模式实现细节</li>
+<li><code>ptn::pat::type::detail</code> - 类型模式实现细节</li>
+</ul>
+<h2 id="_4">第二部分：层次划分<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>Patternia 库采用了经典的分层架构设计，从底层到顶层分为以下层次：</p>
+<h3 id="meta-layer">Meta Layer (元编程层)<a class="headerlink" href="#meta-layer" title="Permanent link">&para;</a></h3>
+<p><strong>位置</strong>: <code>ptn::meta/</code>
+<strong>职责</strong>: 提供编译时类型操作和元编程基础设施
+- <code>base/traits.hpp</code> - 基础类型特征（remove_cvref_t, is_spec_of等）
+- <code>dsa/</code> - 数据结构和算法（type_list, algorithms）
+- <code>query/</code> - 类型查询工具（index, template_info）</p>
+<h3 id="core-layer">Core Layer (核心层)<a class="headerlink" href="#core-layer" title="Permanent link">&para;</a></h3>
+<p><strong>位置</strong>: <code>ptn/core/</code>
+<strong>职责</strong>: 提供模式匹配的核心引擎和DSL支持</p>
+<h4 id="common-sublayer">Common Sublayer<a class="headerlink" href="#common-sublayer" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>common/</code> - 通用工具、诊断、优化、评估</li>
+</ul>
+<h4 id="dsl-sublayer">DSL Sublayer<a class="headerlink" href="#dsl-sublayer" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>dsl/</code> - 领域特定语言操作符（&gt;&gt;, &amp;&amp;, ||, !）</li>
+</ul>
+<h4 id="engine-sublayer">Engine Sublayer<a class="headerlink" href="#engine-sublayer" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>engine/</code> - 匹配引擎实现（builder, match）</li>
+</ul>
+<h3 id="pattern-layer">Pattern Layer (模式层)<a class="headerlink" href="#pattern-layer" title="Permanent link">&para;</a></h3>
+<p><strong>位置</strong>: <code>ptn/pattern/</code>
+<strong>职责</strong>: 定义各种类型的模式和模式工厂</p>
+<h4 id="base-sublayer">Base Sublayer<a class="headerlink" href="#base-sublayer" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>base/</code> - 模式基类、特征、绑定契约</li>
+</ul>
+<h4 id="value-pattern-sublayer">Value Pattern Sublayer<a class="headerlink" href="#value-pattern-sublayer" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>value/</code> - 值模式（字面量、关系比较、谓词）</li>
+</ul>
+<h4 id="type-pattern-sublayer">Type Pattern Sublayer<a class="headerlink" href="#type-pattern-sublayer" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>type/</code> - 类型模式（is, in, not_in, from）</li>
+</ul>
+<h3 id="configuration-layer">Configuration Layer (配置层)<a class="headerlink" href="#configuration-layer" title="Permanent link">&para;</a></h3>
+<p><strong>位置</strong>: <code>ptn/config.hpp</code>
+<strong>职责</strong>: 编译时配置开关和特性控制</p>
+<h3 id="integration-layer">Integration Layer (集成层)<a class="headerlink" href="#integration-layer" title="Permanent link">&para;</a></h3>
+<p><strong>位置</strong>: <code>ptn/patternia.hpp</code>
+<strong>职责</strong>: 统一的公共入口点，导出所有必要的头文件</p>
+<h2 id="api">第三部分：API汇总及其语义<a class="headerlink" href="#api" title="Permanent link">&para;</a></h2>
+<h3 id="api_1">核心匹配API<a class="headerlink" href="#api_1" title="Permanent link">&para;</a></h3>
+<h4 id="ptnmatcht-value"><code>ptn::match(T&amp;&amp; value)</code><a class="headerlink" href="#ptnmatcht-value" title="Permanent link">&para;</a></h4>
+<p><strong>语义</strong>: 模式匹配的入口点，创建匹配构建器
+<strong>参数</strong>: 要匹配的值
+<strong>返回</strong>: <code>match_builder</code> 对象，支持链式调用</p>
+<h4 id="ptnmatchut-value"><code>ptn::match&lt;U&gt;(T&amp;&amp; value)</code><a class="headerlink" href="#ptnmatchut-value" title="Permanent link">&para;</a></h4>
+<p><strong>语义</strong>: 显式指定类型的模式匹配入口点
+<strong>参数</strong>: 目标类型U和要转换的值
+<strong>返回</strong>: 指定类型的 <code>match_builder</code> 对象</p>
+<h3 id="api_2">模式构建器API<a class="headerlink" href="#api_2" title="Permanent link">&para;</a></h3>
+<h4 id="whencase_expr"><code>when(case_expr)</code><a class="headerlink" href="#whencase_expr" title="Permanent link">&para;</a></h4>
+<p><strong>语义</strong>: 添加一个匹配条件和对应的处理函数
+<strong>参数</strong>: 使用 <code>&gt;&gt;</code> 操作符创建的case表达式
+<strong>返回</strong>: 新的匹配构建器（支持链式调用）</p>
+<h4 id="otherwisehandler"><code>otherwise(handler)</code><a class="headerlink" href="#otherwisehandler" title="Permanent link">&para;</a></h4>
+<p><strong>语义</strong>: 设置默认处理函数，当所有模式都不匹配时执行
+<strong>参数</strong>: 处理函数或返回值
+<strong>返回</strong>: 匹配结果</p>
+<h3 id="dslapi">DSL操作符API<a class="headerlink" href="#dslapi" title="Permanent link">&para;</a></h3>
+<h4 id="pattern-handler"><code>pattern &gt;&gt; handler</code><a class="headerlink" href="#pattern-handler" title="Permanent link">&para;</a></h4>
+<p><strong>语义</strong>: 将模式与处理函数关联
+<strong>特殊</strong>: 如果handler是值类型，自动转换为返回该值的函数</p>
+<h4 id="pattern1-pattern2"><code>pattern1 &amp;&amp; pattern2</code><a class="headerlink" href="#pattern1-pattern2" title="Permanent link">&para;</a></h4>
+<p><strong>语义</strong>: 逻辑AND组合，两个模式都必须匹配</p>
+<h4 id="pattern1-pattern2_1"><code>pattern1 || pattern2</code><a class="headerlink" href="#pattern1-pattern2_1" title="Permanent link">&para;</a></h4>
+<p><strong>语义</strong>: 逻辑OR组合，任一模式匹配即可</p>
+<h4 id="pattern"><code>!pattern</code><a class="headerlink" href="#pattern" title="Permanent link">&para;</a></h4>
+<p><strong>语义</strong>: 逻辑NOT，模式不匹配时成功</p>
+<h3 id="api_3">值模式API<a class="headerlink" href="#api_3" title="Permanent link">&para;</a></h3>
+<h4 id="_5">字面量模式<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>lit(value)</code> - 精确匹配字面值</li>
+<li><code>lit_ci(value)</code> - 大小写不敏感的字符串匹配</li>
+</ul>
+<h4 id="_6">关系模式<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>lt(value)</code> - 小于 (x &lt; value)</li>
+<li><code>le(value)</code> - 小于等于 (x &lt;= value)</li>
+<li><code>gt(value)</code> - 大于 (x &gt; value)</li>
+<li><code>ge(value)</code> - 大于等于 (x &gt;= value)</li>
+<li><code>eq(value)</code> - 等于 (x == value)</li>
+<li><code>ne(value)</code> - 不等于 (x != value)</li>
+<li><code>between(lo, hi, closed=true)</code> - 区间匹配</li>
+</ul>
+<h4 id="_7">谓词模式<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>pred(predicate)</code> - 使用任意谓词函数</li>
+</ul>
+<h3 id="api_4">类型模式API<a class="headerlink" href="#api_4" title="Permanent link">&para;</a></h3>
+<h4 id="ptnpattypeist"><code>ptn::pat::type::is&lt;T&gt;</code><a class="headerlink" href="#ptnpattypeist" title="Permanent link">&para;</a></h4>
+<p><strong>语义</strong>: 精确类型匹配，匹配成功时绑定值到处理函数
+<strong>绑定</strong>: 绑定匹配的值作为 <code>std::tuple&lt;Subject&gt;</code></p>
+<h4 id="ptnpattypeintypes"><code>ptn::pat::type::in&lt;Types...&gt;</code><a class="headerlink" href="#ptnpattypeintypes" title="Permanent link">&para;</a></h4>
+<p><strong>语义</strong>: 类型集合匹配，检查类型是否在给定的类型列表中</p>
+<h4 id="ptnpattypenot_intypes"><code>ptn::pat::type::not_in&lt;Types...&gt;</code><a class="headerlink" href="#ptnpattypenot_intypes" title="Permanent link">&para;</a></h4>
+<p><strong>语义</strong>: 类型排除匹配，检查类型不在给定的类型列表中</p>
+<h4 id="ptnpattypefromt"><code>ptn::pat::type::from&lt;T&gt;</code><a class="headerlink" href="#ptnpattypefromt" title="Permanent link">&para;</a></h4>
+<p><strong>语义</strong>: 类型转换匹配，检查是否可以从目标类型转换而来</p>
+<h3 id="api_5">元编程API<a class="headerlink" href="#api_5" title="Permanent link">&para;</a></h3>
+<h4 id="_8">类型特征<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>ptn::meta::remove_cvref_t&lt;T&gt;</code> - 移除const/volatile和引用</li>
+<li><code>ptn::meta::is_spec_of_v&lt;Template, T&gt;</code> - 检查是否为模板特化</li>
+<li><code>ptn::meta::is_tmpl_v&lt;T&gt;</code> - 检查是否为模板实例</li>
+</ul>
+<h4 id="_9">类型列表操作<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>ptn::meta::dsa::type_list</code> - 类型列表容器</li>
+<li><code>ptn::meta::dsa::algorithms</code> - 类型列表算法</li>
+</ul>
+<h3 id="_10">配置宏<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>PTN_ENABLE_VALUE_PATTERN</code> - 启用值模式</li>
+<li><code>PTN_ENABLE_RELATIONAL_PATTERN</code> - 启用关系模式</li>
+<li><code>PTN_ENABLE_TYPE_PATTERN</code> - 启用类型模式</li>
+<li><code>PTN_ENABLE_PREDICATE_PATTERN</code> - 启用谓词模式</li>
+<li><code>PTN_USE_CONCEPTS</code> - 启用C++20概念支持</li>
+</ul>
+<h3 id="_11">绑定语义<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>字面量模式</strong>: 不绑定任何值（<code>std::tuple&lt;&gt;</code>）</li>
+<li><strong>关系模式</strong>: 不绑定任何值（<code>std::tuple&lt;&gt;</code>）</li>
+<li><strong>谓词模式</strong>: 不绑定任何值（<code>std::tuple&lt;&gt;</code>）</li>
+<li><strong>类型模式</strong>: 绑定匹配的值（<code>std::tuple&lt;Subject&gt;</code>）</li>
+</ul>
+<h3 id="_12">错误处理<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<p>库使用 <code>static_assert</code> 在编译时验证：
+- 模式类型的有效性
+- 处理函数签名的兼容性
+- 类型的可构造性
+- 操作符的支持性</p>
+<p>这个设计确保了类型安全和高性能，同时提供了直观易用的DSL语法。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "search.share", "content.code.copy"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
