@@ -1,11 +1,9 @@
 #pragma once
-/**
- * @file type.hpp
- * @brief Public API for type-based patterns in Patternia.
- *
- * This file acts as a facade, including all individual type pattern
- * features. Users can include this file to get access to all type patterns.
- */
+
+// Public API for type-based patterns in Patternia.
+//
+// This file acts as a facade, including all individual type pattern
+// features. Users can include this file to get access to all type patterns.
 
 // Include all feature files
 #include "type/is.hpp"

@@ -1,8 +1,6 @@
 #pragma once
-/**
- * @file is.hpp
- * @brief Implements `ptn::pattern::type::is<T>`.
- */
+
+// Implements `ptn::pattern::type::is<T>`.
 
 #include <type_traits>
 #include <utility>

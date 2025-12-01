@@ -1,16 +1,12 @@
 #pragma once
 
-/**
- * @file predicate.hpp
- * @brief Public API and implementation for predicate-based patterns and logical
- * composition.
- *
- * This file provides factory functions to create patterns that wrap arbitrary
- * predicates and to compose patterns using logical operators. It includes both
- * the public API and the internal implementation details.
- *
- * @namespace ptn::pat::value
- */
+// Public API and implementation for predicate-based patterns and logical composition.
+//
+// This file provides factory functions to create patterns that wrap arbitrary
+// predicates and to compose patterns using logical operators. It includes both
+// the public API and the internal implementation details.
+//
+// @namespace ptn::pat::value
 
 #include <utility>
 #include <tuple>
@@ -25,10 +21,7 @@ namespace ptn::pat::value {
 
   namespace detail {
 
-    /**
-     * @brief A pattern wrapping any callable returning something convertible to
-     * bool.
-     */
+    // A pattern wrapping any callable returning something convertible to bool.
     template <typename F>
     struct predicate_pattern : base::pattern_base<predicate_pattern<F>> {
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
@@ -40,25 +33,21 @@ namespace ptn::pat::value {
       constexpr explicit predicate_pattern(F f) : fn(std::move(f)) {
       }
 
-      /// @brief Match if `fn(x)` evaluates to true.
+      // Match if `fn(x)` evaluates to true.
       template <typename X>
       constexpr bool match(X const &x) const
           noexcept(noexcept(std::declval<const F &>()(x))) {
         return fn(x);
       }
 
-      /**
-       * @brief Binding result for predicate patterns.
-       */
+      // Binding result for predicate patterns.
       template <typename X>
       constexpr auto bind(const X & /*subj*/) const {
         return std::tuple<>{};
       }
     };
 
-    /**
-     * @brief Logical AND composition of two patterns.
-     */
+    // Logical AND composition of two patterns.
     template <typename L, typename R>
     struct and_pattern : base::pattern_base<and_pattern<L, R>> {
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
@@ -79,18 +68,14 @@ namespace ptn::pat::value {
         return l.match(x) && r.match(x);
       }
 
-      /**
-       * @brief Binding result for `and_pattern`.
-       */
+      // Binding result for `and_pattern`.
       template <typename X>
       constexpr auto bind(const X & /*subj*/) const {
         return std::tuple<>{};
       }
     };
 
-    /**
-     * @brief Logical OR composition of two patterns.
-     */
+    // Logical OR composition of two patterns.
     template <typename L, typename R>
     struct or_pattern : base::pattern_base<or_pattern<L, R>> {
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
@@ -111,18 +96,14 @@ namespace ptn::pat::value {
         return l.match(x) || r.match(x);
       }
 
-      /**
-       * @brief Binding result for `or_pattern`.
-       */
+      // Binding result for `or_pattern`.
       template <typename X>
       constexpr auto bind(const X & /*subj*/) const {
         return std::tuple<>{};
       }
     };
 
-    /**
-     * @brief Logical NOT composition of a pattern.
-     */
+    // Logical NOT composition of a pattern.
     template <typename P>
     struct not_pattern : base::pattern_base<not_pattern<P>> {
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
@@ -139,9 +120,7 @@ namespace ptn::pat::value {
         return !p.match(x);
       }
 
-      /**
-       * @brief Binding result for `not_pattern`.
-       */
+      // Binding result for `not_pattern`.
       template <typename X>
       constexpr auto bind(const X & /*subj*/) const {
         return std::tuple<>{};
@@ -152,9 +131,7 @@ namespace ptn::pat::value {
 
   // --- Public API ---
 
-  /**
-   * @brief Factory for predicate_pattern.
-   */
+  // Factory for predicate_pattern.
   template <typename F>
   constexpr auto pred(F &&f) {
     using Fn = std::decay_t<F>;

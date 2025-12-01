@@ -1,11 +1,8 @@
 #pragma once
 
-/**
- * @file builder.hpp
- * @brief Public-facing builder type for the Core matching engine.
- *
- * Internally, it is an alias to `ptn::core::detail::match_builder`.
- */
+// Public-facing builder type for the Core matching engine.
+//
+// Internally, it is an alias to `ptn::core::detail::match_builder`.
 
 #include "ptn/config.hpp"
 
@@ -16,20 +13,16 @@ namespace ptn::core {
 
   namespace detail {
 
-    /**
-     * @brief Forward declaration of the concrete builder implementation.
-     *
-     * TV    : subject type
-     * Cases : sequence of case_expr-like types
-     */
+    // Forward declaration of the concrete builder implementation.
+    //
+    // TV    : subject type
+    // Cases : sequence of case_expr-like types
     template <typename TV, typename... Cases>
     class match_builder;
 
   } // namespace detail
 
-  /**
-   * @brief Public alias forwarding to the actual implementation.
-   */
+  // Public alias forwarding to the actual implementation.
   template <typename TV, typename Cases>
   using match_builder = engine::detail::match_builder<TV, Cases>;
 

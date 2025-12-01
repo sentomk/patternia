@@ -1,8 +1,6 @@
 #pragma once
-/**
- * @file not_in.hpp
- * @brief Implements `ptn::pattern::type::not_in<Ts...>`.
- */
+
+// Implements `ptn::pattern::type::not_in<Ts...>`.
 
 #include <type_traits>
 #include <utility>
@@ -33,7 +31,7 @@ namespace ptn::pat::type::detail {
 namespace ptn::pat::base {
   template <typename... Ts, typename Subject>
   struct binding_args<ptn::pat::type::detail::not_in_pattern<Ts...>, Subject> {
-    // not_in_pattern 将匹配到的值绑定给处理器
+    // not_in_pattern binds the matched value to the handler
     using type = std::tuple<Subject>;
   };
 } // namespace ptn::pat::base
