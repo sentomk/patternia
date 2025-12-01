@@ -5,7 +5,7 @@ namespace ptn::pat::base {
 
   template <typename Pattern, typename Subject>
   struct binding_args {
-    using type = std::tuple<Subject>; // default
+    using type = std::tuple<>; // default
   };
 
   template <typename Pattern, typename Subject>

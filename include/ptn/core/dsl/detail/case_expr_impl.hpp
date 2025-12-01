@@ -24,6 +24,9 @@ namespace ptn::core::dsl::detail {
    */
   template <typename Pattern, typename Handler>
   struct case_expr {
+    using pattern_type = Pattern;
+    using handler_type = Handler;
+
     Pattern pattern; ///< The pattern to match against
     Handler handler; ///< The handler to execute if pattern matches
   };
