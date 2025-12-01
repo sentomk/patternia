@@ -30,7 +30,7 @@ namespace ptn::pat::type::detail {
 namespace ptn::pat::base {
   template <typename T, typename Subject>
   struct binding_args<ptn::pat::type::detail::is_pattern<T>, Subject> {
-    // is_pattern 将匹配到的值绑定给处理器
+    // is_pattern binds the matched value to the handler
     using type = std::tuple<Subject>;
   };
 } // namespace ptn::pat::base
