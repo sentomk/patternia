@@ -1,14 +1,11 @@
 #pragma once
 
-refactor
 // Compile-time diagnostics and static assertions for Patternia.
-
 
 #include <type_traits>
 #include "ptn/core/common/common_traits.hpp"
 
 namespace ptn::core::common {
-
 
   // Validates the entire match expression for consistency.
 
