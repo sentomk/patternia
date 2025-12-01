@@ -22,8 +22,6 @@
 
 </div>
 
-REFACTOR
-
 <br>
 
 **A header-only, zero-overhead, compile-time pattern matching library for modern C++.**
