@@ -93,10 +93,7 @@ namespace ptn::core::common {
     template <typename H, typename Tuple>
     static constexpr std::false_type is_applicable_impl(...);
 
-    /**
-     * @brief Detects "value-like" types to enable `pattern >> value` syntax
-     * sugar.
-     */
+    // Detects "value-like" types to enable `pattern >> value` syntax sugar.
     template <typename T>
     struct is_value_like_impl {
       using D = std::decay_t<T>;
@@ -179,8 +176,8 @@ namespace ptn::core::common {
   template <typename Subject, typename Otherwise, typename... Cases>
   struct match_result {
     using type = std::common_type_t<
-        case_result_t<Subject, Cases>...,
-        otherwise_result_t<Otherwise, Subject>>;
+        std::invoke_result_t<typename Cases::handler_type, Subject &>...,
+        std::invoke_result_t<Otherwise, Subject &>>;
   };
 
   template <typename Subject, typename Otherwise, typename... Cases>

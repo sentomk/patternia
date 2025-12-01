@@ -7,8 +7,6 @@
 #include <string_view>
 
 using namespace ptn;
-using namespace ptn::pat::value;
-using namespace ptn::core::dsl::ops;
 
 TEST(LiteralPattern, IntExactMatch) {
   int  x   = 42;
