@@ -36,7 +36,7 @@ namespace ptn::pat::type {
 namespace ptn::pat::base {
   template <template <typename...> typename Tpl, typename Subject>
   struct binding_args<ptn::pat::type::detail::from_pattern<Tpl>, Subject> {
-    // from_pattern 将匹配到的值绑定给处理器
+    // from_pattern binds the matched value to the handler
     using type = std::tuple<Subject>;
   };
 } // namespace ptn::pat::base
