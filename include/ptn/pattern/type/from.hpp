@@ -1,8 +1,6 @@
 #pragma once
-/**
- * @file from.hpp
- * @brief Implements `ptn::pattern::type::from<Tpl>`.
- */
+
+// Implements `ptn::pattern::type::from<Tpl>`.
 
 #include <utility>
 #include <tuple>

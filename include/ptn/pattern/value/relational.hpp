@@ -1,15 +1,12 @@
 #pragma once
 
-/**
- * @file relational.hpp
- * @brief Public API and implementation for relational comparison patterns.
- *
- * This file provides factory functions to create patterns that perform
- * relational comparisons (e.g., less-than, greater-than, equality). It includes
- * both the public API and the internal implementation details.
- *
- * @namespace ptn::pat::value
- */
+// Public API and implementation for relational comparison patterns.
+//
+// This file provides factory functions to create patterns that perform
+// relational comparisons (e.g., less-than, greater-than, equality). It includes
+// both the public API and the internal implementation details.
+//
+// @namespace ptn::pat::value
 
 #include <functional>
 #include <type_traits>
@@ -25,18 +22,14 @@ namespace ptn::pat::value {
 
   namespace detail {
 
-    /**
-     * @brief Internal storage type for relational values.
-     *
-     * Currently uses std::decay_t<T>, but may be extended for string_view
-     * specialization in future releases.
-     */
+    // Internal storage type for relational values.
+    //
+    // Currently uses std::decay_t<T>, but may be extended for string_view
+    // specialization in future releases.
     template <typename T>
     using rel_store_t = std::decay_t<T>;
 
-    /**
-     * @brief Compile-time checks for values used in ordering relations.
-     */
+    // Compile-time checks for values used in ordering relations.
     template <typename T>
     constexpr void check_rel_value() {
       static_assert(
@@ -95,9 +88,7 @@ namespace ptn::pat::value {
     template <typename V>
     using ne_pattern = rel_pattern_base<V, std::not_equal_to<>>;
 
-    /**
-     * @brief Pattern checking that a subject value falls within an interval.
-     */
+    // Pattern checking that a subject value falls within an interval.
     template <typename L, typename R, typename Cmp = std::less<>>
     struct between_pattern : base::pattern_base<between_pattern<L, R, Cmp>> {
       rel_store_t<L> lo;
@@ -137,7 +128,7 @@ namespace ptn::pat::value {
 
   // --- Public API ---
 
-  /// @brief Factory for less-than pattern `x < v`.
+  // Factory for less-than pattern `x < v`.
   template <typename V>
   constexpr auto lt(V &&v) {
     using store_t = detail::rel_store_t<V>;
@@ -145,7 +136,7 @@ namespace ptn::pat::value {
     return detail::lt_pattern<store_t>(store_t(std::forward<V>(v)));
   }
 
-  /// @brief Factory for less-than-or-equal pattern `x <= v`.
+  // Factory for less-than-or-equal pattern `x <= v`.
   template <typename V>
   constexpr auto le(V &&v) {
     using store_t = detail::rel_store_t<V>;
@@ -153,7 +144,7 @@ namespace ptn::pat::value {
     return detail::le_pattern<store_t>(store_t(std::forward<V>(v)));
   }
 
-  /// @brief Factory for greater-than pattern `x > v`.
+  // Factory for greater-than pattern `x > v`.
   template <typename V>
   constexpr auto gt(V &&v) {
     using store_t = detail::rel_store_t<V>;
@@ -161,7 +152,7 @@ namespace ptn::pat::value {
     return detail::gt_pattern<store_t>(store_t(std::forward<V>(v)));
   }
 
-  /// @brief Factory for greater-than-or-equal pattern `x >= v`.
+  // Factory for greater-than-or-equal pattern `x >= v`.
   template <typename V>
   constexpr auto ge(V &&v) {
     using store_t = detail::rel_store_t<V>;
@@ -169,7 +160,7 @@ namespace ptn::pat::value {
     return detail::ge_pattern<store_t>(store_t(std::forward<V>(v)));
   }
 
-  /// @brief Factory for equality pattern `x == v`.
+  // Factory for equality pattern `x == v`.
   template <typename V>
   constexpr auto eq(V &&v) {
     using store_t = detail::rel_store_t<V>;
@@ -191,7 +182,7 @@ namespace ptn::pat::value {
     return detail::eq_pattern<store_t>(store_t(std::forward<V>(v)));
   }
 
-  /// @brief Factory for inequality pattern `x != v`.
+  // Factory for inequality pattern `x != v`.
   template <typename V>
   constexpr auto ne(V &&v) {
     using store_t = detail::rel_store_t<V>;
@@ -214,7 +205,7 @@ namespace ptn::pat::value {
     return detail::ne_pattern<store_t>(store_t(std::forward<V>(v)));
   }
 
-  /// @brief Factory for interval pattern `[lo, hi]` or `(lo, hi)`.
+  // Factory for interval pattern `[lo, hi]` or `(lo, hi)`.
   template <typename L, typename R>
   constexpr auto between(L &&lo, R &&hi, bool closed = true) {
     using lo_t = detail::rel_store_t<L>;

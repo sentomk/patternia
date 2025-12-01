@@ -1,18 +1,17 @@
 #pragma once
 
-/**
- * @file diagnostics.hpp
- * @brief Compile-time diagnostics and static assertions for Patternia.
- */
+refactor
+// Compile-time diagnostics and static assertions for Patternia.
+
 
 #include <type_traits>
 #include "ptn/core/common/common_traits.hpp"
 
 namespace ptn::core::common {
 
-  /**
-   * @brief Validates the entire match expression for consistency.
-   */
+
+  // Validates the entire match expression for consistency.
+
   template <typename Subject, typename Otherwise, typename... Cases>
   constexpr void static_assert_valid_match() {
     // Check: All case handlers must be invocable with their pattern's bindings.
@@ -36,9 +35,7 @@ namespace ptn::core::common {
     (void) sizeof(common_return_type);
   }
 
-  /**
-   * @brief Validates that a handler matches a pattern's bindings.
-   */
+  // Validates that a handler matches a pattern's bindings.
   template <typename Case, typename Subject>
   constexpr void static_assert_valid_handler() {
     static_assert(
@@ -53,9 +50,7 @@ namespace ptn::core::common {
     );
   }
 
-  /**
-   * @brief Validates a single case expression.
-   */
+  // Validates a single case expression.
   template <typename Case, typename Subject>
   constexpr void static_assert_valid_case() {
     static_assert(
@@ -65,9 +60,7 @@ namespace ptn::core::common {
     static_assert_valid_handler<Case, Subject>();
   }
 
-  /**
-   * @brief Validates that a type is a valid pattern.
-   */
+  // Validates that a type is a valid pattern.
   template <typename Pattern, typename Subject>
   constexpr void static_assert_valid_pattern() {
 #if PTN_USE_CONCEPTS

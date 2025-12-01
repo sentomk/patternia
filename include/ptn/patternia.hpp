@@ -2,18 +2,15 @@
 
 #pragma once
 
-/**
- * @file patternia.hpp
- * @brief The single-entry-point header for the Patternia library.
- *
- * Include this file to get access to all of Patternia's core pattern matching
- * capabilities, including value, type, and structural patterns, as well as
- * the DSL operators and core matching functions.
- *
- * This is the recommended way to use Patternia.
- *
- * @namespace ptn
- */
+// The single-entry-point header for the Patternia library.
+//
+// Include this file to get access to all of Patternia's core pattern matching
+// capabilities, including value, type, and structural patterns, as well as
+// the DSL operators and core matching functions.
+//
+// This is the recommended way to use Patternia.
+//
+// @namespace ptn
 
 // --- Core Framework ---
 // The fundamental CRTP base and traits.

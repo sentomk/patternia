@@ -1,30 +1,26 @@
 #pragma once
 
-/**
- * @file fwd.hpp
- * @brief Forward declarations for Patternia Pattern Base Layer.
- */
+// Forward declarations for Patternia Pattern Base Layer.
 
 namespace ptn::pat::base {
 
-  /** Pattern identification base */
+  // Pattern identification base
   struct pattern_tag;
 
-  /** The CRTP base class for all pattern implementations */
+  // The CRTP base class for all pattern implementations
   template <typename Derived>
   struct pattern_base;
 
-  /** Pattern identification base */
+  // Pattern identification base
   enum class pattern_kind;
 
-  /** Pattern identification base */
+  // Pattern identification base
   template <typename Pattern, typename Subject>
   struct binding_args;
 
   template <typename Pattern, typename Subject>
   using binding_args_t = typename binding_args<Pattern, Subject>::type;
 
-  /** Pattern identification base */
   // has_match_method
   template <typename P, typename = void>
   struct has_match_method;
