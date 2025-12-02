@@ -9,8 +9,6 @@
 // the DSL operators and core matching functions.
 //
 // This is the recommended way to use Patternia.
-//
-// @namespace ptn
 
 // --- Core Framework ---
 // The fundamental CRTP base and traits.

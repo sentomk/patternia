@@ -1,9 +1,6 @@
 #pragma once
 
-/**
- * @file case_expr.hpp
- * @brief Public type alias for case expressions.
- */
+// Public type alias for case expressions.
 
 namespace ptn::core::dsl::detail {
   template <typename Pattern, typename Handler>
@@ -12,11 +9,9 @@ namespace ptn::core::dsl::detail {
 
 namespace ptn::core::dsl {
 
-  /**
-   * @brief Public type alias for case expressions.
-   *
-   * Represents a pattern-handler pair in the match DSL.
-   */
+  // Public type alias for case expressions.
+  //
+  // Represents a pattern-handler pair in the match DSL.
   template <typename Pattern, typename Handler>
   using case_expr = detail::case_expr<Pattern, Handler>;
 

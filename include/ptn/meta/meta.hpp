@@ -1,9 +1,6 @@
 #pragma once
 
-/**
- * @file meta.hpp
- * @brief The unified public API for Patternia's metaprogramming layer.
- */
+// The unified public API for Patternia's metaprogramming layer.
 
 #include "ptn/meta/base/traits.hpp"
 #include "ptn/meta/dsa/type_list.hpp"

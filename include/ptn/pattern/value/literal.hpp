@@ -6,8 +6,6 @@
 // This file provides factory functions to create patterns that match against
 // specific literal values. It includes both public API and internal
 // implementation details, keeping the module self-contained.
-//
-// @namespace ptn::pat::value
 
 #include <functional>
 #include <string_view>
@@ -28,7 +26,8 @@ namespace ptn::pat::value {
     // C-style strings and string literals are stored as `std::string_view`.
     // All other types use `std::decay_t<V>`.
     //
-    // @tparam V Input value type.
+    // Template parameter:
+    //   V: Input value type.
     template <typename V>
     using literal_store_t = std::conditional_t<
         std::is_array_v<std::remove_reference_t<V>> ||
