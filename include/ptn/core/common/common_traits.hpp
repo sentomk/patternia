@@ -1,9 +1,6 @@
 #pragma once
 
-/**
- * @file common_traits.hpp
- * @brief Core type traits used by the matching engine.
- */
+// Core type traits used by the matching engine.
 
 #include "ptn/config.hpp"
 #include "ptn/pattern/base/fwd.h"
@@ -25,9 +22,9 @@ namespace ptn::core::dsl::detail {
 
 namespace ptn::core::common {
 
-  /** Basic Type Extraction */
+  // Basic Type Extraction
 
-  /// @brief Detects if a type is a `case_expr`.
+  // Detects if a type is a `case_expr`.
   template <typename T>
   struct is_case_expr : std::false_type {};
 
@@ -38,7 +35,7 @@ namespace ptn::core::common {
   template <typename T>
   inline constexpr bool is_case_expr_v = is_case_expr<T>::value;
 
-  /// @brief Extracts the `Pattern` type from a `case_expr`.
+  // Extracts the `Pattern` type from a `case_expr`.
   template <typename Case>
   struct case_pattern {
     using type = void;
@@ -52,7 +49,7 @@ namespace ptn::core::common {
   template <typename Case>
   using case_pattern_t = typename case_pattern<Case>::type;
 
-  /// @brief Extracts the `Handler` type from a `case_expr`.
+  // Extracts the `Handler` type from a `case_expr`.
   template <typename Case>
   struct case_handler {
     using type = void;
@@ -66,10 +63,10 @@ namespace ptn::core::common {
   template <typename Case>
   using case_handler_t = typename case_handler<Case>::type;
 
-  /** Handler Invocability Check */
+  // Handler Invocability Check
 #if PTN_USE_CONCEPTS
-  /// @brief C++20 Concept to check if a handler can be invoked with arguments
-  /// bound by its pattern.
+  // C++20 Concept to check if a handler can be invoked with arguments
+  // bound by its pattern.
   template <typename Case, typename Subject>
   concept handler_invocable_for = requires(Case &&c, Subject &&s) {
     // Simulates the call: pattern.bind(s) -> args..., handler(args...)
@@ -84,7 +81,7 @@ namespace ptn::core::common {
   inline constexpr bool is_handler_invocable_v =
       handler_invocable_for<Case, Subject>;
 #else
-  /// @brief C++17 SFINAE implementation for handler invocability.
+  // C++17 SFINAE implementation for handler invocability.
   namespace detail {
     template <typename H, typename Tuple>
     static constexpr std::true_type is_applicable_impl(
@@ -133,9 +130,9 @@ namespace ptn::core::common {
       is_handler_invocable<Case, Subject>::value;
 #endif
 
-  /** Case and Match Result Types */
+  // Case and Match Result Types
 
-  /// @brief Computes the result type of a single case expression.
+  // Computes the result type of a single case expression.
   template <typename Subject, typename Case>
   struct case_result {
   private:
@@ -157,7 +154,7 @@ namespace ptn::core::common {
 
   namespace detail {
 
-    /// @brief Helper to deduce the result type of an `otherwise` handler.
+    // Helper to deduce the result type of an `otherwise` handler.
     template <typename O, typename S>
     static constexpr auto get_otherwise_result_impl(int)
         -> decltype(std::declval<O>()(std::declval<S &>()));
@@ -172,7 +169,7 @@ namespace ptn::core::common {
   using otherwise_result_t =
       decltype(detail::get_otherwise_result_impl<Otherwise, Subject>(0));
 
-  /// @brief Computes the common result type of the entire match expression.
+  // Computes the common result type of the entire match expression.
   template <typename Subject, typename Otherwise, typename... Cases>
   struct match_result {
     using type = std::common_type_t<

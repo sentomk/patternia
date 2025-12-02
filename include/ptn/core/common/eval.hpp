@@ -1,9 +1,6 @@
 #pragma once
 
-/**
- * @file eval.hpp
- * @brief Common evaluation logic for matching and handler invocation.
- */
+// Common evaluation logic for matching and handler invocation.
 
 #include <tuple>
 #include <type_traits>
@@ -15,7 +12,7 @@
 
 namespace ptn::core::common {
 
-  // --- SFINAE Helper for C++17 ---
+  // SFINAE Helper for C++17
   namespace detail {
     // A helper to provide a `void` type for SFINAE.
     template <typename... Ts>
@@ -51,18 +48,17 @@ namespace ptn::core::common {
     template <typename P, typename S>
     constexpr bool has_bind_member_v = has_bind_member<P, S>::value;
   } // namespace detail
-  // ---------------------------------
 
-  /** Case Matching */
+  // Case Matching
 
-  /// @brief Checks if a case's pattern matches a subject.
+  // Checks if a case's pattern matches a subject.
   template <typename Case, typename Subject>
   struct case_matcher {
     using case_type    = Case;
     using subject_type = Subject;
     using pattern_type = case_pattern_t<Case>;
 
-    /// @brief Returns true if the pattern matches the subject.
+    // Returns true if the pattern matches the subject.
     static constexpr bool
     matches(const case_type &c, const subject_type &subject) {
       // Supports both class-based patterns with a .match() method and
@@ -89,9 +85,9 @@ namespace ptn::core::common {
     }
   };
 
-  /** Handler Invocation Logic */
+  // Handler Invocation Logic
 
-  /// @brief Invokes a handler with the subject and values bound by its pattern.
+  // Invokes a handler with the subject and values bound by its pattern.
   template <typename Case, typename Subject>
   constexpr decltype(auto) invoke_handler(const Case &c, Subject &&subject) {
     using pattern_type = case_pattern_t<Case>;
@@ -124,9 +120,9 @@ namespace ptn::core::common {
     return std::apply(c.handler, std::move(full_args));
   }
 
-  /** Case Sequence Evaluation */
+  // Case Sequence Evaluation
   namespace detail {
-    /// @brief Recursive implementation for evaluating a tuple of cases.
+    // Recursive implementation for evaluating a tuple of cases.
     template <
         std::size_t I,
         typename Subject,
@@ -161,7 +157,7 @@ namespace ptn::core::common {
     }
   } // namespace detail
 
-  /// @brief Public entry point to evaluate a sequence of cases.
+  // Public entry point to evaluate a sequence of cases.
   template <typename Subject, typename CasesTuple, typename Otherwise>
   constexpr decltype(auto) eval_cases(
       Subject &subject, CasesTuple &cases, Otherwise &&otherwise_handler) {

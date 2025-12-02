@@ -1,9 +1,6 @@
 #pragma once
 
-/**
- * @file ops.hpp
- * @brief DSL operators for building case expressions and composing patterns.
- */
+// DSL operators for building case expressions and composing patterns.
 
 #include <type_traits>
 #include <utility>
@@ -15,22 +12,20 @@
 
 namespace ptn::core::dsl::ops {
 
-  // --- Operator Overloads ---
+  // Operator Overloads
 
-  /**
-   * @brief `operator>>`: Pattern >> Handler / Pattern >> Value
-   *
-   * This operator supports two modes:
-   * 1. If Handler is a "value type" (int, enum, string, etc.), it constructs
-   *    a value-handler that ignores all arguments and always returns that
-   *    value.
-   * 2. Otherwise, it is treated as a proper handler that can be invoked
-   *    according to the rules in case_result_t.
-   *
-   * This prevents lambdas with parameters from being misidentified as values,
-   * avoiding closure types being passed into std::common_type_t and resolving
-   * common_type errors.
-   */
+  // `operator>>`: Pattern >> Handler / Pattern >> Value
+  //
+  // This operator supports two modes:
+  // 1. If Handler is a "value type" (int, enum, string, etc.), it constructs
+  //    a value-handler that ignores all arguments and always returns that
+  //    value.
+  // 2. Otherwise, it is treated as a proper handler that can be invoked
+  //    according to the rules in case_result_t.
+  //
+  // This prevents lambdas with parameters from being misidentified as values,
+  // avoiding closure types being passed into std::common_type_t and resolving
+  // common_type errors.
   template <typename Pattern, typename Handler>
   constexpr auto operator>>(Pattern &&pattern, Handler &&handler) {
     using P = std::decay_t<Pattern>;
@@ -50,15 +45,13 @@ namespace ptn::core::dsl::ops {
           std::forward<Pattern>(pattern), std::forward<Handler>(handler)};
     }
   }
-  /**
-   * @brief Pattern logical composition: &&, ||, !
-   *
-   * These operators enable logical composition of patterns using
-   * `pat::detail::is_pattern_v<T>` from pattern/base/pattern_traits.hpp.
-   * They are only enabled for actual pattern types.
-   */
+  // Pattern logical composition: &&, ||, !
+  //
+  // These operators enable logical composition of patterns using
+  // `pat::detail::is_pattern_v<T>` from pattern/base/pattern_traits.hpp.
+  // They are only enabled for actual pattern types.
 
-  /// @brief AND composition: p1 && p2
+  // AND composition: p1 && p2
   template <
       typename L,
       typename R,
@@ -71,7 +64,7 @@ namespace ptn::core::dsl::ops {
             std::forward<L>(l), std::forward<R>(r));
   }
 
-  /// @brief OR composition: p1 || p2
+  // OR composition: p1 || p2
   template <
       typename L,
       typename R,
@@ -84,7 +77,7 @@ namespace ptn::core::dsl::ops {
             std::forward<L>(l), std::forward<R>(r));
   }
 
-  /// @brief NOT composition: !p
+  // NOT composition: !p
   template <
       typename P,
       typename = std::enable_if_t<pat::detail::is_pattern_v<std::decay_t<P>>>>
