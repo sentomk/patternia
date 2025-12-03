@@ -55,35 +55,94 @@ int main() {
 
 ## 🔧 Installation
 
----
+Patternia is **header-only**, so installation is lightweight and dependency-free.
 
-## 💡 Example Use Cases
+### Recommended: CMake FetchContent
 
-### Complex Pattern Composition
+Add this to your project’s **top-level** `CMakeLists.txt`:
 
-```cpp
-auto positive_even = pred([](int x) { return x > 0; }) && 
-                     pred([](int x) { return x % 2 == 0; });
-match(42).when(positive_even >> "valid");
+```cmake
+cmake_minimum_required(VERSION 3.14)
+project(your_project_name LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include(FetchContent)
+
+FetchContent_Declare(
+    patternia
+    GIT_REPOSITORY https://github.com/SentoMK/patternia.git
+    GIT_TAG main
+)
+FetchContent_MakeAvailable(patternia)
+
+add_executable(your_project_name main.cpp)
+target_link_libraries(your_project_name PRIVATE patternia::patternia)
 ```
 
+This automatically fetches Patternia at configure time and sets up the imported target.
+
+### More Installation Options
+
+Source installation, header-only drop-in, Conan/vcpkg integration and versioning instructions can be found in the Online Docs:
+
+Documentation → [Installation Guide](https://sentomk.github.io/patternia/guide/installation/)
+
 ---
 
-## 📚 Documentation
+### Supported Platforms
 
-
----
-
-## 🛠️ Build Requirements
-
-- **Compilers**: GCC ≥11, Clang ≥12, MSVC ≥2019
-- **CMake**: ≥3.14 (for examples/tests)
-- **C++ Standard**: C++17 or newer
+| OS      | Compilers            | Status          |
+| ------- | -------------------- | --------------- |
+| Linux   | GCC ≥11, Clang ≥12   | **Fully Supported** |
+| Windows | MSVC ≥2019, Clang-CL | **Fully Supported** |
+| macOS   | AppleClang ≥14       | **Fully Supported** |
 
 ---
 
 ## 🤝 Contributing
-  
+
+Contributions are welcome. Whether it is **bug reports**, **feature proposals**, or **pull requests**, your help is appreciated.
+
+### Before Submitting Changes
+
+1. **Discuss First**
+   Open an Issue or a Discussion when proposing new features or behavior changes.
+2. **Code Style**
+   Follow modern C++ idioms and ensure:
+
+   * C++17+ compatible
+   * No RTTI or virtual dispatch introduced
+   * Zero-overhead principles preserved
+3. **Tests Required**
+   Add or update unit tests under `tests/` for any logic changes.
+4. **Comment Style**
+   Follow **Google C++ Style Guide** for documentation comments.
+5. **Commit Style**
+   Use conventional commit messages:
+
+   ```
+   feat: add predicate pattern for ranges
+   fix: correct match_result type inference
+   refactor: reorganize dsl ops
+   ```
+
+### Development Setup
+
+```bash
+git clone https://github.com/SentoMK/patternia.git
+cd patternia
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
+```
+
+Run tests:
+
+```bash
+ctest --test-dir build
+```
+
 ---
 
 <div align="center">
