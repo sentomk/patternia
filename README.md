@@ -40,17 +40,67 @@
 
 ## 🚀 Quick Start
 
+### Real-World Demo: Intelligent Movement Decision
+
+Game development often requires mapping player input into behavior logic:
+direction vectors → animation / motion states.
+
+With Patternia, this logic becomes **a declarative decision table**, rather than a scattered set of if-else or switch-case statements.
+
 ```cpp
-#include "ptn/patternia.hpp"
-using namespace ptn;
-int main() {
-    int x = 42;
-    auto result = match(x)
-        .when(lit(42) >> "answer")
-        .when(between(1, 10) >> "small")
-        .otherwise("other");
+Action get_action(const Vec2& v) {
+    return match(v)
+        .when(pred([](const Vec2& p){ return is_forward(p) && is_strong_move(p); })
+              >> Action::Dash)
+        .when(pred([](const Vec2& p){ return is_forward(p); })
+              >> Action::MoveForward)
+        .when(pred([](const Vec2& p){ return is_backward(p); })
+              >> Action::MoveBackward)
+        .when(pred([](const Vec2& p){ return is_right(p); })
+              >> Action::MoveRight)
+        .when(pred([](const Vec2& p){ return is_left(p); })
+              >> Action::MoveLeft)
+        .otherwise(Action::Idle);
 }
 ```
+
+### What this demonstrates
+
+| Benefit                             | Description                                                                       |
+| ----------------------------------- | --------------------------------------------------------------------------------- |
+| **Logic & behavior separation**     | Rules (`is_forward`, `is_strong_move`) and results (`Action`) are fully decoupled |
+| **Readable business intent**        | No mixed branching or hidden side effects                                         |
+| **Extendable without modification** | New movement logic is added by appending `.when(...)`                             |
+| **Zero runtime overhead**           | All decisions are resolved by the compiler                                        |
+
+This shows how Patternia transforms traditional control flow into expressive, safe, and maintainable logic — ideal for gameplay, robotics, event handling, or any domain where complex branching grows over time.
+
+---
+
+### Why not `switch` or `if-else`?
+
+Traditional approaches:
+
+```cpp
+if (...) { ... }
+else if (...) { ... }
+else if (...) { ... }
+```
+
+or:
+
+```cpp
+switch(action) { ... }
+```
+
+These:
+
+* tightly couple **condition** and **behavior**
+* become error-prone when branching grows
+* require modifying existing logic to extend behavior
+
+Patternia solves all of these, while generating equally efficient (or better) machine code.
+
 ---
 
 ## 🔧 Installation
