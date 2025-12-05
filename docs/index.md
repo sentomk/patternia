@@ -1,10 +1,38 @@
-# Patternia
+# Patternia Documentation
 
-Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic
-clear, expressive, and type-safe — without sacrificing performance or compilation efficiency.
+**A modern C++ pattern matching DSL**
 
-It provides a structured way to express matching rules through composable patterns,
-including value patterns, type patterns, and extensible DSL operators.
+Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic clear, expressive, and type-safe — without sacrificing performance or compilation efficiency.
+
+---
+
+## Navigation
+
+### Quick Start
+- [Installation](guide/installation.md) - How to integrate Patternia into your project
+- [Getting Started](guide/getting-started.md) - Complete examples from basics to advanced
+
+### Pattern System
+- [Pattern System Overview](patterns/foreword.md) - Understand Patternia's design philosophy
+- [Value Patterns](patterns/value.md) - Value matching with literals, ranges, predicates
+- [Type Patterns](patterns/type.md) - Type matching with type checking, type lists
+
+### API Reference
+- [API Documentation](api/api.md) - Complete API reference for all functions and patterns
+
+### Project Information
+- [Roadmap](design/roadmap.md) - Future development directions and plans
+- [Releases](changelog/releases.md) - Version update history
+
+---
+
+## Core Features
+
+- **Header-only**: Zero dependencies, plug-and-play
+- **Declarative Syntax**: `match().when().otherwise()` chaining
+- **Type Safety**: Compile-time guarantees, zero runtime overhead
+- **Rich Patterns**: Value patterns, type patterns, predicate patterns
+- **DSL Operators**: `>>`, `&&`, `||`, `!` for composition
 
 ---
 
@@ -17,83 +45,43 @@ using namespace ptn;
 int x = 42;
 
 auto result =
-  match(x)
-    .when(lit(0) >> "zero")
-    .when(lit(42) >> "answer")
-    .when(type::is<int> >> "int value")
-    .otherwise("other");
+    match(x)
+      .when(lit(0) >> "zero")
+      .when(lit(42) >> "answer")
+      .when(type::is<int> >> "int value")
+      .otherwise("other");
 ```
 
-Patternia evaluates patterns in order and returns the result associated with the
-first successful match.
+Patternia evaluates patterns in order and returns the result associated with the first successful match.
 
 ---
 
-## Why Patternia
+## Where to Start
 
-* Header-only, zero dependencies
-* Declarative matching style
-* Strongly typed DSL
-* Composable value, type, and predicate patterns
-* Clean chaining model: `match().when().otherwise()`
-* Ready for integration into modern C++ projects
+If you're **new to Patternia**, we recommend reading in this order:
 
----
+1. [Installation](guide/installation.md) - Integrate into your project
+2. [Getting Started](guide/getting-started.md) - Learn basic usage
+3. [Value Patterns](patterns/value.md) or [Type Patterns](patterns/type.md) - Deep dive based on your needs
 
-## Core Concepts
+If you're looking for **specific information**:
 
-Patternia organizes matching logic into a simple layered model:
-
-* **Value Patterns**
-  Match literals, ranges, and custom predicates.
-
-* **Type Patterns**
-  Match exact types, type lists, or template families.
-
-* **Variant Patterns** *(in development)*
-  Structured matching for `std::variant` and user-defined sum types.
-
-* **DSL Operators**
-  `>>` (pattern → handler), `&&`, `||`, `!` for pattern composition.
+- Need a function reference? → [API Documentation](api/api.md)
+- Want to understand design philosophy? → [Pattern System Overview](patterns/foreword.md)
+- Check version updates? → [Releases](changelog/releases.md)
 
 ---
 
-## Get Started
+## System Requirements
 
-To begin using Patternia, see:
-
-* [Installation](guide/installation.md)
-* [Getting Started](guide/getting-started.md)
-* [Concepts](guide/concepts.md)
+- **C++ Standard**: C++17 or later
+- **Compilers**: GCC ≥11, Clang ≥12, MSVC ≥2019
+- **Platforms**: Linux, Windows, macOS
 
 ---
 
-## Explore the Pattern System
+<div align="center">
 
-* [Pattern System Architecture](patterns/foreword.md)
-* [Value Patterns](patterns/value.md)
-* [Type Patterns](patterns/type.md)
+<b>Make logical structure explicit, make C++ code more elegant</b>
 
----
-
-## API Reference
-
-* [match()](api/match.md)
-* [value patterns](api/value.md)
-* [type patterns](api/type.md)
-* [variant](api/variant.md)
-* [DSL Operators](api/dsl.md)
-
----
-
-## Project
-
-* [Roadmap](design/roadmap.md)
-* [Releases](changelog/releases.md)
-* [GitHub Repository](https://github.com/sentomk/patternia)
-
----
-
-Patternia aims to make logical structure explicit —
-so your C++ code becomes easier to read, reason about, and extend.
-  
+</div>
