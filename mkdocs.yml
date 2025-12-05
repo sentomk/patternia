@@ -86,7 +86,7 @@ nav:
       - Type Patterns: patterns/type.md
 
   - API Documents:
-      - Match(): api/match.md
+      - API: api/api.md
   - Design Notes:
       - Roadmap: design/roadmap.md
 
