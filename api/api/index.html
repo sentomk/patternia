@@ -1,0 +1,2720 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Patternia — expressive pattern matching for modern C++.">
+      
+      
+        <meta name="author" content="Y.F. Guo">
+      
+      
+        <link rel="canonical" href="https://sentomk.github.io/patternia/api/api/">
+      
+      
+        <link rel="prev" href="../../patterns/type/">
+      
+      
+        <link rel="next" href="../../design/roadmap/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>API - Patternia</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../overrides/styles.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#patternia-api-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Patternia" class="md-header__button md-logo" aria-label="Patternia" data-md-component="logo">
+      
+  <img src="../../assets/favicon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Patternia
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              API
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sentomk/patternia" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sentomk/patternia
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guide/installation/" class="md-tabs__link">
+          
+  
+  
+  Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../patterns/foreword/" class="md-tabs__link">
+          
+  
+  
+  Pattern System
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  API Documents
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/roadmap/" class="md-tabs__link">
+          
+  
+  
+  Design Notes
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../changelog/releases/" class="md-tabs__link">
+          
+  
+  
+  Changelog
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Patternia" class="md-nav__button md-logo" aria-label="Patternia" data-md-component="logo">
+      
+  <img src="../../assets/favicon.svg" alt="logo">
+
+    </a>
+    Patternia
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sentomk/patternia" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sentomk/patternia
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pattern System
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Pattern System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../patterns/foreword/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Foreword
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../patterns/value/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Value Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../patterns/type/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Patterns
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Documents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Documents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#namespace-structure-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Namespace Structure Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Namespace Structure Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#main-namespace-aliases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main Namespace Aliases
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-matching-engine-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Matching Engine API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Matching Engine API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#main-entry-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main Entry Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Main Entry Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ptnmatchvalue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::match(value)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnmatchuvalue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::match&lt;U&gt;(value)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#match-builder-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Match Builder API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Match Builder API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#match_builderwhenpattern-handler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        match_builder::when(pattern &gt;&gt; handler)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#match_builderotherwisehandler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        match_builder::otherwise(handler)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#value-pattern-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value Pattern API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Value Pattern API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#literal-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Literal Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Literal Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ptnlitvalue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::lit(value)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnlit_civalue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::lit_ci(value)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relational-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relational Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Relational Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ptnltvalue-less-than" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::lt(value) - Less than
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnlevalue-less-than-or-equal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::le(value) - Less than or equal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptngtvalue-greater-than" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::gt(value) - Greater than
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptngevalue-greater-than-or-equal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::ge(value) - Greater than or equal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptneqvalue-equal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::eq(value) - Equal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnnevalue-not-equal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::ne(value) - Not equal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnbetweenlo-hi-closed-range-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::between(lo, hi, closed) - Range matching
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#predicate-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Predicate Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Predicate Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ptnpredpredicate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::pred(predicate)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-pattern-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type Pattern API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Type Pattern API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ptnpattypeist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::pat::type::is&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnpattypeints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::pat::type::in&lt;Ts...&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnpattypenot_ints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::pat::type::not_in&lt;Ts...&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnpattypefromtpl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::pat::type::from&lt;Tpl&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dsl-operators-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DSL Operators API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DSL Operators API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-combination-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern Combination Operators
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pattern Combination Operators">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern1-pattern2-logical-and" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pattern1 &amp;&amp; pattern2 - Logical AND
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern1-pattern2-logical-or" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pattern1 || pattern2 - Logical OR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-logical-not" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        !pattern - Logical NOT
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-handler-binding-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern-Handler Binding Operators
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pattern-Handler Binding Operators">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-handler-pattern-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pattern &gt;&gt; handler - Pattern binding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metaprogramming-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metaprogramming API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Metaprogramming API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-type-traits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Type Traits
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Basic Type Traits">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ptnmetaremove_cvref_tt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::meta::remove_cvref_t&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnmetais_spec_of_vtpl-t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::meta::is_spec_of_v&lt;Tpl, T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnmetais_tmpl_vt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::meta::is_tmpl_v&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-list-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type List Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Type List Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ptnmetatype_listts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::meta::type_list&lt;Ts...&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-operation-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List Operation Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="List Operation Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#contactlist1-list2-concatenate-two-type-lists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        contact(list1, list2) - Concatenate two type lists
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#appendtlist-add-type-to-end-of-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        append&lt;T&gt;(list) - Add type to end of list
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prependtlist-add-type-to-beginning-of-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        prepend&lt;T&gt;(list) - Add type to beginning of list
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nth_type_tn-list-get-the-nth-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        nth_type_t&lt;N, list&gt; - Get the Nth type
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-list-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type List Algorithms
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Type List Algorithms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ptnmetaallbs-logical-and-fold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::meta::all&lt;Bs...&gt; - Logical AND fold
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnmetaanybs-logical-or-fold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::meta::any&lt;Bs...&gt; - Logical OR fold
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnmetanonebs-logical-not-fold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::meta::none&lt;Bs...&gt; - Logical NOT fold
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnmetamap_tf-list-apply-metafunction-to-each-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::meta::map_t&lt;F, list&gt; - Apply metafunction to each type
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnmetafilter_tpred-list-filter-type-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::meta::filter_t&lt;Pred, list&gt; - Filter type list
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#query-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ptnmetacontains_vt-list-check-if-type-is-in-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::meta::contains_v&lt;T, list&gt; - Check if type is in list
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnmetaindex_of_vt-list-get-index-of-type-in-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::meta::index_of_v&lt;T, list&gt; - Get index of type in list
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#template-information-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Template Information Queries
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Template Information Queries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ptnmetatemplate_infot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::meta::template_info&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Complete Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-usage-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Usage Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complex-pattern-combination-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complex Pattern Combination Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#string-processing-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        String Processing Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enum-and-user-type-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enum and User Type Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-analysis-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Analysis Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metaprogramming-usage-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metaprogramming Usage Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complete-comprehensive-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Comprehensive Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-feature-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Feature Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Feature Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#type-safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type Safety
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extensibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extensibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expressiveness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expressiveness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compatibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Notes
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design Notes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Changelog
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Releases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="patternia-api-reference">Patternia API Reference<a class="headerlink" href="#patternia-api-reference" title="Permanent link">&para;</a></h1>
+<h2 id="namespace-structure-overview">Namespace Structure Overview<a class="headerlink" href="#namespace-structure-overview" title="Permanent link">&para;</a></h2>
+<p>Patternia adopts a layered namespace design, primarily containing the following namespaces:</p>
+<div class="highlight"><pre><span></span><code>ptn/                                    // Root namespace
+├── core/                              // Core matching engine
+│   ├── engine/                        // Matching engine implementation
+│   ├── dsl/                          // DSL operators
+│   └── common/                       // Common utilities and traits
+├── pat/                              // Pattern definitions
+│   ├── base/                         // Pattern base classes
+│   ├── value/                        // Value patterns
+│   └── type/                         // Type patterns
+└── meta/                             // Meta programming tools
+    ├── base/                         // Base traits
+    ├── dsa/                          // Data structures and algorithms
+    └── query/                        // Query utilities
+</code></pre></div>
+<h3 id="main-namespace-aliases">Main Namespace Aliases<a class="headerlink" href="#main-namespace-aliases" title="Permanent link">&para;</a></h3>
+<p>For user convenience, Patternia provides the following namespace aliases:</p>
+<div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">namespace</span><span class="w"> </span><span class="nn">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">pat</span><span class="o">::</span><span class="nn">type</span><span class="p">;</span><span class="w">    </span><span class="c1">// Type pattern alias</span>
+<span class="w">  </span><span class="k">namespace</span><span class="w"> </span><span class="nn">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">pat</span><span class="o">::</span><span class="nn">value</span><span class="p">;</span><span class="w">  </span><span class="c1">// Value pattern alias</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="core-matching-engine-api">Core Matching Engine API<a class="headerlink" href="#core-matching-engine-api" title="Permanent link">&para;</a></h2>
+<h3 id="main-entry-functions">Main Entry Functions<a class="headerlink" href="#main-entry-functions" title="Permanent link">&para;</a></h3>
+<h4 id="ptnmatchvalue"><code>ptn::match(value)</code><a class="headerlink" href="#ptnmatchvalue" title="Permanent link">&para;</a></h4>
+<p>Type-deduced matching entry point that automatically deduces the value type.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">value</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Parameters:</strong>
+- <code>value</code> - Value to match (forwarding reference)</p>
+<p><strong>Returns:</strong> <code>match_builder</code> object for chained calls to <code>.when()</code> and <code>.otherwise()</code></p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;answer&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h4 id="ptnmatchuvalue"><code>ptn::match&lt;U&gt;(value)</code><a class="headerlink" href="#ptnmatchuvalue" title="Permanent link">&para;</a></h4>
+<p>Explicit type-specified matching entry point that forces conversion to target type.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">U</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">value</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Parameters:</strong>
+- <code>U</code> - Target type
+- <code>value</code> - Value to match</p>
+<p><strong>Constraints:</strong> Type U must be constructible from value</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="kt">double</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.14</span><span class="p">;</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="w">  </span><span class="c1">// Force convert to int</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;three&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h3 id="match-builder-api">Match Builder API<a class="headerlink" href="#match-builder-api" title="Permanent link">&para;</a></h3>
+<h4 id="match_builderwhenpattern-handler"><code>match_builder::when(pattern &gt;&gt; handler)</code><a class="headerlink" href="#match_builderwhenpattern-handler" title="Permanent link">&para;</a></h4>
+<p>Add a matching branch.</p>
+<p><strong>Syntax:</strong>
+<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong>
+- <code>pattern</code> - Any pattern object
+- <code>handler</code> - Handler function or value</p>
+<p><strong>Returns:</strong> New <code>match_builder</code> object (supports chained calls)</p>
+<h4 id="match_builderotherwisehandler"><code>match_builder::otherwise(handler)</code><a class="headerlink" href="#match_builderotherwisehandler" title="Permanent link">&para;</a></h4>
+<p>Add a default branch.</p>
+<p><strong>Syntax:</strong>
+<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong>
+- <code>handler</code> - Default handler function or value</p>
+<p><strong>Returns:</strong> Match result</p>
+<hr />
+<h2 id="value-pattern-api">Value Pattern API<a class="headerlink" href="#value-pattern-api" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong><code>ptn::pat::value::lit</code> == <code>ptn::lit</code></strong> </p>
+</div>
+<h3 id="literal-patterns">Literal Patterns<a class="headerlink" href="#literal-patterns" title="Permanent link">&para;</a></h3>
+<h4 id="ptnlitvalue"><code>ptn::lit(value)</code><a class="headerlink" href="#ptnlitvalue" title="Permanent link">&para;</a></h4>
+<p>Create exact match pattern.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">V</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">lit</span><span class="p">(</span><span class="n">V</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">v</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Purpose:</strong> Create a pattern that exactly matches the given value</p>
+<p><strong>Supported Types:</strong>
+- Arithmetic types (int, double, float, etc.)
+- Enum types
+- Strings (std::string, std::string_view, const char*)
+- User-defined types (must support operator==)</p>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1">// Integer matching</span>
+<span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;answer&quot;</span><span class="p">);</span>
+
+<span class="c1">// String matching</span>
+<span class="n">match</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;greeting&quot;</span><span class="p">);</span>
+
+<span class="c1">// Enum matching</span>
+<span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Color</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Red</span><span class="p">,</span><span class="w"> </span><span class="n">Green</span><span class="p">,</span><span class="w"> </span><span class="n">Blue</span><span class="w"> </span><span class="p">};</span>
+<span class="n">Color</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Color</span><span class="o">::</span><span class="n">Red</span><span class="p">;</span>
+<span class="n">match</span><span class="p">(</span><span class="n">c</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Color</span><span class="o">::</span><span class="n">Red</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;red&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h4 id="ptnlit_civalue"><code>ptn::lit_ci(value)</code><a class="headerlink" href="#ptnlit_civalue" title="Permanent link">&para;</a></h4>
+<p>Create case-insensitive string matching pattern.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">V</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">lit_ci</span><span class="p">(</span><span class="n">V</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">v</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Purpose:</strong> Create a case-insensitive string matching pattern (ASCII only)</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;HELLO&quot;</span><span class="p">;</span>
+<span class="n">match</span><span class="p">(</span><span class="n">s</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">lit_ci</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;case-insensitive-match&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h3 id="relational-patterns">Relational Patterns<a class="headerlink" href="#relational-patterns" title="Permanent link">&para;</a></h3>
+<h4 id="ptnltvalue-less-than"><code>ptn::lt(value)</code> - Less than<a class="headerlink" href="#ptnltvalue-less-than" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">V</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">lt</span><span class="p">(</span><span class="n">V</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">v</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="mi">5</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">lt</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;less-than-10&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h4 id="ptnlevalue-less-than-or-equal"><code>ptn::le(value)</code> - Less than or equal<a class="headerlink" href="#ptnlevalue-less-than-or-equal" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">V</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">le</span><span class="p">(</span><span class="n">V</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">v</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="mi">10</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">le</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;less-or-equal-10&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h4 id="ptngtvalue-greater-than"><code>ptn::gt(value)</code> - Greater than<a class="headerlink" href="#ptngtvalue-greater-than" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">V</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">gt</span><span class="p">(</span><span class="n">V</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">v</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="mi">15</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">gt</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;greater-than-10&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h4 id="ptngevalue-greater-than-or-equal"><code>ptn::ge(value)</code> - Greater than or equal<a class="headerlink" href="#ptngevalue-greater-than-or-equal" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">V</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">ge</span><span class="p">(</span><span class="n">V</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">v</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="mi">10</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">ge</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;greater-or-equal-10&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h4 id="ptneqvalue-equal"><code>ptn::eq(value)</code> - Equal<a class="headerlink" href="#ptneqvalue-equal" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">V</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">eq</span><span class="p">(</span><span class="n">V</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">v</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">eq</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;equal-42&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h4 id="ptnnevalue-not-equal"><code>ptn::ne(value)</code> - Not equal<a class="headerlink" href="#ptnnevalue-not-equal" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">V</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">ne</span><span class="p">(</span><span class="n">V</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">v</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">ne</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;not-zero&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h4 id="ptnbetweenlo-hi-closed-range-matching"><code>ptn::between(lo, hi, closed)</code> - Range matching<a class="headerlink" href="#ptnbetweenlo-hi-closed-range-matching" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">L</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">R</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">between</span><span class="p">(</span><span class="n">L</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">lo</span><span class="p">,</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">hi</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">closed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Parameters:</strong>
+- <code>lo</code> - Lower bound
+- <code>hi</code> - Upper bound
+- <code>closed</code> - Whether it's a closed interval (default true)</p>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="mi">5</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">between</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;in-range&quot;</span><span class="p">);</span><span class="w">      </span><span class="c1">// [1, 10]</span>
+<span class="n">match</span><span class="p">(</span><span class="mi">5</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">between</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;in-open-range&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1, 10)</span>
+</code></pre></div></p>
+<h3 id="predicate-patterns">Predicate Patterns<a class="headerlink" href="#predicate-patterns" title="Permanent link">&para;</a></h3>
+<h4 id="ptnpredpredicate"><code>ptn::pred(predicate)</code><a class="headerlink" href="#ptnpredpredicate" title="Permanent link">&para;</a></h4>
+<p>Wrap any predicate function as a pattern.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">F</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">pred</span><span class="p">(</span><span class="n">F</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">f</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Parameters:</strong> <code>predicate</code> - Callable object that accepts one parameter and returns a value convertible to bool</p>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">is_even</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pred</span><span class="p">([](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">});</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">is_positive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pred</span><span class="p">([](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">});</span>
+
+<span class="n">match</span><span class="p">(</span><span class="mi">4</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">is_even</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;even-number&quot;</span><span class="p">);</span>
+<span class="n">match</span><span class="p">(</span><span class="mi">-5</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">is_positive</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;positive&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<hr />
+<h2 id="type-pattern-api">Type Pattern API<a class="headerlink" href="#type-pattern-api" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong><code>ptn::pat::type::is</code> = <code>ptn::type::is</code></strong> </p>
+</div>
+<h3 id="ptnpattypeist"><code>ptn::pat::type::is&lt;T&gt;</code><a class="headerlink" href="#ptnpattypeist" title="Permanent link">&para;</a></h3>
+<p>Exact type matching pattern.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="n">detail</span><span class="o">::</span><span class="n">is_pattern</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="n">is</span><span class="p">{};</span>
+</code></pre></div>
+<p><strong>Purpose:</strong> Match types identical to the given type</p>
+<p><strong>Bound Value:</strong> The matched value itself</p>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;integer&quot;</span><span class="p">);</span>
+<span class="n">match</span><span class="p">(</span><span class="mf">3.14</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;floating-point&quot;</span><span class="p">);</span>
+
+<span class="c1">// Alias in ptn::type namespace</span>
+<span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;integer&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h3 id="ptnpattypeints"><code>ptn::pat::type::in&lt;Ts...&gt;</code><a class="headerlink" href="#ptnpattypeints" title="Permanent link">&para;</a></h3>
+<p>Type set matching pattern.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Ts</span><span class="o">&gt;</span>
+<span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="n">detail</span><span class="o">::</span><span class="n">in_pattern</span><span class="o">&lt;</span><span class="n">Ts</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="n">in</span><span class="p">{};</span>
+</code></pre></div>
+<p><strong>Purpose:</strong> Match types belonging to any type in the given type set</p>
+<p><strong>Parameters:</strong> <code>Ts...</code> - Type list</p>
+<p><strong>Bound Value:</strong> The matched value itself</p>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">in</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">long</span><span class="p">,</span><span class="w"> </span><span class="kt">short</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;integral&quot;</span><span class="p">);</span>
+<span class="n">match</span><span class="p">(</span><span class="mf">3.14f</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">in</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;floating&quot;</span><span class="p">);</span>
+
+<span class="c1">// Using alias</span>
+<span class="n">match</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">in</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;string-like&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h3 id="ptnpattypenot_ints"><code>ptn::pat::type::not_in&lt;Ts...&gt;</code><a class="headerlink" href="#ptnpattypenot_ints" title="Permanent link">&para;</a></h3>
+<p>Type exclusion matching pattern.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Ts</span><span class="o">&gt;</span>
+<span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="n">detail</span><span class="o">::</span><span class="n">not_in_pattern</span><span class="o">&lt;</span><span class="n">Ts</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="n">not_in</span><span class="p">{};</span>
+</code></pre></div>
+<p><strong>Purpose:</strong> Match types not belonging to any type in the given type set</p>
+<p><strong>Parameters:</strong> <code>Ts...</code> - Type list to exclude</p>
+<p><strong>Bound Value:</strong> The matched value itself</p>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">not_in</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;not-floating&quot;</span><span class="p">);</span>
+<span class="n">match</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">not_in</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;not-number&quot;</span><span class="p">);</span>
+
+<span class="c1">// Using alias</span>
+<span class="n">match</span><span class="p">(</span><span class="mf">3.14f</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">not_in</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">long</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;not-integral&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h3 id="ptnpattypefromtpl"><code>ptn::pat::type::from&lt;Tpl&gt;</code><a class="headerlink" href="#ptnpattypefromtpl" title="Permanent link">&para;</a></h3>
+<p>Template specialization matching pattern.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">Tpl</span><span class="o">&gt;</span>
+<span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="n">detail</span><span class="o">::</span><span class="n">from_pattern</span><span class="o">&lt;</span><span class="n">Tpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">from</span><span class="p">{};</span>
+</code></pre></div>
+<p><strong>Purpose:</strong> Match specializations of a specific template</p>
+<p><strong>Parameters:</strong> <code>Tpl</code> - Template name</p>
+<p><strong>Bound Value:</strong> The matched value itself</p>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;optional&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;map&gt;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">vec</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">};</span>
+<span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">opt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;hello&quot;</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">map</span><span class="p">{{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">}};</span>
+
+<span class="n">match</span><span class="p">(</span><span class="n">vec</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">from</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;vector&quot;</span><span class="p">);</span>
+<span class="n">match</span><span class="p">(</span><span class="n">opt</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">from</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;optional&quot;</span><span class="p">);</span>
+<span class="n">match</span><span class="p">(</span><span class="n">map</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">from</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;map&quot;</span><span class="p">);</span>
+
+<span class="c1">// Using alias</span>
+<span class="n">match</span><span class="p">(</span><span class="n">vec</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">from</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;vector&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<hr />
+<h2 id="dsl-operators-api">DSL Operators API<a class="headerlink" href="#dsl-operators-api" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-combination-operators">Pattern Combination Operators<a class="headerlink" href="#pattern-combination-operators" title="Permanent link">&para;</a></h3>
+<h4 id="pattern1-pattern2-logical-and"><code>pattern1 &amp;&amp; pattern2</code> - Logical AND<a class="headerlink" href="#pattern1-pattern2-logical-and" title="Permanent link">&para;</a></h4>
+<p>Create a combined pattern that satisfies both patterns simultaneously.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">L</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">R</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="k">operator</span><span class="o">&amp;&amp;</span><span class="p">(</span><span class="n">L</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">r</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">positive_even</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pred</span><span class="p">([](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>
+<span class="w">                     </span><span class="n">pred</span><span class="p">([](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">});</span>
+
+<span class="n">match</span><span class="p">(</span><span class="mi">4</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">positive_even</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;positive-even&quot;</span><span class="p">);</span>
+<span class="n">match</span><span class="p">(</span><span class="mi">-2</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">positive_even</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;not-positive-even&quot;</span><span class="p">);</span>
+
+<span class="c1">// Mix type and value patterns</span>
+<span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">lit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;exact-42-int&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h4 id="pattern1-pattern2-logical-or"><code>pattern1 || pattern2</code> - Logical OR<a class="headerlink" href="#pattern1-pattern2-logical-or" title="Permanent link">&para;</a></h4>
+<p>Create a combined pattern that satisfies either pattern.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">L</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">R</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="k">operator</span><span class="o">||</span><span class="p">(</span><span class="n">L</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">r</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">zero_or_empty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">lit</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{});</span>
+
+<span class="n">match</span><span class="p">(</span><span class="mi">0</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">zero_or_empty</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero-or-empty&quot;</span><span class="p">);</span>
+<span class="n">match</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{}).</span><span class="n">when</span><span class="p">(</span><span class="n">zero_or_empty</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero-or-empty&quot;</span><span class="p">);</span>
+
+<span class="c1">// Type combination</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">numeric</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">numeric</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;numeric&quot;</span><span class="p">);</span>
+<span class="n">match</span><span class="p">(</span><span class="mf">3.14</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">numeric</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;numeric&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h4 id="pattern-logical-not"><code>!pattern</code> - Logical NOT<a class="headerlink" href="#pattern-logical-not" title="Permanent link">&para;</a></h4>
+<p>Create a pattern that does not satisfy the given pattern.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">P</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="k">operator</span><span class="o">!</span><span class="p">(</span><span class="n">P</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">p</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">not_zero</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">!</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">not_string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">!</span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="n">match</span><span class="p">(</span><span class="mi">5</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">not_zero</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;not-zero&quot;</span><span class="p">);</span>
+<span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">not_string</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;not-string&quot;</span><span class="p">);</span>
+</code></pre></div></p>
+<h3 id="pattern-handler-binding-operators">Pattern-Handler Binding Operators<a class="headerlink" href="#pattern-handler-binding-operators" title="Permanent link">&para;</a></h3>
+<h4 id="pattern-handler-pattern-binding"><code>pattern &gt;&gt; handler</code> - Pattern binding<a class="headerlink" href="#pattern-handler-pattern-binding" title="Permanent link">&para;</a></h4>
+<p>Bind a pattern with a handler function or value.</p>
+<p><strong>Two modes:</strong></p>
+<ol>
+<li>
+<p><strong>Value handler mode:</strong>
+   <div class="highlight"><pre><span></span><code><span class="n">pattern</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">value</span>
+</code></pre></div>
+   Automatically creates a handler that returns a fixed value</p>
+</li>
+<li>
+<p><strong>Function handler mode:</strong>
+   <div class="highlight"><pre><span></span><code><span class="n">pattern</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">function</span>
+</code></pre></div>
+   Directly uses the provided function as the handler</p>
+</li>
+</ol>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1">// Value handler</span>
+<span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;answer&quot;</span><span class="p">);</span><span class="w">  </span><span class="c1">// Returns string &quot;answer&quot;</span>
+
+<span class="c1">// Function handler</span>
+<span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span>
+<span class="p">});</span><span class="w">  </span><span class="c1">// Returns 84</span>
+
+<span class="c1">// Handler with binding (type pattern)</span>
+<span class="n">match</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">length</span><span class="p">();</span>
+<span class="p">});</span><span class="w">  </span><span class="c1">// Returns 5</span>
+</code></pre></div></p>
+<hr />
+<h2 id="metaprogramming-api">Metaprogramming API<a class="headerlink" href="#metaprogramming-api" title="Permanent link">&para;</a></h2>
+<h3 id="basic-type-traits">Basic Type Traits<a class="headerlink" href="#basic-type-traits" title="Permanent link">&para;</a></h3>
+<h4 id="ptnmetaremove_cvref_tt"><code>ptn::meta::remove_cvref_t&lt;T&gt;</code><a class="headerlink" href="#ptnmetaremove_cvref_tt" title="Permanent link">&para;</a></h4>
+<p>Type alias that removes const, volatile, and reference qualifiers.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">remove_cvref_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">remove_cv_t</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">remove_reference_t</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+</code></pre></div>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">static_assert</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_same_v</span><span class="o">&lt;</span>
+<span class="w">    </span><span class="n">ptn</span><span class="o">::</span><span class="n">meta</span><span class="o">::</span><span class="n">remove_cvref_t</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="o">&amp;&gt;</span><span class="p">,</span><span class="w"> </span>
+<span class="w">    </span><span class="kt">int</span>
+<span class="o">&gt;</span><span class="p">);</span>
+</code></pre></div></p>
+<h4 id="ptnmetais_spec_of_vtpl-t"><code>ptn::meta::is_spec_of_v&lt;Tpl, T&gt;</code><a class="headerlink" href="#ptnmetais_spec_of_vtpl-t" title="Permanent link">&para;</a></h4>
+<p>Check if a type is a specialization of a specific template.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">Template</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">is_spec_of_v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">is_spec_of</span><span class="o">&lt;</span><span class="n">Template</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">;</span>
+</code></pre></div>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">static_assert</span><span class="p">(</span><span class="n">ptn</span><span class="o">::</span><span class="n">meta</span><span class="o">::</span><span class="n">is_spec_of_v</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">);</span>
+<span class="k">static_assert</span><span class="p">(</span><span class="o">!</span><span class="n">ptn</span><span class="o">::</span><span class="n">meta</span><span class="o">::</span><span class="n">is_spec_of_v</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="p">);</span>
+</code></pre></div></p>
+<h4 id="ptnmetais_tmpl_vt"><code>ptn::meta::is_tmpl_v&lt;T&gt;</code><a class="headerlink" href="#ptnmetais_tmpl_vt" title="Permanent link">&para;</a></h4>
+<p>Check if a type is a specialization of some template.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">is_tmpl_v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">is_tmpl</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">;</span>
+</code></pre></div>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">static_assert</span><span class="p">(</span><span class="n">ptn</span><span class="o">::</span><span class="n">meta</span><span class="o">::</span><span class="n">is_tmpl_v</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">);</span>
+<span class="k">static_assert</span><span class="p">(</span><span class="o">!</span><span class="n">ptn</span><span class="o">::</span><span class="n">meta</span><span class="o">::</span><span class="n">is_tmpl_v</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">);</span>
+</code></pre></div></p>
+<h3 id="type-list-operations">Type List Operations<a class="headerlink" href="#type-list-operations" title="Permanent link">&para;</a></h3>
+<h4 id="ptnmetatype_listts"><code>ptn::meta::type_list&lt;Ts...&gt;</code><a class="headerlink" href="#ptnmetatype_listts" title="Permanent link">&para;</a></h4>
+<p>Compile-time type container.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Ts</span><span class="o">&gt;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">type_list</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">...(</span><span class="n">Ts</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div>
+<h4 id="list-operation-functions">List Operation Functions<a class="headerlink" href="#list-operation-functions" title="Permanent link">&para;</a></h4>
+<h5 id="contactlist1-list2-concatenate-two-type-lists"><code>contact(list1, list2)</code> - Concatenate two type lists<a class="headerlink" href="#contactlist1-list2-concatenate-two-type-lists" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">B</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">contact</span><span class="p">(</span><span class="n">type_list</span><span class="o">&lt;</span><span class="n">A</span><span class="p">...</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">type_list</span><span class="o">&lt;</span><span class="n">B</span><span class="p">...</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">type_list</span><span class="o">&lt;</span><span class="n">A</span><span class="p">...,</span><span class="w"> </span><span class="n">B</span><span class="p">...</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div>
+<h5 id="appendtlist-add-type-to-end-of-list"><code>append&lt;T&gt;(list)</code> - Add type to end of list<a class="headerlink" href="#appendtlist-add-type-to-end-of-list" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Ts</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">append</span><span class="p">(</span><span class="n">type_list</span><span class="o">&lt;</span><span class="n">Ts</span><span class="p">...</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">type_list</span><span class="o">&lt;</span><span class="n">Ts</span><span class="p">...,</span><span class="w"> </span><span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div>
+<h5 id="prependtlist-add-type-to-beginning-of-list"><code>prepend&lt;T&gt;(list)</code> - Add type to beginning of list<a class="headerlink" href="#prependtlist-add-type-to-beginning-of-list" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Ts</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">prepend</span><span class="p">(</span><span class="n">type_list</span><span class="o">&lt;</span><span class="n">Ts</span><span class="p">...</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">type_list</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">Ts</span><span class="p">...</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div>
+<h5 id="nth_type_tn-list-get-the-nth-type"><code>nth_type_t&lt;N, list&gt;</code> - Get the Nth type<a class="headerlink" href="#nth_type_tn-list-get-the-nth-type" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">TL</span><span class="o">&gt;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">nth_type_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">nth_type</span><span class="o">&lt;</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">TL</span><span class="o">&gt;::</span><span class="n">type</span><span class="p">;</span>
+</code></pre></div>
+<h4 id="type-list-algorithms">Type List Algorithms<a class="headerlink" href="#type-list-algorithms" title="Permanent link">&para;</a></h4>
+<h5 id="ptnmetaallbs-logical-and-fold"><code>ptn::meta::all&lt;Bs...&gt;</code> - Logical AND fold<a class="headerlink" href="#ptnmetaallbs-logical-and-fold" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">bool</span><span class="p">...</span><span class="w"> </span><span class="n">Bs</span><span class="o">&gt;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">all</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">bool_constant</span><span class="o">&lt;</span><span class="p">(</span><span class="n">Bs</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">...)</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{};</span>
+</code></pre></div>
+<h5 id="ptnmetaanybs-logical-or-fold"><code>ptn::meta::any&lt;Bs...&gt;</code> - Logical OR fold<a class="headerlink" href="#ptnmetaanybs-logical-or-fold" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">bool</span><span class="p">...</span><span class="w"> </span><span class="n">Bs</span><span class="o">&gt;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">any</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">bool_constant</span><span class="o">&lt;</span><span class="p">(</span><span class="n">Bs</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">...)</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{};</span>
+</code></pre></div>
+<h5 id="ptnmetanonebs-logical-not-fold"><code>ptn::meta::none&lt;Bs...&gt;</code> - Logical NOT fold<a class="headerlink" href="#ptnmetanonebs-logical-not-fold" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">bool</span><span class="p">...</span><span class="w"> </span><span class="n">Bs</span><span class="o">&gt;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">none</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">bool_constant</span><span class="o">&lt;!</span><span class="n">any</span><span class="o">&lt;</span><span class="n">Bs</span><span class="p">...</span><span class="o">&gt;::</span><span class="n">value</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{};</span>
+</code></pre></div>
+<h5 id="ptnmetamap_tf-list-apply-metafunction-to-each-type"><code>ptn::meta::map_t&lt;F, list&gt;</code> - Apply metafunction to each type<a class="headerlink" href="#ptnmetamap_tf-list-apply-metafunction-to-each-type" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="o">&gt;</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">F</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">TL</span><span class="o">&gt;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">map_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">map</span><span class="o">&lt;</span><span class="n">F</span><span class="p">,</span><span class="w"> </span><span class="n">TL</span><span class="o">&gt;::</span><span class="n">type</span><span class="p">;</span>
+</code></pre></div>
+<h5 id="ptnmetafilter_tpred-list-filter-type-list"><code>ptn::meta::filter_t&lt;Pred, list&gt;</code> - Filter type list<a class="headerlink" href="#ptnmetafilter_tpred-list-filter-type-list" title="Permanent link">&para;</a></h5>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="o">&gt;</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">Pred</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">TL</span><span class="o">&gt;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">filter_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">filter</span><span class="o">&lt;</span><span class="n">Pred</span><span class="p">,</span><span class="w"> </span><span class="n">TL</span><span class="o">&gt;::</span><span class="n">type</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="query-operations">Query Operations<a class="headerlink" href="#query-operations" title="Permanent link">&para;</a></h3>
+<h4 id="ptnmetacontains_vt-list-check-if-type-is-in-list"><code>ptn::meta::contains_v&lt;T, list&gt;</code> - Check if type is in list<a class="headerlink" href="#ptnmetacontains_vt-list-check-if-type-is-in-list" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">TL</span><span class="o">&gt;</span>
+<span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">contains_v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">contains</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">TL</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">;</span>
+</code></pre></div>
+<h4 id="ptnmetaindex_of_vt-list-get-index-of-type-in-list"><code>ptn::meta::index_of_v&lt;T, list&gt;</code> - Get index of type in list<a class="headerlink" href="#ptnmetaindex_of_vt-list-get-index-of-type-in-list" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">TL</span><span class="o">&gt;</span>
+<span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">index_of_v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">index_of</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">TL</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">;</span>
+</code></pre></div>
+<p><strong>Returns:</strong> Index of the type in the list, returns -1 if not found</p>
+<h3 id="template-information-queries">Template Information Queries<a class="headerlink" href="#template-information-queries" title="Permanent link">&para;</a></h3>
+<h4 id="ptnmetatemplate_infot"><code>ptn::meta::template_info&lt;T&gt;</code><a class="headerlink" href="#ptnmetatemplate_infot" title="Permanent link">&para;</a></h4>
+<p>Extract template specialization information.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">template_info</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">is_specialization</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">type_list</span><span class="o">&lt;&gt;</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// Non-template types don&#39;t have rebind</span>
+<span class="p">};</span>
+</code></pre></div>
+<p><strong>Specialization version:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">Template</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Args</span><span class="o">&gt;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">template_info</span><span class="o">&lt;</span><span class="n">Template</span><span class="o">&lt;</span><span class="n">Args</span><span class="p">...</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">is_specialization</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">type_list</span><span class="o">&lt;</span><span class="n">Args</span><span class="p">...</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Us</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">rebind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Template</span><span class="o">&lt;</span><span class="n">Us</span><span class="p">...</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div></p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">info</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">meta</span><span class="o">::</span><span class="n">template_info</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+<span class="k">static_assert</span><span class="p">(</span><span class="n">info</span><span class="p">.</span><span class="n">is_specialization</span><span class="p">);</span>
+<span class="k">using</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">info</span><span class="p">.</span><span class="n">args</span><span class="p">;</span><span class="w">  </span><span class="c1">// type_list&lt;int&gt;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">new_vec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">info</span><span class="o">::</span><span class="k">template</span><span class="w"> </span><span class="n">rebind</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">;</span><span class="w">  </span><span class="c1">// std::vector&lt;double&gt;</span>
+</code></pre></div></p>
+<hr />
+<h2 id="complete-examples">Complete Examples<a class="headerlink" href="#complete-examples" title="Permanent link">&para;</a></h2>
+<h3 id="basic-usage-examples">Basic Usage Examples<a class="headerlink" href="#basic-usage-examples" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ptn/patternia.hpp&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;optional&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="o">::</span><span class="nn">pat</span><span class="o">::</span><span class="nn">value</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="o">::</span><span class="nn">pat</span><span class="o">::</span><span class="nn">type</span><span class="p">;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">basic_examples</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 1. Simple value matching</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">result1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;answer to everything&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other number&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// 2. Relational patterns</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">85.5</span><span class="p">;</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">result2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ge</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ge</span><span class="p">(</span><span class="mi">80</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="sc">&#39;B&#39;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ge</span><span class="p">(</span><span class="mi">70</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="sc">&#39;C&#39;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ge</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="sc">&#39;D&#39;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="sc">&#39;F&#39;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// 3. Type patterns</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">result3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">length</span><span class="p">();</span><span class="w"> </span><span class="p">})</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">double</span><span class="w"> </span><span class="n">d</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">d</span><span class="p">);</span><span class="w"> </span><span class="p">});</span>
+
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Result 1: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Result 2: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result2</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Result 3: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result3</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="complex-pattern-combination-examples">Complex Pattern Combination Examples<a class="headerlink" href="#complex-pattern-combination-examples" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">complex_patterns</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 1. Combined pattern: positive even numbers</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">positive_even</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pred</span><span class="p">([](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>
+<span class="w">                         </span><span class="n">pred</span><span class="p">([](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">});</span>
+
+<span class="w">    </span><span class="c1">// 2. Range pattern: numbers between 10 and 20</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">in_range</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">between</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// 3. Type combination: numeric types</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">numeric</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 4. Complex matching chain</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">positive_even</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;positive even&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">in_range</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;integer in range&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">numeric</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;some number&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// 5. Container type matching</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">vec</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">};</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">opt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;optional value&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">map</span><span class="p">{{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">}};</span>
+
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">container_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="k">auto</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">container</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">container</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">from</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;vector&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">from</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;optional&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">from</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;map&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;unknown container&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Complex result: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Vec type: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">container_type</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Opt type: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">container_type</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Map type: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">container_type</span><span class="p">(</span><span class="n">map</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="string-processing-examples">String Processing Examples<a class="headerlink" href="#string-processing-examples" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">string_examples</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Hello&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">input</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit_ci</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;greeting (case insensitive)&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="s">&quot;world&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;world&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pred</span><span class="p">([](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">length</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;long string&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other string&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;String result: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="enum-and-user-type-examples">Enum and User Type Examples<a class="headerlink" href="#enum-and-user-type-examples" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Status</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Active</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Inactive</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Pending</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Error</span>
+<span class="p">};</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">User</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Status</span><span class="w"> </span><span class="n">status</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">custom_types_example</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Status</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Status</span><span class="o">::</span><span class="n">Active</span><span class="p">;</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">status_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Active</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;user is active&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Inactive</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;user is inactive&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Pending</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;user is pending&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Error</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;error state&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">User</span><span class="w"> </span><span class="n">user</span><span class="p">{</span><span class="s">&quot;Alice&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Status</span><span class="o">::</span><span class="n">Active</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">};</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">user_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pred</span><span class="p">([](</span><span class="k">const</span><span class="w"> </span><span class="n">User</span><span class="o">&amp;</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Status</span><span class="o">::</span><span class="n">Active</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">age</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">18</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w"> </span>
+<span class="w">              </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;active adult user&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pred</span><span class="p">([](</span><span class="k">const</span><span class="w"> </span><span class="n">User</span><span class="o">&amp;</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Status</span><span class="o">::</span><span class="n">Pending</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w"> </span>
+<span class="w">              </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;pending user&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other user&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Status: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">status_result</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;User: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">user_result</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="performance-analysis-examples">Performance Analysis Examples<a class="headerlink" href="#performance-analysis-examples" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">performance_analysis</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Compile-time optimization: all matches determined at compile time</span>
+<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">get_description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pred</span><span class="p">([](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;greater than two&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;negative&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">get_description</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;zero&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">get_description</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;greater than two&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Runtime usage</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">get_description</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="metaprogramming-usage-examples">Metaprogramming Usage Examples<a class="headerlink" href="#metaprogramming-usage-examples" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">metaprogramming_examples</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Using type lists</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">numeric_types</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">meta</span><span class="o">::</span><span class="n">type_list</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Check if type is in list</span>
+<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">ptn</span><span class="o">::</span><span class="n">meta</span><span class="o">::</span><span class="n">contains_v</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">numeric_types</span><span class="o">&gt;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="o">!</span><span class="n">ptn</span><span class="o">::</span><span class="n">meta</span><span class="o">::</span><span class="n">contains_v</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">numeric_types</span><span class="o">&gt;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Get type index</span>
+<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">ptn</span><span class="o">::</span><span class="n">meta</span><span class="o">::</span><span class="n">index_of_v</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="n">numeric_types</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">ptn</span><span class="o">::</span><span class="n">meta</span><span class="o">::</span><span class="n">index_of_v</span><span class="o">&lt;</span><span class="kt">char</span><span class="p">,</span><span class="w"> </span><span class="n">numeric_types</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Template information query</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">vec_int_info</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">meta</span><span class="o">::</span><span class="n">template_info</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">vec_int_info</span><span class="o">::</span><span class="n">is_specialization</span><span class="p">);</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">vec_args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vec_int_info</span><span class="o">::</span><span class="n">args</span><span class="p">;</span><span class="w">  </span><span class="c1">// type_list&lt;int, std::allocator&lt;int&gt;&gt;</span>
+
+<span class="w">    </span><span class="c1">// Rebind template parameters</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">vec_double</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vec_int_info</span><span class="o">::</span><span class="k">template</span><span class="w"> </span><span class="n">rebind</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">;</span><span class="w">  </span><span class="c1">// std::vector&lt;double&gt;</span>
+
+<span class="w">    </span><span class="c1">// Compile-time algorithms</span>
+<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">ptn</span><span class="o">::</span><span class="n">meta</span><span class="o">::</span><span class="n">all</span><span class="o">&lt;</span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="o">&gt;::</span><span class="n">value</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">ptn</span><span class="o">::</span><span class="n">meta</span><span class="o">::</span><span class="n">any</span><span class="o">&lt;</span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="o">&gt;::</span><span class="n">value</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
+<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">ptn</span><span class="o">::</span><span class="n">meta</span><span class="o">::</span><span class="n">none</span><span class="o">&lt;</span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="o">&gt;::</span><span class="n">value</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="complete-comprehensive-example">Complete Comprehensive Example<a class="headerlink" href="#complete-comprehensive-example" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ptn/patternia.hpp&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;variant&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;optional&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;map&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="o">::</span><span class="nn">pat</span><span class="o">::</span><span class="nn">value</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="o">::</span><span class="nn">pat</span><span class="o">::</span><span class="nn">type</span><span class="p">;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PatterniaDemo</span><span class="w"> </span><span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">runAllExamples</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;=== Patternia API Examples ===</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">basic_examples</span><span class="p">();</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">complex_patterns</span><span class="p">();</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">string_examples</span><span class="p">();</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">custom_types_example</span><span class="p">();</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">performance_analysis</span><span class="p">();</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;=== All Examples Complete ===</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">PatterniaDemo</span><span class="w"> </span><span class="n">demo</span><span class="p">;</span>
+<span class="w">    </span><span class="n">demo</span><span class="p">.</span><span class="n">runAllExamples</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="api-feature-summary">API Feature Summary<a class="headerlink" href="#api-feature-summary" title="Permanent link">&para;</a></h2>
+<h3 id="type-safety">Type Safety<a class="headerlink" href="#type-safety" title="Permanent link">&para;</a></h3>
+<ul>
+<li>All pattern matching is compile-time type safe</li>
+<li>Support for heterogeneous comparisons (comparisons between different types)</li>
+<li>Automatic type deduction and explicit type specification</li>
+</ul>
+<h3 id="performance-optimization">Performance Optimization<a class="headerlink" href="#performance-optimization" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Zero runtime overhead abstractions</li>
+<li>Compile-time pattern combination optimization</li>
+<li>Support for constant expression evaluation</li>
+</ul>
+<h3 id="extensibility">Extensibility<a class="headerlink" href="#extensibility" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CRTP-based pattern base classes</li>
+<li>Easy to add custom pattern types</li>
+<li>Support for custom comparators and predicates</li>
+</ul>
+<h3 id="expressiveness">Expressiveness<a class="headerlink" href="#expressiveness" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Rich built-in pattern types</li>
+<li>Intuitive DSL syntax</li>
+<li>Support for complex pattern combinations</li>
+</ul>
+<h3 id="compatibility">Compatibility<a class="headerlink" href="#compatibility" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Support for C++17 and C++20</li>
+<li>Modular header file design</li>
+<li>Configurable feature switches</li>
+</ul>
+<p>This complete API reference covers all public interfaces of the Patternia library, including internal and external APIs, and provides comprehensive example code. You can use this documentation to write GitHub Pages documentation and README files.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../patterns/type/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Type Patterns">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Type Patterns
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../design/roadmap/" class="md-footer__link md-footer__link--next" aria-label="Next: Roadmap">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Roadmap
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "search.share", "content.code.copy"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>
