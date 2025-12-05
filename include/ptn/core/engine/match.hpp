@@ -27,8 +27,18 @@ namespace ptn {
   constexpr auto match(T &&value) -> std::enable_if_t<
       !std::is_same_v<std::decay_t<U>, std::decay_t<T>>,
       core::engine::detail::match_builder<U>> {
+
+    using Subject  = std::decay_t<U>;
+    using ValueRaw = std::decay_t<T>;
+
     constexpr bool subject_constructible =
-        std::is_constructible_v<U, T &&> || std::is_constructible_v<U, T>;
+
+        std::is_constructible_v<Subject, ValueRaw> ||
+        std::is_constructible_v<Subject, ValueRaw> ||
+
+        // Specialized: integral → enum is allowed
+        (std::is_enum_v<Subject> && std::is_integral_v<ValueRaw>);
+    ;
 
     static_assert(
         subject_constructible,
