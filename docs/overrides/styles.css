@@ -91,3 +91,7 @@ a:hover {
 body {
   background-color: var(--md-default-bg-color) !important;
 }
+
+.md-nav__item .md-nav__item>.md-nav {
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+}
