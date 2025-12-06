@@ -85,8 +85,8 @@ nav:
       - Value Patterns: patterns/value.md
       - Type Patterns: patterns/type.md
 
-  - API Documents:
-      - API: api/api.md
+  - API:
+      - api.md
   - Design Notes:
       - Roadmap: design/roadmap.md
 

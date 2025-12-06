@@ -18,7 +18,7 @@ Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic c
 - [Type Patterns](patterns/type.md) - Type matching with type checking, type lists
 
 ### API Reference
-- [API Documentation](api/api.md) - Complete API reference for all functions and patterns
+- [API Documentation](api.md) - Complete API reference for all functions and patterns
 
 ### Project Information
 - [Roadmap](design/roadmap.md) - Future development directions and plans
@@ -66,7 +66,7 @@ If you're **new to Patternia**, we recommend reading in this order:
 
 If you're looking for **specific information**:
 
-- Need a function reference? → [API Documentation](api/api.md)
+- Need a function reference? → [API Documentation](api.md)
 - Want to understand design philosophy? → [Pattern System Overview](patterns/foreword.md)
 - Check version updates? → [Releases](changelog/releases.md)
 
