@@ -29,7 +29,12 @@ namespace ptn::core::common {
 
     // Check: All handlers must have a common return type.
     using common_return_type = match_result_t<Subject, Otherwise, Cases...>;
-    (void) sizeof(common_return_type);
+
+    // If it's not void, force an instance to catch potential errors.
+    // If it is void, no sizeof check is required.
+    if constexpr (!std::is_void_v<common_return_type>) {
+      (void) sizeof(common_return_type);
+    }
   }
 
   // Validates that a handler matches a pattern's bindings.

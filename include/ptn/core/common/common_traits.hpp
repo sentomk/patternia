@@ -4,6 +4,7 @@
 
 #include "ptn/config.hpp"
 #include "ptn/pattern/base/fwd.h"
+#include <cstddef>
 #include <type_traits>
 #include <tuple>
 #include <utility>
@@ -136,15 +137,18 @@ namespace ptn::core::common {
   template <typename Subject, typename Case>
   struct case_result {
   private:
+    // Extract handler and pattern types from the case expression
     using handler_type     = case_handler_t<Case>;
     using pattern_type     = case_pattern_t<Case>;
+    // Get the tuple of bound arguments from pattern matching
     using bound_args_tuple = pat::base::binding_args_t<pattern_type, Subject>;
-
+    // Construct the full argument tuple for handler invocation
     using full_invoke_args_tuple = decltype(std::tuple_cat(
         std::declval<std::tuple<const Subject &>>(),
         std::declval<bound_args_tuple>()));
 
   public:
+    // The result type when the handler is invoked with bound arguments
     using type = decltype(std::apply(
         std::declval<handler_type>(), std::declval<full_invoke_args_tuple>()));
   };
@@ -155,10 +159,12 @@ namespace ptn::core::common {
   namespace detail {
 
     // Helper to deduce the result type of an `otherwise` handler.
+    // First overload: handler takes subject as parameter
     template <typename O, typename S>
     static constexpr auto get_otherwise_result_impl(int)
         -> decltype(std::declval<O>()(std::declval<S &>()));
 
+    // Second overload: handler takes no parameters
     template <typename O, typename S>
     static constexpr auto get_otherwise_result_impl(...)
         -> decltype(std::declval<O>()());
@@ -172,9 +178,36 @@ namespace ptn::core::common {
   // Computes the common result type of the entire match expression.
   template <typename Subject, typename Otherwise, typename... Cases>
   struct match_result {
-    using type = std::common_type_t<
-        std::invoke_result_t<typename Cases::handler_type, Subject &>...,
-        std::invoke_result_t<Otherwise, Subject &>>;
+
+  private:
+    // Result type of the otherwise handler
+    using otherwise_result = otherwise_result_t<Otherwise, Subject>;
+
+    // Tuple containing result types of all case expressions
+    using cases_result_tuple = std::tuple<case_result_t<Subject, Cases>...>;
+
+    // Helper function to check if all case results are void type
+    template <typename Tuple, std::size_t... Is>
+    static constexpr bool all_cases_void_impl(std::index_sequence<Is...>) {
+      return (std::is_void_v<std::tuple_element_t<Is, Tuple>> && ...);
+    }
+
+    // Check if all case handlers return void
+    static constexpr bool all_cases_void =
+        all_cases_void_impl<cases_result_tuple>(
+            std::make_index_sequence<sizeof...(Cases)>{});
+
+    // Check if the otherwise handler returns void
+    static constexpr bool otherwise_is_void = std::is_void_v<otherwise_result>;
+
+  public:
+    // Determine the common result type:
+    // - If all handlers return void, the match expression returns void
+    // - Otherwise, use the common type of all handler results
+    using type = std::conditional_t<
+        all_cases_void && otherwise_is_void,
+        void,
+        std::common_type_t<case_result_t<Subject, Cases>..., otherwise_result>>;
   };
 
   template <typename Subject, typename Otherwise, typename... Cases>
