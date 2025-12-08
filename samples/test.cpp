@@ -4,7 +4,6 @@
 
 using namespace ptn;
 
-// 模式：整数字面量
 auto is(int v) {
   return lit(v);
 }
