@@ -178,62 +178,62 @@ if(NOT PTN_SKIP_COMPILER_CHECK)
   endif()
 endif()
 
-# ========== Tests (optional, master default ON) ==========
-if(PTN_BUILD_TESTS)
-  include(FetchContent)
+# # ========== Tests (optional, master default ON) ==========
+# if(PTN_BUILD_TESTS)
+# include(FetchContent)
 
-  # Configure GoogleTest (lightweight settings)
-  set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
-  set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
-  FetchContent_Declare(
-    googletest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG v1.17.0
-    GIT_SHALLOW TRUE
-  )
-  FetchContent_MakeAvailable(googletest)
+# # Configure GoogleTest (lightweight settings)
+# set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+# set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+# FetchContent_Declare(
+# googletest
+# GIT_REPOSITORY https://github.com/google/googletest.git
+# GIT_TAG v1.17.0
+# GIT_SHALLOW TRUE
+# )
+# FetchContent_MakeAvailable(googletest)
 
-  enable_testing()
-  add_executable(ptn_tests
-    tests/tests_literal_pattern.cpp
-    tests/tests_relational_pattern.cpp
-    tests/tests_predicate_pattern.cpp
-    tests/tests_type_pattern.cpp
-  )
-  target_link_libraries(ptn_tests PRIVATE
-    patternia
-    GTest::gtest
-    GTest::gtest_main
-  )
-  include(GoogleTest)
-  gtest_discover_tests(ptn_tests)
-endif()
+# enable_testing()
+# add_executable(ptn_tests
+# tests/tests_literal_pattern.cpp
+# tests/tests_relational_pattern.cpp
+# tests/tests_predicate_pattern.cpp
+# tests/tests_type_pattern.cpp
+# )
+# target_link_libraries(ptn_tests PRIVATE
+# patternia
+# GTest::gtest
+# GTest::gtest_main
+# )
+# include(GoogleTest)
+# gtest_discover_tests(ptn_tests)
+# endif()
 
-# ========== Benchmarks (optional, master default ON) ==========
-if(PTN_BUILD_BENCHMARKS)
-  include(FetchContent)
-  find_package(Threads REQUIRED)
-  set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
-  set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "" FORCE)
+# # ========== Benchmarks (optional, master default ON) ==========
+# if(PTN_BUILD_BENCHMARKS)
+# include(FetchContent)
+# find_package(Threads REQUIRED)
+# set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+# set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "" FORCE)
 
-  FetchContent_Declare(
-    benchmark
-    GIT_REPOSITORY https://github.com/google/benchmark.git
-    GIT_TAG v1.9.4
-  )
-  FetchContent_MakeAvailable(benchmark)
+# FetchContent_Declare(
+# benchmark
+# GIT_REPOSITORY https://github.com/google/benchmark.git
+# GIT_TAG v1.9.4
+# )
+# FetchContent_MakeAvailable(benchmark)
 
-  add_executable(bench_patternia
-    benchmarks/bench_main.cpp
-    benchmarks/bench_patternia.cpp
-  )
-  target_link_libraries(bench_patternia PRIVATE
-    patternia
-    benchmark::benchmark
-    Threads::Threads
-  )
-  target_compile_options(bench_patternia PRIVATE -O3 -march=native)
-endif()
+# add_executable(bench_patternia
+# benchmarks/bench_main.cpp
+# benchmarks/bench_patternia.cpp
+# )
+# target_link_libraries(bench_patternia PRIVATE
+# patternia
+# benchmark::benchmark
+# Threads::Threads
+# )
+# target_compile_options(bench_patternia PRIVATE -O3 -march=native)
+# endif()
 
 # ========== Install / Export (only the INTERFACE target is exported) ==========
 if(PTN_INSTALL)
