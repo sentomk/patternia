@@ -22,4 +22,5 @@ namespace ptn::core::engine::detail {
           subject, cases, std::forward<Otherwise>(otherwise_handler));
     }
   };
+
 } // namespace ptn::core::engine::detail
