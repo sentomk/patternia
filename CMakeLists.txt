@@ -107,10 +107,8 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/pattern/base/pattern_traits.hpp
 
   # Pattern Module Headers
-  include/ptn/pattern/value.hpp
-
-  # Value Pattern Layer
-  include/ptn/pattern/value/literal.hpp
+  include/ptn/pattern/lit.hpp
+  include/ptn/pattern/bind.hpp
 )
 
 # ========== Public interface target ==========

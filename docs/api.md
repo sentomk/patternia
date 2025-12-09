@@ -12,7 +12,8 @@ ptn/                                    // Root namespace
 │   └── common/                       // Common utilities and traits
 ├── pat/                              // Pattern definitions
 │   ├── base/                         // Pattern base classes
-│   └── value/                        // Value patterns
+│   ├── lit.hpp                        // Literal pattern implementation
+│   └── bind.hpp                       // Binding pattern implementation
 └── meta/                             // Meta programming tools
     ├── base/                         // Base traits
     ├── dsa/                          // Data structures and algorithms
@@ -21,11 +22,11 @@ ptn/                                    // Root namespace
 
 ### Main Namespace Aliases
 
-For user convenience, Patternia provides the following namespace aliases:
+For user convenience, Patternia provides all pattern functions directly in the `ptn` namespace:
 
 ```cpp
 namespace ptn {
-  namespace value = pat::value;  // Value pattern alias
+  // lit, lit_ci, bind are available directly
 }
 ```
 
@@ -116,7 +117,7 @@ Add a default branch.
 ## Value Pattern API
 
 !!! note
-    **`ptn::pat::value::lit` == `ptn::lit`** 
+    **`ptn::pat::lit`**, **`ptn::pat::lit_ci`**, and **`ptn::pat::bind`** are available directly in `ptn` namespace
 
 ### Literal Patterns
 
@@ -168,6 +169,72 @@ std::string s = "HELLO";
 match(s).when(lit_ci("hello") >> "case-insensitive-match");
 ```
 
+### Binding Patterns
+
+#### `ptn::bind()`
+
+Create a pattern that captures the entire subject value.
+
+```cpp
+constexpr auto bind();
+```
+
+**Purpose:** Create a pattern that always matches and captures the subject as a tuple
+
+**Returns:** `binding_pattern` that binds the subject value
+
+**Examples:**
+```cpp
+// Capture any value
+match(42).when(bind() >> [](int v) { 
+    return "captured: " + std::to_string(v);
+});
+
+// Fallback capture
+enum Status { Pending, Running };
+match(Status::Running)
+    .when(lit(Status::Pending) >> "pending")
+    .when(bind() >> [](int v) { return "status: " + std::to_string(v); });
+```
+
+#### `ptn::bind(subpattern)`
+
+Create a pattern that first matches with subpattern, then captures the subject.
+
+```cpp
+template <typename SubPattern>
+constexpr auto bind(SubPattern &&subpattern);
+```
+
+**Purpose:** Create a pattern that combines subpattern matching with subject capturing
+
+**Parameters:**
+- `subpattern` - Pattern to use for matching
+
+**Returns:** `binding_as_pattern` that binds both subject and subpattern bindings
+
+**Examples:**
+```cpp
+// Capture after matching specific value
+enum Status { Pending, Running, Completed };
+match(Status::Running)
+    .when(bind(lit(Status::Running)) >> [](int whole) {
+        std::cout << "Captured enum value: " << whole << "\n";
+        return "running";
+    });
+
+// Capture with string matching
+std::string cmd = "START";
+match(cmd)
+    .when(bind(lit_ci("start")) >> [](std::string command) {
+        return "processing: " + command;
+    });
+```
+
+**Binding Behavior:**
+- `bind()` alone binds the subject as `std::tuple<Subject>`
+- `bind(subpattern)` binds `std::tuple<Subject, SubPatternBindings...>`
+- Handler functions receive the bound values as parameters
 
 ---
 
@@ -203,6 +270,49 @@ match(42).when(lit(42) >> []{
     return "answer";
 });  // Returns string "answer"
 
+// Capturing handler with bind()
+match(42).when(bind() >> [](int value) { 
+    return "captured: " + std::to_string(value);
+});
+
+// Capturing handler with subpattern
+enum Status { Running };
+match(Status::Running)
+    .when(bind(lit(Status::Running)) >> [](int whole) {
+        return "status: " + std::to_string(whole);
+    });
+```
+
+---
+
+## Binding System API
+
+### Binding Traits
+
+Patternia uses a type trait system to determine what values each pattern binds.
+
+#### `binding_args<Pattern, Subject>`
+
+Trait that defines the binding result type for a pattern-subject pair.
+
+```cpp
+template <typename Pattern, typename Subject>
+struct binding_args {
+    using type = std::tuple<>; // default implementation
+};
+```
+
+**Specializations:**
+- `binding_args<binding_pattern, Subject>` → `std::tuple<Subject>`
+- `binding_args<binding_as_pattern<Tag, SubPattern>, Subject>` → concatenated tuple
+
+#### `binding_args_t<Pattern, Subject>`
+
+Convenience alias for binding arguments type.
+
+```cpp
+template <typename Pattern, typename Subject>
+using binding_args_t = typename binding_args<Pattern, Subject>::type;
 ```
 
 ---
@@ -213,25 +323,30 @@ match(42).when(lit(42) >> []{
 - All pattern matching is compile-time type safe
 - Support for heterogeneous comparisons (comparisons between different types)
 - Automatic type deduction and explicit type specification
+- Strong typing for binding values
 
 ### Performance Optimization
 - Zero runtime overhead abstractions
 - Compile-time pattern combination optimization
 - Support for constant expression evaluation
+- No RTTI or virtual dispatch
 
 ### Extensibility
 - CRTP-based pattern base classes
 - Easy to add custom pattern types
 - Support for custom comparators and predicates
+- Modular binding trait system
 
 ### Expressiveness
-- Rich built-in pattern types
-- Intuitive DSL syntax
+- Rich built-in pattern types (literal, binding, case-insensitive)
+- Intuitive DSL syntax with `>>` operator
 - Support for complex pattern combinations
+- Value capturing and binding capabilities
 
 ### Compatibility
 - Support for C++17 and C++20
 - Modular header file design
 - Configurable feature switches
+- Header-only integration
 
 This complete API reference covers all public interfaces of the Patternia library, including internal and external APIs, and provides comprehensive example code. You can use this documentation to write GitHub Pages documentation and README files.

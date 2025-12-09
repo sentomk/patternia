@@ -32,7 +32,7 @@
 - **Zero Runtime Overhead**: Compile-time optimization with no RTTI or virtual dispatch
 - **Intuitive Syntax**: Declarative pattern matching with clean DSL operator (`>>`)
 - **Type Safety**: Compile-time guarantees with heterogeneous comparisons
-- **Rich Patterns**: Literal matching, case-insensitive string matching
+- **Rich Patterns**: Literal matching, binding patterns, case-insensitive string matching
 - **Modern C++**: C++17+ compatible with constexpr support
 - **Header-Only**: Drop-in integration with no build dependencies
   
@@ -40,50 +40,64 @@
 
 ## 🚀 Quick Start
 
-### Basic Example: Command Processing
+### Basic Example: Enum Matching with Binding
 
-Transform scattered if-else chains into clean, declarative pattern matching:
+Demonstrate pattern matching with enum values and capturing functionality:
 
 ```cpp
 #include <ptn/patternia.hpp>
 #include <iostream>
-#include <string>
 
 using namespace ptn;
 
-std::string process_command(const std::string& cmd) {
-    return match(cmd)
-        .when(lit("start") >> "System starting...")
-        .when(lit("stop") >> "System stopping...")
-        .when(lit("restart") >> "System restarting...")
-        .when(lit_ci("help") >> "Available commands: start, stop, restart, help")
-        .otherwise("Unknown command");
-}
+enum Status {
+  Pending,
+  Running,
+  Completed,
+  Failed
+};
 
 int main() {
-    std::cout << process_command("START") << "\n";  // Case-insensitive match
-    std::cout << process_command("stop") << "\n";
-    std::cout << process_command("invalid") << "\n";
+  Status s = Status::Running;
+
+  auto result =
+      match(s)
+          .when(lit(Status::Pending) >> [] { return "pending state"; })
+          .when(
+              bind(lit(Status::Running)) >>
+              [](int whole) {
+                std::cout << "Captured (as int): " << whole << "\n";
+                return "running state";
+              })
+          .when(
+              bind() >>
+              [](int v) {
+                std::cout << "Fallback capturing whole subject (int): " << v
+                          << "\n";
+                return "captured fallback";
+              })
+          .otherwise([] { return "otherwise"; });
+
+  std::cout << "Result = " << result << "\n";
 }
 ```
 
 **Output:**
 ```
-Available commands: start, stop, restart, help
-System stopping...
-Unknown command
+Captured (as int): 1
+Result = running state
 ```
 
 ### What this demonstrates
 
 | Benefit                             | Description                                                                       |
 | ----------------------------------- | --------------------------------------------------------------------------------- |
-| **Logic & behavior separation**     | Commands and responses are cleanly separated                                               |
+| **Logic & behavior separation**     | Pattern matching and handlers are cleanly separated                               |
 | **Readable business intent**        | No mixed branching or hidden side effects                                         |
-| **Case-insensitive matching**    | Built-in support for common string matching needs                                    |
+| **Value capturing**                 | Built-in support for capturing matched values for processing                     |
 | **Zero runtime overhead**           | All decisions are resolved by the compiler                                        |
 
-This shows how Patternia transforms traditional control flow into expressive, safe, and maintainable logic — ideal for command processing, protocol handling, or any domain where input mapping is required.
+This shows how Patternia transforms traditional control flow into expressive, safe, and maintainable logic — ideal for state handling, protocol processing, or any domain where value extraction is required.
 
 ---
 
@@ -92,23 +106,34 @@ This shows how Patternia transforms traditional control flow into expressive, sa
 Traditional approaches:
 
 ```cpp
-if (cmd == "start") { ... }
-else if (cmd == "stop") { ... }
-else if (cmd == "restart") { ... }
-else if (cmd == "help" || cmd == "HELP" || cmd == "Help") { ... }
+if (s == Status::Pending) { ... }
+else if (s == Status::Running) { 
+    int value = static_cast<int>(s);
+    // process value...
+    return "running state";
+}
+else if (...) { ... }
 ```
 
 or:
 
 ```cpp
-switch(hash(cmd)) { ... }
+switch(s) { 
+    case Status::Pending: return "pending state";
+    case Status::Running: {
+        int value = static_cast<int>(s);
+        // process value...
+        return "running state";
+    }
+    default: return "otherwise";
+}
 ```
 
 These:
 
 * tightly couple **condition** and **behavior**
 * become error-prone when branching grows
-* require repetitive code for case-insensitive matching
+* require manual type casting and value extraction
 * are hard to extend without modifying existing logic
 
 Patternia solves all of these, while generating equally efficient (or better) machine code.
@@ -174,6 +199,8 @@ Documentation → [Installation Guide](https://sentomk.github.io/patternia/guide
 ### Pattern Types
 - `lit(value)` - Exact value matching for any comparable type
 - `lit_ci(value)` - Case-insensitive ASCII string matching
+- `bind()` - Capture the entire subject value
+- `bind(subpattern)` - Capture subject after matching with subpattern
 
 ### Supported Value Types
 - Arithmetic types (int, double, float, etc.)
@@ -184,21 +211,7 @@ Documentation → [Installation Guide](https://sentomk.github.io/patternia/guide
 ### Handler Types
 - Value handlers (return fixed value)
 - Function handlers (process matched value)
-
----
-
-## 🗺️ Roadmap
-
-Patternia is actively being developed. Planned features include:
-
-- [ ] Predicate patterns (`pred(lambda)`)
-- [ ] Relational patterns (`lt`, `gt`, `between`, etc.)
-- [ ] Logical operators (`&&`, `||`, `!`)
-- [ ] Type patterns (`type::is<T>`, `type::in<Ts...>`)
-- [ ] Template pattern matching
-- [ ] Structural pattern matching
-
-Check the [Roadmap](https://sentomk.github.io/patternia/design/roadmap/) for detailed planning.
+- Capturing handlers (receive bound values)
 
 ---
 

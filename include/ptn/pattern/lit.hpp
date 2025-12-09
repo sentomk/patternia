@@ -14,7 +14,7 @@
 
 #include "ptn/pattern/base/fwd.h"
 
-namespace ptn::pat::value {
+namespace ptn::pat {
 
   // --- Internal Implementation Details ---
 
@@ -72,7 +72,7 @@ namespace ptn::pat::value {
     // A pattern that matches a subject by comparing it with a stored value.
     template <typename V, typename Cmp = std::equal_to<>>
     struct literal_pattern : base::pattern_base<literal_pattern<V, Cmp>> {
-      using store_t = literal_store_t<V>;
+      using store_t = detail::literal_store_t<V>;
 
       // Stored value for matching.
       store_t v;
@@ -138,7 +138,7 @@ namespace ptn::pat::value {
         store_t(std::forward<V>(v)), detail::iequal_ascii{});
   }
 
-} // namespace ptn::pat::value
+} // namespace ptn::pat
 
 // --- Binding Contract Declaration ---
 
@@ -152,7 +152,7 @@ namespace ptn::pat::base {
   // consistent with the return type of `detail::literal_pattern::bind()`.
   template <typename V, typename Cmp, typename Subject>
   struct binding_args<
-      ptn::pat::value::detail::literal_pattern<V, Cmp>,
+      ptn::pat::detail::literal_pattern<V, Cmp>,
       Subject> {
     using type = std::tuple<>;
   };
