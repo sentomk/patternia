@@ -2,12 +2,6 @@
 
 // Forward declarations for Patternia Core Layer.
 
-#include "ptn/config.hpp" // For PTN_USE_CONCEPTS
-
-#if PTN_USE_CONCEPTS
-#include <concepts>
-#endif
-
 namespace ptn {
 
   // Public API
@@ -39,20 +33,12 @@ namespace ptn {
 
   namespace core::common {
 
-#if PTN_USE_CONCEPTS
-    // Concept that defines a valid pattern.
-    template <typename P>
-    concept pattern_like = requires(const P &p, auto &&subj) {
-      { p.match(subj) } -> std::convertible_to<bool>;
-    };
-#else
     // C++17 SFINAE fallback for `pattern_like`.
     template <typename P, typename = void>
     struct is_pattern;
 
     template <typename P>
     inline constexpr bool is_pattern_v = is_pattern<P>::value;
-#endif
 
     // Forward declaration of the core binding trait.
     //

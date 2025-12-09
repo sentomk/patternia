@@ -13,7 +13,6 @@
 #include <utility>
 
 #include "ptn/pattern/base/fwd.h"
-#include "ptn/config.hpp"
 
 namespace ptn::pat::value {
 
@@ -58,16 +57,6 @@ namespace ptn::pat::value {
         return true;
       }
 
-#if PTN_USE_CONCEPTS
-      // Transparent heterogeneous case-insensitive comparison (C++20).
-      template <typename A, typename B>
-        requires(
-            std::is_convertible_v<A, std::string_view> &&
-            std::is_convertible_v<B, std::string_view>)
-      constexpr bool operator()(A const &a, B const &b) const noexcept {
-        return (*this)(std::string_view(a), std::string_view(b));
-      }
-#else
       // Transparent heterogeneous case-insensitive comparison (C++17).
       template <
           typename A,
@@ -78,7 +67,6 @@ namespace ptn::pat::value {
       constexpr bool operator()(A const &a, B const &b) const noexcept {
         return (*this)(std::string_view(a), std::string_view(b));
       }
-#endif
     };
 
     // A pattern that matches a subject by comparing it with a stored value.

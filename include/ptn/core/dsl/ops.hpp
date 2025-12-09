@@ -6,9 +6,7 @@
 #include <utility>
 
 #include "ptn/core/common/common_traits.hpp"
-#include "ptn/pattern/value/predicate.hpp"
 #include "ptn/core/dsl/detail/case_expr_impl.hpp"
-#include "ptn/pattern/base/pattern_traits.hpp"
 
 namespace ptn::core::dsl::ops {
 
@@ -45,45 +43,4 @@ namespace ptn::core::dsl::ops {
           std::forward<Pattern>(pattern), std::forward<Handler>(handler)};
     }
   }
-  // Pattern logical composition: &&, ||, !
-  //
-  // These operators enable logical composition of patterns using
-  // `pat::detail::is_pattern_v<T>` from pattern/base/pattern_traits.hpp.
-  // They are only enabled for actual pattern types.
-
-  // AND composition: p1 && p2
-  template <
-      typename L,
-      typename R,
-      typename = std::enable_if_t<
-          pat::detail::is_pattern_v<std::decay_t<L>> &&
-          pat::detail::is_pattern_v<std::decay_t<R>>>>
-  constexpr auto operator&&(L &&l, R &&r) {
-    return ptn::pat::value::detail::
-        and_pattern<std::decay_t<L>, std::decay_t<R>>(
-            std::forward<L>(l), std::forward<R>(r));
-  }
-
-  // OR composition: p1 || p2
-  template <
-      typename L,
-      typename R,
-      typename = std::enable_if_t<
-          pat::detail::is_pattern_v<std::decay_t<L>> &&
-          pat::detail::is_pattern_v<std::decay_t<R>>>>
-  constexpr auto operator||(L &&l, R &&r) {
-    return ptn::pat::value::detail::
-        or_pattern<std::decay_t<L>, std::decay_t<R>>(
-            std::forward<L>(l), std::forward<R>(r));
-  }
-
-  // NOT composition: !p
-  template <
-      typename P,
-      typename = std::enable_if_t<pat::detail::is_pattern_v<std::decay_t<P>>>>
-  constexpr auto operator!(P &&p) {
-    return ptn::pat::value::detail::not_pattern<std::decay_t<P>>(
-        std::forward<P>(p));
-  }
-
 } // namespace ptn::core::dsl::ops

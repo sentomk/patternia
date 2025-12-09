@@ -42,14 +42,8 @@ namespace ptn::core::common {
   constexpr void static_assert_valid_handler() {
     static_assert(
         is_handler_invocable_v<Case, Subject>,
-#if PTN_USE_CONCEPTS
-        "[Patternia Error] Handler cannot be invoked with the arguments bound "
-        "by the pattern."
-#else
         "[Patternia Error] Handler signature does not match the pattern's "
-        "binding result."
-#endif
-    );
+        "binding result.");
   }
 
   // Validates a single case expression.
@@ -65,17 +59,10 @@ namespace ptn::core::common {
   // Validates that a type is a valid pattern.
   template <typename Pattern, typename Subject>
   constexpr void static_assert_valid_pattern() {
-#if PTN_USE_CONCEPTS
-    static_assert(
-        ptn::pattern::detail::pattern<Pattern>,
-        "[Patternia Error] The provided type is not a valid pattern. "
-        "A pattern must be invocable with a subject and return a boolean.");
-#else
     static_assert(
         ptn::pat::base::is_pattern_v<Pattern>,
         "[Patternia Error] The provided type is not a valid pattern. "
         "A pattern must be invocable with a subject and return a boolean.");
-#endif
   }
 
   template <typename... Cases>

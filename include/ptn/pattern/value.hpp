@@ -6,5 +6,3 @@
 // (`lit`, `pred`, `lt`, `eq`, etc.), simplifying user includes.
 
 #include "ptn/pattern/value/literal.hpp"
-#include "ptn/pattern/value/predicate.hpp"
-#include "ptn/pattern/value/relational.hpp"
