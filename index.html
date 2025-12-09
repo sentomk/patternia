@@ -1109,8 +1109,7 @@
 <h3 id="pattern-system">Pattern System<a class="headerlink" href="#pattern-system" title="Permanent link">&para;</a></h3>
 <ul>
 <li><a href="patterns/foreword/">Pattern System Overview</a> - Understand Patternia's design philosophy</li>
-<li><a href="patterns/value/">Value Patterns</a> - Value matching with literals, ranges, predicates</li>
-<li><a href="patterns/type/">Type Patterns</a> - Type matching with type checking, type lists</li>
+<li><a href="patterns/value/">Value Patterns</a> - Value matching with literals, case-insensitive strings, predicates</li>
 </ul>
 <h3 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1127,8 +1126,8 @@
 <li><strong>Header-only</strong>: Zero dependencies, plug-and-play</li>
 <li><strong>Declarative Syntax</strong>: <code>match().when().otherwise()</code> chaining</li>
 <li><strong>Type Safety</strong>: Compile-time guarantees, zero runtime overhead</li>
-<li><strong>Rich Patterns</strong>: Value patterns, type patterns, predicate patterns</li>
-<li><strong>DSL Operators</strong>: <code>&gt;&gt;</code>, <code>&amp;&amp;</code>, <code>||</code>, <code>!</code> for composition</li>
+<li><strong>Rich Patterns</strong>: Literal patterns, case-insensitive patterns, predicate patterns</li>
+<li><strong>DSL Operators</strong>: <code>&gt;&gt;</code> for pattern-handler binding</li>
 </ul>
 <hr />
 <h2 id="quick-example">Quick Example<a class="headerlink" href="#quick-example" title="Permanent link">&para;</a></h2>
@@ -1141,7 +1140,6 @@
 <span class="w">    </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 <span class="w">      </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span><span class="p">)</span>
 <span class="w">      </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;answer&quot;</span><span class="p">)</span>
-<span class="w">      </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;int value&quot;</span><span class="p">)</span>
 <span class="w">      </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
 </code></pre></div>
 <p>Patternia evaluates patterns in order and returns the result associated with the first successful match.</p>
@@ -1151,7 +1149,7 @@
 <ol>
 <li><a href="guide/installation/">Installation</a> - Integrate into your project</li>
 <li><a href="guide/getting-started/">Getting Started</a> - Learn basic usage</li>
-<li><a href="patterns/value/">Value Patterns</a> or <a href="patterns/type/">Type Patterns</a> - Deep dive based on your needs</li>
+<li><a href="patterns/value/">Value Patterns</a> - Deep dive into value matching patterns</li>
 </ol>
 <p>If you're looking for <strong>specific information</strong>:</p>
 <ul>

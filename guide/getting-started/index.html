@@ -581,39 +581,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#type-based-matching" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Type-based Matching
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#relational-patterns" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Relational Patterns
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#predicates" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Predicates
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#case-insensitive-matching" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1078,7 +1045,7 @@
 <h1 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h1>
 <p>Patternia is a header-only library.
 Once installed or fetched into your project, you can start using pattern matching immediately.</p>
-<p>Below is the minimal working example demonstrating the core DSL:</p>
+<p>Below is minimal working example demonstrating the core DSL:</p>
 <hr />
 <h2 id="optional-recommended-code-style">Optional: Recommended Code Style<a class="headerlink" href="#optional-recommended-code-style" title="Permanent link">&para;</a></h2>
 <p>To keep your chained <code>.when()</code> and <code>.otherwise()</code> expressions visually aligned and easy to scan, you can add a minimal <code>.clang-format</code> to your project root:</p>
@@ -1094,8 +1061,8 @@ Once installed or fetched into your project, you can start using pattern matchin
 <p>With this style, multi-line match expressions remain clean and consistent:</p>
 <div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="o">=</span>
 <span class="w">    </span><span class="n">match</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-<span class="w">      </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;neg&quot;</span><span class="p">)</span>
-<span class="w">      </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">gt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;pos&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;five&quot;</span><span class="p">)</span>
 <span class="w">      </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
 </code></pre></div>
 <hr />
@@ -1111,7 +1078,6 @@ Once installed or fetched into your project, you can start using pattern matchin
 <span class="w">    </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 <span class="w">      </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w">       </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span><span class="p">)</span>
 <span class="w">      </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w">      </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;answer to everything&quot;</span><span class="p">)</span>
-<span class="w">      </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pred</span><span class="p">([](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;even&quot;</span><span class="p">)</span>
 <span class="w">      </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
 
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
@@ -1119,36 +1085,6 @@ Once installed or fetched into your project, you can start using pattern matchin
 </code></pre></div>
 <p>Output:</p>
 <div class="highlight"><pre><span></span><code>answer to everything
-</code></pre></div>
-<hr />
-<h2 id="type-based-matching">Type-based Matching<a class="headerlink" href="#type-based-matching" title="Permanent link">&para;</a></h2>
-<p>Patternia provides a type layer for matching based on static type.</p>
-<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.14f</span><span class="p">;</span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w">    </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;int&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w">  </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;float&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;string&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;unknown&quot;</span><span class="p">);</span>
-</code></pre></div>
-<hr />
-<h2 id="relational-patterns">Relational Patterns<a class="headerlink" href="#relational-patterns" title="Permanent link">&para;</a></h2>
-<p>Patternia’s relational DSL (<code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>) works on any comparable value.</p>
-<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">87</span><span class="p">;</span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">grade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lt</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span><span class="w">             </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;F&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// less than</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ge</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span><span class="w">             </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;A&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// greater equal</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ge</span><span class="p">(</span><span class="mi">80</span><span class="p">)</span><span class="w">             </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;B&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">ge</span><span class="p">(</span><span class="mi">70</span><span class="p">)</span><span class="w">             </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;D&quot;</span><span class="p">);</span>
-</code></pre></div>
-<hr />
-<h2 id="predicates">Predicates<a class="headerlink" href="#predicates" title="Permanent link">&para;</a></h2>
-<p>Arbitrary logic can be wrapped into concise predicate patterns:</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pred</span><span class="p">([](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;odd&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;even&quot;</span><span class="p">);</span>
 </code></pre></div>
 <hr />
 <h2 id="case-insensitive-matching">Case-insensitive matching<a class="headerlink" href="#case-insensitive-matching" title="Permanent link">&para;</a></h2>

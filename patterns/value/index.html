@@ -707,6 +707,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#current-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current Implementation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Current Implementation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#literal-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Literal Patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supported-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dsl-operators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DSL Operators
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#summary" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1051,9 +1101,8 @@ They describe conditions on concrete data: numbers, strings, states, commands, a
 <p>In conventional C++, comparisons and conditions are expressed through imperative constructs:</p>
 <ul>
 <li><code>if (x == 42)</code>  </li>
-<li><code>if (size &lt; capacity)</code>  </li>
 <li><code>if (name == "start")</code>  </li>
-<li><code>if (x &gt; 0 &amp;&amp; x &lt; 10)</code>  </li>
+<li><code>if (name == "START")</code> (case-insensitive)</li>
 </ul>
 <p>Each condition is tied to surrounding control flow.<br />
 Value Patterns decouple the <strong>expression of conditions</strong> from <strong>the control structure</strong> that uses them.</p>
@@ -1084,6 +1133,25 @@ Value Patterns can be combined with logical operators to describe richer semanti
 </ol>
 <p>Value Patterns do not influence the structure of evaluation—only the semantics of the condition.<br />
 This separation of responsibilities keeps the system modular and allows different pattern families to coexist imperatively.</p>
+<hr />
+<h2 id="current-implementation">Current Implementation<a class="headerlink" href="#current-implementation" title="Permanent link">&para;</a></h2>
+<p>The current implementation provides:</p>
+<h3 id="literal-patterns">Literal Patterns<a class="headerlink" href="#literal-patterns" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>lit(value)</code> - Exact value matching</li>
+<li><code>lit_ci(value)</code> - Case-insensitive string matching (ASCII only)</li>
+</ul>
+<h3 id="supported-types">Supported Types<a class="headerlink" href="#supported-types" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Arithmetic types (int, double, float, etc.)</li>
+<li>Enum types  </li>
+<li>Strings (std::string, std::string_view, const char*)</li>
+<li>User-defined types (must support operator==)</li>
+</ul>
+<h3 id="dsl-operators">DSL Operators<a class="headerlink" href="#dsl-operators" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>&gt;&gt;</code> - Pattern-handler binding operator</li>
+</ul>
 <hr />
 <h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
 <p>Architecturally, Value Patterns:</p>
