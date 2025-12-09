@@ -962,6 +962,45 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#binding-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Binding Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Binding Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ptnbind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::bind()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptnbindsubpattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::bind(subpattern)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -996,6 +1035,62 @@
     <span class="md-ellipsis">
       
         pattern &gt;&gt; handler - Pattern binding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#binding-system-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Binding System API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Binding System API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#binding-traits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Binding Traits
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Binding Traits">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#binding_argspattern-subject" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        binding_args&lt;Pattern, Subject&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#binding_args_tpattern-subject" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        binding_args_t&lt;Pattern, Subject&gt;
       
     </span>
   </a>
@@ -1304,16 +1399,17 @@
 │   └── common/                       // Common utilities and traits
 ├── pat/                              // Pattern definitions
 │   ├── base/                         // Pattern base classes
-│   └── value/                        // Value patterns
+│   ├── lit.hpp                        // Literal pattern implementation
+│   └── bind.hpp                       // Binding pattern implementation
 └── meta/                             // Meta programming tools
     ├── base/                         // Base traits
     ├── dsa/                          // Data structures and algorithms
     └── query/                        // Query utilities
 </code></pre></div>
 <h3 id="main-namespace-aliases">Main Namespace Aliases<a class="headerlink" href="#main-namespace-aliases" title="Permanent link">&para;</a></h3>
-<p>For user convenience, Patternia provides the following namespace aliases:</p>
+<p>For user convenience, Patternia provides all pattern functions directly in the <code>ptn</code> namespace:</p>
 <div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">namespace</span><span class="w"> </span><span class="nn">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">pat</span><span class="o">::</span><span class="nn">value</span><span class="p">;</span><span class="w">  </span><span class="c1">// Value pattern alias</span>
+<span class="w">  </span><span class="c1">// lit, lit_ci, bind are available directly</span>
 <span class="p">}</span>
 </code></pre></div>
 <hr />
@@ -1370,7 +1466,7 @@
 <h2 id="value-pattern-api">Value Pattern API<a class="headerlink" href="#value-pattern-api" title="Permanent link">&para;</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><strong><code>ptn::pat::value::lit</code> == <code>ptn::lit</code></strong> </p>
+<p><strong><code>ptn::pat::lit</code></strong>, <strong><code>ptn::pat::lit_ci</code></strong>, and <strong><code>ptn::pat::bind</code></strong> are available directly in <code>ptn</code> namespace</p>
 </div>
 <h3 id="literal-patterns">Literal Patterns<a class="headerlink" href="#literal-patterns" title="Permanent link">&para;</a></h3>
 <h4 id="ptnlitvalue"><code>ptn::lit(value)</code><a class="headerlink" href="#ptnlitvalue" title="Permanent link">&para;</a></h4>
@@ -1406,6 +1502,54 @@
 <div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;HELLO&quot;</span><span class="p">;</span>
 <span class="n">match</span><span class="p">(</span><span class="n">s</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">lit_ci</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;case-insensitive-match&quot;</span><span class="p">);</span>
 </code></pre></div></p>
+<h3 id="binding-patterns">Binding Patterns<a class="headerlink" href="#binding-patterns" title="Permanent link">&para;</a></h3>
+<h4 id="ptnbind"><code>ptn::bind()</code><a class="headerlink" href="#ptnbind" title="Permanent link">&para;</a></h4>
+<p>Create a pattern that captures the entire subject value.</p>
+<div class="highlight"><pre><span></span><code><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">bind</span><span class="p">();</span>
+</code></pre></div>
+<p><strong>Purpose:</strong> Create a pattern that always matches and captures the subject as a tuple</p>
+<p><strong>Returns:</strong> <code>binding_pattern</code> that binds the subject value</p>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1">// Capture any value</span>
+<span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;captured: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">v</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// Fallback capture</span>
+<span class="k">enum</span><span class="w"> </span><span class="nc">Status</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Pending</span><span class="p">,</span><span class="w"> </span><span class="n">Running</span><span class="w"> </span><span class="p">};</span>
+<span class="n">match</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Running</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Pending</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;pending&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;status: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">v</span><span class="p">);</span><span class="w"> </span><span class="p">});</span>
+</code></pre></div></p>
+<h4 id="ptnbindsubpattern"><code>ptn::bind(subpattern)</code><a class="headerlink" href="#ptnbindsubpattern" title="Permanent link">&para;</a></h4>
+<p>Create a pattern that first matches with subpattern, then captures the subject.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">SubPattern</span><span class="o">&gt;</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">bind</span><span class="p">(</span><span class="n">SubPattern</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">subpattern</span><span class="p">);</span>
+</code></pre></div>
+<p><strong>Purpose:</strong> Create a pattern that combines subpattern matching with subject capturing</p>
+<p><strong>Parameters:</strong>
+- <code>subpattern</code> - Pattern to use for matching</p>
+<p><strong>Returns:</strong> <code>binding_as_pattern</code> that binds both subject and subpattern bindings</p>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1">// Capture after matching specific value</span>
+<span class="k">enum</span><span class="w"> </span><span class="nc">Status</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Pending</span><span class="p">,</span><span class="w"> </span><span class="n">Running</span><span class="p">,</span><span class="w"> </span><span class="n">Completed</span><span class="w"> </span><span class="p">};</span>
+<span class="n">match</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Running</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Running</span><span class="p">))</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">whole</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Captured enum value: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">whole</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;running&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="c1">// Capture with string matching</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">cmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;START&quot;</span><span class="p">;</span>
+<span class="n">match</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="n">lit_ci</span><span class="p">(</span><span class="s">&quot;start&quot;</span><span class="p">))</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">command</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;processing: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">command</span><span class="p">;</span>
+<span class="w">    </span><span class="p">});</span>
+</code></pre></div></p>
+<p><strong>Binding Behavior:</strong>
+- <code>bind()</code> alone binds the subject as <code>std::tuple&lt;Subject&gt;</code>
+- <code>bind(subpattern)</code> binds <code>std::tuple&lt;Subject, SubPatternBindings...&gt;</code>
+- Handler functions receive the bound values as parameters</p>
 <hr />
 <h2 id="dsl-operators-api">DSL Operators API<a class="headerlink" href="#dsl-operators-api" title="Permanent link">&para;</a></h2>
 <h3 id="pattern-handler-binding-operators">Pattern-Handler Binding Operators<a class="headerlink" href="#pattern-handler-binding-operators" title="Permanent link">&para;</a></h3>
@@ -1434,7 +1578,38 @@
 <span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]{</span><span class="w"> </span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;answer&quot;</span><span class="p">;</span>
 <span class="p">});</span><span class="w">  </span><span class="c1">// Returns string &quot;answer&quot;</span>
+
+<span class="c1">// Capturing handler with bind()</span>
+<span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;captured: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// Capturing handler with subpattern</span>
+<span class="k">enum</span><span class="w"> </span><span class="nc">Status</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Running</span><span class="w"> </span><span class="p">};</span>
+<span class="n">match</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Running</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Running</span><span class="p">))</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">whole</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;status: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">whole</span><span class="p">);</span>
+<span class="w">    </span><span class="p">});</span>
 </code></pre></div></p>
+<hr />
+<h2 id="binding-system-api">Binding System API<a class="headerlink" href="#binding-system-api" title="Permanent link">&para;</a></h2>
+<h3 id="binding-traits">Binding Traits<a class="headerlink" href="#binding-traits" title="Permanent link">&para;</a></h3>
+<p>Patternia uses a type trait system to determine what values each pattern binds.</p>
+<h4 id="binding_argspattern-subject"><code>binding_args&lt;Pattern, Subject&gt;</code><a class="headerlink" href="#binding_argspattern-subject" title="Permanent link">&para;</a></h4>
+<p>Trait that defines the binding result type for a pattern-subject pair.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Pattern</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">Subject</span><span class="o">&gt;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">binding_args</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;&gt;</span><span class="p">;</span><span class="w"> </span><span class="c1">// default implementation</span>
+<span class="p">};</span>
+</code></pre></div>
+<p><strong>Specializations:</strong>
+- <code>binding_args&lt;binding_pattern, Subject&gt;</code> → <code>std::tuple&lt;Subject&gt;</code>
+- <code>binding_args&lt;binding_as_pattern&lt;Tag, SubPattern&gt;, Subject&gt;</code> → concatenated tuple</p>
+<h4 id="binding_args_tpattern-subject"><code>binding_args_t&lt;Pattern, Subject&gt;</code><a class="headerlink" href="#binding_args_tpattern-subject" title="Permanent link">&para;</a></h4>
+<p>Convenience alias for binding arguments type.</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Pattern</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">Subject</span><span class="o">&gt;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">binding_args_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">binding_args</span><span class="o">&lt;</span><span class="n">Pattern</span><span class="p">,</span><span class="w"> </span><span class="n">Subject</span><span class="o">&gt;::</span><span class="n">type</span><span class="p">;</span>
+</code></pre></div>
 <hr />
 <h2 id="api-feature-summary">API Feature Summary<a class="headerlink" href="#api-feature-summary" title="Permanent link">&para;</a></h2>
 <h3 id="type-safety">Type Safety<a class="headerlink" href="#type-safety" title="Permanent link">&para;</a></h3>
@@ -1442,30 +1617,35 @@
 <li>All pattern matching is compile-time type safe</li>
 <li>Support for heterogeneous comparisons (comparisons between different types)</li>
 <li>Automatic type deduction and explicit type specification</li>
+<li>Strong typing for binding values</li>
 </ul>
 <h3 id="performance-optimization">Performance Optimization<a class="headerlink" href="#performance-optimization" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Zero runtime overhead abstractions</li>
 <li>Compile-time pattern combination optimization</li>
 <li>Support for constant expression evaluation</li>
+<li>No RTTI or virtual dispatch</li>
 </ul>
 <h3 id="extensibility">Extensibility<a class="headerlink" href="#extensibility" title="Permanent link">&para;</a></h3>
 <ul>
 <li>CRTP-based pattern base classes</li>
 <li>Easy to add custom pattern types</li>
 <li>Support for custom comparators and predicates</li>
+<li>Modular binding trait system</li>
 </ul>
 <h3 id="expressiveness">Expressiveness<a class="headerlink" href="#expressiveness" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Rich built-in pattern types</li>
-<li>Intuitive DSL syntax</li>
+<li>Rich built-in pattern types (literal, binding, case-insensitive)</li>
+<li>Intuitive DSL syntax with <code>&gt;&gt;</code> operator</li>
 <li>Support for complex pattern combinations</li>
+<li>Value capturing and binding capabilities</li>
 </ul>
 <h3 id="compatibility">Compatibility<a class="headerlink" href="#compatibility" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Support for C++17 and C++20</li>
 <li>Modular header file design</li>
 <li>Configurable feature switches</li>
+<li>Header-only integration</li>
 </ul>
 <p>This complete API reference covers all public interfaces of the Patternia library, including internal and external APIs, and provides comprehensive example code. You can use this documentation to write GitHub Pages documentation and README files.</p>
 
