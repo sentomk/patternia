@@ -6,7 +6,6 @@
 #include <type_traits>
 #include <utility>
 
-#include "ptn/config.hpp"
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/common/diagnostics.hpp"
 #include "ptn/core/engine/detail/match_impl.hpp"
@@ -14,11 +13,11 @@
 namespace ptn::core::engine::detail {
 
   // Builder class for constructing pattern match expressions.
-  // 
+  //
   // This class provides a fluent interface for building match expressions
   // with multiple cases using method chaining. It stores the subject to be
   // matched and a tuple of case expressions.
-  // 
+  //
   // TV: The type of the subject value to be matched
   // Cases: The types of case expressions added so far
   template <typename TV, typename... Cases>
@@ -66,12 +65,7 @@ namespace ptn::core::engine::detail {
       static_assert(
           ptn::core::common::
               is_handler_invocable_v<new_case_type, subject_type>,
-#if PTN_USE_CONCEPTS
-          "Handler cannot be invoked with the arguments bound by the pattern."
-#else
-          "Handler signature does not match the pattern's binding result."
-#endif
-      );
+          "Handler signature does not match the pattern's binding result.");
 
       // Concatenate existing cases with the new case
       auto new_cases = std::tuple_cat(
@@ -100,12 +94,7 @@ namespace ptn::core::engine::detail {
       static_assert(
           ptn::core::common::
               is_handler_invocable_v<new_case_type, subject_type>,
-#if PTN_USE_CONCEPTS
-          "Handler cannot be invoked with the arguments bound by the pattern."
-#else
-          "Handler signature does not match the pattern's binding result."
-#endif
-      );
+          "Handler signature does not match the pattern's binding result.");
 
       // Concatenate existing cases with the new case (copying cases_)
       auto new_cases = std::tuple_cat(
@@ -121,11 +110,11 @@ namespace ptn::core::engine::detail {
 
     // Terminal step: evaluate all cases; if none matches,
     // call the provided fallback handler.
-    // 
+    //
     // This method executes the pattern matching algorithm. It tries each
     // case in order, and if none matches, it calls the otherwise handler.
     // The handler can be either a value or a callable.
-    // 
+    //
     // Otherwise: Type of the fallback handler or value
     // otherwise_handler: The fallback to use when no cases match
     // Returns: The result of the matched case handler or the otherwise handler

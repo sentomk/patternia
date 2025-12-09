@@ -75,7 +75,6 @@ option(PTN_SKIP_COMPILER_CHECK "Skip compiler version check" OFF)
 
 # ========== Public headers ==========
 PTN_JOIN_HEADERS(PTN_HEADERS
-  include/ptn/config.hpp
   include/ptn/patternia.hpp
 
   # Core Layer
@@ -108,20 +107,10 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/pattern/base/pattern_traits.hpp
 
   # Pattern Module Headers
-  include/ptn/pattern/type.hpp
   include/ptn/pattern/value.hpp
-
-  # Type Pattern Layer
-  include/ptn/pattern/type/from.hpp
-  include/ptn/pattern/type/in.hpp
-  include/ptn/pattern/type/is.hpp
-  include/ptn/pattern/type/not_in.hpp
-  include/ptn/pattern/type/type_of.hpp
 
   # Value Pattern Layer
   include/ptn/pattern/value/literal.hpp
-  include/ptn/pattern/value/predicate.hpp
-  include/ptn/pattern/value/relational.hpp
 )
 
 # ========== Public interface target ==========
@@ -234,6 +223,12 @@ endif()
 # )
 # target_compile_options(bench_patternia PRIVATE -O3 -march=native)
 # endif()
+add_executable(sample_patternia
+  samples/test.cpp
+)
+target_link_libraries(sample_patternia PRIVATE
+  patternia
+)
 
 # ========== Install / Export (only the INTERFACE target is exported) ==========
 if(PTN_INSTALL)

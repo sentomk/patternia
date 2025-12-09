@@ -7,7 +7,6 @@
 #include <utility>
 #include <functional>
 
-#include "ptn/config.hpp"
 #include "ptn/core/common/common_traits.hpp"
 
 namespace ptn::core::common {
@@ -63,61 +62,36 @@ namespace ptn::core::common {
     matches(const case_type &c, const subject_type &subject) {
       // Supports both class-based patterns with a .match() method and
       // functional patterns (via std::invoke).
-#if PTN_USE_CONCEPTS
-      if constexpr (requires(const pattern_type &p, const subject_type &s) {
-                      { p.match(s) } -> std::convertible_to<bool>;
-                    }) {
-        return c.pattern.match(subject);
-      }
-      else {
-        return static_cast<bool>(std::invoke(c.pattern, subject));
-      }
-#else
-      // Use a robust SFINAE check instead of the faulty member function
-      // pointer check.
       if constexpr (detail::has_match_member_v<pattern_type, subject_type>) {
         return c.pattern.match(subject);
       }
       else {
         return static_cast<bool>(std::invoke(c.pattern, subject));
       }
-#endif
     }
   };
 
   // Handler Invocation Logic
 
-  // Invokes a handler with the subject and values bound by its pattern.
+  // Invokes a handler with the values bound by its pattern.
+  //
+  // Design A:
+  //   handler( pattern.bind(subject)... )
+  //   The subject itself is not passed as an extra first argument.
   template <typename Case, typename Subject>
   constexpr decltype(auto) invoke_handler(const Case &c, Subject &&subject) {
     using pattern_type = case_pattern_t<Case>;
 
-// The check is different for C++17 and C++20.
-#if PTN_USE_CONCEPTS
-    static_assert(
-        requires(const pattern_type &p, Subject &&s) {
-          { p.bind(std::forward<Subject>(s)) };
-        },
-        "Pattern must have a 'bind(subject)' method that returns a tuple of "
-        "bound values.");
-#else
-    // Use the robust SFINAE check instead of the faulty sizeof trick.
     static_assert(
         detail::has_bind_member_v<pattern_type, Subject>,
         "Pattern must have a 'bind(subject)' method that returns a tuple of "
         "bound values.");
-#endif
 
     // Let the pattern perform the binding.
     auto bound_values = c.pattern.bind(std::forward<Subject>(subject));
 
-    // Combine the subject and bound values into a single tuple.
-    auto full_args = std::tuple_cat(
-        std::forward_as_tuple(std::forward<Subject>(subject)),
-        std::move(bound_values));
-
-    // Apply the handler to the full set of arguments.
-    return std::apply(c.handler, std::move(full_args));
+    // Apply the handler only to the bound values.
+    return std::apply(c.handler, std::move(bound_values));
   }
 
   // Case Sequence Evaluation
@@ -163,6 +137,8 @@ namespace ptn::core::common {
       Subject &subject, CasesTuple &cases, Otherwise &&otherwise_handler) {
     using tuple_t           = std::remove_reference_t<CasesTuple>;
     constexpr std::size_t N = std::tuple_size_v<tuple_t>;
+
+    (void) N; // silence unused warning if needed
 
     return detail::eval_cases_impl<0>(
         subject, cases, std::forward<Otherwise>(otherwise_handler));

@@ -30,50 +30,60 @@
 
 ## ✨ Key Features
 - **Zero Runtime Overhead**: Compile-time optimization with no RTTI or virtual dispatch
-- **Intuitive Syntax**: Declarative pattern matching with clean DSL operators (`&&`, `||`, `!`)
+- **Intuitive Syntax**: Declarative pattern matching with clean DSL operator (`>>`)
 - **Type Safety**: Compile-time guarantees with heterogeneous comparisons
-- **Rich Patterns**: Value matching, type checking, ranges, predicates, and template introspection
-- **Modern C++**: C++17/20 compatible with constexpr support
+- **Rich Patterns**: Literal matching, case-insensitive string matching
+- **Modern C++**: C++17+ compatible with constexpr support
 - **Header-Only**: Drop-in integration with no build dependencies
   
 ---
 
 ## 🚀 Quick Start
 
-### Real-World Demo: Intelligent Movement Decision
+### Basic Example: Command Processing
 
-Game development often requires mapping player input into behavior logic:
-direction vectors → animation / motion states.
-
-With Patternia, this logic becomes **a declarative decision table**, rather than a scattered set of if-else or switch-case statements.
+Transform scattered if-else chains into clean, declarative pattern matching:
 
 ```cpp
-Action get_action(const Vec2& v) {
-    return match(v)
-        .when(pred([](const Vec2& p){ return is_forward(p) && is_strong_move(p); })
-              >> Action::Dash)
-        .when(pred([](const Vec2& p){ return is_forward(p); })
-              >> Action::MoveForward)
-        .when(pred([](const Vec2& p){ return is_backward(p); })
-              >> Action::MoveBackward)
-        .when(pred([](const Vec2& p){ return is_right(p); })
-              >> Action::MoveRight)
-        .when(pred([](const Vec2& p){ return is_left(p); })
-              >> Action::MoveLeft)
-        .otherwise(Action::Idle);
+#include <ptn/patternia.hpp>
+#include <iostream>
+#include <string>
+
+using namespace ptn;
+
+std::string process_command(const std::string& cmd) {
+    return match(cmd)
+        .when(lit("start") >> "System starting...")
+        .when(lit("stop") >> "System stopping...")
+        .when(lit("restart") >> "System restarting...")
+        .when(lit_ci("help") >> "Available commands: start, stop, restart, help")
+        .otherwise("Unknown command");
 }
+
+int main() {
+    std::cout << process_command("START") << "\n";  // Case-insensitive match
+    std::cout << process_command("stop") << "\n";
+    std::cout << process_command("invalid") << "\n";
+}
+```
+
+**Output:**
+```
+Available commands: start, stop, restart, help
+System stopping...
+Unknown command
 ```
 
 ### What this demonstrates
 
 | Benefit                             | Description                                                                       |
 | ----------------------------------- | --------------------------------------------------------------------------------- |
-| **Logic & behavior separation**     | Rules (`is_forward`, `is_strong_move`) and results (`Action`) are fully decoupled |
+| **Logic & behavior separation**     | Commands and responses are cleanly separated                                               |
 | **Readable business intent**        | No mixed branching or hidden side effects                                         |
-| **Extendable without modification** | New movement logic is added by appending `.when(...)`                             |
+| **Case-insensitive matching**    | Built-in support for common string matching needs                                    |
 | **Zero runtime overhead**           | All decisions are resolved by the compiler                                        |
 
-This shows how Patternia transforms traditional control flow into expressive, safe, and maintainable logic — ideal for gameplay, robotics, event handling, or any domain where complex branching grows over time.
+This shows how Patternia transforms traditional control flow into expressive, safe, and maintainable logic — ideal for command processing, protocol handling, or any domain where input mapping is required.
 
 ---
 
@@ -82,22 +92,24 @@ This shows how Patternia transforms traditional control flow into expressive, sa
 Traditional approaches:
 
 ```cpp
-if (...) { ... }
-else if (...) { ... }
-else if (...) { ... }
+if (cmd == "start") { ... }
+else if (cmd == "stop") { ... }
+else if (cmd == "restart") { ... }
+else if (cmd == "help" || cmd == "HELP" || cmd == "Help") { ... }
 ```
 
 or:
 
 ```cpp
-switch(action) { ... }
+switch(hash(cmd)) { ... }
 ```
 
 These:
 
 * tightly couple **condition** and **behavior**
 * become error-prone when branching grows
-* require modifying existing logic to extend behavior
+* require repetitive code for case-insensitive matching
+* are hard to extend without modifying existing logic
 
 Patternia solves all of these, while generating equally efficient (or better) machine code.
 
@@ -109,7 +121,7 @@ Patternia is **header-only**, so installation is lightweight and dependency-free
 
 ### Recommended: CMake FetchContent
 
-Add this to your project’s **top-level** `CMakeLists.txt`:
+Add this to your project's **top-level** `CMakeLists.txt`:
 
 ```cmake
 cmake_minimum_required(VERSION 3.14)
@@ -135,7 +147,7 @@ This automatically fetches Patternia at configure time and sets up the imported 
 
 ### More Installation Options
 
-Source installation, header-only drop-in, Conan/vcpkg integration and versioning instructions can be found in the Online Docs:
+Source installation, header-only drop-in, Conan/vcpkg integration and versioning instructions can be found in Online Docs:
 
 Documentation → [Installation Guide](https://sentomk.github.io/patternia/guide/installation/)
 
@@ -148,6 +160,45 @@ Documentation → [Installation Guide](https://sentomk.github.io/patternia/guide
 | Linux   | GCC ≥11, Clang ≥12   | **Fully Supported** |
 | Windows | MSVC ≥2019, Clang-CL | **Fully Supported** |
 | macOS   | AppleClang ≥14       | **Fully Supported** |
+
+---
+
+## 📚 Current Features
+
+### Core Matching
+- `match(value)` - Type-deduced matching entry point
+- `match<T>(value)` - Explicit type conversion matching
+- `.when(pattern >> handler)` - Add matching branches
+- `.otherwise(handler)` - Default fallback case
+
+### Pattern Types
+- `lit(value)` - Exact value matching for any comparable type
+- `lit_ci(value)` - Case-insensitive ASCII string matching
+
+### Supported Value Types
+- Arithmetic types (int, double, float, etc.)
+- Enum types
+- String types (std::string, std::string_view, const char*)
+- User-defined types (must support operator==)
+
+### Handler Types
+- Value handlers (return fixed value)
+- Function handlers (process matched value)
+
+---
+
+## 🗺️ Roadmap
+
+Patternia is actively being developed. Planned features include:
+
+- [ ] Predicate patterns (`pred(lambda)`)
+- [ ] Relational patterns (`lt`, `gt`, `between`, etc.)
+- [ ] Logical operators (`&&`, `||`, `!`)
+- [ ] Type patterns (`type::is<T>`, `type::in<Ts...>`)
+- [ ] Template pattern matching
+- [ ] Structural pattern matching
+
+Check the [Roadmap](https://sentomk.github.io/patternia/design/roadmap/) for detailed planning.
 
 ---
 
@@ -173,7 +224,7 @@ Contributions are welcome. Whether it is **bug reports**, **feature proposals**,
    Use conventional commit messages:
 
    ```
-   feat: add predicate pattern for ranges
+   feat: add case-insensitive string matching
    fix: correct match_result type inference
    refactor: reorganize dsl ops
    ```
@@ -197,4 +248,4 @@ ctest --test-dir build
 
 <div align="center">
   <sub>Built with ❤️ for modern C++ development</sub>
-</div> 
+</div>

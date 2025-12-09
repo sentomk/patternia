@@ -14,8 +14,7 @@ Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic c
 
 ### Pattern System
 - [Pattern System Overview](patterns/foreword.md) - Understand Patternia's design philosophy
-- [Value Patterns](patterns/value.md) - Value matching with literals, ranges, predicates
-- [Type Patterns](patterns/type.md) - Type matching with type checking, type lists
+- [Value Patterns](patterns/value.md) - Value matching with literals, case-insensitive strings, predicates
 
 ### API Reference
 - [API Documentation](api.md) - Complete API reference for all functions and patterns
@@ -31,8 +30,8 @@ Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic c
 - **Header-only**: Zero dependencies, plug-and-play
 - **Declarative Syntax**: `match().when().otherwise()` chaining
 - **Type Safety**: Compile-time guarantees, zero runtime overhead
-- **Rich Patterns**: Value patterns, type patterns, predicate patterns
-- **DSL Operators**: `>>`, `&&`, `||`, `!` for composition
+- **Rich Patterns**: Literal patterns, case-insensitive patterns, predicate patterns
+- **DSL Operators**: `>>` for pattern-handler binding
 
 ---
 
@@ -48,7 +47,6 @@ auto result =
     match(x)
       .when(lit(0) >> "zero")
       .when(lit(42) >> "answer")
-      .when(type::is<int> >> "int value")
       .otherwise("other");
 ```
 
@@ -62,7 +60,7 @@ If you're **new to Patternia**, we recommend reading in this order:
 
 1. [Installation](guide/installation.md) - Integrate into your project
 2. [Getting Started](guide/getting-started.md) - Learn basic usage
-3. [Value Patterns](patterns/value.md) or [Type Patterns](patterns/type.md) - Deep dive based on your needs
+3. [Value Patterns](patterns/value.md) - Deep dive into value matching patterns
 
 If you're looking for **specific information**:
 

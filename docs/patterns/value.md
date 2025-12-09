@@ -12,9 +12,8 @@ From an architectural perspective, Value Patterns serve three core roles:
 In conventional C++, comparisons and conditions are expressed through imperative constructs:
 
 - `if (x == 42)`  
-- `if (size < capacity)`  
 - `if (name == "start")`  
-- `if (x > 0 && x < 10)`  
+- `if (name == "START")` (case-insensitive)
 
 Each condition is tied to surrounding control flow.  
 Value Patterns decouple the **expression of conditions** from **the control structure** that uses them.
@@ -52,6 +51,25 @@ At match time, Value Patterns participate in a common evaluation pipeline:
 
 Value Patterns do not influence the structure of evaluation—only the semantics of the condition.  
 This separation of responsibilities keeps the system modular and allows different pattern families to coexist imperatively.
+
+---
+
+## Current Implementation
+
+The current implementation provides:
+
+### Literal Patterns
+- `lit(value)` - Exact value matching
+- `lit_ci(value)` - Case-insensitive string matching (ASCII only)
+
+### Supported Types
+- Arithmetic types (int, double, float, etc.)
+- Enum types  
+- Strings (std::string, std::string_view, const char*)
+- User-defined types (must support operator==)
+
+### DSL Operators
+- `>>` - Pattern-handler binding operator
 
 ---
 

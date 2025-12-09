@@ -5,7 +5,6 @@
 #include <type_traits>
 
 #include "ptn/core/engine/detail/builder_impl.hpp"
-#include "ptn/config.hpp"
 
 namespace ptn {
 
