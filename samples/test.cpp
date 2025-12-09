@@ -11,9 +11,26 @@ enum Status {
 };
 
 int main() {
-  Status status{Status::Running};
 
-  match(status)
-      .when(lit(Status::Pending) >> [] { std::cout << "Pending"; })
-      .otherwise([] { std::cout << "None"; });
+  Status s = Status::Running;
+
+  auto result =
+      match(s)
+          .when(lit(Status::Pending) >> [] { return "pending state"; })
+          .when(
+              bind(lit(Status::Running)) >>
+              [](int whole) {
+                std::cout << "Captured (as int): " << whole << "\n";
+                return "running state";
+              })
+          .when(
+              bind() >>
+              [](int v) {
+                std::cout << "Fallback capturing whole subject (int): " << v
+                          << "\n";
+                return "captured fallback";
+              })
+          .otherwise([] { return "otherwise"; });
+
+  std::cout << "Result = " << result << "\n";
 }

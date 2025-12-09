@@ -26,20 +26,17 @@
 
 // --- All Pattern Modules ---
 // Includes all public pattern factories.
-#include "ptn/pattern/value.hpp" // lit, pred, lt, eq, between, ...
+#include "ptn/pattern/lit.hpp"  // lit, lit_ci
+#include "ptn/pattern/bind.hpp" // lit, lit_ci
 
 namespace ptn {
   // Import DSL operators
   using ptn::core::dsl::ops::operator>>;
 
-  using ptn::pat::value::lit;
-  using ptn::pat::value::lit_ci;
+  using ptn::pat::lit;
+  using ptn::pat::lit_ci;
 
-  // Create ptn::value namespace for direct access
-  namespace value {
-    using ptn::pat::value::lit;
-    using ptn::pat::value::lit_ci;
-  } // namespace value
+  using ptn::pat::bind;
 } // namespace ptn
 
 // IWYU pragma: end_exports
