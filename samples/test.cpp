@@ -1,36 +1,29 @@
+// Simple test program demonstrating Patternia pattern matching.
+//
+// This program shows basic usage of the Patternia library including
+// literal patterns, wildcard patterns, and the match DSL.
+
 #include <iostream>
 #include "ptn/patternia.hpp"
 
 using namespace ptn;
 
-enum Status {
+// Example enumeration for potential future testing
+enum class Status {
   Pending,
   Running,
-  Completed,
   Failed
 };
 
 int main() {
+  // Test basic integer pattern matching with literals and wildcards
+  Status x = Status::Running;
 
-  Status s = Status::Running;
-
-  auto result =
-      match(s)
-          .when(lit(Status::Pending) >> [] { return "pending state"; })
-          .when(
-              bind(lit(Status::Running)) >>
-              [](int whole) {
-                std::cout << "Captured (as int): " << whole << "\n";
-                return "running state";
-              })
-          .when(
-              bind() >>
-              [](int v) {
-                std::cout << "Fallback capturing whole subject (int): " << v
-                          << "\n";
-                return "captured fallback";
-              })
-          .otherwise([] { return "otherwise"; });
-
-  std::cout << "Result = " << result << "\n";
+  auto res = match(x)
+                 .when(lit(Status::Pending) >> "Pending")
+                 .when(lit(Status::Failed) >> "Failed")
+                 .when(__ >> "Other1")
+                 .otherwise([] { return "Other"; });
+  std::cout << res;
+  return 0;
 }

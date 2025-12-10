@@ -2,6 +2,7 @@
 
 // Implementation of the Core match_builder.
 
+#include <algorithm>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -29,6 +30,7 @@ namespace ptn::core::engine::detail {
   private:
     subject_type subject_; // The value being matched against patterns
     cases_type   cases_;   // Tuple of case expressions
+    bool         has_otherwise = false; // Flag indicating if otherwise handler is set
 
   public:
     // Static factory with an empty case list.
@@ -165,6 +167,38 @@ namespace ptn::core::engine::detail {
             subject_, cases_, std::forward<Otherwise>(final_handler));
       }
     }
-  };
 
+    // Terminal API: .end()
+    // For void-only match expressions with no explicit otherwise handler.
+    constexpr void end() && {
+
+      // 1. Create a dummy fallback handler (callable, never used if exhaustive)
+      auto dummy_fallback = []() {};
+
+      // 2. Validate match result type:
+      //    Pass the dummy handler type so diagnostics can check handler
+      //    signatures.
+      using dummy_handler_t = decltype(dummy_fallback);
+
+      ptn::core::common::
+          static_assert_valid_match<subject_type, dummy_handler_t, Cases...>();
+
+      // 3. Compute the match result type (should be void)
+      using result_type = core::common::
+          match_result_t<subject_type, dummy_handler_t, Cases...>();
+
+      static_assert(
+          common::is_void_like_v<result_type>,
+          "[Patternia.match.end]: .end() requires all case handlers to return "
+          "void."
+          "If you want a value-returning match, use "
+          ".otherwise(value_or_lambda).");
+
+      ptn::core::common::
+          static_assert_valid_match<subject_type, dummy_handler_t, Cases...>();
+
+      // 4. Execute match evaluation
+      match_impl::eval(subject_, cases_, std::move(dummy_fallback));
+    }
+  };
 } // namespace ptn::core::engine::detail

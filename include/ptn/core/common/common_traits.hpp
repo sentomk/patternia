@@ -216,4 +216,23 @@ namespace ptn::core::common {
   using match_result_t =
       typename match_result<Subject, Otherwise, Cases...>::type;
 
+  // Type trait to detect if a type should be treated as void-like.
+  //
+  // This is used to determine if a type should be considered equivalent
+  // to void for the purposes of return type deduction and validation.
+  template <typename T>
+  struct is_void_like : std::false_type {};
+
+  // Specialization for void type.
+  template <>
+  struct is_void_like<void> : std::true_type {};
+
+  // Specialization for function types returning void.
+  template <typename... Args>
+  struct is_void_like<void(Args...)> : std::true_type {};
+
+  // Helper variable template for is_void_like trait.
+  template <typename T>
+  inline constexpr bool is_void_like_v = is_void_like<T>::value;
+
 } // namespace ptn::core::common

@@ -40,9 +40,9 @@
 
 ## 🚀 Quick Start
 
-### Basic Example: Enum Matching with Binding
+### Basic Example: Wildcard and Enum Matching
 
-Demonstrate pattern matching with enum values and capturing functionality:
+Demonstrate pattern matching with wildcard, literal, and binding patterns:
 
 ```cpp
 #include <ptn/patternia.hpp>
@@ -69,16 +69,18 @@ int main() {
                 std::cout << "Captured (as int): " << whole << "\n";
                 return "running state";
               })
-          .when(
-              bind() >>
-              [](int v) {
-                std::cout << "Fallback capturing whole subject (int): " << v
-                          << "\n";
-                return "captured fallback";
-              })
+          .when(__ >> [] { return "other state"; })  // Wildcard pattern
           .otherwise([] { return "otherwise"; });
 
   std::cout << "Result = " << result << "\n";
+  
+  // Example with wildcard as fallback
+  int value = 42;
+  match(value)
+      .when(lit(0) >> "zero")
+      .when(lit(1) >> "one")
+      .when(__ >> "other number")  // Matches any other value
+      .end();
 }
 ```
 
@@ -86,6 +88,7 @@ int main() {
 ```
 Captured (as int): 1
 Result = running state
+other number
 ```
 
 ### What this demonstrates
@@ -194,11 +197,17 @@ Documentation → [Installation Guide](https://sentomk.github.io/patternia/guide
 - `match(value)` - Type-deduced matching entry point
 - `match<T>(value)` - Explicit type conversion matching
 - `.when(pattern >> handler)` - Add matching branches
-- `.otherwise(handler)` - Default fallback case
+- `.otherwise(handler)` - Default fallback case with explicit handler
+- `.end()` - Terminate exhaustive void-only matches
+
+**Terminal Methods:**
+- Use `.otherwise(handler)` when you need default behavior or non-void returns
+- Use `.end()` for exhaustive matching where all cases return void
 
 ### Pattern Types
 - `lit(value)` - Exact value matching for any comparable type
 - `lit_ci(value)` - Case-insensitive ASCII string matching
+- `__` - Wildcard pattern that matches any value without binding
 - `bind()` - Capture the entire subject value
 - `bind(subpattern)` - Capture subject after matching with subpattern
 
@@ -256,6 +265,32 @@ Run tests:
 ```bash
 ctest --test-dir build
 ```
+
+---
+
+## 🔮 Future Roadmap
+
+### Exhaustiveness Checking (Planned)
+
+Patternia plans to introduce **compile-time exhaustiveness checking** to provide enhanced safety guarantees:
+
+**Planned Features:**
+- **Enum Coverage Detection** - Catch missing enum variants at compile-time  
+- **Wildcard Analysis** - Proper handling of `__` patterns in exhaustiveness
+- **Enhanced Error Messages** - Clear diagnostics for missing cases
+
+**Example (Future API):**
+```cpp
+enum class Status { Pending, Running, Completed, Failed };
+
+// This will trigger a compile-time error for missing variants
+match(status)
+    .when(lit(Status::Running) >> "running")
+    .when(lit(Status::Completed) >> "completed")
+    .end();  // ❌ ERROR: Not all enum variants covered!
+```
+
+This future feature will make Patternia even safer by preventing runtime bugs through compile-time guarantees.
 
 ---
 

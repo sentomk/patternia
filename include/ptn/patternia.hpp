@@ -12,6 +12,7 @@
 
 // --- Core Framework ---
 // The fundamental CRTP base and traits.
+#include "pattern/wildcard.hpp"
 #include "ptn/pattern/base/pattern_base.hpp"
 #include "ptn/pattern/base/pattern_traits.hpp"
 #include "ptn/pattern/base/pattern_kind.hpp"
@@ -26,8 +27,9 @@
 
 // --- All Pattern Modules ---
 // Includes all public pattern factories.
-#include "ptn/pattern/lit.hpp"  // lit, lit_ci
-#include "ptn/pattern/bind.hpp" // lit, lit_ci
+#include "ptn/pattern/lit.hpp"      // lit, lit_ci
+#include "ptn/pattern/bind.hpp"     // bind
+#include "ptn/pattern/wildcard.hpp" // wildcard
 
 namespace ptn {
   // Import DSL operators
@@ -37,6 +39,8 @@ namespace ptn {
   using ptn::pat::lit_ci;
 
   using ptn::pat::bind;
+
+  using ptn::pat::__;
 } // namespace ptn
 
 // IWYU pragma: end_exports
