@@ -98,9 +98,13 @@ Add a matching branch.
 
 **Returns:** New `match_builder` object (supports chained calls)
 
+**Important Notes:**
+- The builder does NOT execute matching until terminated with `.end()` or `.otherwise()`
+- Unterminated builders are inert and produce no side effects
+
 #### `match_builder::otherwise(handler)`
 
-Add a default branch.
+Add a default branch with explicit fallback handler.
 
 **Syntax:**
 ```cpp
@@ -110,7 +114,84 @@ Add a default branch.
 **Parameters:**
 - `handler` - Default handler function or value
 
-**Returns:** Match result
+**Returns:** Match result (type determined by handler)
+
+**Use Cases:**
+- When you need a default value or behavior
+- When handlers return non-void types
+- When you want explicit control over the fallback case
+
+**When Triggered:**
+The `.otherwise()` handler determines the final return value of the match expression:
+
+1. **No Pattern Matches**: When none of the `.when()` cases match the subject
+2. **Defensive Fallback**: When `__` can match all pattern forms, `.otherwise()` serves only as defensive fallback and typically won't trigger
+
+**Key Distinction:**
+- **Pattern-level fallback (`__`)**: Only affects case matching process at pattern level
+- **Match-level fallback (`.otherwise()`)**: Determines final return value of match expression
+- **When `__` can match all pattern forms**: `.otherwise()` serves only as defensive fallback
+
+**Execution Priority:**
+- Cases are evaluated in order
+- First matching pattern wins, regardless of fallback types
+- `.otherwise()` is only reached if no previous patterns match
+
+**Example:**
+```cpp
+auto result = match(42)
+    .when(lit(1) >> "one")      // ❌ No match
+    .when(lit(2) >> "two")      // ❌ No match
+    .when(__ >> "other")           // ✅ PATTERN MATCHES: Returns "other"
+    .otherwise("default");         // ❌ NOT triggered: Pattern already matched
+```
+
+#### `match_builder::end()`
+
+Terminate the match expression for void-only matches.
+
+**Syntax:**
+```cpp
+.end()
+```
+
+**Returns:** `void` (no return value)
+
+**Constraints:**
+- All case handlers must return void
+- No explicit otherwise handler is provided
+- Used for exhaustive pattern matching where all cases are covered
+
+**Use Cases:**
+- When all possible cases are explicitly handled
+- When you want the compiler to verify exhaustiveness
+- For void-returning match expressions
+- When you don't need a default fallback
+
+### Terminal Methods Comparison
+
+| Method | Return Type | When to Use | Handler Required |
+|--------|-------------|-------------|------------------|
+| `.otherwise(handler)` | Handler return type | Need default behavior or non-void returns | Yes |
+| `.end()` | `void` | Exhaustive matching with void returns | No (implicit empty handler) |
+
+**Key Differences:**
+
+1. **Return Type Control**
+   - `.otherwise()`: Handler determines return type
+   - `.end()`: Always returns `void`
+
+2. **Exhaustiveness Checking**
+   - `.otherwise()`: Always safe, provides fallback
+   - `.end()`: Compiler enforces that all cases must return void
+
+3. **Handler Requirements**
+   - `.otherwise()`: Must provide explicit handler
+   - `.end()`: No handler needed (uses empty lambda internally)
+
+4. **Use Case Intent**
+   - `.otherwise()`: "Handle everything else with this behavior"
+   - `.end()`: "I've covered all cases explicitly"
 
 ---
 
@@ -168,6 +249,40 @@ constexpr auto lit_ci(V &&v);
 std::string s = "HELLO";
 match(s).when(lit_ci("hello") >> "case-insensitive-match");
 ```
+
+### Wildcard Pattern
+
+#### `ptn::__` (Wildcard)
+
+Create a pattern that matches any value without binding.
+
+```cpp
+inline constexpr detail::wildcard_t __;
+```
+
+**Purpose:** Create a pattern that always matches regardless of the value, but doesn't capture/bind any data
+
+**Returns:** `wildcard_t` pattern that always matches and binds nothing
+
+**Examples:**
+```cpp
+// Default/fallback matching
+match(42)
+    .when(lit(0) >> "zero")
+    .when(__ >> "non-zero");  // Matches any other value
+
+// As the last case in exhaustive matching
+match(value)
+    .when(lit("success") >> "ok")
+    .when(lit("error") >> "fail")
+    .when(__ >> "unknown");  // Catch-all case
+```
+
+**Key Characteristics:**
+- Always matches (`match()` returns true for any input)
+- Binds no values (`bind()` returns empty tuple `std::tuple<>`)
+- Useful for default cases and catch-all patterns
+- More explicit than using `bind()` when no capture is needed
 
 ### Binding Patterns
 
@@ -348,5 +463,50 @@ using binding_args_t = typename binding_args<Pattern, Subject>::type;
 - Modular header file design
 - Configurable feature switches
 - Header-only integration
+
+---
+
+## Future Features and Roadmap
+
+### Exhaustiveness Checking (Planned)
+
+Patternia plans to introduce **compile-time exhaustiveness checking** to provide enhanced safety guarantees:
+
+**What is Exhaustiveness Checking?**
+A compile-time verification that all possible values of a type are covered by the match expression, similar to Rust's pattern matching guarantees.
+
+**Planned Features:**
+- **Enum Exhaustiveness**: Detect when enum variants are not fully covered
+- **Literal Exhaustiveness**: Warn when specific literal values are missing
+- **Wildcard Coverage**: Proper handling of wildcard (`__`) patterns in exhaustiveness analysis
+- **Compile-time Errors**: Static assertions that prevent non-exhaustive matches when required
+
+**Example (Future API):**
+```cpp
+enum class Status { Pending, Running, Completed, Failed };
+
+// This will trigger a compile-time error for missing variants
+match(status)
+    .when(lit(Status::Running) >> "running")
+    .when(lit(Status::Completed) >> "completed")
+    .end();  // ERROR: Not all enum variants covered!
+
+// Fixed version - exhaustive matching
+match(status)
+    .when(lit(Status::Pending) >> "pending")
+    .when(lit(Status::Running) >> "running") 
+    .when(lit(Status::Completed) >> "completed")
+    .when(lit(Status::Failed) >> "failed")
+    .end();  // OK: All cases covered
+```
+
+**Implementation Timeline:**
+- **Phase 1**: Basic enum exhaustiveness detection
+- **Phase 2**: Integration with type system and improved error messages
+- **Phase 3**: Advanced pattern analysis (wildcard handling, complex patterns)
+
+This feature will make Patternia even safer by catching missing cases at compile-time, reducing runtime errors and improving code reliability.
+
+---
 
 This complete API reference covers all public interfaces of the Patternia library, including internal and external APIs, and provides comprehensive example code. You can use this documentation to write GitHub Pages documentation and README files.
