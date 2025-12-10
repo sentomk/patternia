@@ -76,7 +76,7 @@ int main() {
   
   // Example with wildcard as fallback
   int value = 42;
-  match(value)
+  std::cout << match(value)
       .when(lit(0) >> []{ std::cout << "zero"; })
       .when(lit(1) >> []{ std::cout << "one"; })
       .when(__ >> []{ std::cout << "other number"; })  // Matches any other value
