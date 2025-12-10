@@ -901,8 +901,30 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#match_builderend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        match_builder::end()
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#terminal-methods-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terminal Methods Comparison
+      
+    </span>
+  </a>
   
 </li>
         
@@ -951,6 +973,34 @@
     <span class="md-ellipsis">
       
         ptn::lit_ci(value)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wildcard-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wildcard Pattern
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Wildcard Pattern">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ptn__-wildcard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ptn::__ (Wildcard)
       
     </span>
   </a>
@@ -1168,6 +1218,34 @@
     <span class="md-ellipsis">
       
         Compatibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-features-and-roadmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Future Features and Roadmap
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Future Features and Roadmap">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#exhaustiveness-checking-planned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exhaustiveness Checking (Planned)
       
     </span>
   </a>
@@ -1454,14 +1532,109 @@
 - <code>pattern</code> - Any pattern object
 - <code>handler</code> - Handler function or value</p>
 <p><strong>Returns:</strong> New <code>match_builder</code> object (supports chained calls)</p>
+<p><strong>Important Notes:</strong>
+- The builder does NOT execute matching until terminated with <code>.end()</code> or <code>.otherwise()</code>
+- Unterminated builders are inert and produce no side effects</p>
 <h4 id="match_builderotherwisehandler"><code>match_builder::otherwise(handler)</code><a class="headerlink" href="#match_builderotherwisehandler" title="Permanent link">&para;</a></h4>
-<p>Add a default branch.</p>
+<p>Add a default branch with explicit fallback handler.</p>
 <p><strong>Syntax:</strong>
 <div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
 </code></pre></div></p>
 <p><strong>Parameters:</strong>
 - <code>handler</code> - Default handler function or value</p>
-<p><strong>Returns:</strong> Match result</p>
+<p><strong>Returns:</strong> Match result (type determined by handler)</p>
+<p><strong>Use Cases:</strong>
+- When you need a default value or behavior
+- When handlers return non-void types
+- When you want explicit control over the fallback case</p>
+<p><strong>When Triggered:</strong>
+The <code>.otherwise()</code> handler determines the final return value of the match expression:</p>
+<ol>
+<li><strong>No Pattern Matches</strong>: When none of the <code>.when()</code> cases match the subject</li>
+<li><strong>Defensive Fallback</strong>: When <code>__</code> can match all pattern forms, <code>.otherwise()</code> serves only as defensive fallback and typically won't trigger</li>
+</ol>
+<p><strong>Key Distinction:</strong>
+- <strong>Pattern-level fallback (<code>__</code>)</strong>: Only affects case matching process at pattern level
+- <strong>Match-level fallback (<code>.otherwise()</code>)</strong>: Determines final return value of match expression
+- <strong>When <code>__</code> can match all pattern forms</strong>: <code>.otherwise()</code> serves only as defensive fallback</p>
+<p><strong>Execution Priority:</strong>
+- Cases are evaluated in order
+- First matching pattern wins, regardless of fallback types
+- <code>.otherwise()</code> is only reached if no previous patterns match</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">)</span><span class="w">      </span><span class="c1">// ❌ No match</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">)</span><span class="w">      </span><span class="c1">// ❌ No match</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span><span class="p">)</span><span class="w">           </span><span class="c1">// ✅ PATTERN MATCHES: Returns &quot;other&quot;</span>
+<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;default&quot;</span><span class="p">);</span><span class="w">         </span><span class="c1">// ❌ NOT triggered: Pattern already matched</span>
+</code></pre></div></p>
+<h4 id="match_builderend"><code>match_builder::end()</code><a class="headerlink" href="#match_builderend" title="Permanent link">&para;</a></h4>
+<p>Terminate the match expression for void-only matches.</p>
+<p><strong>Syntax:</strong>
+<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">end</span><span class="p">()</span>
+</code></pre></div></p>
+<p><strong>Returns:</strong> <code>void</code> (no return value)</p>
+<p><strong>Constraints:</strong>
+- All case handlers must return void
+- No explicit otherwise handler is provided
+- Used for exhaustive pattern matching where all cases are covered</p>
+<p><strong>Use Cases:</strong>
+- When all possible cases are explicitly handled
+- When you want the compiler to verify exhaustiveness
+- For void-returning match expressions
+- When you don't need a default fallback</p>
+<h3 id="terminal-methods-comparison">Terminal Methods Comparison<a class="headerlink" href="#terminal-methods-comparison" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Return Type</th>
+<th>When to Use</th>
+<th>Handler Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.otherwise(handler)</code></td>
+<td>Handler return type</td>
+<td>Need default behavior or non-void returns</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>.end()</code></td>
+<td><code>void</code></td>
+<td>Exhaustive matching with void returns</td>
+<td>No (implicit empty handler)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key Differences:</strong></p>
+<ol>
+<li><strong>Return Type Control</strong></li>
+<li><code>.otherwise()</code>: Handler determines return type</li>
+<li>
+<p><code>.end()</code>: Always returns <code>void</code></p>
+</li>
+<li>
+<p><strong>Exhaustiveness Checking</strong></p>
+</li>
+<li><code>.otherwise()</code>: Always safe, provides fallback</li>
+<li>
+<p><code>.end()</code>: Compiler enforces that all cases must return void</p>
+</li>
+<li>
+<p><strong>Handler Requirements</strong></p>
+</li>
+<li><code>.otherwise()</code>: Must provide explicit handler</li>
+<li>
+<p><code>.end()</code>: No handler needed (uses empty lambda internally)</p>
+</li>
+<li>
+<p><strong>Use Case Intent</strong></p>
+</li>
+<li><code>.otherwise()</code>: "Handle everything else with this behavior"</li>
+<li><code>.end()</code>: "I've covered all cases explicitly"</li>
+</ol>
 <hr />
 <h2 id="value-pattern-api">Value Pattern API<a class="headerlink" href="#value-pattern-api" title="Permanent link">&para;</a></h2>
 <div class="admonition note">
@@ -1502,6 +1675,30 @@
 <div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;HELLO&quot;</span><span class="p">;</span>
 <span class="n">match</span><span class="p">(</span><span class="n">s</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">lit_ci</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;case-insensitive-match&quot;</span><span class="p">);</span>
 </code></pre></div></p>
+<h3 id="wildcard-pattern">Wildcard Pattern<a class="headerlink" href="#wildcard-pattern" title="Permanent link">&para;</a></h3>
+<h4 id="ptn__-wildcard"><code>ptn::__</code> (Wildcard)<a class="headerlink" href="#ptn__-wildcard" title="Permanent link">&para;</a></h4>
+<p>Create a pattern that matches any value without binding.</p>
+<div class="highlight"><pre><span></span><code><span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="n">detail</span><span class="o">::</span><span class="n">wildcard_t</span><span class="w"> </span><span class="n">__</span><span class="p">;</span>
+</code></pre></div>
+<p><strong>Purpose:</strong> Create a pattern that always matches regardless of the value, but doesn't capture/bind any data</p>
+<p><strong>Returns:</strong> <code>wildcard_t</code> pattern that always matches and binds nothing</p>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1">// Default/fallback matching</span>
+<span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;non-zero&quot;</span><span class="p">);</span><span class="w">  </span><span class="c1">// Matches any other value</span>
+
+<span class="c1">// As the last case in exhaustive matching</span>
+<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="s">&quot;success&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;ok&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="s">&quot;error&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;fail&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;unknown&quot;</span><span class="p">);</span><span class="w">  </span><span class="c1">// Catch-all case</span>
+</code></pre></div></p>
+<p><strong>Key Characteristics:</strong>
+- Always matches (<code>match()</code> returns true for any input)
+- Binds no values (<code>bind()</code> returns empty tuple <code>std::tuple&lt;&gt;</code>)
+- Useful for default cases and catch-all patterns
+- More explicit than using <code>bind()</code> when no capture is needed</p>
 <h3 id="binding-patterns">Binding Patterns<a class="headerlink" href="#binding-patterns" title="Permanent link">&para;</a></h3>
 <h4 id="ptnbind"><code>ptn::bind()</code><a class="headerlink" href="#ptnbind" title="Permanent link">&para;</a></h4>
 <p>Create a pattern that captures the entire subject value.</p>
@@ -1647,6 +1844,40 @@
 <li>Configurable feature switches</li>
 <li>Header-only integration</li>
 </ul>
+<hr />
+<h2 id="future-features-and-roadmap">Future Features and Roadmap<a class="headerlink" href="#future-features-and-roadmap" title="Permanent link">&para;</a></h2>
+<h3 id="exhaustiveness-checking-planned">Exhaustiveness Checking (Planned)<a class="headerlink" href="#exhaustiveness-checking-planned" title="Permanent link">&para;</a></h3>
+<p>Patternia plans to introduce <strong>compile-time exhaustiveness checking</strong> to provide enhanced safety guarantees:</p>
+<p><strong>What is Exhaustiveness Checking?</strong>
+A compile-time verification that all possible values of a type are covered by the match expression, similar to Rust's pattern matching guarantees.</p>
+<p><strong>Planned Features:</strong>
+- <strong>Enum Exhaustiveness</strong>: Detect when enum variants are not fully covered
+- <strong>Literal Exhaustiveness</strong>: Warn when specific literal values are missing
+- <strong>Wildcard Coverage</strong>: Proper handling of wildcard (<code>__</code>) patterns in exhaustiveness analysis
+- <strong>Compile-time Errors</strong>: Static assertions that prevent non-exhaustive matches when required</p>
+<p><strong>Example (Future API):</strong>
+<div class="highlight"><pre><span></span><code><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Status</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Pending</span><span class="p">,</span><span class="w"> </span><span class="n">Running</span><span class="p">,</span><span class="w"> </span><span class="n">Completed</span><span class="p">,</span><span class="w"> </span><span class="n">Failed</span><span class="w"> </span><span class="p">};</span>
+
+<span class="c1">// This will trigger a compile-time error for missing variants</span>
+<span class="n">match</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Running</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;running&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Completed</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;completed&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">  </span><span class="c1">// ERROR: Not all enum variants covered!</span>
+
+<span class="c1">// Fixed version - exhaustive matching</span>
+<span class="n">match</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Pending</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;pending&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Running</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;running&quot;</span><span class="p">)</span><span class="w"> </span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Completed</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;completed&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Failed</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;failed&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">  </span><span class="c1">// OK: All cases covered</span>
+</code></pre></div></p>
+<p><strong>Implementation Timeline:</strong>
+- <strong>Phase 1</strong>: Basic enum exhaustiveness detection
+- <strong>Phase 2</strong>: Integration with type system and improved error messages
+- <strong>Phase 3</strong>: Advanced pattern analysis (wildcard handling, complex patterns)</p>
+<p>This feature will make Patternia even safer by catching missing cases at compile-time, reducing runtime errors and improving code reliability.</p>
+<hr />
 <p>This complete API reference covers all public interfaces of the Patternia library, including internal and external APIs, and provides comprehensive example code. You can use this documentation to write GitHub Pages documentation and README files.</p>
 
 
