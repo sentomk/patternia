@@ -109,6 +109,7 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   # Pattern Module Headers
   include/ptn/pattern/lit.hpp
   include/ptn/pattern/bind.hpp
+  include/ptn/pattern/wildcard.hpp
 )
 
 # ========== Public interface target ==========
