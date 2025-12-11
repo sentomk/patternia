@@ -91,56 +91,6 @@ Result = running state
 other number
 ```
 
-### What this demonstrates
-
-| Benefit                             | Description                                                                       |
-| ----------------------------------- | --------------------------------------------------------------------------------- |
-| **Logic & behavior separation**     | Pattern matching and handlers are cleanly separated                               |
-| **Readable business intent**        | No mixed branching or hidden side effects                                         |
-| **Value capturing**                 | Built-in support for capturing matched values for processing                     |
-| **Zero runtime overhead**           | All decisions are resolved by the compiler                                        |
-
-This shows how Patternia transforms traditional control flow into expressive, safe, and maintainable logic — ideal for state handling, protocol processing, or any domain where value extraction is required.
-
----
-
-### Why not `switch` or `if-else`?
-
-Traditional approaches:
-
-```cpp
-if (s == Status::Pending) { ... }
-else if (s == Status::Running) { 
-    int value = static_cast<int>(s);
-    // process value...
-    return "running state";
-}
-else if (...) { ... }
-```
-
-or:
-
-```cpp
-switch(s) { 
-    case Status::Pending: return "pending state";
-    case Status::Running: {
-        int value = static_cast<int>(s);
-        // process value...
-        return "running state";
-    }
-    default: return "otherwise";
-}
-```
-
-These:
-
-* tightly couple **condition** and **behavior**
-* become error-prone when branching grows
-* require manual type casting and value extraction
-* are hard to extend without modifying existing logic
-
-Patternia solves all of these, while generating equally efficient (or better) machine code.
-
 ---
 
 ## 🔧 Installation
@@ -241,7 +191,7 @@ Contributions are welcome. Whether it is **bug reports**, **feature proposals**,
 3. **Tests Required**
    Add or update unit tests under `tests/` for any logic changes.
 4. **Comment Style**
-   Follow **Google C++ Style Guide** for documentation comments.
+   Follow **[Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html#Comment_Style)** for documentation comments.
 5. **Commit Style**
    Use conventional commit messages:
 
