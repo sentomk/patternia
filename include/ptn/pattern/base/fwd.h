@@ -21,6 +21,9 @@ namespace ptn::pat::base {
   template <typename Pattern, typename Subject>
   using binding_args_t = typename binding_args<Pattern, Subject>::type;
 
+  template <typename Derived>
+  struct binding_pattern_base;
+
   // has_match_method
   template <typename P, typename = void>
   struct has_match_method;
