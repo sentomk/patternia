@@ -7,6 +7,8 @@
 // and internal implementation details, keeping the module self-contained.
 
 #include "ptn/pattern/base/fwd.h"
+
+#include "ptn/pattern/base/binding_base.hpp"
 #include "ptn/pattern/base/pattern_base.hpp"
 
 #include <tuple>
@@ -23,7 +25,8 @@ namespace ptn::pat {
     //
     // This pattern captures the entire subject as a single-element tuple
     // containing the subject value.
-    struct binding_pattern : base::pattern_base<binding_pattern> {
+    struct binding_pattern : base::pattern_base<binding_pattern>,
+                             base::binding_pattern_base<binding_pattern> {
 
       // Always matches successfully.
       template <typename Subject>
@@ -46,7 +49,8 @@ namespace ptn::pat {
     //   SubPattern: The sub-pattern to use for matching.
     template <typename Tag, typename SubPattern>
     struct binding_as_pattern
-        : base::pattern_base<binding_as_pattern<Tag, SubPattern>> {
+        : base::pattern_base<binding_as_pattern<Tag, SubPattern>>,
+          base::binding_pattern_base<binding_as_pattern<Tag, SubPattern>> {
 
       SubPattern subpattern;
 
@@ -82,7 +86,8 @@ namespace ptn::pat {
     return detail::binding_pattern{};
   }
 
-  // bind(subpattern) - First matches with subpattern, then captures the subject.
+  // bind(subpattern) - First matches with subpattern, then captures the
+  // subject.
   template <typename SubPattern>
   constexpr auto bind(SubPattern &&subpattern) {
     using SP = std::decay_t<SubPattern>;

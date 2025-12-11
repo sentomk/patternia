@@ -8,22 +8,12 @@
 
 using namespace ptn;
 
-// Example enumeration for potential future testing
-enum class Status {
-  Pending,
-  Running,
-  Failed
-};
-
 int main() {
-  // Test basic integer pattern matching with literals and wildcards
-  Status x = Status::Running;
+  int x = 114;
 
-  auto res = match(x)
-                 .when(lit(Status::Pending) >> "Pending")
-                 .when(lit(Status::Failed) >> "Failed")
-                 .when(__ >> "Other1")
-                 .otherwise([] { return "Other"; });
-  std::cout << res;
-  return 0;
+  match(x)
+      .when(bind()[_ < 20] >> [](int v) { std::cout << v << "Bigger than 20"; })
+      .when(lit(42) >> [] { std::cout << "42"; })
+      .when(bind(__)[_ > 100] >> [](int v) { std::cout << v << " Other"; })
+      .end();
 }

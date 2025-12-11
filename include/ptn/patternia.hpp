@@ -12,7 +12,6 @@
 
 // --- Core Framework ---
 // The fundamental CRTP base and traits.
-#include "pattern/wildcard.hpp"
 #include "ptn/pattern/base/pattern_base.hpp"
 #include "ptn/pattern/base/pattern_traits.hpp"
 #include "ptn/pattern/base/pattern_kind.hpp"
@@ -30,6 +29,7 @@
 #include "ptn/pattern/lit.hpp"      // lit, lit_ci
 #include "ptn/pattern/bind.hpp"     // bind
 #include "ptn/pattern/wildcard.hpp" // wildcard
+#include "ptn/pattern/modifiers/guard.hpp" // guard
 
 namespace ptn {
   // Import DSL operators
@@ -41,6 +41,7 @@ namespace ptn {
   using ptn::pat::bind;
 
   using ptn::pat::__;
+  using ptn::pat::mod::_;
 } // namespace ptn
 
 // IWYU pragma: end_exports
