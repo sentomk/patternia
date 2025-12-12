@@ -1,27 +1,24 @@
 #pragma once
 
-/**
- * @file case_expr_impl.hpp (detail)
- * @brief Internal implementation of case expressions.
- *
- * @internal This is an internal implementation detail.
- */
+// Internal implementation of case expressions.
+//
+// This header contains the internal case expression structure that represents
+// pattern-handler pairs created by the >> operator. This is an implementation
+// detail and should not be used directly.
 
 namespace ptn::core::dsl::detail {
 
-  /**
-   * @brief Internal representation of a pattern-handler pair (case).
-   *
-   * This struct is created implicitly when using the `>>` operator:
-   * ```cpp
-   * pattern >> handler  // Creates a case_expr internally
-   * ```
-   *
-   * @tparam Pattern The pattern type.
-   * @tparam Handler The handler type.
-   *
-   * @internal This is an internal implementation detail. Use `>>` operator.
-   */
+  /// Internal representation of a pattern-handler pair (case)
+  ///
+  /// This struct is created implicitly when using the >> operator:
+  /// ```cpp
+  /// pattern >> handler  // Creates a case_expr internally
+  /// ```
+  ///
+  /// @tparam Pattern The pattern type to match against
+  /// @tparam Handler The handler type to execute on match
+  ///
+  /// @internal This is an internal implementation detail. Use the >> operator.
   template <typename Pattern, typename Handler>
   struct case_expr {
     using pattern_type = Pattern;

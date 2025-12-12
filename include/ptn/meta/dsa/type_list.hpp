@@ -1,49 +1,37 @@
 #pragma once
-/**
- * @file type_list.hpp
- * @brief Compile-time type sequence (type_list) and basic list combinators.
- */
+
+// Compile-time type sequence (type_list) and basic list combinators.
 
 #include <cstddef>
 
 namespace ptn::meta {
 
-  /**
-   * @brief Simple compile-time container for a pack of types.
-   */
+  // Simple compile-time container for a pack of types.
   template <typename... Ts>
   struct type_list {
     static constexpr std::size_t size = sizeof...(Ts);
   };
 
-  /**
-   * @brief Concatenate two type_list sequences.
-   */
+  // Concatenate two type_list sequences.
   template <typename... A, typename... B>
   constexpr auto contact(type_list<A...>, type_list<B...>)
       -> type_list<A..., B...> {
     return {};
   }
 
-  /**
-   * @brief Append one type to a type_list.
-   */
+  // Append one type to a type_list.
   template <typename T, typename... Ts>
   constexpr auto append(type_list<Ts...>) -> type_list<Ts..., T> {
     return {};
   }
 
-  /**
-   * @brief Prepend one type to a type_list.
-   */
+  // Prepend one type to a type_list.
   template <typename T, typename... Ts>
   constexpr auto prepend(type_list<Ts...>) -> type_list<T, Ts...> {
     return {};
   }
 
-  /**
-   * @brief Retrieve the N-th type from a type_list.
-   */
+  // Retrieve the N-th type from a type_list.
   template <std::size_t N, typename TL>
   struct nth_type;
 
@@ -56,9 +44,8 @@ namespace ptn::meta {
   struct nth_type<0, type_list<T, Ts...>> {
     using type = T;
   };
-  /**
-   * @brief Convenience alias for nth_type.
-   */
+
+  // Convenience alias for nth_type.
   template <std::size_t N, typename TL>
   using nth_type_t = typename nth_type<N, TL>::type;
 

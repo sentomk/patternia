@@ -31,8 +31,9 @@ namespace ptn::pat::base {
     // Returns: A guarded_pattern that combines the pattern with the predicate.
     template <typename Pred>
     auto operator[](Pred &&pred) const {
-      return mod::guarded_pattern<Derived, std::decay_t<Pred>>{
-          static_cast<const Derived &>(*this), std::forward<Pred>(pred)};
+      using D = std::decay_t<Derived>;
+      return mod::guarded_pattern<D, std::decay_t<Pred>>{
+          static_cast<const D &>(*this), std::forward<Pred>(pred)};
     }
   };
 

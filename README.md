@@ -82,19 +82,6 @@ By unifying discrimination, decomposition, and binding, pattern matching allows 
 
 ## What Patternia Solves
 
-**Patternia** addresses the limitations discussed above by providing a structured and declarative way to express control flow directly in terms of data shape. Instead of organizing logic around condition checks and casts, Patternia allows developers to describe *what kind of data is expected* in each branch and to introduce bindings only when a match succeeds. This makes each branch self-contained and aligns control flow with the semantic structure of the data.
-
-Patternia is designed as a library-level abstraction that integrates naturally with existing C++ code. It does not require changes to data definitions, does not impose a closed-world assumption, and does not rely on runtime reflection. By explicitly separating matching, binding, and guards, Patternia avoids hidden side effects while remaining flexible enough to model both Rust-like pattern matching semantics and C++-specific use cases.
-
-```cpp
-// Patternia-style control flow (conceptual)
-match(value)
-  .when(Point { x, y } if x > 0 >> handle(x, y))
-  .when(Line  { start, end }   >> handle(start, end))
-  .otherwise(fallback);
-```
-
-
 ## Quick Start
 
 

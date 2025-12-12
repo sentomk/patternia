@@ -5,7 +5,9 @@
 // for common comparison operations and the guarded_pattern wrapper that
 // applies predicates to bound values.
 
+#include <functional>
 #include <type_traits>
+#include <tuple>
 #include <utility>
 
 #include "ptn/pattern/base/fwd.h"
@@ -13,76 +15,185 @@
 
 namespace ptn::pat::mod {
 
+  //
+  struct guard_predicate_tag {};
+
+  template <typename T>
+  inline constexpr bool is_guard_predicate_v =
+      std::is_base_of_v<guard_predicate_tag, std::decay_t<T>>;
+
+  //
+  template <typename Op, typename RHS>
+  struct binary_predicate : guard_predicate_tag {
+
+    RHS rhs;
+
+    template <typename T>
+    constexpr bool operator()(T &&v) const noexcept(noexcept(Op{}(v, rhs))) {
+      return Op{}(v, rhs);
+    }
+  };
+
   // Placeholder type for creating comparison expressions.
   //
   // This type enables the syntax `_ > 20`, `_ < 10`, etc. by
   // overloading comparison operators that return lambda predicates.
   struct placeholder_t {
 
-    // Creates a greater-than predicate.
-    //
-    // Returns a lambda that checks if a value is greater than rhs.
-    //
-    // Template parameter:
-    //   T: The type of the right-hand side value.
-    // Parameters:
-    //   rhs: The value to compare against.
-    // Returns: A lambda predicate `(auto &&v) { return v > rhs; }`.
+    // >
     template <typename T>
     auto operator>(T &&rhs) const {
-      return [rhs = std::forward<T>(rhs)](auto &&v) { return v > rhs; };
+      return binary_predicate<std::greater<>, std::decay_t<T>>{
+          {}, std::forward<T>(rhs)};
     }
 
-    // Creates a less-than predicate.
-    //
-    // Returns a lambda that checks if a value is less than rhs.
-    //
-    // Template parameter:
-    //   T: The type of the right-hand side value.
-    // Parameters:
-    //   rhs: The value to compare against.
-    // Returns: A lambda predicate `(auto &&v) { return v < rhs; }`.
+    // <
     template <typename T>
     auto operator<(T &&rhs) const {
-      return [rhs = std::forward<T>(rhs)](auto &&v) { return v < rhs; };
+      return binary_predicate<std::less<>, std::decay_t<T>>{
+          {}, std::forward<T>(rhs)};
     }
 
-    // Creates an equality predicate.
-    //
-    // Returns a lambda that checks if a value equals rhs.
-    //
-    // Template parameter:
-    //   T: The type of the right-hand side value.
-    // Parameters:
-    //   rhs: The value to compare against.
-    // Returns: A lambda predicate `(auto &&v) { return v == rhs; }`.
+    // >=
+    template <typename T>
+    auto operator>=(T &&rhs) const {
+      return binary_predicate<std::greater_equal<>, std::decay_t<T>>{
+          {}, std::forward<T>(rhs)};
+    }
+
+    // <=
+    template <typename T>
+    auto operator<=(T &&rhs) const {
+      return binary_predicate<std::less_equal<>, std::decay_t<T>>{
+          {}, std::forward<T>(rhs)};
+    }
+
+    // ==
     template <typename T>
     auto operator==(T &&rhs) const {
-      return [rhs = std::forward<T>(rhs)](auto &&v) { return v == rhs; };
+      return binary_predicate<std::equal_to<>, std::decay_t<T>>{
+          {}, std::forward<T>(rhs)};
     }
 
-    // Creates an inequality predicate.
-    //
-    // Returns a lambda that checks if a value does not equal rhs.
-    //
-    // Template parameter:
-    //   T: The type of the right-hand side value.
-    // Parameters:
-    //   rhs: The value to compare against.
-    // Returns: A lambda predicate `(auto &&v) { return v != rhs; }`.
+    // !=
     template <typename T>
     auto operator!=(T &&rhs) const {
-      return [rhs = std::forward<T>(rhs)](auto &&v) { return v != rhs; };
+      return binary_predicate<std::not_equal_to<>, std::decay_t<T>>{
+          {}, std::forward<T>(rhs)};
     }
   };
 
   // Global placeholder instance for guard expressions.
-  //
-  // Usage examples:
-  //   - `_ > 20` - matches values greater than 20
-  //   - `_ < 100` - matches values less than 100
-  //   - `_ == 42` - matches values equal to 42
   inline constexpr placeholder_t _{};
+
+  //
+  template <typename L, typename R>
+  struct pred_and : guard_predicate_tag {
+    L lhs;
+    R rhs;
+
+    template <typename T>
+    constexpr bool operator()(T &&v) const {
+      return lhs(v) && rhs(v);
+    }
+  };
+
+  template <typename L, typename R>
+  struct pred_or : guard_predicate_tag {
+    L lhs;
+    R rhs;
+
+    template <typename T>
+    constexpr bool operator()(T &&v) const {
+      return lhs(v) || rhs(v);
+    }
+  };
+
+  template <
+      typename L,
+      typename R,
+      std::enable_if_t<
+          is_guard_predicate_v<L> || is_guard_predicate_v<R>,
+          int> = 0>
+  constexpr auto operator&&(L &&l, R &&r) {
+    return pred_and<std::decay_t<L>, std::decay_t<R>>{
+        std::forward<L>(l), std::forward<R>(r)};
+  }
+
+  template <
+      typename L,
+      typename R,
+      std::enable_if_t<
+          is_guard_predicate_v<L> || is_guard_predicate_v<R>,
+          int> = 0>
+  constexpr auto operator||(L &&l, R &&r) {
+    return pred_or<std::decay_t<L>, std::decay_t<R>>{
+        std::forward<L>(l), std::forward<R>(r)};
+  }
+
+  //
+  enum class range_mode {
+    closed,
+    open,
+    open_closed,
+    closed_open
+  };
+
+  struct closed_t {};
+  struct open_t {};
+  struct open_closed_t {};
+  struct closed_open_t {};
+
+  inline constexpr closed_t      closed{};
+  inline constexpr open_t        open{};
+  inline constexpr open_closed_t open_closed{};
+  inline constexpr closed_open_t closed_open{};
+
+  template <typename T>
+  struct range_predicate : guard_predicate_tag {
+    T          lo;
+    T          hi;
+    range_mode mode;
+
+    template <typename U>
+    constexpr bool operator()(U &&v) const {
+      switch (mode) {
+      case range_mode::closed:
+        return lo <= v && v <= hi;
+      case range_mode::open:
+        return lo < v && v < hi;
+      case range_mode::open_closed:
+        return lo < v && v <= hi;
+      case range_mode::closed_open:
+        return lo <= v && v < hi;
+      }
+      return false;
+    }
+  };
+
+  template <typename T>
+  constexpr auto rng(T lo, T hi) {
+    return range_predicate<std::decay_t<T>>{
+        {}, std::forward<T>(lo), std::forward<T>(hi), range_mode::closed};
+  }
+
+  template <typename T>
+  constexpr auto rng(T lo, T hi, open_t) {
+    return range_predicate<std::decay_t<T>>{
+        {}, std::forward<T>(lo), std::forward<T>(hi), range_mode::open};
+  }
+
+  template <typename T>
+  constexpr auto rng(T lo, T hi, open_closed_t) {
+    return range_predicate<std::decay_t<T>>{
+        {}, std::forward<T>(lo), std::forward<T>(hi), range_mode::open_closed};
+  }
+
+  template <typename T>
+  constexpr auto rng(T lo, T hi, closed_open_t) {
+    return range_predicate<std::decay_t<T>>{
+        {}, std::forward<T>(lo), std::forward<T>(hi), range_mode::closed_open};
+  }
 
   // Type trait to detect if a pattern is a binding pattern.
   //
@@ -145,23 +256,35 @@ namespace ptn::pat::mod {
     //   Subject: The type of the subject to match.
     // Parameters:
     //   s: The subject value to match against.
-    // Returns: true if both the inner pattern matches and the predicate returns true.
+    // Returns: true if both the inner pattern matches and the predicate returns
+    // true.
     template <typename Subject>
-    bool match(const Subject &s) const {
-      if (!inner.match(s))
+    constexpr bool match(Subject &&s) const noexcept(
+        noexcept(inner.match(std::forward<Subject>(s))) &&
+        noexcept(inner.bind(std::forward<Subject>(s)))) {
+
+      if (!inner.match(std::forward<Subject>(s)))
         return false;
 
-      auto tup = inner.bind(s);
+      auto bound    = inner.bind(std::forward<Subject>(s));
+      using bound_t = std::decay_t<decltype(bound)>;
 
-      constexpr size_t N = std::tuple_size_v<decltype(tup)>;
-      static_assert(
-          N == 1,
-          "[Patternia.guard]: Guard requires the pattern to bind exactly ONE "
-          "value. "
-          "Use named variables for multi-value patterns.");
+      constexpr std::size_t N = std::tuple_size_v<bound_t>;
 
-      auto &&v = std::get<0>(tup);
-      return static_cast<bool>(pred(v));
+      if constexpr (ptn::pat::mod::is_guard_predicate_v<Pred>) {
+        static_assert(
+            N == 1,
+            "[Patternia.guard]: Unary guard predicates (_ / rng / && / ||) "
+            "require the pattern to bind exactly ONE value. "
+            "For multi-value guards, use a callable predicate (lambda / "
+            "where).");
+
+        return static_cast<bool>(pred(std::get<0>(bound)));
+      }
+      else {
+        // callable guard: lambda / where / custom functor
+        return static_cast<bool>(std::apply(pred, bound));
+      }
     }
 
     // Binds the subject using the inner pattern's binding logic.
@@ -175,8 +298,9 @@ namespace ptn::pat::mod {
     //   subject: The subject value to bind.
     // Returns: The binding result from the inner pattern.
     template <typename Subject>
-    auto bind(Subject &&subject) const {
-      return inner.bind(subject);
+    constexpr decltype(auto) bind(Subject &&subject) const
+        noexcept(noexcept(inner.bind(std::forward<Subject>(subject)))) {
+      return inner.bind(std::forward<Subject>(subject));
     }
   };
 

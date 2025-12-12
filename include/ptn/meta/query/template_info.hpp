@@ -1,19 +1,14 @@
 #pragma once
-/**
- * @file template_info.hpp
- * @brief Introspection helpers for template instantiations:
- *        extract arguments and provide a rebind alias.
- */
+
+// Introspection helpers for template instantiations:
+// extract arguments and provide a rebind alias.
 
 #include "ptn/meta/dsa/type_list.hpp"
 
 namespace ptn::meta {
 
-  //  template_info
-  /**
-   * @brief Extract template arguments and provide a `rebind` alias
-   *        for a template specialization type.
-   */
+  // template_info
+  // Extract template arguments and provide a rebind alias for a template specialization type.
   template <typename T>
   struct template_info {
     static constexpr bool is_specialization = false;

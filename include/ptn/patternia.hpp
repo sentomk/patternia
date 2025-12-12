@@ -26,10 +26,11 @@
 
 // --- All Pattern Modules ---
 // Includes all public pattern factories.
-#include "ptn/pattern/lit.hpp"      // lit, lit_ci
-#include "ptn/pattern/bind.hpp"     // bind
-#include "ptn/pattern/wildcard.hpp" // wildcard
+#include "ptn/pattern/lit.hpp"             // lit, lit_ci
+#include "ptn/pattern/bind.hpp"            // bind
+#include "ptn/pattern/wildcard.hpp"        // wildcard
 #include "ptn/pattern/modifiers/guard.hpp" // guard
+#include "ptn/patternia.hpp"
 
 namespace ptn {
   // Import DSL operators
@@ -41,7 +42,13 @@ namespace ptn {
   using ptn::pat::bind;
 
   using ptn::pat::__;
+
+  // guard
   using ptn::pat::mod::_;
+  using ptn::pat::mod::operator&&;
+  using ptn::pat::mod::operator||;
+  using ptn::pat::mod::rng;
+
 } // namespace ptn
 
 // IWYU pragma: end_exports

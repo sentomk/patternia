@@ -7,7 +7,6 @@
 // and internal implementation details, keeping the module self-contained.
 
 #include "ptn/pattern/base/fwd.h"
-
 #include "ptn/pattern/base/binding_base.hpp"
 #include "ptn/pattern/base/pattern_base.hpp"
 
@@ -17,14 +16,12 @@
 
 namespace ptn::pat {
 
-  // --- Internal Implementation Details ---
+  // Internal Implementation Details
 
   namespace detail {
 
     // A pattern that always matches and binds the subject itself.
-    //
-    // This pattern captures the entire subject as a single-element tuple
-    // containing the subject value.
+    // Captures the entire subject as a single-element tuple containing the subject value.
     struct binding_pattern : base::pattern_base<binding_pattern>,
                              base::binding_pattern_base<binding_pattern> {
 
@@ -34,7 +31,7 @@ namespace ptn::pat {
         return true;
       }
 
-      // Binds the subject itself as a tuple<Subject>.
+      // Binds subject itself as a tuple<Subject>.
       template <typename Subject>
       constexpr auto bind(const Subject &subject) const {
         return std::tuple<Subject>(subject);
@@ -43,10 +40,8 @@ namespace ptn::pat {
 
     // A pattern that matches using a sub-pattern and binds both the subject
     // and the sub-pattern's bindings.
-    //
-    // Template parameters:
-    //   Tag: A tag type for binding identification (typically void).
-    //   SubPattern: The sub-pattern to use for matching.
+    // Tag: A tag type for binding identification (typically void).
+    // SubPattern: The sub-pattern to use for matching.
     template <typename Tag, typename SubPattern>
     struct binding_as_pattern
         : base::pattern_base<binding_as_pattern<Tag, SubPattern>>,
@@ -74,7 +69,7 @@ namespace ptn::pat {
 
   } // namespace detail
 
-  // --- Public API ---
+  // Public API
   //
   // Note: The bind(v) / bind(v, subpattern) forms are not provided.
   // In C++, v would be treated as a variable name in the DSL context,
@@ -86,8 +81,7 @@ namespace ptn::pat {
     return detail::binding_pattern{};
   }
 
-  // bind(subpattern) - First matches with subpattern, then captures the
-  // subject.
+  // bind(subpattern) - First matches with subpattern, then captures subject.
   template <typename SubPattern>
   constexpr auto bind(SubPattern &&subpattern) {
     using SP = std::decay_t<SubPattern>;
@@ -97,7 +91,7 @@ namespace ptn::pat {
 
 } // namespace ptn::pat
 
-// --- binding_args Registration ---
+// binding_args Registration
 
 namespace ptn::pat::base {
 

@@ -15,14 +15,15 @@ enum class Status {
 };
 
 int main() {
-  int x = 114;
+  int x = 1554;
 
   match(x)
-      .when(
-          bind()[_ == 20] >> [](int v) { std::cout << v << "Bigger than 20"; })
+      .when(bind()[_ == 0] >> [](int v) { std::cout << v << "Bigger than 20"; })
       .when(lit(42) >> [] { std::cout << "42"; })
-      .when(bind(__)[_ > 100] >> [](int v) { std::cout << v << " Other"; })
-      .end();
+      .when(
+          bind(__)[_ > 100 && _ < 200] >>
+          [](int v) { std::cout << v << " Other"; })
+      .otherwise([] { std::cout << "Nothing matched\n"; });
 
   Status status = Status::IDLE;
   match(status)

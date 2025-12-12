@@ -1,6 +1,9 @@
 #pragma once
 
 // Implementation of the Core match_builder.
+//
+// This header contains the internal implementation of Patternia's fluent
+// builder pattern for constructing pattern matching expressions.
 
 #include <algorithm>
 #include <tuple>
@@ -14,11 +17,7 @@
 namespace ptn::core::engine::detail {
 
   // Builder class for constructing pattern match expressions.
-  //
-  // This class provides a fluent interface for building match expressions
-  // with multiple cases using method chaining. It stores the subject to be
-  // matched and a tuple of case expressions.
-  //
+  // Provides fluent interface for building match expressions with method chaining.
   // TV: The type of the subject value to be matched
   // Cases: The types of case expressions added so far
   template <typename TV, typename... Cases>
@@ -30,7 +29,6 @@ namespace ptn::core::engine::detail {
   private:
     subject_type subject_; // The value being matched against patterns
     cases_type   cases_;   // Tuple of case expressions
-    bool         has_otherwise = false; // Flag indicating if otherwise handler is set
 
   public:
     // Static factory with an empty case list.
@@ -48,18 +46,16 @@ namespace ptn::core::engine::detail {
         : subject_(std::move(subject)), cases_(std::move(cases)) {
     }
 
-    // ----------------- chaining API: .when(...) -----------------
+    // Chaining API: .when(...)
 
     // Add a new case (rvalue-qualified).
-    //
-    // Accepts any CaseExpr-like object; typically `dsl::case_expr<Pattern,
-    // Handler>`. This is the preferred overload for method chaining as it
-    // moves the builder instance efficiently.
+    // Accepts case expressions created with the '>>' operator.
+    // This is the preferred overload for method chaining.
     template <typename CaseExpr>
     constexpr auto when(CaseExpr &&expr) && {
       using new_case_type = std::decay_t<CaseExpr>;
 
-      // Compile-time validation of the new case.
+      // Compile-time validation of the new case
       static_assert(
           ptn::core::common::is_case_expr_v<new_case_type>,
           "Argument to .when() must be a case expression created with the '>>' "
@@ -81,10 +77,8 @@ namespace ptn::core::engine::detail {
     }
 
     // Add a new case (lvalue-qualified).
-    //
-    // This overload is used when the builder is accessed as an lvalue.
-    // It copies the subject instead of moving it, which is less efficient
-    // but necessary for certain use cases.
+    // Used when the builder is accessed as an lvalue.
+    // Less efficient but necessary for certain use cases.
     template <typename CaseExpr>
     constexpr auto when(CaseExpr &&expr) const & {
       using new_case_type = std::decay_t<CaseExpr>;
@@ -108,18 +102,11 @@ namespace ptn::core::engine::detail {
       return builder_t{subject_, std::move(new_cases)};
     }
 
-    // ----------------- terminal API: .otherwise(...) ------------
+    // Terminal API: .otherwise(...)
 
-    // Terminal step: evaluate all cases; if none matches,
-    // call the provided fallback handler.
-    //
-    // This method executes the pattern matching algorithm. It tries each
-    // case in order, and if none matches, it calls the otherwise handler.
-    // The handler can be either a value or a callable.
-    //
-    // Otherwise: Type of the fallback handler or value
-    // otherwise_handler: The fallback to use when no cases match
-    // Returns: The result of the matched case handler or the otherwise handler
+    // Terminal step: evaluate all cases; if none matches, call fallback handler.
+    // Executes the pattern matching algorithm in sequence order.
+    // Handler can be either a value or a callable.
     template <typename Otherwise>
     constexpr decltype(auto) otherwise(Otherwise &&otherwise_handler) && {
 
@@ -129,12 +116,12 @@ namespace ptn::core::engine::detail {
       auto final_handler = [&]() {
         if constexpr (ptn::core::common::detail::is_value_like_v<
                           OtherwiseDecayed>) {
-          // Case 1: Pass a value - create a handler that returns this value
+          // Case 1: Value - create a handler that returns this value
           return [val = std::forward<Otherwise>(otherwise_handler)](
                      auto &&...) -> OtherwiseDecayed { return val; };
         }
         else {
-          // Case 2: Pass a callable - use it directly as the handler
+          // Case 2: Callable - use it directly as handler
           return std::forward<Otherwise>(otherwise_handler);
         }
       }();
@@ -149,15 +136,9 @@ namespace ptn::core::engine::detail {
       using result_type = core::common::
           match_result_t<subject_type, std::decay_t<Otherwise>, Cases...>;
 
-      // Additional validation to ensure type consistency
-      core::common::static_assert_valid_match<
-          subject_type,
-          std::decay_t<Otherwise>,
-          Cases...>();
-
       // Execute the match expression
       if constexpr (std::is_void_v<result_type>) {
-        // For void return types, just execute without returning a value
+        // For void return types, execute without returning a value
         match_impl::eval(
             subject_, cases_, std::forward<Otherwise>(final_handler));
       }
@@ -171,19 +152,15 @@ namespace ptn::core::engine::detail {
     // Terminal API: .end()
     // For void-only match expressions with no explicit otherwise handler.
     constexpr void end() && {
-
-      // 1. Create a dummy fallback handler (callable, never used if exhaustive)
+      // Create a dummy fallback handler (callable, never used if exhaustive)
       auto dummy_fallback = []() {};
-
-      // 2. Validate match result type:
-      //    Pass the dummy handler type so diagnostics can check handler
-      //    signatures.
       using dummy_handler_t = decltype(dummy_fallback);
 
+      // Validate match result type
       ptn::core::common::
           static_assert_valid_match<subject_type, dummy_handler_t, Cases...>();
 
-      // 3. Compute the match result type (should be void)
+      // Compute the match result type (should be void)
       using result_type = core::common::
           match_result_t<subject_type, dummy_handler_t, Cases...>();
 
@@ -194,10 +171,7 @@ namespace ptn::core::engine::detail {
           "If you want a value-returning match, use "
           ".otherwise(value_or_lambda).");
 
-      ptn::core::common::
-          static_assert_valid_match<subject_type, dummy_handler_t, Cases...>();
-
-      // 4. Execute match evaluation
+      // Execute match evaluation
       match_impl::eval(subject_, cases_, std::move(dummy_fallback));
     }
   };

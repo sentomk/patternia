@@ -1,6 +1,9 @@
 #pragma once
 
 // Core type traits used by the matching engine.
+//
+// This header provides fundamental type traits and utilities for pattern matching,
+// including case expression detection, handler invocability checks, and result type deduction.
 
 #include "ptn/pattern/base/fwd.h"
 #include <cstddef>
