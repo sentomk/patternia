@@ -2,20 +2,17 @@
 Language:        Cpp
 BasedOnStyle:    LLVM
 
-# 基础缩进
 IndentWidth:             2
 TabWidth:                2
 UseTab:                  Never
-ContinuationIndentWidth: 4  # 续行缩进 4 列，使模板体有明显区分
+ContinuationIndentWidth: 4  
 
-# 对齐优化
 AlignConsecutiveAssignments:   Consecutive
 AlignConsecutiveDeclarations:  Consecutive
 AlignConsecutiveMacros:        Consecutive
 AlignOperands:                 Align
 AlignTrailingComments:         true
 
-# 控制短语句格式
 AllowShortFunctionsOnASingleLine: None
 AllowShortBlocksOnASingleLine:    Never
 AllowShortIfStatementsOnASingleLine: Never
@@ -23,13 +20,11 @@ AllowShortLoopsOnASingleLine:       false
 AllowShortCaseLabelsOnASingleLine:  false
 AllowShortEnumsOnASingleLine:       false
 
-# 控制函数参数格式
 BinPackArguments:                         false
 BinPackParameters:                        false
 AllowAllArgumentsOnNextLine:              true
 AllowAllParametersOfDeclarationOnNextLine: true
 
-# 函数体风格设置
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterFunction:       false
@@ -46,7 +41,6 @@ BraceWrapping:
   SplitEmptyFunction:  true
   SplitEmptyRecord:    true
 
-# 空格相关设置
 SpaceBeforeParens:            ControlStatements
 SpaceAfterCStyleCast:         true
 SpacesInContainerLiterals:    true
@@ -56,19 +50,15 @@ SpaceInEmptyParentheses:      false
 SpaceBeforeAssignmentOperators: true
 SpaceAroundPointerQualifiers: Default
 
-# 指针星号位置
 PointerAlignment: Right
 
-# 命名空间缩进策略
 NamespaceIndentation: All
 
-# 其他
 ColumnLimit:          80
 Cpp11BracedListStyle: true
 SortIncludes:         Never
 IncludeBlocks:        Preserve
 
-# 宏循环支持
 ForEachMacros:
   - for_each
   - foreach
