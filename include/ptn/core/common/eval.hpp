@@ -2,9 +2,9 @@
 
 // Common evaluation logic for matching and handler invocation.
 //
-// This header provides the core runtime evaluation machinery for pattern matching,
-// including case matching logic, handler invocation with bound values, and
-// sequential case evaluation.
+// This header provides the core runtime evaluation machinery for pattern
+// matching, including case matching logic, handler invocation with bound
+// values, and sequential case evaluation.
 
 #include <tuple>
 #include <type_traits>
@@ -17,13 +17,13 @@ namespace ptn::core::common {
 
   // SFINAE Helper for C++17
   namespace detail {
-    /// Helper type to provide void type for SFINAE expressions
+    // Helper type to provide void type for SFINAE expressions
     template <typename... Ts>
     struct void_type {
       using type = void;
     };
 
-    /// Detects if a pattern has a .match(subject) member function
+    // Detects if a pattern has a .match(subject) member function
     template <typename P, typename S, typename = void>
     struct has_match_member : std::false_type {};
 
@@ -37,7 +37,7 @@ namespace ptn::core::common {
     template <typename P, typename S>
     constexpr bool has_match_member_v = has_match_member<P, S>::value;
 
-    /// Detects if a pattern has a .bind(subject) member function
+    // Detects if a pattern has a .bind(subject) member function
     template <typename P, typename S, typename = void>
     struct has_bind_member : std::false_type {};
 
@@ -54,15 +54,15 @@ namespace ptn::core::common {
 
   // Case Matching
 
-  /// Checks if a case's pattern matches a subject value
-  /// Supports both class-based patterns with .match() and functional patterns
+  // Checks if a case's pattern matches a subject value
+  // Supports both class-based patterns with .match() and functional patterns
   template <typename Case, typename Subject>
   struct case_matcher {
     using case_type    = Case;
     using subject_type = Subject;
     using pattern_type = case_pattern_t<Case>;
 
-    /// Returns true if the pattern matches the subject
+    // Returns true if the pattern matches the subject
     static constexpr bool
     matches(const case_type &c, const subject_type &subject) {
       if constexpr (detail::has_match_member_v<pattern_type, subject_type>) {
@@ -76,11 +76,43 @@ namespace ptn::core::common {
 
   // Handler Invocation Logic
 
-  /// Invokes a handler with the values bound by its pattern
-  ///
-  /// Design A: handler receives only the bound values from pattern matching
-  ///   handler( pattern.bind(subject)... )
-  ///   The subject itself is not passed as an extra first argument
+  namespace detail {
+
+    // MSVC-friendly tuple invocation
+    // Avoids: std::apply + dependent lambda + if constexpr
+    template <typename F, typename Tuple, std::size_t... I>
+    constexpr decltype(auto)
+    invoke_from_tuple_impl(F &&f, Tuple &&t, std::index_sequence<I...>) {
+
+      using result_t = std::
+          invoke_result_t<F, decltype(std::get<I>(std::forward<Tuple>(t)))...>;
+
+      if constexpr (std::is_void_v<result_t>) {
+        std::invoke(std::forward<F>(f), std::get<I>(std::forward<Tuple>(t))...);
+        return;
+      }
+      else {
+        return std::invoke(
+            std::forward<F>(f), std::get<I>(std::forward<Tuple>(t))...);
+      }
+    }
+
+    template <typename F, typename Tuple>
+    constexpr decltype(auto) invoke_from_tuple(F &&f, Tuple &&t) {
+      using tuple_t = std::remove_reference_t<Tuple>;
+      return invoke_from_tuple_impl(
+          std::forward<F>(f),
+          std::forward<Tuple>(t),
+          std::make_index_sequence<std::tuple_size_v<tuple_t>>{});
+    }
+
+  } // namespace detail
+
+  // Invokes a handler with the values bound by its pattern
+  //
+  // Design A: handler receives only the bound values from pattern matching
+  //   handler( pattern.bind(subject)... )
+  //   The subject itself is not passed as an extra first argument
   template <typename Case, typename Subject>
   constexpr decltype(auto) invoke_handler(const Case &c, Subject &&subject) {
     using pattern_type = case_pattern_t<Case>;
@@ -92,25 +124,12 @@ namespace ptn::core::common {
 
     // Extract bound values from the pattern
     auto bound_values = c.pattern.bind(std::forward<Subject>(subject));
-
-    // Apply handler to the bound values only
-    std::apply(
-        [&](auto &&...args) {
-          if constexpr (std::is_void_v<std::invoke_result_t<
-                            decltype(c.handler),
-                            decltype(args)...>>) {
-            c.handler(std::forward<decltype(args)>(args)...);
-          }
-          else {
-            (void) c.handler(std::forward<decltype(args)>(args)...);
-          }
-        },
-        std::move(bound_values));
+    return detail::invoke_from_tuple(c.handler, bound_values);
   }
 
   // Case Sequence Evaluation
   namespace detail {
-    /// Recursive implementation for evaluating a tuple of cases in sequence
+    // Recursive implementation for evaluating a tuple of cases in sequence
     template <
         std::size_t I,
         typename Subject,
@@ -145,8 +164,8 @@ namespace ptn::core::common {
     }
   } // namespace detail
 
-  /// Public entry point to evaluate a sequence of cases against a subject
-  /// Tries each case in order, invoking the first matching handler
+  // Public entry point to evaluate a sequence of cases against a subject
+  // Tries each case in order, invoking the first matching handler
   template <typename Subject, typename CasesTuple, typename Otherwise>
   constexpr decltype(auto) eval_cases(
       Subject &subject, CasesTuple &cases, Otherwise &&otherwise_handler) {
