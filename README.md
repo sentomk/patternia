@@ -26,155 +26,82 @@
 
 **A header-only, zero-overhead pattern matching library for modern C++ that transforms branching logic into expressive, maintainable code.**
 
----
 
-## ✨ Key Features
-- **Zero Runtime Overhead**: Compile-time optimization with no RTTI or virtual dispatch
-- **Intuitive Syntax**: Declarative pattern matching with clean DSL operator (`>>`)
-- **Type Safety**: Compile-time guarantees with heterogeneous comparisons
-- **Rich Patterns**: Literal matching, binding patterns, case-insensitive string matching
-- **Modern C++**: C++17+ compatible with constexpr support
-- **Header-Only**: Drop-in integration with no build dependencies
-  
----
+## What Is Pattern Matching  
 
-## 🚀 Quick Start
+**Pattern matching** is a control-flow mechanism that selects execution paths based on the structural form, construction, or type of values. By combining discrimination, decomposition, and structured binding into a single construct, pattern matching allows programs to reason about data shapes directly, rather than through ad-hoc conditional logic. Compared to traditional if-else chains or switch statements, pattern matching offers a more declarative and data-oriented way to express branching logic.
 
-### Basic Example: Wildcard and Enum Matching
+**Further reading:**
 
-Demonstrate pattern matching with wildcard, literal, and binding patterns:
+* [Haskell Pattern Matching](https://www.haskell.org/tutorial/patterns.html)
+* [Rust Pattern Matching](https://doc.rust-lang.org/book/ch19-00-patterns.html)
+* [Scala Match Expressions](https://docs.scala-lang.org/tour/pattern-matching.html)
+* [Python Structural Pattern Matching (PEP 634)](https://peps.python.org/pep-0634/)
+
+
+## Control Flow in C++
+
+In modern C++, control flow over heterogeneous or structured data is typically expressed using a combination of `if`/`else`, `switch`, type checks, and manual data access. While these mechanisms are flexible and expressive, they tend to scale poorly as data structures become more complex or evolve over time. Type discrimination, structural access, and business logic are often interleaved, making the resulting control flow harder to read, maintain, and extend.
 
 ```cpp
-#include <ptn/patternia.hpp>
-#include <iostream>
-
-using namespace ptn;
-
-enum Status {
-  Pending,
-  Running,
-  Completed,
-  Failed
-};
-
-int main() {
-  Status s = Status::Running;
-
-  auto result =
-      match(s)
-          .when(lit(Status::Pending) >> [] { return "pending state"; })
-          .when(
-              bind(lit(Status::Running)) >>
-              [](int whole) {
-                std::cout << "Captured (as int): " << whole << "\n";
-                return "running state";
-              })
-          .when(__ >> [] { return "other state"; })  // Wildcard pattern
-          .otherwise([] { return "otherwise"; });
-
-  std::cout << "Result = " << result << "\n";
-  
-  // Example with wildcard as fallback
-  int value = 42;
-  std::cout << match(value)
-      .when(lit(0) >> []{ std::cout << "zero"; })
-      .when(lit(1) >> []{ std::cout << "one"; })
-      .when(__ >> []{ std::cout << "other number"; })  // Matches any other value
-      .end();
+// Conventional control flow (conceptual)
+if (value is TypeA) {
+    auto& a = as<TypeA>(value);
+    if (a.field > threshold) {
+        ...
+    }
+} else if (value is TypeB) {
+    auto& b = as<TypeB>(value);
+    ...
+} else {
+    ...
 }
 ```
 
-**Output:**
-```
-Captured (as int): 1
-Result = running state
-other number
-```
+In this style, control flow is organized around **conditions and checks**, rather than around the structure of the data itself. The logic for discriminating types, accessing fields, and introducing local variables is scattered across branches, often leading to duplicated checks and implicit assumptions about data invariants.
 
----
+With pattern matching, control flow can instead be organized around **data shapes**. Each branch explicitly states the structure it expects and introduces bindings only when the match succeeds. This aligns control flow more closely with the semantics of the data and makes each branch self-contained.
 
-## 🔧 Installation
-
-Patternia is **header-only**, so installation is lightweight and dependency-free.
-
-### Recommended: CMake FetchContent
-
-Add this to your project's **top-level** `CMakeLists.txt`:
-
-```cmake
-cmake_minimum_required(VERSION 3.14)
-project(your_project_name LANGUAGES CXX)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-include(FetchContent)
-
-FetchContent_Declare(
-    patternia
-    GIT_REPOSITORY https://github.com/SentoMK/patternia.git
-    GIT_TAG main
-)
-FetchContent_MakeAvailable(patternia)
-
-add_executable(your_project_name main.cpp)
-target_link_libraries(your_project_name PRIVATE patternia::patternia)
+```cpp
+// Control flow with pattern matching (conceptual)
+match value {
+    when PatternA(x) if x > threshold => {
+        ...
+    }
+    when PatternB(y) => {
+        ...
+    }
+    otherwise => {
+        ...
+    }
+}
 ```
 
-This automatically fetches Patternia at configure time and sets up the imported target.
+By unifying discrimination, decomposition, and binding, pattern matching allows control flow to be expressed declaratively and locally. This approach reduces boilerplate, minimizes accidental complexity, and provides a clearer foundation for reasoning about completeness and correctness as data structures evolve.
 
-### More Installation Options
 
-Source installation, header-only drop-in, Conan/vcpkg integration and versioning instructions can be found in Online Docs:
+## What Patternia Solves
 
-Documentation → [Installation Guide](https://sentomk.github.io/patternia/guide/installation/)
+**Patternia** addresses the limitations discussed above by providing a structured and declarative way to express control flow directly in terms of data shape. Instead of organizing logic around condition checks and casts, Patternia allows developers to describe *what kind of data is expected* in each branch and to introduce bindings only when a match succeeds. This makes each branch self-contained and aligns control flow with the semantic structure of the data.
 
----
+Patternia is designed as a library-level abstraction that integrates naturally with existing C++ code. It does not require changes to data definitions, does not impose a closed-world assumption, and does not rely on runtime reflection. By explicitly separating matching, binding, and guards, Patternia avoids hidden side effects while remaining flexible enough to model both Rust-like pattern matching semantics and C++-specific use cases.
 
-### Supported Platforms
+```cpp
+// Patternia-style control flow (conceptual)
+match(value)
+  .when(Point { x, y } if x > 0 >> handle(x, y))
+  .when(Line  { start, end }   >> handle(start, end))
+  .otherwise(fallback);
+```
 
-| OS      | Compilers            | Status          |
-| ------- | -------------------- | --------------- |
-| Linux   | GCC ≥11, Clang ≥12   | **Fully Supported** |
-| Windows | MSVC ≥2019, Clang-CL | **Fully Supported** |
-| macOS   | AppleClang ≥14       | **Fully Supported** |
 
----
+## Quick Start
 
-## 📚 Current Features
 
-### Core Matching
-- `match(value)` - Type-deduced matching entry point
-- `match<T>(value)` - Explicit type conversion matching
-- `.when(pattern >> handler)` - Add matching branches
-- `.otherwise(handler)` - Default fallback case with explicit handler
-- `.end()` - Terminate exhaustive void-only matches
+## API Reference
 
-**Terminal Methods:**
-- Use `.otherwise(handler)` when you need default behavior or non-void returns
-- Use `.end()` for exhaustive matching where all cases return void
 
-### Pattern Types
-- `lit(value)` - Exact value matching for any comparable type
-- `lit_ci(value)` - Case-insensitive ASCII string matching
-- `__` - Wildcard pattern that matches any value without binding
-- `bind()` - Capture the entire subject value
-- `bind(subpattern)` - Capture subject after matching with subpattern
-
-### Supported Value Types
-- Arithmetic types (int, double, float, etc.)
-- Enum types
-- String types (std::string, std::string_view, const char*)
-- User-defined types (must support operator==)
-
-### Handler Types
-- Value handlers (return fixed value)
-- Function handlers (process matched value)
-- Capturing handlers (receive bound values)
-
----
-
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome. Whether it is **bug reports**, **feature proposals**, or **pull requests**, your help is appreciated.
 
@@ -215,32 +142,6 @@ Run tests:
 ```bash
 ctest --test-dir build
 ```
-
----
-
-## 🔮 Future Roadmap
-
-### Exhaustiveness Checking (Planned)
-
-Patternia plans to introduce **compile-time exhaustiveness checking** to provide enhanced safety guarantees:
-
-**Planned Features:**
-- **Enum Coverage Detection** - Catch missing enum variants at compile-time  
-- **Wildcard Analysis** - Proper handling of `__` patterns in exhaustiveness
-- **Enhanced Error Messages** - Clear diagnostics for missing cases
-
-**Example (Future API):**
-```cpp
-enum class Status { Pending, Running, Completed, Failed };
-
-// This will trigger a compile-time error for missing variants
-match(status)
-    .when(lit(Status::Running) >> "running")
-    .when(lit(Status::Completed) >> "completed")
-    .end();  // ❌ ERROR: Not all enum variants covered!
-```
-
-This future feature will make Patternia even safer by preventing runtime bugs through compile-time guarantees.
 
 ---
 

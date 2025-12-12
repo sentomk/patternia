@@ -91,7 +91,18 @@ namespace ptn::core::common {
     auto bound_values = c.pattern.bind(std::forward<Subject>(subject));
 
     // Apply the handler only to the bound values.
-    return std::apply(c.handler, std::move(bound_values));
+    std::apply(
+        [&](auto &&...args) {
+          if constexpr (std::is_void_v<std::invoke_result_t<
+                            decltype(c.handler),
+                            decltype(args)...>>) {
+            c.handler(std::forward<decltype(args)>(args)...);
+          }
+          else {
+            (void) c.handler(std::forward<decltype(args)>(args)...);
+          }
+        },
+        std::move(bound_values));
   }
 
   // Case Sequence Evaluation

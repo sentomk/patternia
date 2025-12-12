@@ -151,9 +151,7 @@ namespace ptn::pat::base {
   // which corresponds to an empty `std::tuple<>`. This declaration must be
   // consistent with the return type of `detail::literal_pattern::bind()`.
   template <typename V, typename Cmp, typename Subject>
-  struct binding_args<
-      ptn::pat::detail::literal_pattern<V, Cmp>,
-      Subject> {
+  struct binding_args<ptn::pat::detail::literal_pattern<V, Cmp>, Subject> {
     using type = std::tuple<>;
   };
 
