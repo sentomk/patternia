@@ -30,7 +30,7 @@
 #include "ptn/pattern/bind.hpp"            // bind
 #include "ptn/pattern/wildcard.hpp"        // wildcard
 #include "ptn/pattern/modifiers/guard.hpp" // guard
-#include "ptn/patternia.hpp"
+#include "ptn/pattern/structural.hpp"      // has
 
 namespace ptn {
   // Import DSL operators
@@ -48,6 +48,9 @@ namespace ptn {
   using ptn::pat::mod::operator&&;
   using ptn::pat::mod::operator||;
   using ptn::pat::mod::rng;
+
+  // has
+  using ptn::pat::has;
 
 } // namespace ptn
 
