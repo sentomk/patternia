@@ -14,6 +14,20 @@ enum class Status {
   IDLE
 };
 
+struct Point {
+  int x;
+  int y;
+  int z;
+};
+
+void example_structural(const Point &p) {
+  match(p)
+      .when(
+          has<&Point::x, &Point::y>() >>
+          [] { std::cout << "Is Point-like.\n"; })
+      .otherwise([] { std::cout << "Nothing matched"; });
+}
+
 int main() {
   int x = 1554;
 
@@ -32,4 +46,7 @@ int main() {
           bind(__) >>
           [](Status v) { std::cout << static_cast<int>(v) << '\n'; })
       .end();
+
+  Point point;
+  example_structural(point);
 }

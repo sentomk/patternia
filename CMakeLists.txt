@@ -7,7 +7,7 @@ endif()
 
 # ========== Project ==========
 project(patternia
-  VERSION 0.5.2
+  VERSION 0.5.3
   DESCRIPTION "Header-only pattern matching library for modern C++"
   LANGUAGES CXX
 )
@@ -110,6 +110,8 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/pattern/lit.hpp
   include/ptn/pattern/bind.hpp
   include/ptn/pattern/wildcard.hpp
+  include/ptn/pattern/structural.hpp
+  include/ptn/pattern/modifiers/guard.hpp
 )
 
 # ========== Public interface target ==========
