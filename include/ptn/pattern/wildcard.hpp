@@ -7,14 +7,13 @@
 // keeping the module self-contained.
 
 #include "ptn/pattern/base/fwd.h"
-#include "ptn/pattern/base/pattern_base.hpp"
 
 #include <tuple>
 
 namespace ptn::pat {
   namespace detail {
     // Wildcard pattern that matches any value and binds nothing.
-    struct wildcard_t : base::pattern_base<wildcard_t> {
+    struct wildcard_t {
 
       // Always matches successfully.
       template <typename Subject>
