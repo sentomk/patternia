@@ -101,6 +101,7 @@ PTN_JOIN_HEADERS(PTN_HEADERS
 
   # Pattern Base
   include/ptn/pattern/base/fwd.h
+  include/ptn/pattern/base/binding_base.hpp
   include/ptn/pattern/base/binding_traits.hpp
   include/ptn/pattern/base/pattern_base.hpp
   include/ptn/pattern/base/pattern_kind.hpp
