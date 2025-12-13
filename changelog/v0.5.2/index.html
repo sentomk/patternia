@@ -944,10 +944,10 @@
 <p><strong>Release Date:</strong> December 10, 2025 
 <strong>Version:</strong> 0.5.2</p>
 <hr />
-<h2 id="overview">🎯 Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>Patternia v0.5.2 introduces the wildcard pattern <code>__</code> and provides comprehensive documentation updates. This release focuses on semantic clarity, improved developer experience, and establishing a solid foundation for future exhaustiveness checking features.</p>
 <hr />
-<h2 id="new-features">✨ New Features<a class="headerlink" href="#new-features" title="Permanent link">&para;</a></h2>
+<h2 id="new-features">New Features<a class="headerlink" href="#new-features" title="Permanent link">&para;</a></h2>
 <h3 id="wildcard-pattern-__">Wildcard Pattern (<code>__</code>)<a class="headerlink" href="#wildcard-pattern-__" title="Permanent link">&para;</a></h3>
 <p><strong>Added:</strong> <code>ptn::__</code> - A pattern that matches any value without binding.</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// Basic wildcard usage</span>
@@ -983,7 +983,7 @@
 </ol>
 <p><strong>Key Principle:</strong> First matching pattern wins, regardless of fallback types.</p>
 <hr />
-<h2 id="documentation-improvements">📚 Documentation Improvements<a class="headerlink" href="#documentation-improvements" title="Permanent link">&para;</a></h2>
+<h2 id="documentation-improvements">Documentation Improvements<a class="headerlink" href="#documentation-improvements" title="Permanent link">&para;</a></h2>
 <h3 id="design-overview-document">Design Overview Document<a class="headerlink" href="#design-overview-document" title="Permanent link">&para;</a></h3>
 <p><strong>Added:</strong> <code>docs/design-overview.md</code> - Comprehensive guide covering:
 - Three-level architecture (Pattern → Case → Match Finalizer)
@@ -1004,7 +1004,7 @@
 - Future roadmap section
 - Better usage decision tables</p>
 <hr />
-<h2 id="internal-improvements">🔧 Internal Improvements<a class="headerlink" href="#internal-improvements" title="Permanent link">&para;</a></h2>
+<h2 id="internal-improvements">Internal Improvements<a class="headerlink" href="#internal-improvements" title="Permanent link">&para;</a></h2>
 <h3 id="comment-standardization">Comment Standardization<a class="headerlink" href="#comment-standardization" title="Permanent link">&para;</a></h3>
 <p><strong>Fixed:</strong> Consistent English comment style across all modified files:
 - <code>include/ptn/pattern/wildcard.hpp</code> - Added comprehensive file header
@@ -1017,7 +1017,7 @@
 - Documented member variable purposes
 - Enhanced inline comments for complex template logic</p>
 <hr />
-<h2 id="architecture-changes">🏗️ Architecture Changes<a class="headerlink" href="#architecture-changes" title="Permanent link">&para;</a></h2>
+<h2 id="architecture-changes">Architecture Changes<a class="headerlink" href="#architecture-changes" title="Permanent link">&para;</a></h2>
 <h3 id="three-level-design-formalization">Three-Level Design Formalization<a class="headerlink" href="#three-level-design-formalization" title="Permanent link">&para;</a></h3>
 <p>Patternia now explicitly follows a three-level architecture:</p>
 <ol>
@@ -1035,7 +1035,7 @@
 - <strong>Statement-style</strong> (<code>.end()</code>) vs <strong>expression-style</strong> (<code>.otherwise()</code>) matching
 - <strong>Field-level ignoring</strong> vs <strong>case-level fallbacks</strong></p>
 <hr />
-<h2 id="usage-examples">🚀 Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
 <h3 id="basic-pattern-matching">Basic Pattern Matching<a class="headerlink" href="#basic-pattern-matching" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ptn/patternia.hpp&gt;</span>
 
@@ -1065,56 +1065,11 @@
 <span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
 </code></pre></div>
 <hr />
-<h2 id="future-foundation">🔮 Future Foundation<a class="headerlink" href="#future-foundation" title="Permanent link">&para;</a></h2>
-<p>This release establishes the groundwork for v0.6.0 features:</p>
-<h3 id="planned-for-v060">Planned for v0.6.0<a class="headerlink" href="#planned-for-v060" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Enum Exhaustiveness Checking</strong> for <code>.end()</code> usage</li>
-<li><strong>Struct Destructuring DSL</strong> with field wildcards</li>
-<li><strong>Enhanced Error Messages</strong> for better developer experience</li>
-<li><strong>Type Pattern Matching</strong> (<code>type::is&lt;T&gt;</code>)</li>
-</ul>
-<h3 id="implementation-timeline">Implementation Timeline<a class="headerlink" href="#implementation-timeline" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Phase 1</strong> (v0.6.0): Basic enum exhaustiveness</li>
-<li><strong>Phase 2</strong> (v0.7.0): Struct destructuring support  </li>
-<li><strong>Phase 3</strong> (v0.8.0): Advanced pattern analysis</li>
-</ul>
-<hr />
-<h2 id="bug-fixes">🐛 Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h2>
+<h2 id="bug-fixes">Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h2>
 <h3 id="api-clarity">API Clarity<a class="headerlink" href="#api-clarity" title="Permanent link">&para;</a></h3>
 <p><strong>Fixed:</strong> Ambiguous terminal method behavior
 - Clear distinction between <code>.end()</code> and <code>.otherwise()</code> 
 - Better examples showing appropriate use cases</p>
-<hr />
-<h2 id="installation">📦 Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
-<p>No changes required - Patternia remains header-only with C++17+ compatibility.</p>
-<div class="highlight"><pre><span></span><code><span class="nb">FetchContent_Declare</span><span class="p">(</span>
-<span class="w">    </span><span class="s">patternia</span>
-<span class="w">    </span><span class="s">GIT_REPOSITORY</span><span class="w"> </span><span class="s">https://github.com/SentoMK/patternia.git</span>
-<span class="w">    </span><span class="s">GIT_TAG</span><span class="w"> </span><span class="s">v0.5.2</span>
-<span class="p">)</span>
-</code></pre></div>
-<hr />
-<h2 id="acknowledgments">🙏 Acknowledgments<a class="headerlink" href="#acknowledgments" title="Permanent link">&para;</a></h2>
-<p>Special thanks to the community for feedback on semantic clarity and documentation needs. This release incorporates extensive user experience improvements based on real-world usage patterns.</p>
-<hr />
-<h2 id="migration-guide">📋 Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
-<h3 id="from-v051-to-v052">From v0.5.1 to v0.5.2<a class="headerlink" href="#from-v051-to-v052" title="Permanent link">&para;</a></h3>
-<p><strong>No breaking changes</strong> - This is a feature-enhancement release.</p>
-<h3 id="recommended-practices">Recommended Practices<a class="headerlink" href="#recommended-practices" title="Permanent link">&para;</a></h3>
-<ol>
-<li><strong>Use <code>__</code></strong> instead of <code>bind()</code> when no capture is needed</li>
-<li><strong>Prefer <code>.end()</code></strong> for statement-style matches with future exhaustiveness</li>
-<li><strong>Use <code>.otherwise()</code></strong> when computing values from matches</li>
-<li><strong>Consult <code>docs/design-overview.md</code></strong> for detailed semantic guidance</li>
-</ol>
-<hr />
-<p><strong>Total Changes:</strong> 12 files modified, 847 lines added, 23 lines removed<br />
-<strong>Documentation Pages:</strong> 3 new/updated comprehensive guides<br />
-<strong>API Enhancements:</strong> 1 new pattern, 2 clarified terminal methods</p>
-<hr />
-<p>This release continues Patternia's commitment to providing zero-overhead, expressive pattern matching for modern C++ while establishing a solid foundation for future advanced features.</p>
 
 
 
