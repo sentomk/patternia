@@ -2,6 +2,11 @@
 //
 // This program shows basic usage of the Patternia library including
 // literal patterns, wildcard patterns, and the match DSL.
+struct Point {
+  int x;
+  int y;
+  int z;
+};
 
 #include <iostream>
 #include "ptn/patternia.hpp"
@@ -14,18 +19,12 @@ enum class Status {
   IDLE
 };
 
-struct Point {
-  int x;
-  int y;
-  int z;
-};
-
 void example_structural(const Point &p) {
   match(p)
       .when(
-          has<&Point::x, &Point::y>() >>
-          [] { std::cout << "Is Point-like.\n"; })
-      .otherwise([] { std::cout << "Nothing matched"; });
+          bind(has<&Point::x, &Point::y, nullptr>()) >>
+          [](int x, int y) { std::cout << x << ' ' << y; })
+      .end();
 }
 
 int main() {
@@ -47,6 +46,6 @@ int main() {
           [](Status v) { std::cout << static_cast<int>(v) << '\n'; })
       .end();
 
-  Point point;
+  Point point{1, 2, 3};
   example_structural(point);
 }

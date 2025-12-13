@@ -9,6 +9,7 @@
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/binding_base.hpp"
 #include "ptn/pattern/base/pattern_base.hpp"
+#include "ptn/pattern/structural.hpp"
 
 #include <tuple>
 #include <type_traits>
@@ -21,7 +22,8 @@ namespace ptn::pat {
   namespace detail {
 
     // A pattern that always matches and binds the subject itself.
-    // Captures the entire subject as a single-element tuple containing the subject value.
+    // Captures the entire subject as a single-element tuple containing the
+    // subject value.
     struct binding_pattern : base::pattern_base<binding_pattern>,
                              base::binding_pattern_base<binding_pattern> {
 
@@ -67,6 +69,61 @@ namespace ptn::pat {
       }
     };
 
+    // Detect structural has-pattern
+    template <typename T>
+    struct is_structural_has : std::false_type {};
+
+    template <auto... Ms>
+    struct is_structural_has<pat::detail::has_pattern<Ms...>> : std::true_type {
+    };
+
+    template <typename T>
+    inline constexpr bool is_structural_has_v =
+        is_structural_has<std::decay_t<T>>::value;
+
+    // Forward declaration
+    template <typename HasPattern>
+    struct structural_bind_pattern;
+
+    // Specialization for has_pattern<Ms...>
+    template <auto... Ms>
+    struct structural_bind_pattern<pat::detail::has_pattern<Ms...>>
+        : base::pattern_base<
+              structural_bind_pattern<pat::detail::has_pattern<Ms...>>>,
+          base::binding_pattern_base<
+              structural_bind_pattern<pat::detail::has_pattern<Ms...>>> {
+
+      using has_type = pat::detail::has_pattern<Ms...>;
+      has_type has;
+
+      constexpr explicit structural_bind_pattern(has_type h)
+          : has(std::move(h)) {
+      }
+
+      template <typename Subject>
+      constexpr bool match(const Subject &subject) const noexcept {
+        return has.match(subject);
+      }
+
+      // Extract member fields for all member-ptr Ms...; ignore wildcard (__).
+      template <auto M, typename Subject>
+      static constexpr auto bind_one(const Subject &subject) {
+        if constexpr (std::is_member_object_pointer_v<decltype(M)>) {
+          using field_t = std::decay_t<decltype(subject.*M)>;
+          return std::tuple<field_t>{static_cast<field_t>(subject.*M)};
+        }
+        else {
+          // wildcard_t -> ignored
+          return std::tuple<>{};
+        }
+      }
+
+      template <typename Subject>
+      constexpr auto bind(const Subject &subject) const {
+        return std::tuple_cat(bind_one<Ms>(subject)...);
+      }
+    };
+
   } // namespace detail
 
   // Public API
@@ -85,8 +142,15 @@ namespace ptn::pat {
   template <typename SubPattern>
   constexpr auto bind(SubPattern &&subpattern) {
     using SP = std::decay_t<SubPattern>;
-    return detail::binding_as_pattern<void, SP>(
-        std::forward<SubPattern>(subpattern));
+
+    if constexpr (detail::is_structural_has_v<SP>) {
+      return detail::structural_bind_pattern<SP>(
+          std::forward<SubPattern>(subpattern));
+    }
+    else {
+      return detail::binding_as_pattern<void, SP>(
+          std::forward<SubPattern>(subpattern));
+    }
   }
 
 } // namespace ptn::pat
@@ -110,6 +174,17 @@ namespace ptn::pat::base {
     using type = decltype(std::tuple_cat(
         std::tuple<Subject>{},
         typename binding_args<SubPattern, Subject>::type{}));
+  };
+
+  // Structural-binding pattern binds
+  template <auto... Ms, typename Subject>
+  struct binding_args<
+      pat::detail::structural_bind_pattern<pat::detail::has_pattern<Ms...>>,
+      Subject> {
+    using type =
+        decltype(std::declval<const pat::detail::structural_bind_pattern<
+                     pat::detail::has_pattern<Ms...>> &>()
+                     .bind(std::declval<const Subject &>()));
   };
 
 } // namespace ptn::pat::base
