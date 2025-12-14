@@ -47,9 +47,11 @@ namespace ptn {
   using ptn::pat::mod::_;
   using ptn::pat::mod::operator&&;
   using ptn::pat::mod::operator||;
+  using ptn::pat::mod::arg;
   using ptn::pat::mod::rng;
 
-  // has
+  // structural
+  using ptn::pat::_ign;
   using ptn::pat::has;
 
 } // namespace ptn

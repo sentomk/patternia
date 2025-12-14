@@ -22,7 +22,7 @@ enum class Status {
 void example_structural(const Point &p) {
   match(p)
       .when(
-          bind(has<&Point::x, &Point::y, nullptr>()) >>
+          bind(has<&Point::x, &Point::y, _ign>())[arg<0> + arg<1> == 0] >>
           [](int x, int y) { std::cout << x << ' ' << y; })
       .end();
 }
@@ -30,8 +30,11 @@ void example_structural(const Point &p) {
 int main() {
   int x = 1554;
 
+  auto pred = [](int v) { return v % 2 == 0; };
+
   match(x)
       .when(bind()[_ == 0] >> [](int v) { std::cout << v << "Bigger than 20"; })
+      .when(bind(lit(1554))[pred] >> [](int v) { std::cout << v << '\n'; })
       .when(lit(42) >> [] { std::cout << "42"; })
       .when(
           bind(__)[_ > 100 && _ < 200] >>
