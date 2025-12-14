@@ -17,9 +17,9 @@
 namespace ptn::core::engine::detail {
 
   // Builder class for constructing pattern match expressions.
-  // Provides fluent interface for building match expressions with method chaining.
-  // TV: The type of the subject value to be matched
-  // Cases: The types of case expressions added so far
+  // Provides fluent interface for building match expressions with method
+  // chaining. TV: The type of the subject value to be matched Cases: The types
+  // of case expressions added so far
   template <typename TV, typename... Cases>
   class match_builder {
   public:
@@ -104,8 +104,8 @@ namespace ptn::core::engine::detail {
 
     // Terminal API: .otherwise(...)
 
-    // Terminal step: evaluate all cases; if none matches, call fallback handler.
-    // Executes the pattern matching algorithm in sequence order.
+    // Terminal step: evaluate all cases; if none matches, call fallback
+    // handler. Executes the pattern matching algorithm in sequence order.
     // Handler can be either a value or a callable.
     template <typename Otherwise>
     constexpr decltype(auto) otherwise(Otherwise &&otherwise_handler) && {
@@ -134,17 +134,17 @@ namespace ptn::core::engine::detail {
 
       // Determine the result type of the entire match expression
       using result_type = core::common::
-          match_result_t<subject_type, std::decay_t<Otherwise>, Cases...>;
+          match_result_t<subject_type, decltype(final_handler), Cases...>;
 
       // Execute the match expression
       if constexpr (std::is_void_v<result_type>) {
         // For void return types, execute without returning a value
-        match_impl::eval(
+        match_impl::eval<void>(
             subject_, cases_, std::forward<Otherwise>(final_handler));
       }
       else {
         // For non-void return types, return the result
-        return match_impl::eval(
+        return match_impl::eval<result_type>(
             subject_, cases_, std::forward<Otherwise>(final_handler));
       }
     }
@@ -153,7 +153,7 @@ namespace ptn::core::engine::detail {
     // For void-only match expressions with no explicit otherwise handler.
     constexpr void end() && {
       // Create a dummy fallback handler (callable, never used if exhaustive)
-      auto dummy_fallback = []() {};
+      auto dummy_fallback   = []() {};
       using dummy_handler_t = decltype(dummy_fallback);
 
       // Validate match result type
@@ -161,8 +161,8 @@ namespace ptn::core::engine::detail {
           static_assert_valid_match<subject_type, dummy_handler_t, Cases...>();
 
       // Compute the match result type (should be void)
-      using result_type = core::common::
-          match_result_t<subject_type, dummy_handler_t, Cases...>();
+      using result_type =
+          core::common::match_result_t<subject_type, dummy_handler_t, Cases...>;
 
       static_assert(
           common::is_void_like_v<result_type>,
@@ -172,7 +172,8 @@ namespace ptn::core::engine::detail {
           ".otherwise(value_or_lambda).");
 
       // Execute match evaluation
-      match_impl::eval(subject_, cases_, std::move(dummy_fallback));
+      match_impl::eval<result_type>(
+          subject_, cases_, std::move(dummy_fallback));
     }
   };
 } // namespace ptn::core::engine::detail
