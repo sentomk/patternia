@@ -178,4 +178,54 @@ namespace ptn::core::common {
         subject, cases, std::forward<Otherwise>(otherwise_handler));
   }
 
+  // Strongly-typed evaluation entry point.
+  // This overload forces the match evaluation to return a single, precomputed
+  // result type. This is required for expression-style matches where different
+  // branches may produce different (but compatible) return types.
+  namespace detail {
+    template <
+        std::size_t I,
+        typename Result,
+        typename Subject,
+        typename CasesTuple,
+        typename Otherwise,
+        std::size_t N = std::tuple_size_v<std::remove_reference_t<CasesTuple>>>
+    constexpr Result eval_cases_impl_typed(
+        Subject &subject, CasesTuple &cases, Otherwise &&otherwise_handler) {
+      if constexpr (I >= N) {
+        if constexpr (std::is_invocable_v<Otherwise, Subject &>) {
+          return static_cast<Result>(
+              std::forward<Otherwise>(otherwise_handler)(subject));
+        }
+        else {
+          return static_cast<Result>(
+              std::forward<Otherwise>(otherwise_handler)());
+        }
+      }
+      else {
+        auto &current_case = std::get<I>(cases);
+        using case_t       = std::remove_reference_t<decltype(current_case)>;
+
+        if (case_matcher<case_t, Subject>::matches(current_case, subject)) {
+          return static_cast<Result>(
+              invoke_handler(current_case, std::forward<Subject>(subject)));
+        }
+        else {
+          return eval_cases_impl_typed<I + 1, Result>(
+              subject, cases, std::forward<Otherwise>(otherwise_handler));
+        }
+      }
+    }
+  } // namespace detail
+
+  template <
+      typename Result,
+      typename Subject,
+      typename CasesTuple,
+      typename Otherwise>
+  constexpr Result eval_cases_typed(
+      Subject &subject, CasesTuple &cases, Otherwise &&otherwise_handler) {
+    return detail::eval_cases_impl_typed<0, Result>(
+        subject, cases, std::forward<Otherwise>(otherwise_handler));
+  }
 } // namespace ptn::core::common

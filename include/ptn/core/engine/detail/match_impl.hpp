@@ -15,10 +15,14 @@ namespace ptn::core::engine::detail {
 
     // Evaluate the tuple of cases against a subject.
     // Delegates to the common evaluation logic for actual pattern matching.
-    template <typename TV, typename CasesTuple, typename Otherwise>
-    static constexpr decltype(auto)
+    template <
+        typename Result,
+        typename TV,
+        typename CasesTuple,
+        typename Otherwise>
+    static constexpr Result
     eval(TV &subject, CasesTuple &cases, Otherwise &&otherwise_handler) {
-      return ptn::core::common::eval_cases(
+      return ptn::core::common::eval_cases_typed<Result>(
           subject, cases, std::forward<Otherwise>(otherwise_handler));
     }
   };
