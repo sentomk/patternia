@@ -428,7 +428,7 @@ For a deeper dive, see the **API Reference** and **Design Guide**.
 * [`lit(value)`](https://sentomk.github.io/patternia/api/#litvalue)
 * [`__` (Wildcard)](https://sentomk.github.io/patternia/api/#__-wildcard)
 * [`bind()`](https://sentomk.github.io/patternia/api/#binding-the-entire-subject)
-* [`bind(subpattern)`]()
+* [`bind(subpattern)`](https://sentomk.github.io/patternia/api/#conditional-binding-with-bindsubpattern)
 * [Binding Semantics & Order](https://sentomk.github.io/patternia/api/#binding-semantics)
 
 ---
