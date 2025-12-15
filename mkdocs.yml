@@ -80,15 +80,8 @@ nav:
       - Installation: guide/installation.md
       - Getting Started: guide/getting-started.md
 
-  - Pattern System:
-      - Foreword: patterns/foreword.md
-      - Value Patterns: patterns/value.md
-      - Type Patterns: patterns/type.md
-
   - API:
       - api.md
-  - Design Notes:
-      - Roadmap: design/roadmap.md
 
   - Changelog:
       - Releases: changelog/releases.md
