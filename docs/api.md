@@ -291,6 +291,28 @@ constexpr auto bind(SubPattern &&sub);    // Binds subject conditionally under a
 
 ---
 
+#### Conditional Binding with `bind(subpattern)`
+
+```cpp
+.when(
+  bind(lit(Status::Running)) >>
+  [](Status s) {
+    return fmt("status = {}", static_cast<int>(s));
+  }
+)
+````
+
+* `bind(subpattern)` introduces a binding **only if the subpattern matches**
+* The bound value is always the **entire subject**
+* The subpattern itself does **not** introduce bindings unless explicitly designed to do so
+
+This form is useful when:
+
+* a value must be both **filtered** and **captured**
+* the captured value needs to be reused by the handler
+* the constraint is semantic rather than structural
+
+
 #### Structural Binding with `has<>`
 
 ```cpp
@@ -326,6 +348,10 @@ Partial binding is expressed by listing only the desired members:
   If `subpattern` itself produces bindings (rare/advanced), those may be appended after the subject.
 * The handler parameter order corresponds exactly to the binding order
 * Patterns that do not bind values do not affect handler signatures
+
+> [!IMPORTANT]
+> `lit()` and `has<>` never introduce bindings by themselves.
+> All bindings are introduced exclusively by `bind(...)`.
 
 ```cpp
 // Binding order example

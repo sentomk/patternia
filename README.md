@@ -415,51 +415,48 @@ For a deeper dive, see the **API Reference** and **Design Guide**.
 
 ### I. Match DSL Core Framework
 
-* [`match(subject)`]()
-* [`.when(pattern >> handler)`]()
-* [`.otherwise(...)`]()
-* [`.end()`]()
-* [Expression vs Statement Matching]()
+* [`match(subject)`](https://sentomk.github.io/patternia/api/#matchsubject)
+* [`.when(pattern >> handler)`](https://sentomk.github.io/patternia/api/#whenpattern-handler)
+* [`.otherwise(...)`](https://sentomk.github.io/patternia/api/#otherwise)
+* [`.end()`](https://sentomk.github.io/patternia/api/#end )
+* [Expression vs Statement Matching](https://sentomk.github.io/patternia/api/#comparison-summary)
 
 ---
 
 ### II. Pattern Primitives
 
-* [`lit(value)`]()
-* [`lit_ci(value)`]()
-* [`__` (Wildcard)]()
-* [`bind()`]()
+* [`lit(value)`](https://sentomk.github.io/patternia/api/#litvalue)
+* [`__` (Wildcard)](https://sentomk.github.io/patternia/api/#__-wildcard)
+* [`bind()`](https://sentomk.github.io/patternia/api/#binding-the-entire-subject)
 * [`bind(subpattern)`]()
-* [Binding Semantics & Order]()
+* [Binding Semantics & Order](https://sentomk.github.io/patternia/api/#binding-semantics)
 
 ---
 
 ### III. Guard System
 
-* [`[]` Guard Attachment]()
-* [`_` Placeholder (Single-value Guards)]()
-* [`rng(...)` Range Guards]()
-* [`arg<N>` (Multi-value Guards)]()
-* [Custom Predicate Guards (Lambda)]()
-* [Guard Evaluation Semantics]()
+* [`[]` Guard Attachment](https://sentomk.github.io/patternia/api/#guard-attachment)
+* [`_` Placeholder (Single-value Guards)](https://sentomk.github.io/patternia/api/#single-value-guards-_-and-rng)
+* [`rng(...)` Range Guards](https://sentomk.github.io/patternia/api/#range-helper-rnglo-hi-mode)
+* [`arg<N>` (Multi-value Guards)](https://sentomk.github.io/patternia/api/#multi-value-guards-argn-expressions)
+* [Custom Predicate Guards (Lambda)](https://sentomk.github.io/patternia/api/#custom-predicates-recommended-for-domain-logic)
 
 ---
 
 ### IV. Structural Matching
 
-* [`has<&T::member...>`]()
-* [Structural Constraints]()
-* [Structural Binding with `bind()`]()
-* [Partial Structural Matching]()
-* [Design Rationale & Guarantees]()
+* [`has<&T::member...>`](https://sentomk.github.io/patternia/api/#hastmember)
+* [Structural Constraints](https://sentomk.github.io/patternia/api/#core-characteristics)
+* [Structural Binding with `bind()`](https://sentomk.github.io/patternia/api/#structural-binding-with-has)
+* [Partial Structural Matching](https://sentomk.github.io/patternia/api/#partial-structural-matching)
+* [Design Rationale & Guarantees](https://sentomk.github.io/patternia/api/#design-rationale)
 
 ---
 
 ### V. Namespace Structure
 
-* [Namespace Layout]()
-* [Primary Namespace Aliases]()
-* [User-facing API Surface]()
+* [Namespace Layout](https://sentomk.github.io/patternia/api/#v-namespace-structure)
+* [Primary Namespace Aliases](https://sentomk.github.io/patternia/api/#primary-namespace-aliases)
 
 ---
 
