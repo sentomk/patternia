@@ -79,8 +79,145 @@ match value {
 
 By unifying discrimination, decomposition, and binding, pattern matching allows control flow to be expressed declaratively and locally. This approach reduces boilerplate, minimizes accidental complexity, and provides a clearer foundation for reasoning about completeness and correctness as data structures evolve.
 
-
 ## What Patternia Solves
+
+**Patternia** is designed to address several long-standing pain points in C++ control flow and data-oriented logic—especially in codebases that operate on evolving data structures, heterogeneous types, or complex branching rules.
+
+### 1. Scattered Control Logic over Structured Data
+
+In idiomatic C++, logic that depends on the *shape* or *internal structure* of data is typically expressed through a mix of:
+
+* type checks (`std::variant`, `dynamic_cast`, tag fields),
+* manual field access,
+* nested conditionals,
+* and ad-hoc invariants enforced implicitly by control flow.
+
+As a result, **structural assumptions about data are rarely explicit**, and reasoning about correctness often requires reading across multiple branches.
+
+Patternia allows control flow to be written *in terms of structure*:
+
+```cpp
+match(p)
+  .when(bind(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+    // explicitly operates on {x, y}
+  })
+  .otherwise(...);
+```
+
+Each branch clearly states *what shape of data it expects* and *what it binds*, making invariants explicit and local.
+
+---
+
+### 2. Interleaving Decomposition and Conditional Logic
+
+In conventional C++, decomposition (extracting fields) and conditional checks are usually interleaved:
+
+```cpp
+if (p.x + p.y == 0 && p.x > 0) {
+  ...
+}
+```
+
+As conditions grow more complex—especially when they involve **relationships between multiple values**—this style becomes increasingly opaque.
+
+Patternia separates these concerns:
+
+* **Patterns** describe *how data is decomposed*.
+* **Guards** describe *constraints over the bound values*.
+
+```cpp
+match(p)
+  .when(
+    bind(has<&Point::x, &Point::y>())[arg<0> + arg<1> == 0] >>
+    [](int x, int y) { ... }
+  );
+```
+
+This separation improves readability and enables richer forms of reasoning over multi-value relationships.
+
+---
+
+### 3. Lack of Expressive, Composable Guards
+
+Traditional control flow relies on raw boolean expressions, which:
+
+* do not compose well,
+* cannot be reused independently of control flow,
+* and provide no structural context.
+
+Patternia introduces **first-class guard expressions** that are:
+
+* composable (`&&`, `||`),
+* expressive (relational, arithmetic, predicate-based),
+* and structurally aware (single-value and multi-value guards).
+
+```cpp
+bind()[_ > 0 && _ < 10]
+bind(has<&A::x, &A::y>())[arg<0> * arg<1> > 100]
+```
+
+Guards become part of the pattern language rather than incidental conditions.
+
+---
+
+### 4. Unifying Value-Based and Structural Branching
+
+C++ provides multiple mechanisms for branching:
+
+* `switch` for integral values,
+* `if constexpr` for compile-time decisions,
+* `std::visit` for variants,
+* and manual destructuring for aggregates.
+
+These mechanisms are **orthogonal and non-uniform**, often forcing developers to mix paradigms within the same function.
+
+Patternia offers a single abstraction that can express:
+
+* literal matching,
+* relational matching,
+* structural decomposition,
+* guarded constraints,
+* and fallback behavior
+
+within one coherent, expression-oriented model.
+
+---
+
+### 5. Expression-Oriented Matching with Zero Overhead
+
+Patternia treats pattern matching as an **expression**, not just a control-flow statement:
+
+```cpp
+auto result = match(n)
+  .when(lit(0) >> 0)
+  .when(lit(1) >> 1)
+  .otherwise([] { return compute(); });
+```
+
+At the same time, it adheres strictly to C++’s zero-overhead principle:
+
+* no runtime type erasure,
+* no virtual dispatch,
+* no heap allocation,
+* no hidden control flow.
+
+All matching logic is resolved through templates and inlined calls, allowing the compiler to optimize aggressively.
+
+---
+
+### 6. Making Data Shape a First-Class Concept
+
+Ultimately, Patternia is not about replacing `if` or `switch`.
+It is about elevating **data shape**—structure, relationships, and constraints—to a first-class concept in C++ control flow.
+
+This makes Patternia particularly suitable for:
+
+* state machines,
+* protocol handling,
+* geometric and numeric logic,
+* AST processing,
+* rule-based systems,
+* and any domain where *what the data looks like* matters as much as *what its value is*.
 
 ## Quick Start
 

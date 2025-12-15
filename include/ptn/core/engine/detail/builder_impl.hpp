@@ -121,8 +121,19 @@ namespace ptn::core::engine::detail {
                      auto &&...) -> OtherwiseDecayed { return val; };
         }
         else {
-          // Case 2: Callable - use it directly as handler
-          return std::forward<Otherwise>(otherwise_handler);
+          // Case 2: Callable - normalize to an object (wrap function
+          // pointers/references)
+          if constexpr (
+              std::is_function_v<std::remove_pointer_t<OtherwiseDecayed>> ||
+              std::is_pointer_v<OtherwiseDecayed>) {
+            auto fp = std::forward<Otherwise>(otherwise_handler);
+            return [fp](auto &&...xs) -> decltype(auto) {
+              return fp(std::forward<decltype(xs)>(xs)...);
+            };
+          }
+          else {
+            return std::forward<Otherwise>(otherwise_handler);
+          }
         }
       }();
 
@@ -140,12 +151,16 @@ namespace ptn::core::engine::detail {
       if constexpr (std::is_void_v<result_type>) {
         // For void return types, execute without returning a value
         match_impl::eval<void>(
-            subject_, cases_, std::forward<Otherwise>(final_handler));
+            subject_,
+            cases_,
+            std::forward<decltype(final_handler)>(final_handler));
       }
       else {
         // For non-void return types, return the result
         return match_impl::eval<result_type>(
-            subject_, cases_, std::forward<Otherwise>(final_handler));
+            subject_,
+            cases_,
+            std::forward<decltype(final_handler)>(final_handler));
       }
     }
 

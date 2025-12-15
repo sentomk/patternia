@@ -165,7 +165,7 @@ namespace ptn::pat::mod {
   // Evaluates binary expression.
   template <typename Tuple, typename Op, typename L, typename R>
   constexpr decltype(auto) eval(const bin_expr<Op, L, R> &e, Tuple &&t) {
-    return Op{}(
+    return std::decay_t<Op>{}(
         eval(e.l, std::forward<Tuple>(t)), eval(e.r, std::forward<Tuple>(t)));
   }
 
@@ -177,11 +177,14 @@ namespace ptn::pat::mod {
 
   // Makes expression callable as predicate on bound tuples.
   template <typename Expr>
-  struct tuple_predicate {
+  struct tuple_predicate : guard_predicate_tag {
     Expr expr;
 
+    constexpr explicit tuple_predicate(Expr e) : expr(std::move(e)) {
+    }
+
     template <typename Tuple>
-    constexpr decltype(auto) operator()(Tuple &&t) const {
+    constexpr bool operator()(Tuple &&t) const {
       return eval(expr, std::forward<Tuple>(t));
     }
   };
@@ -228,6 +231,17 @@ namespace ptn::pat::mod {
   template <typename T>
   inline constexpr bool is_tuple_predicate_v =
       is_tuple_predicate<std::decay_t<T>>::value;
+
+  // Trait to detect tuple guard predicates (including && / || compositions).
+  template <typename T>
+  struct is_tuple_guard_predicate : std::false_type {};
+
+  template <typename E>
+  struct is_tuple_guard_predicate<tuple_predicate<E>> : std::true_type {};
+
+  template <typename T>
+  inline constexpr bool is_tuple_guard_predicate_v =
+      is_tuple_guard_predicate<std::decay_t<T>>::value;
 
   // Modulo operation helper.
   struct mod_op {
@@ -385,6 +399,9 @@ namespace ptn::pat::mod {
     L lhs;
     R rhs;
 
+    constexpr pred_and(L l, R r) : lhs(std::move(l)), rhs(std::move(r)) {
+    }
+
     template <typename T>
     constexpr bool operator()(T &&v) const {
       return lhs(v) && rhs(v);
@@ -397,11 +414,55 @@ namespace ptn::pat::mod {
     L lhs;
     R rhs;
 
+    constexpr pred_or(L l, R r) : lhs(std::move(l)), rhs(std::move(r)) {
+    }
+
     template <typename T>
     constexpr bool operator()(T &&v) const {
       return lhs(v) || rhs(v);
     }
   };
+
+  // Tuple guard predicate composition.
+  template <typename L, typename R>
+  struct is_tuple_guard_predicate<pred_and<L, R>>
+      : std::bool_constant<
+            is_tuple_guard_predicate_v<L> || is_tuple_guard_predicate_v<R>> {};
+
+  template <typename L, typename R>
+  struct is_tuple_guard_predicate<pred_or<L, R>>
+      : std::bool_constant<
+            is_tuple_guard_predicate_v<L> || is_tuple_guard_predicate_v<R>> {};
+
+  // Computes maximum arg index used by a tuple guard predicate.
+  template <typename T>
+  struct max_tuple_guard_index : std::integral_constant<std::size_t, 0> {};
+
+  template <typename E>
+  struct max_tuple_guard_index<tuple_predicate<E>>
+      : std::integral_constant<std::size_t, max_arg_index_v<E>> {};
+
+  template <typename L, typename R>
+  struct max_tuple_guard_index<pred_and<L, R>>
+      : std::integral_constant<
+            std::size_t,
+            (max_tuple_guard_index<std::decay_t<L>>::value >
+                     max_tuple_guard_index<std::decay_t<R>>::value
+                 ? max_tuple_guard_index<std::decay_t<L>>::value
+                 : max_tuple_guard_index<std::decay_t<R>>::value)> {};
+
+  template <typename L, typename R>
+  struct max_tuple_guard_index<pred_or<L, R>>
+      : std::integral_constant<
+            std::size_t,
+            (max_tuple_guard_index<std::decay_t<L>>::value >
+                     max_tuple_guard_index<std::decay_t<R>>::value
+                 ? max_tuple_guard_index<std::decay_t<L>>::value
+                 : max_tuple_guard_index<std::decay_t<R>>::value)> {};
+
+  template <typename T>
+  inline constexpr std::size_t max_tuple_guard_index_v =
+      max_tuple_guard_index<std::decay_t<T>>::value;
 
   // Logical AND operator overload for guard predicates.
   template <
@@ -539,7 +600,15 @@ namespace ptn::pat::mod {
 
       constexpr std::size_t N = std::tuple_size_v<bound_t>;
 
-      if constexpr (ptn::pat::mod::is_guard_predicate_v<Pred>) {
+      if constexpr (ptn::pat::mod::is_tuple_guard_predicate_v<Pred>) {
+        // compile-time bounds check: max arg index must be < N
+        static_assert(
+            ptn::pat::mod::max_tuple_guard_index_v<Pred> < N,
+            "[Patternia.guard]: arg<I> is out of range for the bound values.");
+
+        return static_cast<bool>(pred(bound)); // tuple-level predicate
+      }
+      else if constexpr (ptn::pat::mod::is_guard_predicate_v<Pred>) {
         static_assert(
             N == 1,
             "[Patternia.guard]: Unary guard predicates (_ / rng / && / ||) "
@@ -548,14 +617,6 @@ namespace ptn::pat::mod {
             "where).");
 
         return static_cast<bool>(pred(std::get<0>(bound)));
-      }
-      else if constexpr (ptn::pat::mod::is_tuple_predicate_v<Pred>) {
-        // compile-time bounds check: max arg index must be < N
-        static_assert(
-            ptn::pat::mod::max_arg_index_v<decltype(pred.expr)> < N,
-            "[Patternia.guard]: arg<I> is out of range for the bound values.");
-
-        return static_cast<bool>(pred(bound)); // tuple-level predicate
       }
       else {
         // Callable guard: lambda / where / custom functor
