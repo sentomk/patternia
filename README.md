@@ -219,7 +219,190 @@ This makes Patternia particularly suitable for:
 * rule-based systems,
 * and any domain where *what the data looks like* matters as much as *what its value is*.
 
+
 ## Quick Start
+
+### 1. Installation
+
+Patternia is a **header-only** library. No compilation or binary linking is required.
+
+#### Using CMake FetchContent (Recommended)
+
+Patternia can be integrated directly via CMake `FetchContent`. This is the recommended approach during active development.
+
+```cmake
+include(FetchContent)
+
+FetchContent_Declare(
+  patternia
+  GIT_REPOSITORY https://github.com/SentoMK/patternia.git
+  GIT_TAG        main
+)
+
+FetchContent_MakeAvailable(patternia)
+```
+
+Then, include Patternia headers in your code:
+
+```cpp
+#include <ptn/patternia.hpp>
+```
+
+**Notes:**
+
+* `GIT_TAG main` tracks the latest development version
+* Patternia is header-only — no targets need to be linked
+* Requires **C++17 or later**
+
+
+
+#### By vcpkg
+
+vcpkg support is **coming soon**.
+
+
+#### Other Installation Methods
+
+For additional installation options and detailed setup instructions (including manual integration and future package manager support), see:
+
+👉 [https://sentomk.github.io/patternia/guide/installation/](https://sentomk.github.io/patternia/guide/installation/)
+
+
+### 2. Matching Values
+
+At its simplest, Patternia replaces `if` / `switch` with a declarative, ordered match expression.
+
+```cpp
+#include <iostream>
+#include <ptn/patternia.hpp>
+
+using namespace ptn;
+
+int main() {
+  int x = 2;
+
+  match(x)
+    .when(lit(1) >> [] { std::cout << "one\n"; })
+    .when(lit(2) >> [] { std::cout << "two\n"; })
+    .otherwise([] { std::cout << "other\n"; });
+}
+```
+
+**Key points:**
+
+* `match(subject)` starts a matching expression
+* `lit(v)` matches a literal value using `==`
+* Cases are tested **top-to-bottom (first-match semantics)**
+* `otherwise` acts as a fallback
+
+
+### 3. Expression-Oriented Matching
+
+Patternia supports **value-returning matches**, similar to Rust or Scala.
+
+```cpp
+int classify(int x) {
+  return match(x)
+    .when(lit(0) >> 0)
+    .when(lit(1) >> 1)
+    .otherwise(-1);
+}
+```
+
+A match expression either:
+
+* returns a value (`otherwise(value_or_lambda)`), or
+* performs side effects (`.end()`)
+
+
+### 4. Binding Values
+
+To access the matched value inside a handler, use `bind()`.
+
+```cpp
+match(x)
+  .when(bind() >> [](int v) {
+    std::cout << "value = " << v << "\n";
+  })
+  .otherwise([] {});
+```
+
+`bind()` introduces bindings explicitly—nothing is bound implicitly.
+
+This makes data flow **visible and predictable**, especially in complex matches.
+
+
+### 5. Guards (Conditional Matching)
+
+Guards allow you to attach constraints to patterns.
+
+```cpp
+using namespace ptn;
+
+match(x)
+  .when(bind()[_ > 0 && _ < 10] >> [](int v) {
+    std::cout << "in range: " << v << "\n";
+  })
+  .otherwise([] {
+    std::cout << "out of range\n";
+  });
+```
+
+* `_` is a placeholder for the bound value
+* Guard expressions are **composable** and **side-effect free**
+* Guards run only after the pattern itself matches
+
+
+### 6. Structural Matching
+
+Patternia can match **structure**, not just values.
+
+```cpp
+struct Point {
+  int x;
+  int y;
+};
+
+Point p{3, -3};
+
+match(p)
+  .when(
+    bind(has<&Point::x, &Point::y>())[arg<0> + arg<1> == 0] >>
+    [](int x, int y) {
+      std::cout << "on diagonal\n";
+    }
+  )
+  .otherwise([] {});
+```
+
+Here:
+
+* `has<&Point::x, &Point::y>` describes the expected **shape**
+* `bind(...)` extracts values explicitly
+* Guards can express **relationships between multiple bindings**
+
+
+### 7. Wildcard Matching
+
+Use `__` to match anything without binding.
+
+```cpp
+match(x)
+  .when(lit(0) >> [] { std::cout << "zero\n"; })
+  .when(__ >> [] { std::cout << "anything else\n"; });
+```
+
+
+### 8. When to Use Patternia
+
+Patternia is particularly effective when:
+
+* branching depends on **data shape**, not just values
+* conditions involve **relationships between multiple fields**
+* `if` / `switch` logic becomes deeply nested
+* you want expression-oriented control flow
+
+For a deeper dive, see the **API Reference** and **Design Guide**.
 
 
 ## API Reference
