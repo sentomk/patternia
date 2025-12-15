@@ -113,7 +113,7 @@ namespace ptn::pat {
           return std::tuple<field_t>{static_cast<field_t>(subject.*M)};
         }
         else {
-          // wildcard_t -> ignored
+          // nullptr placeholder (_ign) -> ignored
           return std::tuple<>{};
         }
       }

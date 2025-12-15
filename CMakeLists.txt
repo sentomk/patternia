@@ -113,6 +113,7 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/pattern/wildcard.hpp
   include/ptn/pattern/structural.hpp
   include/ptn/pattern/modifiers/guard.hpp
+  include/ptn/pattern/modifiers/fwd.h
 )
 
 # ========== Public interface target ==========
@@ -225,12 +226,15 @@ endif()
 # )
 # target_compile_options(bench_patternia PRIVATE -O3 -march=native)
 # endif()
-add_executable(sample_patternia
-  samples/test.cpp
+add_executable(sample_fibo
+  samples/fibo.cpp
 )
-target_link_libraries(sample_patternia PRIVATE
-  patternia
+target_link_libraries(sample_fibo PRIVATE patternia)
+
+add_executable(sample_packet
+  samples/handle_packet.cpp
 )
+target_link_libraries(sample_packet PRIVATE patternia)
 
 # ========== Install / Export (only the INTERFACE target is exported) ==========
 if(PTN_INSTALL)

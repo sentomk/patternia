@@ -23,7 +23,9 @@ namespace ptn::core::engine::detail {
     static constexpr Result
     eval(TV &subject, CasesTuple &cases, Otherwise &&otherwise_handler) {
       return ptn::core::common::eval_cases_typed<Result>(
-          subject, cases, std::forward<Otherwise>(otherwise_handler));
+          subject,
+          cases,
+          std::forward<decltype(otherwise_handler)>(otherwise_handler));
     }
   };
 

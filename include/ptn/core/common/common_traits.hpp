@@ -2,16 +2,15 @@
 
 // Core type traits used by the matching engine.
 //
-// This header provides fundamental type traits and utilities for pattern matching,
-// including case expression detection, handler invocability checks, and result type deduction.
+// This header provides fundamental type traits and utilities for pattern
+// matching, including case expression detection, handler invocability checks,
+// and result type deduction.
 
 #include "ptn/pattern/base/fwd.h"
 #include <cstddef>
 #include <type_traits>
 #include <tuple>
 #include <utility>
-#include <string>
-#include <string_view>
 
 // Forward declaration
 namespace ptn::core::dsl::detail {
@@ -81,10 +80,46 @@ namespace ptn::core::common {
       template <typename U>
       static auto test_op(int) -> decltype(&U::operator(), std::true_type{});
 
+      // Generic lambdas have a templated operator(). Taking the address of
+      // `U::operator()` is ill-formed in that case, so we probe a few common
+      // template arities explicitly. This allows us to correctly classify
+      // generic lambdas (e.g. [](auto x){...}) as handler-like.
+      template <typename U>
+      static auto test_op_t1(int)
+          -> decltype(&U::template operator()<int>, std::true_type{});
+
+      template <typename U>
+      static auto test_op_t2(int)
+          -> decltype(&U::template operator()<int, int>, std::true_type{});
+
+      template <typename U>
+      static auto test_op_t3(int)
+          -> decltype(&U::template operator()<int, int, int>, std::true_type{});
+
+      template <typename U>
+      static auto test_op_t4(int)
+          -> decltype(&U::template operator()<int, int, int, int>, std::true_type{});
+
       template <typename>
       static auto test_op(...) -> std::false_type;
 
-      static constexpr bool has_call_operator = decltype(test_op<D>(0))::value;
+      template <typename>
+      static auto test_op_t1(...) -> std::false_type;
+
+      template <typename>
+      static auto test_op_t2(...) -> std::false_type;
+
+      template <typename>
+      static auto test_op_t3(...) -> std::false_type;
+
+      template <typename>
+      static auto test_op_t4(...) -> std::false_type;
+
+      static constexpr bool has_call_operator =
+          decltype(test_op<D>(0))::value || decltype(test_op_t1<D>(0))::value ||
+          decltype(test_op_t2<D>(0))::value ||
+          decltype(test_op_t3<D>(0))::value ||
+          decltype(test_op_t4<D>(0))::value;
 
       static constexpr bool is_function_type = std::is_function_v<D>;
 
@@ -129,7 +164,8 @@ namespace ptn::core::common {
     static constexpr bool value =
         decltype(detail::
                      is_applicable_impl<handler_type, full_invoke_args_tuple>(
-                         nullptr))::value;
+                         nullptr))::value ||
+        std::is_invocable_v<handler_type>;
   };
 
   template <typename Case, typename Subject>
@@ -153,9 +189,34 @@ namespace ptn::core::common {
     using full_invoke_args_tuple = bound_args_tuple;
 
   public:
-    // The result type when the handler is invoked with bound arguments.
-    using type = decltype(std::apply(
-        std::declval<handler_type>(), std::declval<full_invoke_args_tuple>()));
+    // Helper to deduce the result type of a case handler.
+    //
+    // Design note:
+    //   - If the handler is invocable with the bound arguments, use that.
+    //   - Otherwise, if it is invocable with no arguments, treat it as
+    //     intentionally ignoring bound values.
+    //   - Otherwise, let diagnostics/static-asserts report the mismatch.
+    template <typename H, typename Tuple, std::size_t... Is>
+    static constexpr auto
+        invoke_result_with_tuple_impl(std::index_sequence<Is...>)
+            -> std::invoke_result_t<H, std::tuple_element_t<Is, Tuple>...>;
+
+    template <typename H, typename Tuple>
+    using invoke_result_with_tuple_t =
+        decltype(invoke_result_with_tuple_impl<H, Tuple>(
+            std::make_index_sequence<std::tuple_size_v<Tuple>>{}));
+
+    template <typename H, typename Tuple>
+    static constexpr auto get_case_result_impl(int)
+        -> invoke_result_with_tuple_t<H, Tuple>;
+
+    template <typename H, typename Tuple>
+    static constexpr auto get_case_result_impl(...) -> std::invoke_result_t<H>;
+
+  public:
+    // The result type when the handler is invoked.
+    using type =
+        decltype(get_case_result_impl<handler_type, full_invoke_args_tuple>(0));
   };
 
   template <typename Subject, typename Case>
@@ -205,14 +266,28 @@ namespace ptn::core::common {
     // Check if the otherwise handler returns void.
     static constexpr bool otherwise_is_void = std::is_void_v<otherwise_result>;
 
+    // Helper to select result type without instantiating std::common_type_t
+    // on void-returning (statement-style) matches.
+    template <bool AllVoid, typename Dummy = void>
+    struct match_result_impl;
+
+    template <typename Dummy>
+    struct match_result_impl<true, Dummy> {
+      using type = void;
+    };
+
+    template <typename Dummy>
+    struct match_result_impl<false, Dummy> {
+      using type = std::
+          common_type_t<case_result_t<Subject, Cases>..., otherwise_result>;
+    };
+
   public:
     // Determine the common result type:
     // - If all handlers return void, the match expression returns void.
     // - Otherwise, use the common type of all handler results.
-    using type = std::conditional_t<
-        all_cases_void && otherwise_is_void,
-        void,
-        std::common_type_t<case_result_t<Subject, Cases>..., otherwise_result>>;
+    using type =
+        typename match_result_impl<all_cases_void && otherwise_is_void>::type;
   };
 
   template <typename Subject, typename Otherwise, typename... Cases>
