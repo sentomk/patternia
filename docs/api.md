@@ -8,7 +8,8 @@ Patternia provides a comprehensive pattern matching system for C++ with a focus 
 
 ## I. Match DSL Core Framework
 
-The Match DSL forms the foundation of Patternia and determines how users understand the system. These APIs have the highest priority for comprehension.
+The Match DSL forms the foundation of Patternia.  
+It defines how values are inspected, how cases are registered, and how matching is ultimately evaluated.
 
 ---
 
@@ -18,137 +19,166 @@ The Match DSL forms the foundation of Patternia and determines how users underst
 
 **Syntax**:
 ```cpp
-template <typename T>
-constexpr auto match(T &&value);
-
-template <typename U, typename T>
-constexpr auto match(T &&value);
+match(subject)
+match<AsType>(subject)
 ```
 
 **Core Characteristics**:
 
-* `subject` represents the value being matched, not implicit capture
-* `match()` returns a builder object, not immediate execution
-* Cases are evaluated with first-match semantics in sequential order
+* `subject` is the value being matched, not an implicitly captured variable
+* `match()` returns a builder object; no matching is performed immediately
+* Cases are evaluated sequentially using **first-match semantics**
 
 **Basic Usage**:
+
 ```cpp
 match(x)
   .when(lit(1) >> [] { return "one"; })
   .otherwise("default");
 ```
 
-**Type Deduction**:
+**Type Control**:
+
 ```cpp
 // Automatic type deduction
 int x = 42;
-match(x)  // deduced as int
+match(x);   // subject matched as int
 
-// Explicit type specification
+// Explicit matching view
 double d = 3.14;
-match<int>(d)  // forces conversion to int
+match<int>(d);  // subject is matched as int
 ```
+
+Specifying `AsType` explicitly forces the subject to be viewed as that type during pattern evaluation.
 
 ---
 
 ### `.when(pattern >> handler)`
 
-**Role**: Primary case definition primitive.
+**Role**: Primary case-definition primitive.
 
 **Syntax**:
+
 ```cpp
 .when(pattern >> handler)
 ```
 
 **Key Characteristics**:
 
-* `pattern >> handler` constitutes a case expression
-* Handler parameters are determined entirely by the pattern's binding behavior
-* `when` registers branches without executing them
+* `pattern >> handler` forms a *case expression*
+* The handler’s parameter list is determined entirely by the pattern’s binding behavior
+* `.when()` only registers a branch; it does not trigger execution
 
 **Usage Examples**:
 
 ```cpp
 // Handler without bindings
-.when(lit(1) >> [] { return "one"; })           // No parameters
-.when(lit(1) >> 42)                              // Value handler
+.when(lit(1) >> [] { return "one"; })   // No parameters
+.when(lit(2) >> 42)                     // Constant value handler
 
 // Handler with bindings
-.when(bind() >> [](int v) { return v * 2; })     // Single binding
-.when(bind(lit(1)) >> [](int subject, int) { })  // Multiple bindings
+.when(bind() >> [](int v) {
+  return v * 2;
+})
+
+// Structural bindings
+.when(
+  bind(has<&Point::x, &Point::y>()) >>
+  [](int x, int y) {
+    return x + y;
+  }
+)
 ```
 
-**Handler Types**:
-- **Value Handler**: `pattern >> value` - Returns a fixed value
-- **Function Handler**: `pattern >> lambda` - Receives bound parameters
+**Handler Forms**:
+
+* **Value Handler** — `pattern >> value`
+  Returns a fixed value. Semantically equivalent to a zero-argument function returning a constant.
+
+* **Function Handler** — `pattern >> callable`
+  Receives the values produced by the pattern’s bindings.
 
 ---
 
 ### `.otherwise(...)` and `.end()`
 
-These terminal methods represent a distinctive design aspect of Patternia that requires careful explanation.
+These terminal operations define how a match expression is finalized.
+They represent a deliberate design distinction in Patternia and must be chosen explicitly.
 
 ---
 
 #### `.otherwise(...)`
 
-**Trigger Condition**: Executed when no when clauses match successfully.
+**Trigger Condition**: Executed only if *no prior `when` clause matches successfully*.
 
-**Purpose**: Used for expression-style matching.
+**Purpose**: Enables expression-style matching with a guaranteed fallback.
 
 **Characteristics**:
-- Must return a type consistent with other branches
-- Provides defensive fallback behavior
+
+* Must return a type consistent with all other branches
+* Acts as a defensive default, not as a regular case
+* Evaluated only if no pattern has already matched
 
 ```cpp
 auto r = match(x)
   .when(lit(1) >> 10)
-  .otherwise(0);  // Default value
+  .otherwise(0);
 ```
 
 **Execution Semantics**:
+
 ```cpp
 auto result = match(42)
-    .when(lit(1) >> "one")      // No match
-    .when(lit(2) >> "two")      // No match  
-    .when(__ >> "other")        // Pattern matches, returns "other"
-    .otherwise("default");       // Not executed: pattern already matched
+  .when(lit(1) >> "one")      // No match
+  .when(lit(2) >> "two")      // No match
+  .when(__ >> "other")        // Matches here
+  .otherwise("default");      // Not executed
 ```
 
 ---
 
 #### `.end()`
 
-**Purpose**: Used for statement-style matching.
+**Purpose**: Terminates a statement-style match.
 
 **Characteristics**:
-- Requires all handlers to return void
-- No fallback execution
-- Compile-time verification of exhaustive case coverage
+
+* All handlers must return `void`
+* No fallback branch is permitted
+* Requires the set of patterns to be exhaustive
 
 ```cpp
 match(x)
   .when(lit(1) >> [] { log("one"); })
   .when(__   >> [] { log("other"); })
-  .end();  // All cases must be covered
+  .end();
 ```
 
-**Design Philosophy**: This represents a key divergence from Rust/Scala pattern matching systems.
+If no pattern matches and `.end()` is used, the program is **ill-formed**.
+This failure is detected at compile time.
 
-**Comparison Summary**:
+**Design Philosophy**:
+Patternia explicitly separates expression-oriented matching from statement-oriented control flow, rather than overloading a single construct with both semantics.
 
-| Feature | `.otherwise()` | `.end()` |
-|---------|----------------|----------|
-| Return Type | Handler-determined | `void` |
-| Use Case | Expression | Statement |
-| Safety | Always has fallback | Compile-time exhaustiveness check |
-| Typical Scenario | Value computation | Side effects execution |
+---
+
+### Comparison Summary
+
+| Feature      | `.otherwise()`      | `.end()`              |
+| ------------ | ------------------- | --------------------- |
+| Match Style  | Expression-oriented | Statement-oriented    |
+| Return Type  | Handler-determined  | `void`                |
+| Failure Mode | Runtime fallback    | Compile-time error    |
+| Typical Use  | Value computation   | Side-effect execution |
 
 ---
 
 ## II. Pattern Primitives
 
-These constitute the vocabulary of Patternia's pattern language.
+Pattern primitives constitute the core vocabulary of Patternia’s pattern language.  
+They describe *what* is matched, *what* is ignored, and *what* is explicitly bound.
+
+---
 
 ### `lit(value)`
 
@@ -164,247 +194,360 @@ constexpr auto lit_ci(V &&v);  // Case-insensitive matching
 ```
 
 **Semantics**:
-- Uses `operator==` for precise matching
-- Produces no bindings
-- Suitable for enums, integers, literals, and constexpr values
+
+* Matches the subject using `operator==`
+* Produces no bindings
+* Intended for value-based discrimination
 
 **Examples**:
+
 ```cpp
-.when(lit(Status::Running) >> ...)    // Enum matching
-.when(lit(42) >> ...)                  // Integer matching
-.when(lit_ci("hello") >> ...)         // Case-insensitive string matching
+.when(lit(Status::Running) >> ...)   // Enum matching
+.when(lit(42) >> ...)                // Integer literal
+.when(lit_ci("hello") >> ...)        // Case-insensitive string match
 ```
 
 **Supported Types**:
-- Arithmetic types (int, double, float)
-- Enumeration types
-- Strings (std::string, std::string_view, const char*)
-- User-defined types (must support operator==)
+
+* Arithmetic types (`int`, `double`, `float`)
+* Enumeration types
+* String types (`std::string`, `std::string_view`, `const char*`)
+* User-defined types providing `operator==`
 
 ---
 
 ### `__` (Wildcard)
 
-**Role**: Fallback pattern for matching any value without binding.
+**Role**: Pattern-level wildcard that matches any value without binding.
 
 **Syntax**:
+
 ```cpp
 inline constexpr detail::wildcard_t __;
 ```
 
 **Key Properties**:
 
-* Matches any value
-* No binding behavior
-* Distinct semantics from `.otherwise()`
+* Always matches
+* Introduces no bindings
+* Participates in pattern ordering and exhaustiveness
 
 ```cpp
-.when(__ >> [] { /* Cannot access matched value */ })
+.when(__ >> [] {
+  // No access to the matched value
+})
 ```
 
 **Design Intent**:
+
 ```cpp
 match(value)
   .when(lit("success") >> "ok")
-  .when(lit("error")   >> "fail") 
+  .when(lit("error")   >> "fail")
   .when(__             >> "unknown")  // Pattern-level fallback
   .otherwise("fallback");              // Expression-level fallback
 ```
 
 **Key Distinction**:
-- `__`: Pattern-level wildcard, participates in matching process
-- `.otherwise()`: Expression-level final safety net
+
+* `__` — a pattern that participates in matching and ordering
+* `.otherwise()` — a match-level fallback executed only if no pattern matches
 
 ---
 
 ### `bind()` (Binding Pattern)
 
-**Role**: Soul API of Patternia for explicit value capture.
+**Role**: Explicit value binding primitive.
+
+`bind()` is the *only* mechanism in Patternia that introduces bindings into a match.
 
 **Syntax**:
+
 ```cpp
-constexpr auto bind();                    // Binds entire subject
+constexpr auto bind();                    // Binds the entire subject
+
 template <typename SubPattern>
-constexpr auto bind(SubPattern &&sub);    // Binds with subpattern matching
+constexpr auto bind(SubPattern &&sub);    // Binds subject conditionally under a subpattern constraint
 ```
 
-**Core Concepts**:
+**Core Principles**:
 
-1. `bind()` is the exclusive mechanism for explicit binding introduction
-2. No implicit binding occurs
-3. Binding behavior determines handler parameter lists
+1. All bindings are explicit
+2. No pattern introduces bindings implicitly
+3. Binding behavior fully determines handler parameter lists
 
-**Basic Usage**:
+---
+
+#### Binding the Entire Subject
+
 ```cpp
-.when(bind() >> [](auto v) { 
-    return "captured: " + std::to_string(v); 
+.when(bind() >> [](auto v) {
+  return "captured: " + std::to_string(v);
 })
 ```
 
-**Structural Binding**:
+* The entire subject is bound as a single value
+* The handler receives exactly one parameter
+
+---
+
+#### Structural Binding with `has<>`
+
 ```cpp
-// Bind structure members
-struct Point { int x, y; };
+struct Point { int x, int y; };
 
-.when(bind(has<&Point::x, &Point::y>()) >> [](int subject, int x, int y) {
-    return fmt("point({}, {})", x, y);
-})
-
-// Bind partial members, ignore others
-.when(bind(has<&Point::x, _ign>()) >> [](int subject, int x) {
-    return fmt("x={}", x);
-})
+.when(
+  bind(has<&Point::x, &Point::y>()) >>
+  [](int x, int y) {
+    return fmt("({}, {})", x, y);
+  }
+)
 ```
 
-**Composite Binding**:
+* `has<>` describes the required structure
+* Only the listed members are bound
+* No access to unlisted members is provided
+
+Partial binding is expressed by listing only the desired members:
+
 ```cpp
-// Match subpattern first, then bind entire value
-.when(bind(lit(Status::Running)) >> [](int whole_status) {
-    return fmt("status code: {}", whole_status);
-})
+.when(
+  bind(has<&Point::x>()) >>
+  [](int x) {
+    return fmt("x = {}", x);
+  }
+)
 ```
 
-**Binding Order**:
-- `bind(subpattern)` binding order: `(subject, subpattern_bindings...)`
-- Handler parameter order must correspond to binding order
+#### Binding Semantics
+
+* `bind()` always binds the *entire subject*
+* `bind(subpattern)` binds the subject, but only if `subpattern` matches successfully.
+  If `subpattern` itself produces bindings (rare/advanced), those may be appended after the subject.
+* The handler parameter order corresponds exactly to the binding order
+* Patterns that do not bind values do not affect handler signatures
+
+```cpp
+// Binding order example
+bind()                        -> (subject)
+bind(lit(...))                -> (subject)
+bind(has<&A::x, &A::y>())     -> (x, y) // because has() is used under bind(), extraction is defined by bind(...)
+```
+
+**Design Rationale**:
+
+Patternia deliberately separates *matching* from *binding*.
+A pattern answers **“does this value match?”**
+A binding answers **“what values become available to the handler?”**
+
+This separation keeps control flow declarative and data flow explicit.
 
 ---
 
 ## III. Guard System
 
-The Guard system represents a key differentiator for Patternia in the C++ ecosystem.
+Guards are **declarative constraints attached to patterns**. They refine a match **after binding succeeds**, and before the handler is invoked.
 
-### `[]` Guard Syntax
+A guard failure **does not terminate** matching; it simply makes the current case fail and the engine continues to the next `.when(...)`.
 
-**Role**: One of Patternia's most distinctive features.
+!!! warning
+    `_` and `rng(...)` are only valid when exactly one value is bound **now**.
+    For multi-value patterns, use `arg<N>` or a lambda predicate.
+
+---
+
+### `[]` Guard Attachment
 
 **Syntax**:
+
 ```cpp
 pattern[guard]
 ```
 
-**Key Characteristics**:
+**Evaluation Order**:
 
-* Guard is part of the pattern, not a handler precondition
-* Guard executes after binding but before handler execution
-* Guard failure continues to next case rather than terminating matching
+1. `pattern.match(subject)`
+2. `pattern.bind(subject)` → produces bound values (the handler inputs)
+3. evaluate `guard` (against the bound values)
+4. if guard passes → invoke handler; otherwise try next case
 
-**Basic Examples**:
+**Example**:
+
 ```cpp
-bind()[_ > 0 && _ < 10]  // Range check
-bind()[_ % 2 == 0]       // Even number check
+match(x)
+  .when(
+    bind()[_ > 0] >>
+    [](int v) {
+      // 1) bind() matches
+      // 2) bind() binds v
+      // 3) guard (_ > 0) is evaluated
+      // 4) handler runs only if guard passes
+    }
+  )
+  .otherwise([] {});
 ```
 
-**Execution Order**:
-```cpp
-.when(bind()[_ > 0] >> [](int v) { 
-    // Execution sequence:
-    // 1. bind() matches (always succeeds)
-    // 2. bind() binds (captures value to tuple)
-    // 3. guard evaluation (_ > 0)
-    // 4. handler execution (if guard passes)
-})
-```
+**Guard composition** is supported:
+
+* `&&` (logical AND)
+* `||` (logical OR)
 
 ---
 
-### `_` (Placeholder)
+### Single-value Guards: `_` and `rng(...)`
 
-**Role**: Predicate constructor for guard expressions.
-
-**Key Properties**:
-
-* `_` is not a value but a predicate constructor
-* `_ > 0` constructs a predicate, not a boolean
-* Can only be used within guard contexts
+Single-value guards are built with the global placeholder:
 
 ```cpp
-[_ % 2 == 0]           // Even predicate
-[_ > 0 && _ < 100]     // Range predicate
+inline constexpr placeholder_t _;
 ```
 
-**Supported Operators**:
+`_` is **not** a runtime value. Expressions like `_ > 0` **construct a predicate object**.
+
+#### Supported operators for `_`
+
 ```cpp
-_ > 5           // Greater than
-_ < 10          // Less than
-_ >= 0          // Greater than or equal
-_ <= 100        // Less than or equal
-_ == 42         // Equal to
-_ != 0          // Not equal to
+_ >  rhs
+_ <  rhs
+_ >= rhs
+_ <= rhs
+_ == rhs
+_ != rhs
 ```
 
-**Compound Predicates**:
+#### Range helper: `rng(lo, hi, mode)`
+
+Use `rng(...)` for interval constraints (it returns a predicate usable inside `[]`).
+
 ```cpp
-[_ > 0 && _ < 10]     // AND composition
-[_ < 0 || _ > 100]    // OR composition
+rng(lo, hi)                 // [lo, hi]
+rng(lo, hi, open)           // (lo, hi)
+rng(lo, hi, open_closed)    // (lo, hi]
+rng(lo, hi, closed_open)    // [lo, hi)
 ```
+
+**Examples**:
+
+```cpp
+bind()[_ > 0 && _ < 10]
+bind()[rng(0, 10, closed_open)]   // [0, 10)
+```
+
+Anything beyond these relational/range constraints should be expressed as a **custom predicate** (lambda), not as additional operator DSL.
 
 ---
 
-### `arg<N>`
+### Multi-value Guards: `arg<N>` Expressions
 
-**Role**: Core API for multi-value guard expressions.
+For guards that relate **multiple bound values**, use `arg<N>` to reference the *N-th bound value* (0-based):
 
-**Syntax**:
 ```cpp
 template <std::size_t I>
 inline constexpr arg_t<I> arg{};
 ```
 
-**Characteristics**:
+**Key rule**: `arg<N>` indices correspond **exactly** to the pattern’s binding order (and therefore the handler’s parameter order).
 
-* `arg<0>`, `arg<1>` reference binding results by index
-* Corresponds one-to-one with handler parameter order
-* Supports arithmetic, relational, and logical combinations
+#### Supported operators for multi-value expressions
 
-**Basic Examples**:
+Multi-value guard expressions support:
+
+* comparisons: `== != < > <= >=`
+* arithmetic: `+ - * / %`
+* plus logical composition via `&&` and `||`
+
+There is **no `rng(...)`** for `arg<N>` expressions in the current design.
+
+**Examples**:
+
 ```cpp
-bind(has<&Point::x, &Point::y>())[arg<0> + arg<1> == 0]  // x + y == 0
-bind(has<&Point::x, &Point::y>())[arg<0> > arg<1>]       // x > y
+// x + y == 0
+match(p)
+  .when(
+    bind(has<&Point::x, &Point::y>())[arg<0> + arg<1> == 0] >>
+    [](int x, int y) { /* ... */ }
+  )
+  .otherwise([] {});
 ```
 
-**Complex Expressions**:
 ```cpp
-bind(has<&Packet::type, &Packet::length>())[arg<0> == 0x01 && arg<1] == 0]
-bind(has<&Packet::payload>())[arg<0>.size() > 0]
+// Protocol-like constraint over multiple fields
+match(pkt)
+  .when(
+    bind(has<&Packet::type, &Packet::length>())
+      [arg<0> == 0x01 && arg<1> == 0] >>
+    [](auto type, auto len) { /* ... */ }
+  )
+  .otherwise([] {});
 ```
 
-**Boundary Checking**: Compile-time validation that arg<N> index does not exceed binding count
+#### Compile-time boundary checking
+
+Using an out-of-range `arg<N>` is **ill-formed** and diagnosed at compile time (the library checks the maximum referenced index against the number of bound values):
+
 ```cpp
-bind(has<&Point::x>())[arg<1> > 0]  // Compile error: only one bound value
+bind(has<&Point::x>())[arg<1> > 0]
+// ❌ ill-formed: arg<1> out of range (only one bound value)
 ```
 
 ---
 
-### Lambda Guards
+### Custom Predicates (Recommended for “Domain Logic”)
 
-**Custom Predicate Support**:
+A critical constraint of Patternia’s guard DSL is that `arg<N>` is an **expression-template placeholder**, not “the real field type” in a way that enables arbitrary member access in the DSL.
+
+So this is **not supported** as a guard DSL expression:
 
 ```cpp
-auto is_prime = [](int v) {
-    if (v < 2) return false;
-    for (int i = 2; i * i <= v; ++i)
-        if (v % i == 0) return false;
-    return true;
-};
-
-bind()[is_prime]  // Custom predicate
+bind(has<&Message::payload>())[arg<0>.size() > 0] // ❌ do not do this
 ```
 
-**Multi-parameter Lambda**:
-```cpp
-auto sum_is_even = [](int a, int b) { return (a + b) % 2 == 0; };
+When you need container queries, method calls, non-trivial computations, or any domain-specific logic, write a **lambda predicate** and pass it to `[]`.
 
-bind(has<&Point::x, &Point::y>())[sum_is_even]
+**Examples**:
+
+```cpp
+auto non_empty = [](auto const& payload) {
+  return !payload.empty();
+};
+
+match(msg)
+  .when(
+    bind(has<&Message::payload>())[non_empty] >>
+    [](auto const& payload) {
+      // payload is guaranteed non-empty here
+    }
+  )
+  .otherwise([] {});
+```
+
+```cpp
+auto sum_is_even = [](int a, int b) {
+  return ((a + b) % 2) == 0;
+};
+
+match(p)
+  .when(
+    bind(has<&Point::x, &Point::y>())[sum_is_even] >>
+    [](int x, int y) { /* ... */ }
+  )
+  .otherwise([] {});
 ```
 
 ---
 
 ## IV. Structural Matching
 
+Structural matching allows Patternia to reason about the *shape* of objects at compile time,
+independently of control flow and value-level logic.
+
+Rather than destructuring by position, Patternia describes structure through **explicit member selection**.
+
+---
+
 ### `has<&T::member...>`
 
-**Role**: Unique Patternia API for C++ structural decomposition.
+**Role**: Structural constraint and decomposition primitive.
 
 **Syntax**:
 ```cpp
@@ -412,177 +555,153 @@ template <auto... Ms>
 constexpr auto has();
 ```
 
-**Semantics**: Compile-time structural constraint declaration.
-
-**Core Characteristics**:
-- Declarative structural constraints without value access
-- Value extraction only occurs within `bind()` context
-- Analogous to Rust's `{ x, y, .. }` syntax
-
-**Basic Examples**:
-```cpp
-struct Point { int x, y; };
-struct Packet { uint8_t type; uint16_t length; std::vector<uint8_t> data; };
-
-// Structural checks
-has<&Point::x, &Point::y>           // Checks for x, y members
-has<&Packet::type, &Packet::length>  // Checks for type, length members
-```
-
-**Placeholder Support**:
-```cpp
-using ptn::pat::_ign;  // or using ptn::_ign;
-
-has<&Point::x, _ign>    // Checks for x member, ignores others
-has<&Point::x, nullptr> // Same as above, using nullptr
-```
-
-**Integration with bind()**:
-```cpp
-.when(bind(has<&Point::x, &Point::y>()) >> [](int subject, int x, int y) {
-    // subject: entire Point
-    // x: Point::x value
-    // y: Point::y value
-    return fmt("({}, {})", x, y);
-})
-
-// Ignore certain members
-.when(bind(has<&Point::x, _ign>()) >> [](int subject, int x) {
-    return fmt("x={}", x);
-})
-```
-
-**Design Philosophy**:
-- `has()` standalone: structural checking only, no value extraction
-- `bind(has())`: structural checking + value extraction
-- Compile-time validation of member pointer validity
+Each template argument must be a pointer to a non-static data member.
 
 ---
 
-## V. Composition and Extension
+### Semantics
 
-### `&&` / `||` (Guard Composition)
+`has<Ms...>` declares a **compile-time structural requirement**:
 
-**Guard Logical Composition**:
+* The matched type must contain all listed data members
+* The order of members is **not positional**
+* No values are accessed unless used within `bind()`
 
-```cpp
-// AND composition
-[_ > 0 && _ < 100]                    // Built-in operators
-[(_ > 0) && (_ < 100)]               // Explicit composition (identical functionality)
-
-// OR composition  
-[_ < 0 || _ > 100]                    // Built-in operators
-[(_ < 0) || (_ > 100)]               // Explicit composition (identical functionality)
-
-// Complex composition
-[(_ > 0 && _ < 10) || (_ > 90 && _ <= 100)]
-```
-
-**Multi-value Guard Composition**:
-```cpp
-bind(has<&Point::x, &Point::y>())[arg<0> > 0 && arg<1] < 0]  // x > 0 && y < 0
-```
-
-**Lambda Composition**:
-```cpp
-auto positive = [](int v) { return v > 0; };
-auto small    = [](int v) { return v < 10; };
-
-bind()[positive && small]  // Equivalent to [_ > 0 && _ < 10]
-```
+This makes `has<>` a *structural predicate*, not a value pattern.
 
 ---
 
-### Range Predicates
+### Core Characteristics
 
-**Range Checking API**:
-
-```cpp
-using ptn::pat::mod::rng;
-
-// Closed interval [0, 100]
-rng(0, 100)
-
-// Open interval (0, 100)  
-rng(0, 100, open)
-
-// Left-open right-closed (0, 100]
-rng(0, 100, open_closed)
-
-// Left-closed right-open [0, 100)
-rng(0, 100, closed_open)
-```
-
-**Examples**:
-```cpp
-bind()[rng(0, 100)]        // 0 <= v <= 100
-bind()[rng(0, 100, open)]  // 0 < v < 100
-```
+* Declarative structural constraints without control flow
+* No implicit value access or extraction
+* Independent of member layout or declaration order
+* Compile-time validation of member pointers
 
 ---
 
-### Custom Predicate Guards
-
-**Custom Predicates**:
+### Basic Examples
 
 ```cpp
-// Simple lambda
-auto is_even = [](int v) { return v % 2 == 0; };
-bind()[is_even]
-
-// Stateful functor
-class RangeChecker {
-    int lo_, hi_;
-public:
-    RangeChecker(int lo, int hi) : lo_(lo), hi_(hi) {}
-    bool operator()(int v) const { return lo_ <= v && v <= hi_; }
+struct Point {
+  int x;
+  int y;
 };
 
-bind()[RangeChecker(0, 100)]
+struct Packet {
+  std::uint8_t type;
+  std::uint16_t length;
+  std::vector<std::uint8_t> data;
+};
+
+// Structural checks
+has<&Point::x, &Point::y>
+has<&Packet::type, &Packet::length>
 ```
 
-**Multi-parameter Predicates**:
+These patterns assert that the matched value exposes the listed members.
+They do **not** bind or extract any values by themselves.
+
+---
+
+### Integration with `bind()`
+
+When combined with `bind()`, `has<>` enables **explicit structural extraction**.
+
 ```cpp
-auto sum_equals = [](int a, int b, int target) { return a + b == target; };
-
-bind(has<&Point::x, &Point::y>())[std::bind_front(sum_equals, 10)]
-// Alternative with lambda
-bind(has<&Point::x, &Point::y>())[[](int x, int y) { return x + y == 10; }]
+match(p)
+  .when(
+    bind(has<&Point::x, &Point::y>()) >>
+    [](int x, int y) {
+      return fmt("({}, {})", x, y);
+    }
+  )
+  .otherwise([] {});
 ```
 
----
-
-## VI. Design Philosophy Summary
-
-### Core Principles
-
-1. **Explicit over Implicit**: All bindings are explicit with no implicit capture
-2. **Composition over Inheritance**: Complex patterns built from primitive composition
-3. **Type Safety**: Compile-time guarantee of type correctness for all operations
-4. **Zero Overhead**: All abstractions resolved at compile-time with no runtime cost
-
-### Language Comparison
-
-| Feature | Patternia | Rust | Scala | C++17 switch |
-|---------|-----------|------|-------|--------------|
-| Type Safety | Yes | Yes | Yes | Yes |
-| Pattern Composition | Yes | Yes | Yes | No |
-| Guard System | Yes | Yes | Yes | No |
-| Structural Binding | Yes | Yes | Yes | No |
-| Zero Overhead | Yes | Yes | Yes | Yes |
-| Compile-time Checking | Yes | Yes | Yes | Partial |
-
-### Extensibility
-
-Patternia's design enables:
-- Custom pattern types
-- Custom guard predicates
-- Complex pattern composition
-- Seamless integration with existing C++ code
+* `has<>` performs the structural check
+* `bind()` extracts the selected member values
+* The handler receives the extracted values in the order listed
 
 ---
 
-## VIII. Namespace Structure
+### Partial Structural Matching
+
+Structural matching is **selective by design**.
+
+To bind only a subset of members, list only those members:
+
+```cpp
+match(p)
+  .when(
+    bind(has<&Point::x>()) >>
+    [](int x) {
+      return fmt("x = {}", x);
+    }
+  )
+  .otherwise([] {});
+```
+
+No placeholder or positional skipping is required.
+Unlisted members are simply ignored.
+
+---
+
+### Design Rationale
+
+Patternia intentionally avoids positional or placeholder-based structural patterns.
+
+* There is no notion of “ignored slots”
+* There is no dependency on member order
+* There is no implicit reflection
+
+Instead:
+
+* Structure is described by **explicit member pointers**
+* Decomposition is driven by **what you list**, not what you omit
+* This aligns with C++’s existing type system and avoids reflection-like assumptions
+
+---
+
+### Standalone vs Bound Usage
+
+```cpp
+has<&T::a, &T::b>        // Structural constraint only
+bind(has<&T::a, &T::b>) // Structural constraint + value extraction
+```
+
+This separation ensures that:
+
+* Structural reasoning remains declarative
+* Data flow remains explicit
+* Control flow remains predictable
+
+---
+
+### Compile-time Guarantees
+
+* All member pointers are validated at compile time
+* Invalid or non-existent members are diagnosed immediately
+* No runtime reflection or metadata is required
+
+---
+
+### Conceptual Analogy
+
+`has<>` is conceptually similar to Rust’s structural patterns:
+
+```rust
+Point { x, y }
+```
+
+—but adapted to C++’s lack of native reflection by using explicit member pointers.
+
+It expresses **what structure is required**, not **how to traverse it**.
+
+---
+
+
+## V. Namespace Structure
 
 Patternia employs a layered namespace architecture:
 
@@ -628,7 +747,6 @@ namespace ptn {
 
   // Structural patterns
   using ptn::pat::has;
-  using ptn::pat::_ign;
 }
 ```
 
