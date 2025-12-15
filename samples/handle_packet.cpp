@@ -72,14 +72,33 @@ void parse_packet(const Packet &pkt) {
 }
 
 int main() {
-  Packet ping{.type = 0x01, .length = 0, .flags = 0, .payload = {}};
+  Packet ping{
+      0x01, // type
+      0,    // length
+      0,    // flags
+      {}    // payload
+  };
 
   Packet data{
-      .type = 0x02, .length = 3, .flags = FLAG_VALID, .payload = {1, 2, 3}};
+      0x02,       // type
+      3,          // length
+      FLAG_VALID, // flags
+      {1, 2, 3}   // payload
+  };
 
-  Packet error{.type = 0xFF, .length = 1, .flags = 0, .payload = {42}};
+  Packet error{
+      0xFF, // type
+      1,    // length
+      0,    // flags
+      {42}  // payload
+  };
 
-  Packet invalid{.type = 0x02, .length = 10, .flags = 0, .payload = {1}};
+  Packet invalid{
+      0x02, // type
+      10,   // length
+      0,    // flags
+      {1}   // payload
+  };
 
   parse_packet(ping);
   parse_packet(data);
