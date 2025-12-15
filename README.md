@@ -265,7 +265,7 @@ vcpkg support is **coming soon**.
 
 For additional installation options and detailed setup instructions (including manual integration and future package manager support), see:
 
-👉 [https://sentomk.github.io/patternia/guide/installation/](https://sentomk.github.io/patternia/guide/installation/)
+👉 [Patternia Installation](https://sentomk.github.io/patternia/guide/installation/)
 
 
 ### 2. Matching Values
@@ -406,6 +406,66 @@ For a deeper dive, see the **API Reference** and **Design Guide**.
 
 
 ## API Reference
+
+### Quick Navigation
+
+> Jump directly to a specific part of the Patternia API.
+
+---
+
+### I. Match DSL Core Framework
+
+* [`match(subject)`]()
+* [`.when(pattern >> handler)`]()
+* [`.otherwise(...)`]()
+* [`.end()`]()
+* [Expression vs Statement Matching]()
+
+---
+
+### II. Pattern Primitives
+
+* [`lit(value)`]()
+* [`lit_ci(value)`]()
+* [`__` (Wildcard)]()
+* [`bind()`]()
+* [`bind(subpattern)`]()
+* [Binding Semantics & Order]()
+
+---
+
+### III. Guard System
+
+* [`[]` Guard Attachment]()
+* [`_` Placeholder (Single-value Guards)]()
+* [`rng(...)` Range Guards]()
+* [`arg<N>` (Multi-value Guards)]()
+* [Custom Predicate Guards (Lambda)]()
+* [Guard Evaluation Semantics]()
+
+---
+
+### IV. Structural Matching
+
+* [`has<&T::member...>`]()
+* [Structural Constraints]()
+* [Structural Binding with `bind()`]()
+* [Partial Structural Matching]()
+* [Design Rationale & Guarantees]()
+
+---
+
+### V. Namespace Structure
+
+* [Namespace Layout]()
+* [Primary Namespace Aliases]()
+* [User-facing API Surface]()
+
+---
+
+> **Note**
+> This API reference documents Patternia’s *language constructs*, not just function signatures.
+> Each section explains the semantic role and design intent of the API, in addition to usage examples.
 
 
 ## Contributing
