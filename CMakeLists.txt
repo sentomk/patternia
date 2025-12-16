@@ -236,6 +236,17 @@ add_executable(sample_packet
 )
 target_link_libraries(sample_packet PRIVATE patternia)
 
+add_executable(json_parser
+  samples/json_dispatch/parse_json_pred.hpp
+  samples/json_dispatch/parse_json_handler.hpp
+  samples/json_dispatch/parse_json.cpp
+  samples/json_dispatch/main.cpp
+)
+target_link_libraries(json_parser PRIVATE patternia)
+find_package(nlohmann_json CONFIG REQUIRED)
+target_link_libraries(json_parser PRIVATE nlohmann_json::nlohmann_json)
+
+
 # ========== Install / Export (only the INTERFACE target is exported) ==========
 if(PTN_INSTALL)
   include(CMakePackageConfigHelpers)
