@@ -57,14 +57,6 @@ namespace ptn::core::engine::detail {
     static constexpr bool is_exhaustive =
         has_pattern_fallback || has_match_fallback;
 
-    // Enforces termination of a match expression.
-    ~match_builder() {
-      static_assert(
-          is_exhaustive,
-          "[Patternia.match]: match expression is not exhaustive. "
-          "Use `.end()` or `.otherwise(...)` to terminate the match.");
-    }
-
     // Chaining API: .when(...)
 
     // Add a new case (rvalue-qualified).
