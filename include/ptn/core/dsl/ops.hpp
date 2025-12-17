@@ -36,7 +36,7 @@ namespace ptn::core::dsl::ops {
     using P = std::decay_t<Pattern>;
     using H = std::decay_t<Handler>;
 
-    if constexpr (ptn::core::common::detail::is_value_like_v<H>) {
+    if constexpr (ptn::core::traits::detail::is_value_like_v<H>) {
       // Value Mode: Pattern >> Value syntax sugar
       auto value_handler = [val = std::forward<Handler>(handler)](
                                auto &&...) -> H { return val; };

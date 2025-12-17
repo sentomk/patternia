@@ -17,9 +17,14 @@ namespace ptn {
   template <typename T>
   constexpr auto match(T &&value) {
     using V = std::decay_t<T>;
-    // Forward into the builder with an empty case list
-    return core::engine::detail::match_builder<V>::create(
-        V(std::forward<T>(value)));
+
+    // Initial builder state:
+    //   - no cases
+    //   - no match-level fallback
+    return core::engine::detail::match_builder<
+        V,
+        false /* HasMatchFallback */
+        >::create(V(std::forward<T>(value)));
   }
 
   // Explicit-typed entry for pattern matching: match<U>(value)
@@ -29,7 +34,10 @@ namespace ptn {
   template <typename U, typename T>
   constexpr auto match(T &&value) -> std::enable_if_t<
       !std::is_same_v<std::decay_t<U>, std::decay_t<T>>,
-      core::engine::detail::match_builder<U>> {
+      core::engine::detail::match_builder<
+          std::decay_t<U>,
+          false /* HasMatchFallback */
+          >> {
 
     using Subject  = std::decay_t<U>;
     using ValueRaw = std::decay_t<T>;
@@ -44,8 +52,12 @@ namespace ptn {
         "[ptn::match<U>(value)]: explicit subject type U cannot be "
         "constructed from the given value.");
 
-    U subject = static_cast<U>(std::forward<T>(value));
-    return core::engine::detail::match_builder<U>::create(std::move(subject));
+    Subject subject = static_cast<Subject>(std::forward<T>(value));
+
+    return core::engine::detail::match_builder<
+        Subject,
+        false /* HasMatchFallback */
+        >::create(std::move(subject));
   }
 
 } // namespace ptn

@@ -8,10 +8,10 @@
 //
 #include <cstddef>
 #include <tuple>
-#include <type_traits>
 
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/pattern_base.hpp"
+#include "ptn/pattern/base/pattern_traits.hpp"
 
 namespace ptn::pat {
 
@@ -21,26 +21,14 @@ namespace ptn::pat {
 
   namespace detail {
 
-    template <auto M>
-    inline constexpr bool is_data_member_ptr_v =
-        std::is_member_object_pointer_v<decltype(M)>;
-
-    // C++17 fallback placeholder (rest)
-    template <auto M>
-    inline constexpr bool is_nullptr_placeholder_v =
-        std::is_same_v<std::decay_t<decltype(M)>, std::nullptr_t>;
-
-    // Unified notion: structural element
-    template <auto M>
-    inline constexpr bool is_structural_element_v =
-        is_data_member_ptr_v<M> || is_nullptr_placeholder_v<M>;
-
     // has_pattern
     template <auto... Ms>
     struct has_pattern : base::pattern_base<has_pattern<Ms...>> {
 
       static_assert(
-          ((is_data_member_ptr_v<Ms> || is_nullptr_placeholder_v<Ms>) && ...),
+          ((traits::is_data_member_ptr_v<Ms> ||
+            traits::is_nullptr_placeholder_v<Ms>) &&
+           ...),
           "has<> only accepts:\n"
           "  - data member pointers (e.g. &T::field)\n"
           "  - nullptr (or its alias: _ign) as a placeholder");

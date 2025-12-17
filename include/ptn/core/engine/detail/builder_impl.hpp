@@ -20,7 +20,7 @@ namespace ptn::core::engine::detail {
   // Provides fluent interface for building match expressions with method
   // chaining. TV: The type of the subject value to be matched Cases: The types
   // of case expressions added so far
-  template <typename TV, typename... Cases>
+  template <typename TV, bool HasMatchFallback, typename... Cases>
   class match_builder {
   public:
     using subject_type = TV;
@@ -46,6 +46,17 @@ namespace ptn::core::engine::detail {
         : subject_(std::move(subject)), cases_(std::move(cases)) {
     }
 
+    // Triggered by .when(__)
+    static constexpr bool has_pattern_fallback =
+        (traits::is_pattern_fallback_v<traits::case_pattern_t<Cases>> || ...);
+
+    // Triggered by .otherwise()
+    static constexpr bool has_match_fallback = HasMatchFallback;
+
+    // unified exhaustiveness predicate
+    static constexpr bool is_exhaustive =
+        has_pattern_fallback || has_match_fallback;
+
     // Chaining API: .when(...)
 
     // Add a new case (rvalue-qualified).
@@ -57,11 +68,11 @@ namespace ptn::core::engine::detail {
 
       // Compile-time validation of the new case
       static_assert(
-          ptn::core::common::is_case_expr_v<new_case_type>,
+          ptn::core::traits::is_case_expr_v<new_case_type>,
           "Argument to .when() must be a case expression created with the '>>' "
           "operator.");
       static_assert(
-          ptn::core::common::
+          ptn::core::traits::
               is_handler_invocable_v<new_case_type, subject_type>,
           "Handler signature does not match the pattern's binding result.");
 
@@ -71,7 +82,11 @@ namespace ptn::core::engine::detail {
           std::tuple<new_case_type>(std::forward<CaseExpr>(expr)));
 
       // Create a new builder type with the additional case
-      using builder_t = match_builder<subject_type, Cases..., new_case_type>;
+      using builder_t = match_builder<
+          subject_type,
+          HasMatchFallback,
+          Cases...,
+          new_case_type>;
 
       return builder_t{std::move(subject_), std::move(new_cases)};
     }
@@ -84,11 +99,11 @@ namespace ptn::core::engine::detail {
       using new_case_type = std::decay_t<CaseExpr>;
 
       static_assert(
-          ptn::core::common::is_case_expr_v<new_case_type>,
+          ptn::core::traits::is_case_expr_v<new_case_type>,
           "Argument to .when() must be a case expression created with the '>>' "
           "operator.");
       static_assert(
-          ptn::core::common::
+          ptn::core::traits::
               is_handler_invocable_v<new_case_type, subject_type>,
           "Handler signature does not match the pattern's binding result.");
 
@@ -97,7 +112,11 @@ namespace ptn::core::engine::detail {
           cases_, std::tuple<new_case_type>(std::forward<CaseExpr>(expr)));
 
       // Create a new builder type with the additional case
-      using builder_t = match_builder<subject_type, Cases..., new_case_type>;
+      using builder_t = match_builder<
+          subject_type,
+          HasMatchFallback,
+          Cases...,
+          new_case_type>;
 
       return builder_t{subject_, std::move(new_cases)};
     }
@@ -112,9 +131,21 @@ namespace ptn::core::engine::detail {
 
       using OtherwiseDecayed = std::decay_t<Otherwise>;
 
+      // 
+      static_assert(
+          !has_pattern_fallback,
+          "[Patternia.match]: 'otherwise()' cannot be used when a wildcard "
+          "'__' pattern is present. Use '.end()' instead.");
+
+      static_assert(
+          !has_pattern_fallback,
+          "[Patternia.match]: 'otherwise()' cannot be used when a wildcard "
+          "'__' "
+          "pattern is present. Use '.end()' instead.");
+
       // Create a proper handler from the provided argument
       auto final_handler = [&]() {
-        if constexpr (ptn::core::common::detail::is_value_like_v<
+        if constexpr (ptn::core::traits::detail::is_value_like_v<
                           OtherwiseDecayed>) {
           // Case 1: Value - create a handler that returns this value
           return [val = std::forward<Otherwise>(otherwise_handler)](
@@ -144,7 +175,7 @@ namespace ptn::core::engine::detail {
           Cases...>();
 
       // Determine the result type of the entire match expression
-      using result_type = core::common::
+      using result_type = core::traits::
           match_result_t<subject_type, decltype(final_handler), Cases...>;
 
       // Execute the match expression
@@ -177,10 +208,10 @@ namespace ptn::core::engine::detail {
 
       // Compute the match result type (should be void)
       using result_type =
-          core::common::match_result_t<subject_type, dummy_handler_t, Cases...>;
+          core::traits::match_result_t<subject_type, dummy_handler_t, Cases...>;
 
       static_assert(
-          common::is_void_like_v<result_type>,
+          traits::is_void_like_v<result_type>,
           "[Patternia.match.end]: .end() requires all case handlers to return "
           "void."
           "If you want a value-returning match, use "

@@ -18,7 +18,12 @@ namespace ptn::core::dsl::detail {
   struct case_expr;
 }
 
-namespace ptn::core::common {
+namespace ptn::pat::detail {
+  struct wildcard_t;
+}
+// Forward declaration end
+
+namespace ptn::core::traits {
 
   // Basic Type Extraction
 
@@ -60,6 +65,40 @@ namespace ptn::core::common {
 
   template <typename Case>
   using case_handler_t = typename case_handler<Case>::type;
+
+  // Fallback Semantics (pattern-level vs match-level)
+
+  enum class fallback_level {
+    none,
+    pattern, // e.g. wildcard '__'
+    match    // e.g. otherwise(...)
+  };
+
+  // Base: everything is not a fallback by default.
+  template <typename T>
+  struct fallback_semantics {
+    static constexpr fallback_level level = fallback_level::none;
+  };
+
+  // Pattern-level fallback: wildcard pattern '__'
+  // NOTE: adjust the wildcard type name if your wildcard type lives elsewhere.
+  template <>
+  struct fallback_semantics<pat::detail::wildcard_t> {
+    static constexpr fallback_level level = fallback_level::pattern;
+  };
+
+  template <typename T>
+  inline constexpr bool is_pattern_fallback_v =
+      fallback_semantics<std::decay_t<T>>::level == fallback_level::pattern;
+
+  template <typename T>
+  inline constexpr bool is_match_fallback_v =
+      fallback_semantics<std::decay_t<T>>::level == fallback_level::match;
+
+  // Case-level helper: does this case's pattern act as pattern-level fallback?
+  template <typename Case>
+  inline constexpr bool is_fallback_case_v =
+      is_pattern_fallback_v<case_pattern_t<Case>>;
 
   // Handler Invocability Check (C++17)
 
@@ -313,4 +352,4 @@ namespace ptn::core::common {
   template <typename T>
   inline constexpr bool is_void_like_v = is_void_like<T>::value;
 
-} // namespace ptn::core::common
+} // namespace ptn::core::traits
