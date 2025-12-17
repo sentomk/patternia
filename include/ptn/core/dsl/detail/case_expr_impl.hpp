@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tuple>
+
 // Internal implementation of case expressions.
 //
 // This header contains the internal case expression structure that represents
@@ -26,6 +28,15 @@ namespace ptn::core::dsl::detail {
 
     Pattern pattern; ///< The pattern to match against
     Handler handler; ///< The handler to execute if pattern matches
+  };
+
+  template <typename... Cases>
+  struct cases_pack {
+    using tuple_type = std::tuple<Cases...>;
+    tuple_type cases;
+
+    constexpr explicit cases_pack(tuple_type t) : cases(std::move(t)) {
+    }
   };
 
 } // namespace ptn::core::dsl::detail

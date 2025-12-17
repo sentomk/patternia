@@ -33,8 +33,11 @@
 #include "ptn/pattern/structural.hpp"      // has
 
 namespace ptn {
+  using ptn::core::engine::match;
+
   // Import DSL operators
   using ptn::core::dsl::ops::operator>>;
+  using ptn::core::dsl::ops::cases;
 
   using ptn::pat::lit;
   using ptn::pat::lit_ci;
