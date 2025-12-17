@@ -274,6 +274,23 @@ namespace ptn::core::traits {
     static constexpr auto get_otherwise_result_impl(...)
         -> decltype(std::declval<O>()());
 
+    // A marker type used for "logically unreachable" fallback paths.
+    // It participates in std::common_type so that it never pollutes the final
+    // match result type computation.
+    struct unreachable_t {
+      template <typename T>
+      [[noreturn]] constexpr operator T() const noexcept {
+#if defined(__clang__) || defined(__GNUC__)
+        __builtin_trap();
+#elif defined(_MSC_VER)
+        __debugbreak();
+        std::abort();
+#else
+        std::abort();
+#endif
+      }
+    };
+
   } // namespace detail
 
   template <typename Otherwise, typename Subject>
@@ -353,3 +370,26 @@ namespace ptn::core::traits {
   inline constexpr bool is_void_like_v = is_void_like<T>::value;
 
 } // namespace ptn::core::traits
+
+// Specialize std::common_type for unreachable_t.
+// This is allowed because unreachable_t is a user-defined type.
+namespace std {
+
+  template <>
+  struct common_type<
+      ptn::core::traits::detail::unreachable_t,
+      ptn::core::traits::detail::unreachable_t> {
+    using type = ptn::core::traits::detail::unreachable_t;
+  };
+
+  template <typename T>
+  struct common_type<T, ptn::core::traits::detail::unreachable_t> {
+    using type = T;
+  };
+
+  template <typename T>
+  struct common_type<ptn::core::traits::detail::unreachable_t, T> {
+    using type = T;
+  };
+
+} // namespace std

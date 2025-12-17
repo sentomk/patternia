@@ -29,7 +29,7 @@ std::uint64_t fib(std::uint64_t n) {
 }
 
 int main() {
-  for (std::uint64_t i = 0; i <= 100; ++i) {
+  for (std::uint64_t i = 0; i <= 10; ++i) {
     std::cout << "fib(" << i << ") = " << fib(i) << "\n";
   }
 }

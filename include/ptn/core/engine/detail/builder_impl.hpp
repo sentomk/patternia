@@ -57,6 +57,14 @@ namespace ptn::core::engine::detail {
     static constexpr bool is_exhaustive =
         has_pattern_fallback || has_match_fallback;
 
+    // Enforces termination of a match expression.
+    ~match_builder() {
+      static_assert(
+          is_exhaustive,
+          "[Patternia.match]: match expression is not exhaustive. "
+          "Use `.end()` or `.otherwise(...)` to terminate the match.");
+    }
+
     // Chaining API: .when(...)
 
     // Add a new case (rvalue-qualified).
@@ -64,6 +72,11 @@ namespace ptn::core::engine::detail {
     // This is the preferred overload for method chaining.
     template <typename CaseExpr>
     constexpr auto when(CaseExpr &&expr) && {
+
+      static_assert(
+          !has_pattern_fallback,
+          "[Patternia.match]: no cases may follow a wildcard ('__') pattern.");
+
       using new_case_type = std::decay_t<CaseExpr>;
 
       // Compile-time validation of the new case
@@ -131,7 +144,7 @@ namespace ptn::core::engine::detail {
 
       using OtherwiseDecayed = std::decay_t<Otherwise>;
 
-      // 
+      //
       static_assert(
           !has_pattern_fallback,
           "[Patternia.match]: 'otherwise()' cannot be used when a wildcard "
@@ -196,30 +209,41 @@ namespace ptn::core::engine::detail {
     }
 
     // Terminal API: .end()
-    // For void-only match expressions with no explicit otherwise handler.
-    constexpr void end() && {
-      // Create a dummy fallback handler (callable, never used if exhaustive)
-      auto dummy_fallback   = []() {};
+    // Evaluate an exhaustive match finalized by a pattern-level fallback (__).
+    constexpr auto end() && {
+      static_assert(
+          has_pattern_fallback,
+          "[Patternia.match.end]: .end() requires a pattern-level fallback "
+          "('__'). "
+          "If the match is not exhaustive, use .otherwise(...).");
+
+      static_assert(
+          !has_match_fallback,
+          "[Patternia.match.end]: .end() cannot be used after otherwise().");
+
+      // Dummy fallback handler (logically unreachable because '__' exists)
+      auto dummy_fallback =
+          [](auto &&...) -> ptn::core::traits::detail::unreachable_t {
+        return {};
+      };
       using dummy_handler_t = decltype(dummy_fallback);
 
-      // Validate match result type
+      // Validate match well-formedness
       ptn::core::common::
           static_assert_valid_match<subject_type, dummy_handler_t, Cases...>();
 
-      // Compute the match result type (should be void)
+      // Compute match result type (now won't be polluted by 'void')
       using result_type =
           core::traits::match_result_t<subject_type, dummy_handler_t, Cases...>;
 
-      static_assert(
-          traits::is_void_like_v<result_type>,
-          "[Patternia.match.end]: .end() requires all case handlers to return "
-          "void."
-          "If you want a value-returning match, use "
-          ".otherwise(value_or_lambda).");
-
-      // Execute match evaluation
-      match_impl::eval<result_type>(
-          subject_, cases_, std::move(dummy_fallback));
+      if constexpr (traits::is_void_like_v<result_type>) {
+        match_impl::eval<result_type>(
+            subject_, cases_, std::move(dummy_fallback));
+      }
+      else {
+        return match_impl::eval<result_type>(
+            subject_, cases_, std::move(dummy_fallback));
+      }
     }
   };
 } // namespace ptn::core::engine::detail
