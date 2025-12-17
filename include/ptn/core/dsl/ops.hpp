@@ -50,4 +50,17 @@ namespace ptn::core::dsl::ops {
           std::forward<Pattern>(pattern), std::forward<Handler>(handler)};
     }
   }
+
+  template <typename... CaseExprs>
+  constexpr auto cases(CaseExprs &&...exprs) {
+    static_assert(
+        (ptn::core::traits::is_case_expr_v<std::decay_t<CaseExprs>> && ...),
+        "cases(...) arguments must be case expressions created with '>>'.");
+
+    using pack_t  = core::dsl::detail::cases_pack<std::decay_t<CaseExprs>...>;
+    using tuple_t = typename pack_t::tuple_type;
+
+    return pack_t{tuple_t{std::forward<CaseExprs>(exprs)...}};
+  }
+
 } // namespace ptn::core::dsl::ops

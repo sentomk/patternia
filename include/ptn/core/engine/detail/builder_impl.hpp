@@ -13,6 +13,7 @@
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/common/diagnostics.hpp"
 #include "ptn/core/engine/detail/match_impl.hpp"
+#include "ptn/core/dsl/ops.hpp"
 
 namespace ptn::core::engine::detail {
 
@@ -22,9 +23,14 @@ namespace ptn::core::engine::detail {
   // of case expressions added so far
   template <typename TV, bool HasMatchFallback, typename... Cases>
   class match_builder {
+
   public:
     using subject_type = TV;
     using cases_type   = std::tuple<Cases...>;
+
+    static_assert(
+        std::is_lvalue_reference_v<subject_type>,
+        "Patternia.match: subject must be an lvalue reference");
 
   private:
     subject_type subject_; // The value being matched against patterns
@@ -33,17 +39,19 @@ namespace ptn::core::engine::detail {
   public:
     // Static factory with an empty case list.
     static constexpr auto create(subject_type subject) {
-      return match_builder{std::move(subject), cases_type{}};
+      return match_builder{std::forward<subject_type>(subject), cases_type{}};
     }
 
     // Static factory with an explicit case tuple (internal use).
     static constexpr auto create(subject_type subject, cases_type cases) {
-      return match_builder{std::move(subject), std::move(cases)};
+      return match_builder{
+          std::forward<subject_type>(subject), std::move(cases)};
     }
 
     // Construct from subject and case tuple.
     constexpr match_builder(subject_type subject, cases_type cases)
-        : subject_(std::move(subject)), cases_(std::move(cases)) {
+        : subject_(std::forward<subject_type>(subject)),
+          cases_(std::move(cases)) {
     }
 
     // Triggered by .when(__)
@@ -239,3 +247,20 @@ namespace ptn::core::engine::detail {
     }
   };
 } // namespace ptn::core::engine::detail
+
+namespace ptn::core::engine {
+
+  template <typename TV, typename... Cases>
+  constexpr auto
+  match(TV &&subject, core::dsl::detail::cases_pack<Cases...> pack) {
+
+    using subject_ref_t = std::remove_reference_t<TV> &;
+
+    subject_ref_t subj = subject;
+
+    using builder_t = detail::match_builder<subject_ref_t, false, Cases...>;
+
+    return builder_t::create(subj, std::move(pack.cases));
+  }
+
+} // namespace ptn::core::engine
