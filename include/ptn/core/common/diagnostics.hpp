@@ -17,7 +17,7 @@ namespace ptn::core::common {
     // Verify all case handlers can be invoked with their pattern's bound
     // arguments
     static_assert(
-        (is_handler_invocable_v<Cases, Subject> && ...),
+        (traits::is_handler_invocable_v<Cases, Subject> && ...),
         "[Patternia Error] At least one case's handler cannot be invoked with "
         "the arguments bound by its pattern. "
         "Please check the handler's signature against the pattern's expected "
@@ -32,7 +32,8 @@ namespace ptn::core::common {
         "no arguments.");
 
     // Verify all handlers have a common return type
-    using common_return_type = match_result_t<Subject, Otherwise, Cases...>;
+    using common_return_type =
+        traits::match_result_t<Subject, Otherwise, Cases...>;
 
     // Force instantiation to catch potential type errors (skip for void)
     if constexpr (!std::is_void_v<common_return_type>) {
@@ -44,7 +45,7 @@ namespace ptn::core::common {
   template <typename Case, typename Subject>
   constexpr void static_assert_valid_handler() {
     static_assert(
-        is_handler_invocable_v<Case, Subject>,
+        traits::is_handler_invocable_v<Case, Subject>,
         "[Patternia Error] Handler signature does not match the pattern's "
         "binding result.");
   }
@@ -53,7 +54,7 @@ namespace ptn::core::common {
   template <typename Case, typename Subject>
   constexpr void static_assert_valid_case() {
     static_assert(
-        is_case_expr_v<Case>,
+        traits::is_case_expr_v<Case>,
         "[Patternia Error] Argument to `.when()` must be a case expression "
         "created with the '>>' operator.");
     static_assert_valid_handler<Case, Subject>();

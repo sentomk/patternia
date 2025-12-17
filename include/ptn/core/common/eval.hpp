@@ -60,7 +60,7 @@ namespace ptn::core::common {
   struct case_matcher {
     using case_type    = Case;
     using subject_type = Subject;
-    using pattern_type = case_pattern_t<Case>;
+    using pattern_type = traits::case_pattern_t<Case>;
 
     // Returns true if the pattern matches the subject
     static constexpr bool
@@ -115,7 +115,7 @@ namespace ptn::core::common {
   //   The subject itself is not passed as an extra first argument
   template <typename Case, typename Subject>
   constexpr decltype(auto) invoke_handler(const Case &c, Subject &&subject) {
-    using pattern_type = case_pattern_t<Case>;
+    using pattern_type = traits::case_pattern_t<Case>;
 
     static_assert(
         detail::has_bind_member_v<pattern_type, Subject>,

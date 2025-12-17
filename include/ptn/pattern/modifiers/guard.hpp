@@ -12,19 +12,13 @@
 
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/pattern_base.hpp"
+#include "ptn/pattern/base/pattern_traits.hpp"
 
 namespace ptn::pat::mod {
 
-  // Marker tag for guard predicates.
-  struct guard_predicate_tag {};
-
-  template <typename T>
-  inline constexpr bool is_guard_predicate_v =
-      std::is_base_of_v<guard_predicate_tag, std::decay_t<T>>;
-
   // Binary predicate template for comparison operations.
   template <typename Op, typename RHS>
-  struct binary_predicate : guard_predicate_tag {
+  struct binary_predicate : traits::guard_predicate_tag {
 
     RHS rhs;
 
@@ -120,29 +114,10 @@ namespace ptn::pat::mod {
     X x;
   };
 
-  // Trait to detect argument expression nodes.
-  template <typename T>
-  struct is_arg_expr : std::false_type {};
-
-  template <std::size_t I>
-  struct is_arg_expr<arg_t<I>> : std::true_type {};
-
-  template <typename T>
-  struct is_arg_expr<val_t<T>> : std::true_type {};
-
-  template <typename Op, typename L, typename R>
-  struct is_arg_expr<bin_expr<Op, L, R>> : std::true_type {};
-
-  template <typename Op, typename X>
-  struct is_arg_expr<un_expr<Op, X>> : std::true_type {};
-
-  template <typename T>
-  inline constexpr bool is_arg_expr_v = is_arg_expr<std::decay_t<T>>::value;
-
   // Normalizes operands to expression nodes.
   template <typename T>
   constexpr auto as_expr(T &&x) {
-    if constexpr (is_arg_expr_v<T>) {
+    if constexpr (traits::is_arg_expr_v<T>) {
       return std::forward<T>(x);
     }
     else {
@@ -177,7 +152,7 @@ namespace ptn::pat::mod {
 
   // Makes expression callable as predicate on bound tuples.
   template <typename Expr>
-  struct tuple_predicate : guard_predicate_tag {
+  struct tuple_predicate : traits::guard_predicate_tag {
     Expr expr;
 
     constexpr explicit tuple_predicate(Expr e) : expr(std::move(e)) {
@@ -221,28 +196,6 @@ namespace ptn::pat::mod {
   inline constexpr std::size_t max_arg_index_v =
       max_arg_index<std::decay_t<T>>::value;
 
-  // Trait to detect tuple predicates.
-  template <typename T>
-  struct is_tuple_predicate : std::false_type {};
-
-  template <typename E>
-  struct is_tuple_predicate<tuple_predicate<E>> : std::true_type {};
-
-  template <typename T>
-  inline constexpr bool is_tuple_predicate_v =
-      is_tuple_predicate<std::decay_t<T>>::value;
-
-  // Trait to detect tuple guard predicates (including && / || compositions).
-  template <typename T>
-  struct is_tuple_guard_predicate : std::false_type {};
-
-  template <typename E>
-  struct is_tuple_guard_predicate<tuple_predicate<E>> : std::true_type {};
-
-  template <typename T>
-  inline constexpr bool is_tuple_guard_predicate_v =
-      is_tuple_guard_predicate<std::decay_t<T>>::value;
-
   // Modulo operation helper.
   struct mod_op {
     template <typename A, typename B>
@@ -256,7 +209,9 @@ namespace ptn::pat::mod {
   template <
       typename L,
       typename R,
-      std::enable_if_t<(is_arg_expr_v<L> || is_arg_expr_v<R>), int> = 0>
+      std::enable_if_t<
+          (traits::is_arg_expr_v<L> || traits::is_arg_expr_v<R>),
+          int> = 0>
   constexpr auto operator+(L &&l, R &&r) {
     return bin_expr<
         std::plus<>,
@@ -268,7 +223,9 @@ namespace ptn::pat::mod {
   template <
       typename L,
       typename R,
-      std::enable_if_t<(is_arg_expr_v<L> || is_arg_expr_v<R>), int> = 0>
+      std::enable_if_t<
+          (traits::is_arg_expr_v<L> || traits::is_arg_expr_v<R>),
+          int> = 0>
   constexpr auto operator-(L &&l, R &&r) {
     return bin_expr<
         std::minus<>,
@@ -280,7 +237,9 @@ namespace ptn::pat::mod {
   template <
       typename L,
       typename R,
-      std::enable_if_t<(is_arg_expr_v<L> || is_arg_expr_v<R>), int> = 0>
+      std::enable_if_t<
+          (traits::is_arg_expr_v<L> || traits::is_arg_expr_v<R>),
+          int> = 0>
   constexpr auto operator*(L &&l, R &&r) {
     return bin_expr<
         std::multiplies<>,
@@ -292,7 +251,9 @@ namespace ptn::pat::mod {
   template <
       typename L,
       typename R,
-      std::enable_if_t<(is_arg_expr_v<L> || is_arg_expr_v<R>), int> = 0>
+      std::enable_if_t<
+          (traits::is_arg_expr_v<L> || traits::is_arg_expr_v<R>),
+          int> = 0>
   constexpr auto operator/(L &&l, R &&r) {
     return bin_expr<
         std::divides<>,
@@ -305,7 +266,9 @@ namespace ptn::pat::mod {
   template <
       typename L,
       typename R,
-      std::enable_if_t<(is_arg_expr_v<L> || is_arg_expr_v<R>), int> = 0>
+      std::enable_if_t<
+          (traits::is_arg_expr_v<L> || traits::is_arg_expr_v<R>),
+          int> = 0>
   constexpr auto operator%(L &&l, R &&r) {
     return bin_expr<
         mod_op,
@@ -318,7 +281,9 @@ namespace ptn::pat::mod {
   template <
       typename L,
       typename R,
-      std::enable_if_t<(is_arg_expr_v<L> || is_arg_expr_v<R>), int> = 0>
+      std::enable_if_t<
+          (traits::is_arg_expr_v<L> || traits::is_arg_expr_v<R>),
+          int> = 0>
   constexpr auto operator==(L &&l, R &&r) {
     return make_pred(
         bin_expr<
@@ -331,7 +296,9 @@ namespace ptn::pat::mod {
   template <
       typename L,
       typename R,
-      std::enable_if_t<(is_arg_expr_v<L> || is_arg_expr_v<R>), int> = 0>
+      std::enable_if_t<
+          (traits::is_arg_expr_v<L> || traits::is_arg_expr_v<R>),
+          int> = 0>
   constexpr auto operator!=(L &&l, R &&r) {
     return make_pred(
         bin_expr<
@@ -344,7 +311,9 @@ namespace ptn::pat::mod {
   template <
       typename L,
       typename R,
-      std::enable_if_t<(is_arg_expr_v<L> || is_arg_expr_v<R>), int> = 0>
+      std::enable_if_t<
+          (traits::is_arg_expr_v<L> || traits::is_arg_expr_v<R>),
+          int> = 0>
   constexpr auto operator<(L &&l, R &&r) {
     return make_pred(
         bin_expr<
@@ -357,7 +326,9 @@ namespace ptn::pat::mod {
   template <
       typename L,
       typename R,
-      std::enable_if_t<(is_arg_expr_v<L> || is_arg_expr_v<R>), int> = 0>
+      std::enable_if_t<
+          (traits::is_arg_expr_v<L> || traits::is_arg_expr_v<R>),
+          int> = 0>
   constexpr auto operator<=(L &&l, R &&r) {
     return make_pred(
         bin_expr<
@@ -370,7 +341,9 @@ namespace ptn::pat::mod {
   template <
       typename L,
       typename R,
-      std::enable_if_t<(is_arg_expr_v<L> || is_arg_expr_v<R>), int> = 0>
+      std::enable_if_t<
+          (traits::is_arg_expr_v<L> || traits::is_arg_expr_v<R>),
+          int> = 0>
   constexpr auto operator>(L &&l, R &&r) {
     return make_pred(
         bin_expr<
@@ -383,7 +356,9 @@ namespace ptn::pat::mod {
   template <
       typename L,
       typename R,
-      std::enable_if_t<(is_arg_expr_v<L> || is_arg_expr_v<R>), int> = 0>
+      std::enable_if_t<
+          (traits::is_arg_expr_v<L> || traits::is_arg_expr_v<R>),
+          int> = 0>
   constexpr auto operator>=(L &&l, R &&r) {
     return make_pred(
         bin_expr<
@@ -395,7 +370,7 @@ namespace ptn::pat::mod {
 
   // Logical AND for guard predicates.
   template <typename L, typename R>
-  struct pred_and : guard_predicate_tag {
+  struct pred_and : traits::guard_predicate_tag {
     L lhs;
     R rhs;
 
@@ -410,7 +385,7 @@ namespace ptn::pat::mod {
 
   // Logical OR for guard predicates.
   template <typename L, typename R>
-  struct pred_or : guard_predicate_tag {
+  struct pred_or : traits::guard_predicate_tag {
     L lhs;
     R rhs;
 
@@ -422,17 +397,6 @@ namespace ptn::pat::mod {
       return lhs(v) || rhs(v);
     }
   };
-
-  // Tuple guard predicate composition.
-  template <typename L, typename R>
-  struct is_tuple_guard_predicate<pred_and<L, R>>
-      : std::bool_constant<
-            is_tuple_guard_predicate_v<L> || is_tuple_guard_predicate_v<R>> {};
-
-  template <typename L, typename R>
-  struct is_tuple_guard_predicate<pred_or<L, R>>
-      : std::bool_constant<
-            is_tuple_guard_predicate_v<L> || is_tuple_guard_predicate_v<R>> {};
 
   // Computes maximum arg index used by a tuple guard predicate.
   template <typename T>
@@ -469,7 +433,7 @@ namespace ptn::pat::mod {
       typename L,
       typename R,
       std::enable_if_t<
-          is_guard_predicate_v<L> || is_guard_predicate_v<R>,
+          traits::is_guard_predicate_v<L> || traits::is_guard_predicate_v<R>,
           int> = 0>
   constexpr auto operator&&(L &&l, R &&r) {
     return pred_and<std::decay_t<L>, std::decay_t<R>>{
@@ -481,7 +445,7 @@ namespace ptn::pat::mod {
       typename L,
       typename R,
       std::enable_if_t<
-          is_guard_predicate_v<L> || is_guard_predicate_v<R>,
+          traits::is_guard_predicate_v<L> || traits::is_guard_predicate_v<R>,
           int> = 0>
   constexpr auto operator||(L &&l, R &&r) {
     return pred_or<std::decay_t<L>, std::decay_t<R>>{
@@ -510,7 +474,7 @@ namespace ptn::pat::mod {
 
   // Range predicate for interval checking.
   template <typename T>
-  struct range_predicate : guard_predicate_tag {
+  struct range_predicate : traits::guard_predicate_tag {
     T          lo;
     T          hi;
     range_mode mode;
@@ -559,19 +523,6 @@ namespace ptn::pat::mod {
         {}, std::forward<T>(lo), std::forward<T>(hi), range_mode::closed_open};
   }
 
-  // Detects if a pattern is a binding pattern.
-  template <typename P, typename = void>
-  struct is_binding_pattern : std::false_type {};
-
-  // Specialization for binding patterns.
-  template <typename P>
-  struct is_binding_pattern<P, std::void_t<decltype(P::is_binding)>>
-      : std::bool_constant<P::is_binding> {};
-
-  // Helper variable template for is_binding_pattern.
-  template <typename P>
-  inline constexpr bool is_binding_pattern_v = is_binding_pattern<P>::value;
-
   // Pattern wrapper that applies a predicate guard to an inner pattern.
   template <typename Inner, typename Pred>
   struct guarded_pattern
@@ -600,7 +551,7 @@ namespace ptn::pat::mod {
 
       constexpr std::size_t N = std::tuple_size_v<bound_t>;
 
-      if constexpr (ptn::pat::mod::is_tuple_guard_predicate_v<Pred>) {
+      if constexpr (ptn::pat::traits::is_tuple_guard_predicate_v<Pred>) {
         // compile-time bounds check: max arg index must be < N
         static_assert(
             ptn::pat::mod::max_tuple_guard_index_v<Pred> < N,
@@ -608,7 +559,7 @@ namespace ptn::pat::mod {
 
         return static_cast<bool>(pred(bound)); // tuple-level predicate
       }
-      else if constexpr (ptn::pat::mod::is_guard_predicate_v<Pred>) {
+      else if constexpr (ptn::pat::traits::is_guard_predicate_v<Pred>) {
         static_assert(
             N == 1,
             "[Patternia.guard]: Unary guard predicates (_ / rng / && / ||) "
