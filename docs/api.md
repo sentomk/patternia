@@ -45,11 +45,49 @@ int x = 42;
 match(x);   // subject matched as int
 
 // Explicit matching view
-double d = 3.14;
+double d =3.14;
 match<int>(d);  // subject is matched as int
 ```
 
 Specifying `AsType` explicitly forces the subject to be viewed as that type during pattern evaluation.
+
+---
+
+### `match(subject, case_tuple(...))`
+
+**Role**: Compact syntax for simple matching scenarios.
+
+**Syntax**:
+```cpp
+match(subject, case_tuple(case1, case2, ...))
+```
+
+**Key Characteristics**:
+
+* Provides a concise alternative to the standard `.when()` chain syntax
+* **No guards/predicates**: Cannot be used with guard expressions or predicates
+* Supports both pattern fallback (`__`) and match fallback patterns
+* Cases are evaluated sequentially using **first-match semantics**
+
+**Basic Usage**:
+
+```cpp
+match(x, case_tuple(
+  lit(1) >> [] { std::cout << "one\n"; },
+  lit(2) >> [] { std::cout << "two\n"; },
+  __    >> [] { std::cout << "other\n"; }
+));
+```
+
+**Limitations**:
+
+- Cannot use guard expressions `[]` with tuple syntax
+- Cannot use predicate-based guards
+- Best suited for simple literal and wildcard matching
+- For complex matching with guards, use the standard DSL syntax
+
+**Design Intent**:
+This syntax is optimized for straightforward value discrimination where the full power of the DSL (guards, complex patterns) is not needed.
 
 ---
 
@@ -103,25 +141,26 @@ Specifying `AsType` explicitly forces the subject to be viewed as that type duri
 ### `.otherwise(...)` and `.end()`
 
 These terminal operations define how a match expression is finalized.
-They represent a deliberate design distinction in Patternia and must be chosen explicitly.
+The key distinction between them is the use of the `__` pattern.
 
 ---
 
 #### `.otherwise(...)`
 
-**Trigger Condition**: Executed only if *no prior `when` clause matches successfully*.
+**Role**: Match fallback that works in all scenarios.
 
-**Purpose**: Enables expression-style matching with a guaranteed fallback.
+**Purpose**: Provides a fallback when no prior `when` clause matches successfully.
 
 **Characteristics**:
 
-* Must return a type consistent with all other branches
+* Can be used regardless of whether `__` pattern is present
 * Acts as a defensive default, not as a regular case
 * Evaluated only if no pattern has already matched
 
 ```cpp
 auto r = match(x)
   .when(lit(1) >> 10)
+  .when(lit(2) >> 20)
   .otherwise(0);
 ```
 
@@ -131,45 +170,45 @@ auto r = match(x)
 auto result = match(42)
   .when(lit(1) >> "one")      // No match
   .when(lit(2) >> "two")      // No match
-  .when(__ >> "other")        // Matches here
-  .otherwise("default");      // Not executed
+  .otherwise("default");          // Executed as fallback
 ```
 
 ---
 
 #### `.end()`
 
-**Purpose**: Terminates a statement-style match.
+**Purpose**: Required when using the `__` pattern fallback.
 
 **Characteristics**:
 
-* All handlers must return `void`
-* No fallback branch is permitted
-* Requires the set of patterns to be exhaustive
+* **Must** be used when `__` pattern is present in the match
+* Can be used with or without return values (not limited to `void`)
+* Not required when only using `.otherwise()`
 
 ```cpp
 match(x)
-  .when(lit(1) >> [] { log("one"); })
-  .when(__   >> [] { log("other"); })
-  .end();
+  .when(lit(1) >> [] { std::cout << "one\n"; })
+  .when(lit(2) >> [] { std::cout << "two\n"; })
+  .when(__   >> [] { std::cout << "other\n"; })  // pattern fallback
+  .end();  // Required for __ to work
 ```
 
-If no pattern matches and `.end()` is used, the program is **ill-formed**.
-This failure is detected at compile time.
+**Critical Rule**: If `__` pattern is used without `.end()`, the `__` case will **not trigger**.
 
 **Design Philosophy**:
-Patternia explicitly separates expression-oriented matching from statement-oriented control flow, rather than overloading a single construct with both semantics.
+The distinction between `.otherwise()` and `.end()` is driven by the `__` pattern's requirement for match inference.
 
 ---
 
 ### Comparison Summary
 
-| Feature      | `.otherwise()`      | `.end()`              |
-| ------------ | ------------------- | --------------------- |
-| Match Style  | Expression-oriented | Statement-oriented    |
-| Return Type  | Handler-determined  | `void`                |
-| Failure Mode | Runtime fallback    | Compile-time error    |
-| Typical Use  | Value computation   | Side-effect execution |
+| Feature                  | `.otherwise()` | `.end()` |
+| ------------------------ | -------------- | ---------- |
+| Key Requirement          | None          | Required for `__` pattern |
+| Return Type             | Handler-determined | Handler-determined |
+| Fallback Type           | Match fallback  | Pattern fallback (`__`) |
+| Usage Constraint         | Works in all scenarios | Must be used with `__` |
+| Typical Use Cases       | Value computation, defensive fallback | Exhaustive matching with `__` |
 
 ---
 
