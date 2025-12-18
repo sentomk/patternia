@@ -31,9 +31,37 @@
 
 ### Getting Started
 
-- **[Quick Start](https://sentomk.github.io/patternia/guide/getting-started/)**
+- **[Quick Start](https://sentomk.github.io/patternia/guide/getting-started/)**  
   Install Patternia and write your first pattern match case.
 
+---
+
+### Tutorials
+
+#### Getting Into Pattern Matching
+
+- **[From Control Flow to Pattern Matching]()**  
+  Refactoring `if` / `switch` into declarative pattern-based logic.
+
+<!-- #### For Readers Familiar with Pattern Matching
+
+- **[Pattern Matching in Other Languages](docs/tutorials/other-languages.md)**  
+  How Patternia relates to pattern matching systems in other languages.
+
+#### Core Techniques
+
+- **[Custom Predicate Guards](docs/tutorials/predicate-guards.md)**  
+  Defining and using custom guards in `when(...)`.
+
+#### Worked Examples
+
+- **[Protocol Packet Decomposition](docs/tutorials/protocol-packet.md)**  
+  Decomposing structured protocol data with patterns.
+
+- **[Geometric Constraint Matching](docs/tutorials/sphere-constraint.md)**  
+  Expressing `x² + y² + z² < 1` as a declarative pattern.
+
+--- -->
 
 ## *What Is Pattern Matching*  
 

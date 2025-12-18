@@ -76,6 +76,9 @@ markdown_extensions:
 nav:
   - Home: index.md
 
+  - Tutorials:
+      - From Control Flow to Pattern Matching: tutorials/from-control-flow.md
+
   - Guide:
       - Getting Started: guide/getting-started.md
       - Installation: guide/installation.md
