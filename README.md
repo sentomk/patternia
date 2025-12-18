@@ -27,7 +27,15 @@
 **A header-only, zero-overhead pattern matching library for modern C++ that transforms branching logic into expressive, maintainable code.**
 
 
-## What Is Pattern Matching  
+## *Learn Patternia*
+
+### Getting Started
+
+- **[Quick Start](https://sentomk.github.io/patternia/guide/getting-started/)**
+  Install Patternia and write your first pattern match case.
+
+
+## *What Is Pattern Matching*  
 
 **Pattern matching** is a control-flow mechanism that selects execution paths based on the structural form, construction, or type of values. By combining discrimination, decomposition, and structured binding into a single construct, pattern matching allows programs to reason about data shapes directly, rather than through ad-hoc conditional logic. Compared to traditional if-else chains or switch statements, pattern matching offers a more declarative and data-oriented way to express branching logic.
 
@@ -39,7 +47,7 @@
 * [Python Structural Pattern Matching (PEP 634)](https://peps.python.org/pep-0634/)
 
 
-## Control Flow in C++
+## *Control Flow in C++*
 
 In modern C++, control flow over heterogeneous or structured data is typically expressed using a combination of `if`/`else`, `switch`, type checks, and manual data access. While these mechanisms are flexible and expressive, they tend to scale poorly as data structures become more complex or evolve over time. Type discrimination, structural access, and business logic are often interleaved, making the resulting control flow harder to read, maintain, and extend.
 
@@ -79,7 +87,7 @@ match value {
 
 By unifying discrimination, decomposition, and binding, pattern matching allows control flow to be expressed declaratively and locally. This approach reduces boilerplate, minimizes accidental complexity, and provides a clearer foundation for reasoning about completeness and correctness as data structures evolve.
 
-## What Patternia Solves
+## *What Patternia Solves*
 
 **Patternia** is designed to address several long-standing pain points in C++ control flow and data-oriented logic—especially in codebases that operate on evolving data structures, heterogeneous types, or complex branching rules.
 
@@ -220,9 +228,7 @@ This makes Patternia particularly suitable for:
 * and any domain where *what the data looks like* matters as much as *what its value is*.
 
 
-## Quick Start
-
-👉 **[Getting Started Guide](https://sentomk.github.io/patternia/guide/getting-started/)**
+## *Quick Start*
 
 Patternia is a **header-only** library that brings expressive pattern matching to modern C++. 
 
@@ -250,7 +256,7 @@ int classify(int x) {
 For complete installation instructions, comprehensive examples, and in-depth tutorials, visit the **[Getting Started Guide](https://sentomk.github.io/patternia/guide/getting-started/)**.
 
 
-## API Reference
+## *API Reference*
 
 ### Quick Navigation
 
@@ -311,7 +317,7 @@ For complete installation instructions, comprehensive examples, and in-depth tut
 > Each section explains the semantic role and design intent of the API, in addition to usage examples.
 
 
-## Contributing
+## *Contributing*
 
 Contributions are welcome. Whether it is **bug reports**, **feature proposals**, or **pull requests**, your help is appreciated.
 
@@ -345,12 +351,6 @@ git clone https://github.com/SentoMK/patternia.git
 cd patternia
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
-```
-
-Run tests:
-
-```bash
-ctest --test-dir build
 ```
 
 ---
