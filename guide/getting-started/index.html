@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -530,10 +530,110 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#basic-example" class="md-nav__link">
+  <a href="#1-installation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Basic Example
+        1. Installation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-cmake-fetchcontent-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using CMake FetchContent (Recommended)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#by-vcpkg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        By vcpkg
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-installation-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other Installation Methods
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-matching-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Matching Values
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Matching Values">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-dsl-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic DSL Syntax
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-fallback-with-__-and-end" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern Fallback with __ and .end()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tuple-based-syntax-simple-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tuple-Based Syntax (Simple Cases)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-fallback-mechanisms-and-match-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Fallback Mechanisms and Match Completion
       
     </span>
   </a>
@@ -541,10 +641,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#case-insensitive-matching" class="md-nav__link">
+  <a href="#4-binding-values" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Case-insensitive matching
+        4. Binding Values
       
     </span>
   </a>
@@ -552,10 +652,65 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#no-macros-no-reflection-no-magic" class="md-nav__link">
+  <a href="#5-guards-conditional-matching" class="md-nav__link">
     <span class="md-ellipsis">
       
-        No macros. No reflection. No magic
+        5. Guards (Conditional Matching)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-structural-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Structural Matching
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-pattern-fallback-with-__-and-end" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Pattern Fallback with __ and .end()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-match-fallback-with-otherwise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Match Fallback with .otherwise()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-when-to-use-pattern-fallback-vs-match-fallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. When to Use Pattern Fallback vs Match Fallback
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-when-to-use-patternia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. When to Use Patternia
       
     </span>
   </a>
@@ -795,39 +950,230 @@ Once installed or fetched into your project, you can start using pattern matchin
 <span class="w">      </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;five&quot;</span><span class="p">)</span>
 <span class="w">      </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
 </code></pre></div>
-<hr />
-<h2 id="basic-example">Basic Example<a class="headerlink" href="#basic-example" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ptn/patternia.hpp&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<h2 id="1-installation">1. Installation<a class="headerlink" href="#1-installation" title="Permanent link">&para;</a></h2>
+<p>Patternia is a <strong>header-only</strong> library. No compilation or binary linking is required.</p>
+<h4 id="using-cmake-fetchcontent-recommended">Using CMake FetchContent (Recommended)<a class="headerlink" href="#using-cmake-fetchcontent-recommended" title="Permanent link">&para;</a></h4>
+<p>Patternia can be integrated directly via CMake <code>FetchContent</code>. This is the recommended approach during active development.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">include</span><span class="p">(</span><span class="s">FetchContent</span><span class="p">)</span>
+
+<span class="nb">FetchContent_Declare</span><span class="p">(</span>
+<span class="w">  </span><span class="s">patternia</span>
+<span class="w">  </span><span class="s">GIT_REPOSITORY</span><span class="w"> </span><span class="s">https://github.com/SentoMK/patternia.git</span>
+<span class="w">  </span><span class="s">GIT_TAG</span><span class="w">        </span><span class="s">main</span>
+<span class="p">)</span>
+
+<span class="nb">FetchContent_MakeAvailable</span><span class="p">(</span><span class="s">patternia</span><span class="p">)</span>
+</code></pre></div>
+<p>Then, include Patternia headers in your code:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ptn/patternia.hpp&quot;</span>
+</code></pre></div>
+<p><strong>Notes:</strong></p>
+<ul>
+<li><code>GIT_TAG main</code> tracks the latest development version</li>
+<li>Patternia is header-only — no targets need to be linked</li>
+<li>Requires <strong>C++17 or later</strong></li>
+</ul>
+<h3 id="by-vcpkg">By vcpkg<a class="headerlink" href="#by-vcpkg" title="Permanent link">&para;</a></h3>
+<p>vcpkg support is <strong>coming soon</strong>.</p>
+<h3 id="other-installation-methods">Other Installation Methods<a class="headerlink" href="#other-installation-methods" title="Permanent link">&para;</a></h3>
+<p>For additional installation options and detailed setup instructions (including manual integration and future package manager support), see:</p>
+<p>👉 <a href="https://sentomk.github.io/patternia/guide/installation/">Patternia Installation</a></p>
+<h2 id="2-matching-values">2. Matching Values<a class="headerlink" href="#2-matching-values" title="Permanent link">&para;</a></h2>
+<h3 id="basic-dsl-syntax">Basic DSL Syntax<a class="headerlink" href="#basic-dsl-syntax" title="Permanent link">&para;</a></h3>
+<p>At its simplest, Patternia replaces <code>if</code> / <code>switch</code> with a declarative, ordered match expression.</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ptn/patternia.hpp&gt;</span>
+
 <span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
 
 <span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
 
-<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span>
-<span class="w">    </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">      </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w">       </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span><span class="p">)</span>
-<span class="w">      </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w">      </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;answer to everything&quot;</span><span class="p">)</span>
-<span class="w">      </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
-
-<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;one</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;two</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;other</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">});</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Output:</p>
-<div class="highlight"><pre><span></span><code>answer to everything
-</code></pre></div>
-<hr />
-<h2 id="case-insensitive-matching">Case-insensitive matching<a class="headerlink" href="#case-insensitive-matching" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Ok&quot;</span><span class="p">;</span>
+<h3 id="pattern-fallback-with-__-and-end">Pattern Fallback with <code>__</code> and <code>.end()</code><a class="headerlink" href="#pattern-fallback-with-__-and-end" title="Permanent link">&para;</a></h3>
+<p>For exhaustive data types where you want to use pattern fallback:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ptn/patternia.hpp&gt;</span>
 
-<span class="k">auto</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit_ci</span><span class="p">(</span><span class="s">&quot;OK&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;accepted&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;rejected&quot;</span><span class="p">);</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;one</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;two</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;other values</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// pattern fallback</span>
+<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">  </span><span class="c1">// required for __ to work</span>
+<span class="p">}</span>
 </code></pre></div>
-<hr />
-<h2 id="no-macros-no-reflection-no-magic">No macros. No reflection. No magic<a class="headerlink" href="#no-macros-no-reflection-no-magic" title="Permanent link">&para;</a></h2>
-<p>Patternia compiles down to normal C++ control flow using inlined pattern objects.
-There is no runtime overhead beyond executing the selected handler.</p>
+<h3 id="tuple-based-syntax-simple-cases">Tuple-Based Syntax (Simple Cases)<a class="headerlink" href="#tuple-based-syntax-simple-cases" title="Permanent link">&para;</a></h3>
+<p>For simple matching scenarios, Patternia provides a concise tuple-based syntax:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ptn/patternia.hpp&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">case_tuple</span><span class="p">(</span>
+<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;one</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;two</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="n">__</span><span class="w">    </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;other</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c1">// pattern fallback</span>
+<span class="w">  </span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Key points:</strong></p>
+<ul>
+<li><code>match(subject, case_tuple(...))</code> provides a compact syntax for simple cases</li>
+<li><strong>No guards/predicates</strong>: This syntax cannot be used with guard expressions or predicates</li>
+<li>Cases are tested <strong>top-to-bottom (first-match semantics)</strong></li>
+<li>Supports both pattern fallback (<code>__</code>) and match fallback patterns</li>
+<li>Ideal for straightforward value matching without complex conditions</li>
+</ul>
+<p><strong>Limitations:</strong>
+- Cannot use guard expressions <code>[]</code> with tuple syntax
+- Cannot use predicate-based guards
+- Best suited for simple literal and wildcard matching</p>
+<p>For complex matching with guards, use the standard DSL syntax shown above.</p>
+<h2 id="3-fallback-mechanisms-and-match-completion">3. Fallback Mechanisms and Match Completion<a class="headerlink" href="#3-fallback-mechanisms-and-match-completion" title="Permanent link">&para;</a></h2>
+<p>Patternia supports <strong>value-returning matches</strong>, similar to Rust or Scala.</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="nf">classify</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mi">-1</span><span class="p">);</span><span class="w">  </span><span class="c1">// returns a value</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Both <code>.otherwise()</code> and <code>.end()</code> can be used for either value-returning or side-effect scenarios. The key distinction is:</p>
+<ul>
+<li><strong><code>.otherwise()</code></strong>: Match fallback that works in all scenarios</li>
+<li><strong><code>.end()</code></strong>: Required when using <code>__</code> pattern fallback</li>
+</ul>
+<p><strong>Using <code>.otherwise()</code>:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">200</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// match fallback</span>
+</code></pre></div></p>
+<p><strong>Using <code>.end()</code> with <code>__</code>:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;case 1</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;case 2</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;fallback</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// pattern fallback</span>
+<span class="w">  </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">  </span><span class="c1">// required for __</span>
+</code></pre></div></p>
+<p><strong>Key Point:</strong> <code>.end()</code> is specifically required when using the <code>__</code> pattern, while <code>.otherwise()</code> can be used independently of <code>__</code>.</p>
+<h2 id="4-binding-values">4. Binding Values<a class="headerlink" href="#4-binding-values" title="Permanent link">&para;</a></h2>
+<p>To access the matched value inside a handler, use <code>bind()</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;value = &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
+</code></pre></div>
+<p><code>bind()</code> introduces bindings explicitly—nothing is bound implicitly.</p>
+<p>This makes data flow <strong>visible and predictable</strong>, especially in complex matches.</p>
+<h2 id="5-guards-conditional-matching">5. Guards (Conditional Matching)<a class="headerlink" href="#5-guards-conditional-matching" title="Permanent link">&para;</a></h2>
+<p>Guards allow you to attach constraints to patterns.</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+
+<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">()[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;in range: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;out of range</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="p">});</span>
+</code></pre></div>
+<ul>
+<li><code>_</code> is a placeholder for the bound value</li>
+<li>Guard expressions are <strong>composable</strong> and <strong>side-effect free</strong></li>
+<li>Guards run only after the pattern itself matches</li>
+</ul>
+<h2 id="6-structural-matching">6. Structural Matching<a class="headerlink" href="#6-structural-matching" title="Permanent link">&para;</a></h2>
+<p>Patternia can match <strong>structure</strong>, not just values.</p>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Point</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="n">Point</span><span class="w"> </span><span class="n">p</span><span class="p">{</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">-3</span><span class="p">};</span>
+
+<span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
+<span class="w">    </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
+<span class="w">    </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;on diagonal</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
+</code></pre></div>
+<p>Here:</p>
+<ul>
+<li><code>has&lt;&amp;Point::x, &amp;Point::y&gt;</code> describes the expected <strong>shape</strong></li>
+<li><code>bind(...)</code> extracts values explicitly</li>
+<li>Guards can express <strong>relationships between multiple bindings</strong></li>
+</ul>
+<h2 id="7-pattern-fallback-with-__-and-end">7. Pattern Fallback with <code>__</code> and <code>.end()</code><a class="headerlink" href="#7-pattern-fallback-with-__-and-end" title="Permanent link">&para;</a></h2>
+<p>Use <code>__</code> as a pattern fallback that <strong>must be paired with <code>.end()</code></strong> to trigger match inference:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// For exhaustive data types (integers, enums, etc.)</span>
+<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;zero</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;one</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;other values</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// pattern fallback</span>
+<span class="w">  </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">  </span><span class="c1">// required for __ to work</span>
+</code></pre></div>
+<p><strong>Important:</strong> <code>__</code> (pattern fallback) <strong>must</strong> be used with <code>.end()</code> to enable match inference. Without <code>.end()</code>, the <code>__</code> case will not trigger.</p>
+<h2 id="8-match-fallback-with-otherwise">8. Match Fallback with <code>.otherwise()</code><a class="headerlink" href="#8-match-fallback-with-otherwise" title="Permanent link">&para;</a></h2>
+<p>Use <code>.otherwise()</code> as a match fallback for scenarios where exhaustive matching is not possible or practical:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// For non-exhaustive or complex data types</span>
+<span class="n">match</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">valid_pattern</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;no match found</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">});</span><span class="w">  </span><span class="c1">// match fallback</span>
+</code></pre></div>
+<p><strong>Key Rules:</strong></p>
+<ul>
+<li><strong><code>__</code> + <code>.end()</code></strong>: Use for <strong>exhaustive data types</strong> (integers, enums, etc.) where all possible cases are known</li>
+<li><strong><code>.otherwise()</code></strong>: Use when matching is <strong>not guaranteed to be exhaustive</strong> (complex structures, variants, etc.)</li>
+<li><strong>Cannot mix</strong>: <code>__</code>/<code>.end()</code> and <code>.otherwise()</code> <strong>cannot</strong> be used in the same match expression</li>
+</ul>
+<h2 id="9-when-to-use-pattern-fallback-vs-match-fallback">9. When to Use Pattern Fallback vs Match Fallback<a class="headerlink" href="#9-when-to-use-pattern-fallback-vs-match-fallback" title="Permanent link">&para;</a></h2>
+<p>Choose the right fallback strategy based on your data type:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// ✅ For exhaustive types - use __ + end()</span>
+<span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Color</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Red</span><span class="p">,</span><span class="w"> </span><span class="n">Green</span><span class="p">,</span><span class="w"> </span><span class="n">Blue</span><span class="w"> </span><span class="p">};</span>
+<span class="n">match</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Color</span><span class="o">::</span><span class="n">Red</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Color</span><span class="o">::</span><span class="n">Green</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* handles Color::Blue */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
+
+<span class="c1">// ✅ For non-exhaustive types - use otherwise()</span>
+<span class="n">match</span><span class="p">(</span><span class="n">variant_value</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">some_pattern</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">fallback_handler</span><span class="p">);</span>
+
+<span class="c1">// ❌ WRONG - cannot mix both</span>
+<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">});</span><span class="w">  </span><span class="c1">// Compile error!</span>
+</code></pre></div>
+<h2 id="10-when-to-use-patternia">10. When to Use Patternia<a class="headerlink" href="#10-when-to-use-patternia" title="Permanent link">&para;</a></h2>
+<p>Patternia is particularly effective when:</p>
+<ul>
+<li>branching depends on <strong>data shape</strong>, not just values</li>
+<li>conditions involve <strong>relationships between multiple fields</strong></li>
+<li><code>if</code> / <code>switch</code> logic becomes deeply nested</li>
+<li>you want expression-oriented control flow</li>
+</ul>
+<p>For a deeper dive, see the <strong>API Reference</strong> and <strong>Design Guide</strong>.</p>
 
 
 
@@ -923,10 +1269,10 @@ There is no runtime overhead beyond executing the selected handler.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "search.share", "content.code.copy"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "search.share", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

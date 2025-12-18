@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/favicon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -640,6 +640,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#matchsubject-case_tuple" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        match(subject, case_tuple(...))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#whenpattern-handler" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1220,10 +1231,39 @@ It defines how values are inspected, how cases are registered, and how matching 
 <span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">);</span><span class="w">   </span><span class="c1">// subject matched as int</span>
 
 <span class="c1">// Explicit matching view</span>
-<span class="kt">double</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.14</span><span class="p">;</span>
+<span class="kt">double</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="mf">3.14</span><span class="p">;</span>
 <span class="n">match</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">d</span><span class="p">);</span><span class="w">  </span><span class="c1">// subject is matched as int</span>
 </code></pre></div>
 <p>Specifying <code>AsType</code> explicitly forces the subject to be viewed as that type during pattern evaluation.</p>
+<hr />
+<h3 id="matchsubject-case_tuple"><code>match(subject, case_tuple(...))</code><a class="headerlink" href="#matchsubject-case_tuple" title="Permanent link">&para;</a></h3>
+<p><strong>Role</strong>: Compact syntax for simple matching scenarios.</p>
+<p><strong>Syntax</strong>:
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="n">case_tuple</span><span class="p">(</span><span class="n">case1</span><span class="p">,</span><span class="w"> </span><span class="n">case2</span><span class="p">,</span><span class="w"> </span><span class="p">...))</span>
+</code></pre></div></p>
+<p><strong>Key Characteristics</strong>:</p>
+<ul>
+<li>Provides a concise alternative to the standard <code>.when()</code> chain syntax</li>
+<li><strong>No guards/predicates</strong>: Cannot be used with guard expressions or predicates</li>
+<li>Supports both pattern fallback (<code>__</code>) and match fallback patterns</li>
+<li>Cases are evaluated sequentially using <strong>first-match semantics</strong></li>
+</ul>
+<p><strong>Basic Usage</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">case_tuple</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;one</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;two</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="n">__</span><span class="w">    </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;other</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">));</span>
+</code></pre></div>
+<p><strong>Limitations</strong>:</p>
+<ul>
+<li>Cannot use guard expressions <code>[]</code> with tuple syntax</li>
+<li>Cannot use predicate-based guards</li>
+<li>Best suited for simple literal and wildcard matching</li>
+<li>For complex matching with guards, use the standard DSL syntax</li>
+</ul>
+<p><strong>Design Intent</strong>:
+This syntax is optimized for straightforward value discrimination where the full power of the DSL (guards, complex patterns) is not needed.</p>
 <hr />
 <h3 id="whenpattern-handler"><code>.when(pattern &gt;&gt; handler)</code><a class="headerlink" href="#whenpattern-handler" title="Permanent link">&para;</a></h3>
 <p><strong>Role</strong>: Primary case-definition primitive.</p>
@@ -1268,46 +1308,46 @@ It defines how values are inspected, how cases are registered, and how matching 
 <hr />
 <h3 id="otherwise-and-end"><code>.otherwise(...)</code> and <code>.end()</code><a class="headerlink" href="#otherwise-and-end" title="Permanent link">&para;</a></h3>
 <p>These terminal operations define how a match expression is finalized.
-They represent a deliberate design distinction in Patternia and must be chosen explicitly.</p>
+The key distinction between them is the use of the <code>__</code> pattern.</p>
 <hr />
 <h4 id="otherwise"><code>.otherwise(...)</code><a class="headerlink" href="#otherwise" title="Permanent link">&para;</a></h4>
-<p><strong>Trigger Condition</strong>: Executed only if <em>no prior <code>when</code> clause matches successfully</em>.</p>
-<p><strong>Purpose</strong>: Enables expression-style matching with a guaranteed fallback.</p>
+<p><strong>Role</strong>: Match fallback that works in all scenarios.</p>
+<p><strong>Purpose</strong>: Provides a fallback when no prior <code>when</code> clause matches successfully.</p>
 <p><strong>Characteristics</strong>:</p>
 <ul>
-<li>Must return a type consistent with all other branches</li>
+<li>Can be used regardless of whether <code>__</code> pattern is present</li>
 <li>Acts as a defensive default, not as a regular case</li>
 <li>Evaluated only if no pattern has already matched</li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
 </code></pre></div>
 <p><strong>Execution Semantics</strong>:</p>
 <div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">)</span><span class="w">      </span><span class="c1">// No match</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">)</span><span class="w">      </span><span class="c1">// No match</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span><span class="p">)</span><span class="w">        </span><span class="c1">// Matches here</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;default&quot;</span><span class="p">);</span><span class="w">      </span><span class="c1">// Not executed</span>
+<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;default&quot;</span><span class="p">);</span><span class="w">          </span><span class="c1">// Executed as fallback</span>
 </code></pre></div>
 <hr />
 <h4 id="end"><code>.end()</code><a class="headerlink" href="#end" title="Permanent link">&para;</a></h4>
-<p><strong>Purpose</strong>: Terminates a statement-style match.</p>
+<p><strong>Purpose</strong>: Required when using the <code>__</code> pattern fallback.</p>
 <p><strong>Characteristics</strong>:</p>
 <ul>
-<li>All handlers must return <code>void</code></li>
-<li>No fallback branch is permitted</li>
-<li>Requires the set of patterns to be exhaustive</li>
+<li><strong>Must</strong> be used when <code>__</code> pattern is present in the match</li>
+<li>Can be used with or without return values (not limited to <code>void</code>)</li>
+<li>Not required when only using <code>.otherwise()</code></li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;one&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;one</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;two</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;other</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// pattern fallback</span>
+<span class="w">  </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">  </span><span class="c1">// Required for __ to work</span>
 </code></pre></div>
-<p>If no pattern matches and <code>.end()</code> is used, the program is <strong>ill-formed</strong>.
-This failure is detected at compile time.</p>
+<p><strong>Critical Rule</strong>: If <code>__</code> pattern is used without <code>.end()</code>, the <code>__</code> case will <strong>not trigger</strong>.</p>
 <p><strong>Design Philosophy</strong>:
-Patternia explicitly separates expression-oriented matching from statement-oriented control flow, rather than overloading a single construct with both semantics.</p>
+The distinction between <code>.otherwise()</code> and <code>.end()</code> is driven by the <code>__</code> pattern's requirement for match inference.</p>
 <hr />
 <h3 id="comparison-summary">Comparison Summary<a class="headerlink" href="#comparison-summary" title="Permanent link">&para;</a></h3>
 <table>
@@ -1320,24 +1360,29 @@ Patternia explicitly separates expression-oriented matching from statement-orien
 </thead>
 <tbody>
 <tr>
-<td>Match Style</td>
-<td>Expression-oriented</td>
-<td>Statement-oriented</td>
+<td>Key Requirement</td>
+<td>None</td>
+<td>Required for <code>__</code> pattern</td>
 </tr>
 <tr>
 <td>Return Type</td>
 <td>Handler-determined</td>
-<td><code>void</code></td>
+<td>Handler-determined</td>
 </tr>
 <tr>
-<td>Failure Mode</td>
-<td>Runtime fallback</td>
-<td>Compile-time error</td>
+<td>Fallback Type</td>
+<td>Match fallback</td>
+<td>Pattern fallback (<code>__</code>)</td>
 </tr>
 <tr>
-<td>Typical Use</td>
-<td>Value computation</td>
-<td>Side-effect execution</td>
+<td>Usage Constraint</td>
+<td>Works in all scenarios</td>
+<td>Must be used with <code>__</code></td>
+</tr>
+<tr>
+<td>Typical Use Cases</td>
+<td>Value computation, defensive fallback</td>
+<td>Exhaustive matching with <code>__</code></td>
 </tr>
 </tbody>
 </table>
@@ -1890,10 +1935,10 @@ Unlisted members are simply ignored.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "search.share", "content.code.copy"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "search.share", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
