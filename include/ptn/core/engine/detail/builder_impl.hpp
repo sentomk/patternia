@@ -258,15 +258,11 @@ namespace ptn::core::engine {
 
   template <typename TV, typename... Cases>
   constexpr auto
-  match(TV &&subject, core::dsl::detail::cases_pack<Cases...> pack) {
+  match(TV &subject, core::dsl::detail::cases_pack<Cases...> pack) {
 
     using subject_ref_t = std::remove_reference_t<TV> &;
-
-    subject_ref_t subj = subject;
-
-    using builder_t = detail::match_builder<subject_ref_t, false, Cases...>;
-
-    return builder_t::create(subj, std::move(pack.cases));
+    using builder_t     = detail::match_builder<subject_ref_t, false, Cases...>;
+    return builder_t::create(subject, std::move(pack.cases));
   }
 
 } // namespace ptn::core::engine
