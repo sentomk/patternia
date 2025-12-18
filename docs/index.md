@@ -8,6 +8,9 @@ Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic c
 
 ## Navigation
 
+### Tutorials
+- [From Control Flow to Pattern Matching](tutorials/from-control-flow.md) - Start here if you are new to pattern matching
+
 ### Quick Start
 - [Getting Started](guide/getting-started.md) - Complete examples from basics to advanced
 - [Installation](guide/installation.md) - How to integrate Patternia into your project
