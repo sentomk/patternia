@@ -10,13 +10,17 @@ Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic c
 
 ### Tutorials
 - [From Control Flow to Pattern Matching](tutorials/from-control-flow.md) - Start here if you are new to pattern matching
+- [Pattern Matching in Other Languages](tutorials/other-languages.md) - For readers familiar with pattern matching
+- [Custom Predicate Guards](tutorials/predicate-guards.md) - Using guards as part of case definition
+- [Example - Policy Constraint Matching](tutorials/policy-constraint.md) - From ad-hoc rules to declarative policies
+- [Example - Geometric Constraint Matching](tutorials/sphere-constraint.md) - From numeric conditions to declarative shape constraints
 
 ### Quick Start
 - [Getting Started](guide/getting-started.md) - Complete examples from basics to advanced
 - [Installation](guide/installation.md) - How to integrate Patternia into your project
 
 ### API Reference
-- [API Documentation](api.md) - Complete API reference for all functions and patterns
+- [API Documentation](api.md) - Complete API reference for all patterns and functions
 
 ### Project Information
 - [Releases](changelog/releases.md) - Version update history

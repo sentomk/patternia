@@ -34,7 +34,6 @@
 - **[Quick Start](https://patternia.tech/guide/getting-started/)**  
   Install Patternia and write your first pattern match case.
 
----
 
 ### Tutorials
 
@@ -43,25 +42,25 @@
 - **[From Control Flow to Pattern Matching](https://patternia.tech/tutorials/from-control-flow/)**  
   Refactoring `if` / `switch` into declarative pattern-based logic.
 
-<!-- #### For Readers Familiar with Pattern Matching
+#### For Readers Familiar with Pattern Matching
 
-- **[Pattern Matching in Other Languages](docs/tutorials/other-languages.md)**  
+
+- **[Pattern Matching in Other Languages](https://patternia.tech/tutorials/other-languages)**  
   How Patternia relates to pattern matching systems in other languages.
 
 #### Core Techniques
 
-- **[Custom Predicate Guards](docs/tutorials/predicate-guards.md)**  
+- **[Custom Predicate Guards](https://patternia.tech/tutorials/predicate-guards)**  
   Defining and using custom guards in `when(...)`.
 
 #### Worked Examples
 
-- **[Protocol Packet Decomposition](docs/tutorials/protocol-packet.md)**  
+- **[Policy Constraint Matching](https://patternia.tech/tutorials/policy-constraint)**  
   Decomposing structured protocol data with patterns.
 
-- **[Geometric Constraint Matching](docs/tutorials/sphere-constraint.md)**  
+- **[Geometric Constraint Matching](https://patternia.tech/tutorials/sphere-constraint)**  
   Expressing `x² + y² + z² < 1` as a declarative pattern.
 
---- -->
 
 ## *What Is Pattern Matching*  
 
