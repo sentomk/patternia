@@ -31,7 +31,7 @@
 
 ### Getting Started
 
-- **[Quick Start](https://sentomk.github.io/patternia/guide/getting-started/)**  
+- **[Quick Start](https://patternia.tech/guide/getting-started/)**  
   Install Patternia and write your first pattern match case.
 
 ---
@@ -40,7 +40,7 @@
 
 #### Getting Into Pattern Matching
 
-- **[From Control Flow to Pattern Matching]()**  
+- **[From Control Flow to Pattern Matching](https://patternia.tech/tutorials/from-control-flow/)**  
   Refactoring `if` / `switch` into declarative pattern-based logic.
 
 <!-- #### For Readers Familiar with Pattern Matching
