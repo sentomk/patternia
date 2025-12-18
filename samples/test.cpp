@@ -2,7 +2,6 @@
 #include <iostream>
 
 using namespace ptn;
-using namespace ptn::core::engine;
 
 int main() {
   int x = 42;
