@@ -12,13 +12,13 @@
         <meta name="author" content="Y.F. Guo">
       
       
-        <link rel="canonical" href="https://sentomk.github.io/patternia/tutorials/from-control-flow/">
+        <link rel="canonical" href="https://sentomk.github.io/patternia/tutorials/sphere-constraint/">
       
       
-        <link rel="prev" href="../..">
+        <link rel="prev" href="../policy-constraint/">
       
       
-        <link rel="next" href="../other-languages/">
+        <link rel="next" href="../../guide/getting-started/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>From Control Flow to Pattern Matching - Patternia</title>
+        <title>Example - Geometric Constraint Matching - Patternia</title>
       
     
     
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#from-control-flow-to-pattern-matching" class="md-skip">
+        <a href="#geometric-constraint-matching" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              From Control Flow to Pattern Matching
+              Example - Geometric Constraint Matching
             
           </span>
         </div>
@@ -242,7 +242,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+        <a href="../from-control-flow/" class="md-tabs__link">
           
   
   
@@ -448,37 +448,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    From Control Flow to Pattern Matching
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../from-control-flow/" class="md-nav__link">
         
   
   
@@ -494,114 +467,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#control-flow-as-it-grows-in-practice" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Control Flow as It Grows in Practice
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#simple-decisions-deserve-simple-matching" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Simple Decisions Deserve Simple Matching
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#when-value-dispatch-is-no-longer-enough" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        When Value Dispatch Is No Longer Enough
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#making-data-flow-explicit-with-the-builder-form" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Making Data Flow Explicit with the Builder Form
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#separating-structure-constraints-and-behavior" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Separating Structure, Constraints, and Behavior
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#fallbacks-as-explicit-design-choices" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Fallbacks as Explicit Design Choices
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#binding-and-guards-as-a-discipline-not-a-convenience" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Binding and Guards as a Discipline, Not a Convenience
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#thinking-in-cases-instead-of-branches" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Thinking in Cases Instead of Branches
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -695,10 +560,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../sphere-constraint/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Example - Geometric Constraint Matching
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -714,6 +606,114 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#from-numeric-conditions-to-declarative-shape-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From Numeric Conditions to Declarative Shape Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#choosing-the-subject-of-the-match" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choosing the Subject of the Match
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#binding-structure-before-reasoning-about-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Binding Structure Before Reasoning About Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#writing-the-constraint-as-a-predicate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing the Constraint as a Predicate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attaching-a-multi-value-guard-correctly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attaching a Multi-Value Guard Correctly
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-additional-constraints-without-confusing-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding Additional Constraints Without Confusing Semantics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-structure-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why This Structure Matters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#constraints-as-patterns-not-conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constraints as Patterns, Not Conditions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1035,82 +1035,95 @@
   
 
 
-<h1 id="from-control-flow-to-pattern-matching">From Control Flow to Pattern Matching<a class="headerlink" href="#from-control-flow-to-pattern-matching" title="Permanent link">&para;</a></h1>
-<h2 id="control-flow-as-it-grows-in-practice">Control Flow as It Grows in Practice<a class="headerlink" href="#control-flow-as-it-grows-in-practice" title="Permanent link">&para;</a></h2>
-<p>Control flow in C++ is usually learned as a sequence of decisions. You test a condition, you take a branch, and you continue. Over time, this approach becomes second nature: whenever a function needs to “decide,” an <code>if</code> or a <code>switch</code> appears. The problem is not that these constructs are wrong, but that they silently take on too many responsibilities as code evolves.</p>
-<p>A simple decision today often becomes a policy tomorrow. Conditions start to overlap. Temporary variables appear only to shuttle values between checks. Eventually, the structure of the logic is no longer visible from the code itself. Pattern matching in Patternia is designed to address this drift by changing how decisions are expressed, without requiring a different language or runtime model.</p>
-<hr />
-<h2 id="simple-decisions-deserve-simple-matching">Simple Decisions Deserve Simple Matching<a class="headerlink" href="#simple-decisions-deserve-simple-matching" title="Permanent link">&para;</a></h2>
-<p>The first idea to internalize is that <strong>not all branching deserves the same level of expressiveness</strong>. Patternia reflects this by offering a deliberately simple entry point and a more expressive form, instead of one universal mechanism that tries to do everything.</p>
-<p>When a decision is purely about <em>which value you have</em>, Patternia expects you to say exactly that—no more, no less. This is the role of <code>match(x, cases())</code>.</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">describe</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">cases</span><span class="p">(</span>
-<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="n">__</span><span class="w">     </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;many&quot;</span>
-<span class="w">  </span><span class="p">));</span>
+<h1 id="geometric-constraint-matching">Geometric Constraint Matching<a class="headerlink" href="#geometric-constraint-matching" title="Permanent link">&para;</a></h1>
+<h2 id="from-numeric-conditions-to-declarative-shape-constraints">From Numeric Conditions to Declarative Shape Constraints<a class="headerlink" href="#from-numeric-conditions-to-declarative-shape-constraints" title="Permanent link">&para;</a></h2>
+<p>Geometric constraints are a good stress test for any control-flow abstraction. They are simple to state mathematically, yet often awkward to express clearly in code. A classic example is the unit sphere: a point lies inside the sphere if and only if
+<code>x² + y² + z² &lt; 1</code>.</p>
+<p>In traditional C++, this condition is usually written as a boolean expression embedded directly inside an <code>if</code> statement. The code is compact, but the intent tends to blur once additional decisions are layered on top.</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">inside_unit_sphere</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec3</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>This form is intentionally constrained. Each case is a direct mapping from a pattern to a result. There is no binding, no predicate, and no hidden control flow. The reader can understand the entire decision at a glance. This is not a limitation to be worked around; it is a design boundary. As long as your logic fits naturally into a <code>switch</code>, <code>cases()</code> is where it belongs.</p>
+<p>Patternia approaches the same problem from a different angle. Instead of asking “is this condition true?”, it asks “does this value belong to a case defined by this constraint?”. That shift becomes more visible as the example grows.</p>
 <hr />
-<h2 id="when-value-dispatch-is-no-longer-enough">When Value Dispatch Is No Longer Enough<a class="headerlink" href="#when-value-dispatch-is-no-longer-enough" title="Permanent link">&para;</a></h2>
-<p>The moment that boundary is crossed, imperative code usually starts to stretch. Consider logic that depends not just on a value, but on a property of that value:</p>
-<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="nf">bucket</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
-<p>This is no longer value dispatch. The conditions overlap, and the ordering matters. Trying to force this logic into a value-based case list would hide the intent rather than clarify it. Patternia does not ask you to bend <code>cases()</code> to accommodate this. Instead, it asks you to change how the decision itself is modeled.</p>
-<hr />
-<h2 id="making-data-flow-explicit-with-the-builder-form">Making Data Flow Explicit with the Builder Form<a class="headerlink" href="#making-data-flow-explicit-with-the-builder-form" title="Permanent link">&para;</a></h2>
-<p>At this point, you move to the builder form, <code>match(x).when(...)</code>, and you make data flow explicit through binding:</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">bucket</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">()[</span><span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">()[</span><span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="w">  </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">()[</span><span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">100</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div>
-<p>What matters here is not the syntax, but the semantics. Each case now describes a complete rule: bind the value, require a condition to hold, then produce a result. Guards are not arbitrary filters; they are part of the case definition itself. If a guard fails, the case simply does not exist for that input.</p>
-<p>This distinction—between <em>selecting a case</em> and <em>refining a case</em>—is fundamental. Guards are not available in <code>cases()</code> precisely because <code>cases()</code> is not about refinement. It is about enumeration. Once you need refinement, Patternia requires you to make that step visible in the structure of the code.</p>
-<hr />
-<h2 id="separating-structure-constraints-and-behavior">Separating Structure, Constraints, and Behavior<a class="headerlink" href="#separating-structure-constraints-and-behavior" title="Permanent link">&para;</a></h2>
-<p>The same principle applies when decisions depend on structured data. In imperative code, it is common to see fields accessed and validated inline, often with early returns. Over time, this produces handlers that are half validation and half behavior.</p>
-<p>Patternia encourages a different organization. Structure is matched first, data is bound explicitly, and semantic constraints are expressed as guards. The handler then operates under the assumption that all prerequisites are satisfied.</p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">User</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="p">;</span>
-<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">active</span><span class="p">;</span>
+<h2 id="choosing-the-subject-of-the-match">Choosing the Subject of the Match<a class="headerlink" href="#choosing-the-subject-of-the-match" title="Permanent link">&para;</a></h2>
+<p>The subject of the decision is the point itself:</p>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Vec3</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">z</span><span class="p">;</span>
 <span class="p">};</span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">User</span><span class="o">&amp;</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+</code></pre></div>
+<p>There is no finite set of values to enumerate, so this is not a <code>cases()</code> problem. We are dealing with constraints, not value dispatch, which means we move directly to the <code>when(...)</code> form.</p>
+<hr />
+<h2 id="binding-structure-before-reasoning-about-constraints">Binding Structure Before Reasoning About Constraints<a class="headerlink" href="#binding-structure-before-reasoning-about-constraints" title="Permanent link">&para;</a></h2>
+<p>The geometric constraint depends on the coordinates of the point. Rather than accessing those fields inside a handler, Patternia encourages binding them explicitly as part of the case definition.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
+<span class="w">    </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">z</span><span class="o">&gt;</span><span class="p">())</span>
+<span class="w">      </span><span class="cm">/* guard */</span>
+<span class="w">      </span><span class="o">&gt;&gt;</span>
+<span class="w">    </span><span class="cm">/* handler */</span>
+<span class="w">  </span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="cm">/* fallback */</span><span class="p">);</span>
+</code></pre></div>
+<p>At this stage, nothing has been “checked” yet. The code simply states that this case is about points for which <code>x</code>, <code>y</code>, and <code>z</code> are relevant. Binding defines <em>what data the case operates on</em> before any constraint is applied.</p>
+<hr />
+<h2 id="writing-the-constraint-as-a-predicate">Writing the Constraint as a Predicate<a class="headerlink" href="#writing-the-constraint-as-a-predicate" title="Permanent link">&para;</a></h2>
+<p>The constraint <code>x² + y² + z² &lt; 1</code> is not a simple relational check. It involves arithmetic across multiple values. This is exactly the point where Patternia expects you to step out of expression-based guards and write a predicate.</p>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">inside_unit_sphere</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[](</span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">z</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>This predicate is ordinary C++. It can be tested independently and reused elsewhere. Patternia does not attempt to encode this kind of logic into operator overloads, because doing so would obscure intent rather than clarify it.</p>
+<hr />
+<h2 id="attaching-a-multi-value-guard-correctly">Attaching a Multi-Value Guard Correctly<a class="headerlink" href="#attaching-a-multi-value-guard-correctly" title="Permanent link">&para;</a></h2>
+<p>With multiple bound values, the guard operates over <strong>all bindings at once</strong>. In this context, it is important to be precise:</p>
+<p><strong>There is no <code>_</code> in multi-value guards.</strong></p>
+<p>The placeholder <code>_</code> exists only for single-value bindings. Once a pattern binds more than one value, guards must refer to bound values explicitly—either via <code>arg&lt;N&gt;</code> or by using a callable that consumes all bound values.</p>
+<p>In this case, the lambda form is the most natural:</p>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">classify</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec3</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">      </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">User</span><span class="o">::</span><span class="n">active</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">false</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">      </span><span class="s">&quot;inactive&quot;</span>
+<span class="w">      </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">z</span><span class="o">&gt;</span><span class="p">())</span>
+<span class="w">        </span><span class="p">[</span><span class="n">inside_unit_sphere</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
+<span class="w">      </span><span class="s">&quot;inside&quot;</span>
 <span class="w">    </span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">      </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">User</span><span class="o">::</span><span class="n">age</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">18</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">      </span><span class="s">&quot;minor&quot;</span>
-<span class="w">    </span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;adult&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;outside&quot;</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Notice what does <em>not</em> happen in this code. The handler does not inspect fields. It does not re-check conditions. All of that logic lives on the boundary between cases. This is where pattern matching begins to pay off: behavior becomes simpler because eligibility is enforced declaratively.</p>
+<p>The guard is evaluated only after binding succeeds. If the predicate returns false, the case does not apply and matching continues. The handler itself contains no geometric logic; it simply represents the outcome of a satisfied constraint.</p>
 <hr />
-<h2 id="fallbacks-as-explicit-design-choices">Fallbacks as Explicit Design Choices<a class="headerlink" href="#fallbacks-as-explicit-design-choices" title="Permanent link">&para;</a></h2>
-<p>Another important aspect of Patternia’s design is how it treats fallback behavior. In traditional control flow, <code>default</code> branches often serve multiple purposes: they catch errors, handle normal fallthrough, or act as a safety net. Patternia separates these roles.</p>
-<p>A wildcard pattern (<code>__</code>) is an explicit, ordered case. A match-level fallback (<code>otherwise</code>) is only invoked when no case applies at all. This separation prevents accidental behavior changes when new cases are added and makes the intent of fallback logic explicit.</p>
+<h2 id="adding-additional-constraints-without-confusing-semantics">Adding Additional Constraints Without Confusing Semantics<a class="headerlink" href="#adding-additional-constraints-without-confusing-semantics" title="Permanent link">&para;</a></h2>
+<p>Suppose we want to refine the rule: the point must be inside the unit sphere <em>and</em> lie in the upper half-space (<code>z ≥ 0</code>). This introduces a simple relational constraint alongside the existing geometric one.</p>
+<p>Because this is a <strong>multi-value guard</strong>, <code>_</code> is still not available. We must express the additional constraint explicitly in terms of bound values.</p>
+<p>One option is to extend the predicate:</p>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">inside_upper_unit_sphere</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[](</span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">z</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>Another option is to combine predicates using <code>arg&lt;N&gt;</code> for the simple part:</p>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">classify</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec3</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
+<span class="w">      </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">z</span><span class="o">&gt;</span><span class="p">())</span>
+<span class="w">        </span><span class="p">[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">inside_unit_sphere</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
+<span class="w">      </span><span class="s">&quot;inside&quot;</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;outside&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Here, <code>arg&lt;2&gt;</code> refers to the third bound value (<code>z</code>), following binding order. The guard reads as a clear composition: a simple relational check combined with a domain-specific predicate.</p>
+<p>The important rule remains intact: <strong>multi-value guards are explicit</strong>. Nothing is implicit, and no placeholder stands in for “the value” when there are multiple values involved.</p>
 <hr />
-<h2 id="binding-and-guards-as-a-discipline-not-a-convenience">Binding and Guards as a Discipline, Not a Convenience<a class="headerlink" href="#binding-and-guards-as-a-discipline-not-a-convenience" title="Permanent link">&para;</a></h2>
-<p>Throughout this progression, one rule remains consistent: <strong>binding is always explicit, and guards only exist after binding</strong>. You never “half-bind” a value, and you never attach a guard to a case that does not declare what data it operates on. This makes the relationship between a case and its handler mechanically obvious. The handler’s parameters are not inferred from context; they are earned by binding.</p>
-<p>This discipline is what allows Patternia code to remain readable even as it grows. Each increase in expressiveness is accompanied by a visible structural change in the code.</p>
+<h2 id="why-this-structure-matters">Why This Structure Matters<a class="headerlink" href="#why-this-structure-matters" title="Permanent link">&para;</a></h2>
+<p>At this point, the benefit over a raw <code>if</code> statement becomes clear. The match expression does not merely compute a boolean; it describes a <em>case</em> defined by a geometric constraint. Binding declares which data the case depends on. The guard declares why the case applies. The handler declares what happens when it does.</p>
+<p>As constraints grow—more dimensions, more regions, more classifications—the match grows by adding or refining cases, not by nesting conditionals. This is the same scaling property that makes pattern matching attractive in other languages, applied here to geometric reasoning.</p>
 <hr />
-<h2 id="thinking-in-cases-instead-of-branches">Thinking in Cases Instead of Branches<a class="headerlink" href="#thinking-in-cases-instead-of-branches" title="Permanent link">&para;</a></h2>
-<p>Seen as a whole, Patternia does not replace <code>if</code> or <code>switch</code>. It reframes them. Simple decisions stay simple through <code>match(x, cases())</code>. Rich decisions become structured through <code>.when(...)</code>, <code>bind()</code>, and guards. Instead of growing a single control-flow construct until it collapses under its own weight, you move to a different form when the problem itself changes shape.</p>
-<p>That shift—from procedural branching to declarative case description—is what “getting into pattern matching” ultimately means in Patternia. It is not about learning new syntax. It is about learning when to stop asking <em>“how do I check this?”</em> and start stating <em>“these are the cases that exist.”</em></p>
+<h2 id="constraints-as-patterns-not-conditions">Constraints as Patterns, Not Conditions<a class="headerlink" href="#constraints-as-patterns-not-conditions" title="Permanent link">&para;</a></h2>
+<p>The lesson of this example is not how to encode <code>x² + y² + z² &lt; 1</code>. It is how to recognize constraints as patterns. Once a constraint is treated as a case boundary rather than an inline check, it becomes composable, testable, and readable.</p>
+<p>Patternia’s rules around guards—especially the strict separation between single-value placeholders and multi-value bindings—exist to preserve that clarity. They prevent ambiguity and make the structure of a decision visible in the code itself.</p>
+<p>This is the purpose of worked examples in Patternia: to show how simple rules, applied consistently, scale to real problems without collapsing back into ad-hoc control flow.</p>
 
 
 
@@ -1146,7 +1159,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../.." class="md-footer__link md-footer__link--prev" aria-label="Previous: Home">
+          <a href="../policy-constraint/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Example - Policy Constraint Matching">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1156,20 +1169,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Home
+                Example - Policy Constraint Matching
               </div>
             </div>
           </a>
         
         
           
-          <a href="../other-languages/" class="md-footer__link md-footer__link--next" aria-label="Next: Pattern Matching in Other Languages">
+          <a href="../../guide/getting-started/" class="md-footer__link md-footer__link--next" aria-label="Next: Getting Started">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Pattern Matching in Other Languages
+                Getting Started
               </div>
             </div>
             <div class="md-footer__button md-icon">
