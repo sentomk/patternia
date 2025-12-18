@@ -77,8 +77,8 @@ nav:
   - Home: index.md
 
   - Guide:
-      - Installation: guide/installation.md
       - Getting Started: guide/getting-started.md
+      - Installation: guide/installation.md
 
   - API:
       - api.md
