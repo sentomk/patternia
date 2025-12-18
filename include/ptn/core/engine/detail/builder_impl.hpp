@@ -101,7 +101,8 @@ namespace ptn::core::engine::detail {
           Cases...,
           new_case_type>;
 
-      return builder_t{std::move(subject_), std::move(new_cases)};
+      return builder_t{
+          std::forward<subject_type>(subject_), std::move(new_cases)};
     }
 
     // Add a new case (lvalue-qualified).
@@ -131,7 +132,8 @@ namespace ptn::core::engine::detail {
           Cases...,
           new_case_type>;
 
-      return builder_t{subject_, std::move(new_cases)};
+      return builder_t{
+          std::forward<subject_type>(subject_), std::move(new_cases)};
     }
 
     // Terminal API: .otherwise(...)
@@ -195,14 +197,14 @@ namespace ptn::core::engine::detail {
       if constexpr (std::is_void_v<result_type>) {
         // For void return types, execute without returning a value
         match_impl::eval<void>(
-            subject_,
+            std::forward<subject_type>(subject_),
             cases_,
             std::forward<decltype(final_handler)>(final_handler));
       }
       else {
         // For non-void return types, return the result
         return match_impl::eval<result_type>(
-            subject_,
+            std::forward<subject_type>(subject_),
             cases_,
             std::forward<decltype(final_handler)>(final_handler));
       }
@@ -238,11 +240,15 @@ namespace ptn::core::engine::detail {
 
       if constexpr (traits::is_void_like_v<result_type>) {
         match_impl::eval<result_type>(
-            subject_, cases_, std::move(dummy_fallback));
+            std::forward<subject_type>(subject_),
+            cases_,
+            std::move(dummy_fallback));
       }
       else {
         return match_impl::eval<result_type>(
-            subject_, cases_, std::move(dummy_fallback));
+            std::forward<subject_type>(subject_),
+            cases_,
+            std::move(dummy_fallback));
       }
     }
   };
