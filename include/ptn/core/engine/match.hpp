@@ -22,7 +22,7 @@ namespace ptn {
     return core::engine::detail::match_builder<
         V,
         false /* HasMatchFallback */
-        >::create(V(std::forward<T>(value)));
+        >::create(V(value));
   }
 
 } // namespace ptn
