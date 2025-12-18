@@ -25,6 +25,8 @@ BinPackParameters:                        false
 AllowAllArgumentsOnNextLine:              true
 AllowAllParametersOfDeclarationOnNextLine: true
 
+PenaltyBreakBeforeFirstCallParameter: 1
+
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterFunction:       false

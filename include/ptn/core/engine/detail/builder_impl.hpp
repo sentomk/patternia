@@ -13,7 +13,6 @@
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/common/diagnostics.hpp"
 #include "ptn/core/engine/detail/match_impl.hpp"
-#include "ptn/core/dsl/ops.hpp"
 
 namespace ptn::core::engine::detail {
 
@@ -253,6 +252,12 @@ namespace ptn::core::engine::detail {
     }
   };
 } // namespace ptn::core::engine::detail
+
+// Forward Declaration
+namespace ptn::core::dsl::detail {
+  template <typename... Cases>
+  struct cases_pack;
+}
 
 namespace ptn::core::engine {
 
