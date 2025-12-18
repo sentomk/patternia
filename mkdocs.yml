@@ -78,6 +78,10 @@ nav:
 
   - Tutorials:
       - From Control Flow to Pattern Matching: tutorials/from-control-flow.md
+      - Pattern Matching in Other Languages: tutorials/other-languages.md
+      - Custom Predicate Guards: tutorials/predicate-guards.md
+      - Example - Policy Constraint Matching: tutorials/policy-constraint.md
+      - Example - Geometric Constraint Matching: tutorials/sphere-constraint.md
 
   - Guide:
       - Getting Started: guide/getting-started.md
