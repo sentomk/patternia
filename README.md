@@ -339,7 +339,7 @@ For complete installation instructions, comprehensive examples, and in-depth tut
 
 ---
 
-> **Note**
+> [!NOTE]
 > This API reference documents Patternia’s *language constructs*, not just function signatures.
 > Each section explains the semantic role and design intent of the API, in addition to usage examples.
 

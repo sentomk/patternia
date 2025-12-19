@@ -10,5 +10,6 @@ int main() {
       cases(
           lit(42) >> [] { std::cout << "42"; },
           lit(20) >> [] { std::cout << "20"; },
-          __ >> [] { std::cout << "Other"; }));
+          __ >> [] { std::cout << "Other"; }))
+      .end();
 }

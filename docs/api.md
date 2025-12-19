@@ -53,13 +53,13 @@ Specifying `AsType` explicitly forces the subject to be viewed as that type duri
 
 ---
 
-### `match(subject, case_tuple(...))`
+### `match(subject, cases(...))`
 
 **Role**: Compact syntax for simple matching scenarios.
 
 **Syntax**:
 ```cpp
-match(subject, case_tuple(case1, case2, ...))
+match(subject, cases(case1, case2, ...))
 ```
 
 **Key Characteristics**:
@@ -68,15 +68,16 @@ match(subject, case_tuple(case1, case2, ...))
 * **No guards/predicates**: Cannot be used with guard expressions or predicates
 * Supports both pattern fallback (`__`) and match fallback patterns
 * Cases are evaluated sequentially using **first-match semantics**
+* **Requires `.end()`** to trigger evaluation when using `__` pattern
 
 **Basic Usage**:
 
 ```cpp
-match(x, case_tuple(
+match(x, cases(
   lit(1) >> [] { std::cout << "one\n"; },
   lit(2) >> [] { std::cout << "two\n"; },
   __    >> [] { std::cout << "other\n"; }
-));
+)).end();
 ```
 
 **Limitations**:
@@ -85,6 +86,7 @@ match(x, case_tuple(
 - Cannot use predicate-based guards
 - Best suited for simple literal and wildcard matching
 - For complex matching with guards, use the standard DSL syntax
+- **Must use `.end()` when using `__` pattern to trigger evaluation**
 
 **Design Intent**:
 This syntax is optimized for straightforward value discrimination where the full power of the DSL (guards, complex patterns) is not needed.

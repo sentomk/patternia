@@ -236,6 +236,11 @@ add_executable(sample_packet
 )
 target_link_libraries(sample_packet PRIVATE patternia)
 
+add_executable(sample_test
+  samples/test.cpp
+)
+target_link_libraries(sample_test PRIVATE patternia)
+
 # add_executable(json_parser
 #   samples/json_dispatch/parse_json_pred.hpp
 #   samples/json_dispatch/parse_json_handler.hpp
