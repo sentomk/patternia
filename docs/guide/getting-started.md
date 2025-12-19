@@ -134,26 +134,28 @@ using namespace ptn;
 int main() {
   int x = 2;
 
-  match(x, case_tuple(
+  match(x, cases(
     lit(1) >> [] { std::cout << "one\n"; },
     lit(2) >> [] { std::cout << "two\n"; },
     __    >> [] { std::cout << "other\n"; }  // pattern fallback
-  ));
+  )).end();
 }
 ```
 
 **Key points:**
 
-* `match(subject, case_tuple(...))` provides a compact syntax for simple cases
+* `match(subject, cases(...))` provides a compact syntax for simple cases
 * **No guards/predicates**: This syntax cannot be used with guard expressions or predicates
 * Cases are tested **top-to-bottom (first-match semantics)**
 * Supports both pattern fallback (`__`) and match fallback patterns
+* **Requires `.end()`** to trigger evaluation when using `__` pattern
 * Ideal for straightforward value matching without complex conditions
 
 **Limitations:**
 - Cannot use guard expressions `[]` with tuple syntax
 - Cannot use predicate-based guards
 - Best suited for simple literal and wildcard matching
+- **Must use `.end()` when using `__` pattern to trigger evaluation**
 
 For complex matching with guards, use the standard DSL syntax shown above.
 
@@ -331,4 +333,3 @@ Patternia is particularly effective when:
 * you want expression-oriented control flow
 
 For a deeper dive, see the **API Reference** and **Design Guide**.
-

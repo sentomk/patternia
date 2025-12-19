@@ -20,7 +20,7 @@ auto describe(int x) {
     lit(0) >> "zero",
     lit(1) >> "one",
     __     >> "many"
-  ));
+  )).end();
 }
 ```
 
