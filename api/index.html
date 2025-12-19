@@ -859,10 +859,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#matchsubject-case_tuple" class="md-nav__link">
+  <a href="#matchsubject-cases" class="md-nav__link">
     <span class="md-ellipsis">
       
-        match(subject, case_tuple(...))
+        match(subject, cases(...))
       
     </span>
   </a>
@@ -1455,10 +1455,10 @@ It defines how values are inspected, how cases are registered, and how matching 
 </code></pre></div>
 <p>Specifying <code>AsType</code> explicitly forces the subject to be viewed as that type during pattern evaluation.</p>
 <hr />
-<h3 id="matchsubject-case_tuple"><code>match(subject, case_tuple(...))</code><a class="headerlink" href="#matchsubject-case_tuple" title="Permanent link">&para;</a></h3>
+<h3 id="matchsubject-cases"><code>match(subject, cases(...))</code><a class="headerlink" href="#matchsubject-cases" title="Permanent link">&para;</a></h3>
 <p><strong>Role</strong>: Compact syntax for simple matching scenarios.</p>
 <p><strong>Syntax</strong>:
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="n">case_tuple</span><span class="p">(</span><span class="n">case1</span><span class="p">,</span><span class="w"> </span><span class="n">case2</span><span class="p">,</span><span class="w"> </span><span class="p">...))</span>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="n">cases</span><span class="p">(</span><span class="n">case1</span><span class="p">,</span><span class="w"> </span><span class="n">case2</span><span class="p">,</span><span class="w"> </span><span class="p">...))</span>
 </code></pre></div></p>
 <p><strong>Key Characteristics</strong>:</p>
 <ul>
@@ -1466,13 +1466,14 @@ It defines how values are inspected, how cases are registered, and how matching 
 <li><strong>No guards/predicates</strong>: Cannot be used with guard expressions or predicates</li>
 <li>Supports both pattern fallback (<code>__</code>) and match fallback patterns</li>
 <li>Cases are evaluated sequentially using <strong>first-match semantics</strong></li>
+<li><strong>Requires <code>.end()</code></strong> to trigger evaluation when using <code>__</code> pattern</li>
 </ul>
 <p><strong>Basic Usage</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">case_tuple</span><span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">cases</span><span class="p">(</span>
 <span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;one</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;two</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="n">__</span><span class="w">    </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;other</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-<span class="p">));</span>
+<span class="p">)).</span><span class="n">end</span><span class="p">();</span>
 </code></pre></div>
 <p><strong>Limitations</strong>:</p>
 <ul>
@@ -1480,6 +1481,7 @@ It defines how values are inspected, how cases are registered, and how matching 
 <li>Cannot use predicate-based guards</li>
 <li>Best suited for simple literal and wildcard matching</li>
 <li>For complex matching with guards, use the standard DSL syntax</li>
+<li><strong>Must use <code>.end()</code> when using <code>__</code> pattern to trigger evaluation</strong></li>
 </ul>
 <p><strong>Design Intent</strong>:
 This syntax is optimized for straightforward value discrimination where the full power of the DSL (guards, complex patterns) is not needed.</p>

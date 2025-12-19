@@ -1048,7 +1048,7 @@
 <span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="n">__</span><span class="w">     </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;many&quot;</span>
-<span class="w">  </span><span class="p">));</span>
+<span class="w">  </span><span class="p">)).</span><span class="n">end</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>This form is intentionally constrained. Each case is a direct mapping from a pattern to a result. There is no binding, no predicate, and no hidden control flow. The reader can understand the entire decision at a glance. This is not a limitation to be worked around; it is a design boundary. As long as your logic fits naturally into a <code>switch</code>, <code>cases()</code> is where it belongs.</p>
