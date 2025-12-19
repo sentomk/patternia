@@ -1,0 +1,63 @@
+name: General Issue
+description: Bug reports, feature proposals, and design discussions
+title: "[Issue]: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for contributing to Patternia.
+
+        Please ensure this issue is **specific, technical, and actionable**.
+        Vague suggestions or open-ended brainstorming without context may be closed.
+
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: Issue Type
+      options:
+        - Bug
+        - Feature Proposal
+        - Design Discussion
+        - Documentation
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: |
+        Clearly describe the problem, proposal, or question.
+        For feature or design discussions, explain the motivation and use cases.
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Rationale / Motivation
+      description: |
+        Why is this change needed?
+        What problem does it solve?
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: |
+        Have you considered alternative designs or existing APIs?
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues and discussions
+          required: true
+        - label: This issue aligns with Patternia’s design goals
+          required: false

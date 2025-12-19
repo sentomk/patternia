@@ -346,39 +346,12 @@ For complete installation instructions, comprehensive examples, and in-depth tut
 
 ## *Contributing*
 
-Contributions are welcome. Whether it is **bug reports**, **feature proposals**, or **pull requests**, your help is appreciated.
+## Contributing
 
-### Before Submitting Changes
+Contributions are welcome.
 
-1. **Discuss First**
-   Open an Issue or a Discussion when proposing new features or behavior changes.
-2. **Code Style**
-   Follow modern C++ idioms and ensure:
-
-   * C++17+ compatible
-   * No RTTI or virtual dispatch introduced
-   * Zero-overhead principles preserved
-3. **Tests Required**
-   Add or update unit tests under `tests/` for any logic changes.
-4. **Comment Style**
-   Follow **[Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html#Comment_Style)** for documentation comments.
-5. **Commit Style**
-   Use conventional commit messages:
-
-   ```
-   feat: add case-insensitive string matching
-   fix: correct match_result type inference
-   refactor: reorganize dsl ops
-   ```
-
-### Development Setup
-
-```bash
-git clone https://github.com/SentoMK/patternia.git
-cd patternia
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build
-```
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting issues or pull requests.  
+This project is governed by a [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ---
 
