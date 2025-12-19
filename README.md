@@ -56,7 +56,7 @@
 #### Worked Examples
 
 - **[Policy Constraint Matching](https://patternia.tech/tutorials/policy-constraint)**  
-  Decomposing structured protocol data with patterns.
+  Expressing rule-based access policies as declarative constraints.
 
 - **[Geometric Constraint Matching](https://patternia.tech/tutorials/sphere-constraint)**  
   Expressing `x² + y² + z² < 1` as a declarative pattern.
