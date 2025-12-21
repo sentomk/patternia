@@ -21,7 +21,10 @@ namespace ptn::core::engine::detail {
   // chaining. TV: The type of the subject value to be matched Cases: The types
   // of case expressions added so far
   template <typename TV, bool HasMatchFallback, typename... Cases>
-  class match_builder {
+  class [[nodiscard(
+      "[Patternia.match]: incomplete match expression. "
+      "Call .otherwise(...) or .end() to finalize.")]]
+  match_builder {
 
   public:
     using subject_type = TV;
@@ -145,17 +148,10 @@ namespace ptn::core::engine::detail {
 
       using OtherwiseDecayed = std::decay_t<Otherwise>;
 
-      //
       static_assert(
           !has_pattern_fallback,
           "[Patternia.match]: 'otherwise()' cannot be used when a wildcard "
           "'__' pattern is present. Use '.end()' instead.");
-
-      static_assert(
-          !has_pattern_fallback,
-          "[Patternia.match]: 'otherwise()' cannot be used when a wildcard "
-          "'__' "
-          "pattern is present. Use '.end()' instead.");
 
       // Create a proper handler from the provided argument
       auto final_handler = [&]() {
