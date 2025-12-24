@@ -4,14 +4,18 @@
 //
 // This header provides validation utilities that detect common pattern matching
 // errors at compile time, providing clear error messages to guide developers.
-
+//
 #include <type_traits>
 #include "ptn/core/common/common_traits.hpp"
 
 namespace ptn::core::common {
 
-  // Validates the entire match expression for consistency
-  // Ensures all handlers are invocable and have compatible return types
+  // -------------------------------------------------------------------------
+  // Match Expression Validation
+  // -------------------------------------------------------------------------
+
+  // Validates the entire match expression for consistency.
+  // Ensures all handlers are invocable and have compatible return types.
   template <typename Subject, typename Otherwise, typename... Cases>
   constexpr void static_assert_valid_match() {
     // Verify all case handlers can be invoked with their pattern's bound
@@ -41,7 +45,8 @@ namespace ptn::core::common {
     }
   }
 
-  // Validates that a handler signature matches a pattern's binding requirements
+  // Validates that a handler signature matches a pattern's binding
+  // requirements.
   template <typename Case, typename Subject>
   constexpr void static_assert_valid_handler() {
     static_assert(
@@ -50,7 +55,7 @@ namespace ptn::core::common {
         "binding result.");
   }
 
-  // Validates a single case expression structure and handler compatibility
+  // Validates a single case expression structure and handler compatibility.
   template <typename Case, typename Subject>
   constexpr void static_assert_valid_case() {
     static_assert(
@@ -60,7 +65,7 @@ namespace ptn::core::common {
     static_assert_valid_handler<Case, Subject>();
   }
 
-  // Validates that a type satisfies the pattern requirements
+  // Validates that a type satisfies the pattern requirements.
   template <typename Pattern, typename Subject>
   constexpr void static_assert_valid_pattern() {
     static_assert(
@@ -70,13 +75,62 @@ namespace ptn::core::common {
   }
 
   // Detects unreachable cases in pattern matching (placeholder for future
-  // implementation)
+  // implementation).
   template <typename... Cases>
   struct has_unreachable_case : std::false_type {};
 
-  // Convenience variable template for unreachable case detection
+  // Convenience variable template for unreachable case detection.
   template <typename... Cases>
   inline constexpr bool has_unreachable_case_v =
       has_unreachable_case<Cases...>::value;
+
+  // -------------------------------------------------------------------------
+  // Builder API Validation
+  // -------------------------------------------------------------------------
+
+  // Checks if the subject type is valid for pattern matching (must be an lvalue
+  // reference). This is a variable template because class bodies can only use
+  // static_assert with constant boolean conditions, not function calls.
+  template <typename Subject>
+  inline constexpr bool is_subject_type_valid_v =
+      std::is_lvalue_reference_v<Subject>;
+
+  // Validates the preconditions for adding a new case via .when().
+  // Ensures that no wildcard pattern ('__') has been added previously,
+  // as wildcard matches everything and makes subsequent cases unreachable.
+  template <bool HasPatternFallback>
+  constexpr void static_assert_when_precondition() {
+    static_assert(
+        !HasPatternFallback,
+        "[Patternia.match]: no cases may follow a wildcard ('__') pattern.");
+  }
+
+  // Validates the preconditions for calling .otherwise().
+  // Ensures that .otherwise() is not used when a pattern-level fallback ('__')
+  // is already present, as the wildcard makes the explicit fallback redundant.
+  template <bool HasPatternFallback>
+  constexpr void static_assert_otherwise_precondition() {
+    static_assert(
+        !HasPatternFallback,
+        "[Patternia.match]: 'otherwise()' cannot be used when a wildcard "
+        "'__' pattern is present. Use '.end()' instead.");
+  }
+
+  // Validates the preconditions for calling .end().
+  // Ensures:
+  // 1. A pattern-level fallback ('__') exists (exhaustive match).
+  // 2. No match-level fallback (from .otherwise()) has been added.
+  template <bool HasPatternFallback, bool HasMatchFallback>
+  constexpr void static_assert_end_precondition() {
+    static_assert(
+        HasPatternFallback,
+        "[Patternia.match.end]: .end() requires a pattern-level fallback "
+        "('__'). "
+        "If the match is not exhaustive, use .otherwise(...).");
+
+    static_assert(
+        !HasMatchFallback,
+        "[Patternia.match.end]: .end() cannot be used after otherwise().");
+  }
 
 } // namespace ptn::core::common
