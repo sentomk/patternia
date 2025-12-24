@@ -76,21 +76,14 @@ namespace ptn::core::engine::detail {
     template <typename CaseExpr>
     constexpr auto when(CaseExpr &&expr) && {
 
-      static_assert(
-          !has_pattern_fallback,
-          "[Patternia.match]: no cases may follow a wildcard ('__') pattern.");
+      ptn::core::common::static_assert_when_precondition<
+          has_pattern_fallback>();
 
       using new_case_type = std::decay_t<CaseExpr>;
 
       // Compile-time validation of the new case
-      static_assert(
-          ptn::core::traits::is_case_expr_v<new_case_type>,
-          "Argument to .when() must be a case expression created with the '>>' "
-          "operator.");
-      static_assert(
-          ptn::core::traits::
-              is_handler_invocable_v<new_case_type, subject_type>,
-          "Handler signature does not match the pattern's binding result.");
+      ptn::core::common::
+          static_assert_valid_case<new_case_type, subject_type>();
 
       // Concatenate existing cases with the new case
       auto new_cases = std::tuple_cat(
@@ -113,16 +106,14 @@ namespace ptn::core::engine::detail {
     // Less efficient but necessary for certain use cases.
     template <typename CaseExpr>
     constexpr auto when(CaseExpr &&expr) const & {
+
+      ptn::core::common::static_assert_when_precondition<
+          has_pattern_fallback>();
+
       using new_case_type = std::decay_t<CaseExpr>;
 
-      static_assert(
-          ptn::core::traits::is_case_expr_v<new_case_type>,
-          "Argument to .when() must be a case expression created with the '>>' "
-          "operator.");
-      static_assert(
-          ptn::core::traits::
-              is_handler_invocable_v<new_case_type, subject_type>,
-          "Handler signature does not match the pattern's binding result.");
+      ptn::core::common::
+          static_assert_valid_case<new_case_type, subject_type>();
 
       // Concatenate existing cases with the new case (copying cases_)
       auto new_cases = std::tuple_cat(
@@ -149,10 +140,8 @@ namespace ptn::core::engine::detail {
 
       using OtherwiseDecayed = std::decay_t<Otherwise>;
 
-      static_assert(
-          !has_pattern_fallback,
-          "[Patternia.match]: 'otherwise()' cannot be used when a wildcard "
-          "'__' pattern is present. Use '.end()' instead.");
+      ptn::core::common::static_assert_otherwise_precondition<
+          has_pattern_fallback>();
 
       // Create a proper handler from the provided argument
       auto final_handler = [&]() {
@@ -209,15 +198,9 @@ namespace ptn::core::engine::detail {
     // Terminal API: .end()
     // Evaluate an exhaustive match finalized by a pattern-level fallback (__).
     constexpr auto end() && {
-      static_assert(
+      ptn::core::common::static_assert_end_precondition<
           has_pattern_fallback,
-          "[Patternia.match.end]: .end() requires a pattern-level fallback "
-          "('__'). "
-          "If the match is not exhaustive, use .otherwise(...).");
-
-      static_assert(
-          !has_match_fallback,
-          "[Patternia.match.end]: .end() cannot be used after otherwise().");
+          has_match_fallback>();
 
       // Dummy fallback handler (logically unreachable because '__' exists)
       auto dummy_fallback =
