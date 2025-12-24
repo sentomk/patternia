@@ -1,12 +1,26 @@
 #pragma once
+
+// Base class and marker type for all Patternia patterns.
+//
+// This file provides the fundamental CRTP base class that all pattern
+// types should inherit from, along with the marker tag type for pattern
+// identification.
+
 #include <utility>
 #include "pattern_kind.hpp"
 
 namespace ptn::pat::base {
 
+  // Marker tag for Patternia patterns.
+  //
+  // This empty struct is used as a base class to mark types as patterns.
+  // Pattern detection traits check for inheritance from this type.
   struct pattern_tag {};
 
   // CRTP base class for all pattern types.
+  //
+  // Template parameter:
+  //   Derived: The derived pattern type (CRTP).
   template <typename Derived>
   struct pattern_base : pattern_tag {
 
