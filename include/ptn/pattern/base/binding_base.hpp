@@ -1,3 +1,5 @@
+#pragma once
+
 // Base classes and utilities for binding patterns.
 //
 // This file provides the foundational CRTP base classes that enable

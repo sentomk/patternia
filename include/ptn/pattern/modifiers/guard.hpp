@@ -1,8 +1,10 @@
+#pragma once
+
 // Guard modifiers and placeholder expressions for pattern matching.
 //
 // Provides guard functionality that combines patterns with predicate
-// conditions. Includes placeholder expressions for comparison operations and
-// the guarded_pattern wrapper for applying predicates to bound values.
+// conditions. Includes placeholder expressions for comparison operations
+// and the guarded_pattern wrapper for applying predicates to bound values.
 
 #include <cstddef>
 #include <functional>
@@ -205,6 +207,7 @@ namespace ptn::pat::mod {
   };
 
   // --- operator overloads (arith / cmp / logic / unary) ---
+
   // Arithmetic operators
   template <
       typename L,
