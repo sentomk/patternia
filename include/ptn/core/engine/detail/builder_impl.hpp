@@ -101,35 +101,6 @@ namespace ptn::core::engine::detail {
           std::forward<subject_type>(subject_), std::move(new_cases)};
     }
 
-    // Add a new case (lvalue-qualified).
-    // Used when the builder is accessed as an lvalue.
-    // Less efficient but necessary for certain use cases.
-    template <typename CaseExpr>
-    constexpr auto when(CaseExpr &&expr) const & {
-
-      ptn::core::common::static_assert_when_precondition<
-          has_pattern_fallback>();
-
-      using new_case_type = std::decay_t<CaseExpr>;
-
-      ptn::core::common::
-          static_assert_valid_case<new_case_type, subject_type>();
-
-      // Concatenate existing cases with the new case (copying cases_)
-      auto new_cases = std::tuple_cat(
-          cases_, std::tuple<new_case_type>(std::forward<CaseExpr>(expr)));
-
-      // Create a new builder type with the additional case
-      using builder_t = match_builder<
-          subject_type,
-          HasMatchFallback,
-          Cases...,
-          new_case_type>;
-
-      return builder_t{
-          std::forward<subject_type>(subject_), std::move(new_cases)};
-    }
-
     // Terminal API: .otherwise(...)
 
     // Terminal step: evaluate all cases; if none matches, call fallback
