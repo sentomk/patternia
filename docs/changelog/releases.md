@@ -8,3 +8,4 @@
 - [v0.6.0](v0.6.0.md) - December 16, 2025
 - [v0.6.1](v0.6.1.md) - December 20, 2025
 - [v0.6.2](v0.6.2.md) - December 23, 2025
+- [v0.6.3](v0.6.3.md) - January 2, 2026
