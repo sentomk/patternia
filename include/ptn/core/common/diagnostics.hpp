@@ -6,13 +6,18 @@
 // errors at compile time, providing clear error messages to guide developers.
 //
 #include <type_traits>
+#include <variant>
+
+#include "ptn/meta/base/traits.hpp"
+#include "ptn/meta/dsa/type_list.hpp"
+#include "ptn/meta/query/template_info.hpp"
 #include "ptn/core/common/common_traits.hpp"
 
 namespace ptn::core::common {
 
-  // -------------------------------------------------------------------------
+  // ------------------------------------------------------------
   // Match Expression Validation
-  // -------------------------------------------------------------------------
+  // ------------------------------------------------------------
 
   // Validates the entire match expression for consistency.
   // Ensures all handlers are invocable and have compatible return types.
@@ -84,9 +89,9 @@ namespace ptn::core::common {
   inline constexpr bool has_unreachable_case_v =
       has_unreachable_case<Cases...>::value;
 
-  // -------------------------------------------------------------------------
+  // ------------------------------------------------------------
   // Builder API Validation
-  // -------------------------------------------------------------------------
+  // ------------------------------------------------------------
 
   // Checks if the subject type is valid for pattern matching (must be an lvalue
   // reference). This is a variable template because class bodies can only use
@@ -131,6 +136,47 @@ namespace ptn::core::common {
     static_assert(
         !HasMatchFallback,
         "[Patternia.match.end]: .end() cannot be used after otherwise().");
+  }
+
+  // ------------------------------------------------------------
+  // Variant Diagnostics
+  // ------------------------------------------------------------
+
+  namespace detail {
+    // Count how many times T appears in a type_list.
+    template <typename T, typename TL>
+    struct type_count;
+
+    template <typename T, typename... Ts>
+    struct type_count<T, meta::type_list<Ts...>>
+        : std::integral_constant<
+              std::size_t,
+              (0 + ... + (std::is_same_v<T, Ts> ? 1 : 0))> {};
+  } // namespace detail
+
+  // Ensures Subject is a std::variant specialization.
+  template <typename Subject>
+  constexpr void static_assert_variant_subject() {
+    static_assert(
+        meta::is_spec_of_v<std::variant, meta::remove_cvref_t<Subject>>,
+        "[Patternia.type::is]: Subject must be a std::variant.");
+  }
+
+  // Ensures Alt appears exactly once in the variant's alternatives.
+  template <typename Alt, typename Subject>
+  constexpr void static_assert_variant_alt_unique() {
+    static_assert_variant_subject<Subject>();
+
+    using subject_t = meta::remove_cvref_t<Subject>;
+    using args_t    = typename meta::template_info<subject_t>::args;
+
+    constexpr std::size_t count =
+        detail::type_count<meta::remove_cvref_t<Alt>, args_t>::value;
+
+    static_assert(
+        count == 1,
+        "[Patternia.type::is]: Alternative type must appear exactly once in "
+        "std::variant.");
   }
 
 } // namespace ptn::core::common
