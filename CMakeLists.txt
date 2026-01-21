@@ -110,6 +110,7 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   # Pattern Module Headers
   include/ptn/pattern/lit.hpp
   include/ptn/pattern/bind.hpp
+  include/ptn/pattern/type.hpp
   include/ptn/pattern/wildcard.hpp
   include/ptn/pattern/structural.hpp
   include/ptn/pattern/modifiers/guard.hpp
@@ -240,6 +241,11 @@ add_executable(sample_test
   samples/test.cpp
 )
 target_link_libraries(sample_test PRIVATE patternia)
+
+add_executable(sample_variant 
+  samples/variant_type_is.cpp
+)
+target_link_libraries(sample_variant PRIVATE patternia)
 
 # add_executable(json_parser
 #   samples/json_dispatch/parse_json_pred.hpp
