@@ -12,19 +12,22 @@ struct Point {
 };
 
 std::string describe(const std::variant<int, std::string, Point> &v) {
-  return match(v)
-      .when(type::is<int>() >> [] { return std::string("int"); })
-      .when(
-          type::is<std::string>(bind()) >>
-          [](const std::string &s) { return "str:" + s; })
-      .when(
-          type::is<Point>(bind(has<&Point::x, &Point::y>())) >>
-          [](int x, int y) { return "pt:" + std::to_string(x + y); })
-      .otherwise([] { return std::string("other"); });
+  return match(
+             v,
+             cases(
+                 is<int>() >> [] { return std::string("int"); },
+                 is<std::string>(bind()) >>
+                     [](const std::string &s) { return "str:" + s; },
+                 is<Point>(bind(has<&Point::x, &Point::y>())) >>
+                     [](int x, int y) { return "pt:" + std::to_string(x + y); },
+                 __ >> [] { return std::string("other"); }))
+      .end();
 }
 
 int main() {
-  std::variant<int, std::string, Point> v = 7;
+  std::variant<int, std::string, Point> v;
+
+  v = 7;
   std::cout << describe(v) << "\n";
 
   v = std::string("hi");
