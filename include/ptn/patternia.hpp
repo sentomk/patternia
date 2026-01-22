@@ -31,7 +31,7 @@
 #include "ptn/pattern/wildcard.hpp"        // wildcard
 #include "ptn/pattern/modifiers/guard.hpp" // guard
 #include "ptn/pattern/structural.hpp"      // has
-#include "ptn/pattern/type.hpp"            // type::is
+#include "ptn/pattern/type.hpp"            // type::is, type::as, type::alt
 
 namespace ptn {
   using ptn::core::engine::match;
@@ -62,6 +62,7 @@ namespace ptn {
   namespace type = ptn::pat::type;
   using ptn::pat::type::is;
   using ptn::pat::type::as;
+  using ptn::pat::type::alt;
 
 } // namespace ptn
 

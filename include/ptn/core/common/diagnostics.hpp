@@ -188,4 +188,15 @@ namespace ptn::core::common {
         "std::variant.");
   }
 
+  // Ensures index I is within the variant's alternative range.
+  template <std::size_t I, typename Subject>
+  constexpr void static_assert_variant_alt_index() {
+    static_assert_variant_subject<Subject>();
+
+    using subject_t = meta::remove_cvref_t<Subject>;
+    static_assert(
+        I < std::variant_size_v<subject_t>,
+        "[Patternia.type::alt]: Alternative index is out of range.");
+  }
+
 } // namespace ptn::core::common
