@@ -10,6 +10,7 @@
 #include <type_traits>
 #include <utility>
 #include <functional>
+#include <cstdlib>
 
 #include "ptn/core/common/common_traits.hpp"
 
@@ -183,6 +184,11 @@ namespace ptn::core::common {
   // result type. This is required for expression-style matches where different
   // branches may produce different (but compatible) return types.
   namespace detail {
+    template <typename Result>
+    [[noreturn]] inline Result unreachable_result() {
+      std::abort();
+    }
+
     template <
         std::size_t I,
         typename Result,
@@ -193,7 +199,21 @@ namespace ptn::core::common {
     constexpr Result eval_cases_impl_typed(
         Subject &subject, CasesTuple &cases, Otherwise &&otherwise_handler) {
       if constexpr (I >= N) {
-        if constexpr (std::is_invocable_v<Otherwise, Subject &>) {
+        using otherwise_result =
+            traits::otherwise_result_t<Otherwise, Subject>;
+
+        if constexpr (std::is_same_v<
+                          otherwise_result,
+                          traits::detail::unreachable_t>) {
+          if constexpr (std::is_invocable_v<Otherwise, Subject &>) {
+            std::forward<Otherwise>(otherwise_handler)(subject);
+          }
+          else {
+            std::forward<Otherwise>(otherwise_handler)();
+          }
+          return unreachable_result<Result>();
+        }
+        else if constexpr (std::is_invocable_v<Otherwise, Subject &>) {
           return static_cast<Result>(
               std::forward<Otherwise>(otherwise_handler)(subject));
         }
