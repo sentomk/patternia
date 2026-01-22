@@ -188,6 +188,8 @@ namespace ptn::core::engine::detail {
       using result_type =
           core::traits::match_result_t<subject_type, dummy_handler_t, Cases...>;
 
+      ptn::core::common::static_assert_end_result<result_type>();
+
       if constexpr (traits::is_void_like_v<result_type>) {
         match_impl::eval<result_type>(
             std::forward<subject_type>(subject_),
