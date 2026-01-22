@@ -9,6 +9,7 @@
 
 #include "ptn/core/common/diagnostics.hpp"
 #include "ptn/meta/base/traits.hpp"
+#include "ptn/pattern/bind.hpp"
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/pattern_base.hpp"
 
@@ -80,6 +81,20 @@ namespace ptn::pat::type {
   constexpr auto is(SubPattern &&subpattern) {
     return detail::type_is_with_pattern<T, std::decay_t<SubPattern>>(
         std::forward<SubPattern>(subpattern));
+  }
+
+  // Explicit binding sugar for type matches.
+  // Equivalent to: is<T>(bind())
+  template <typename T>
+  constexpr auto as() {
+    return is<T>(ptn::pat::bind());
+  }
+
+  // Explicit binding sugar with a subpattern.
+  // Equivalent to: is<T>(bind(subpattern))
+  template <typename T, typename SubPattern>
+  constexpr auto as(SubPattern &&subpattern) {
+    return is<T>(ptn::pat::bind(std::forward<SubPattern>(subpattern)));
   }
 
 } // namespace ptn::pat::type
