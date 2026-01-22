@@ -267,17 +267,17 @@ Here:
 
 ### Variant Type Matching (std::variant)
 
-Patternia can match `std::variant` alternatives by type using `type::is<T>()`.
+Patternia can match `std::variant` alternatives by type using `type::is<T>()` or its simplified version `is<T>`().
 If you want to bind the alternative value, use `as<T>()`, which is explicit
-binding sugar for `type::is<T>(bind())`.
+binding sugar for `is<T>(bind())`.
 
 ```cpp
 using V = std::variant<int, std::string, Point>;
 
 match(v)
-  .when(type::is<int>() >> [] { /* type-only */ })
+  .when(is<int>() >> [] { /* type-only */ })
   .when(as<std::string>() >> [](const std::string &s) { /* bound */ })
-  .when(type::is<Point>(bind(has<&Point::x, &Point::y>())) >>
+  .when(is<Point>(bind(has<&Point::x, &Point::y>())) >>
         [](int x, int y) { /* structural bind */ })
   .otherwise([] {});
 ```
