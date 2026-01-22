@@ -862,6 +862,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="6. Structural Matching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#variant-type-matching-stdvariant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variant Type Matching (std::variant)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1342,6 +1359,19 @@ Once installed or fetched into your project, you can start using pattern matchin
 <li><code>bind(...)</code> extracts values explicitly</li>
 <li>Guards can express <strong>relationships between multiple bindings</strong></li>
 </ul>
+<h3 id="variant-type-matching-stdvariant">Variant Type Matching (std::variant)<a class="headerlink" href="#variant-type-matching-stdvariant" title="Permanent link">&para;</a></h3>
+<p>Patternia can match <code>std::variant</code> alternatives by type using <code>type::is&lt;T&gt;()</code>.
+If you want to bind the alternative value, use <code>as&lt;T&gt;()</code>, which is explicit
+binding sugar for <code>type::is&lt;T&gt;(bind())</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">V</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">Point</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* type-only */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">as</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* bound */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">()))</span><span class="w"> </span><span class="o">&gt;&gt;</span>
+<span class="w">        </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* structural bind */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
+</code></pre></div>
 <h2 id="7-pattern-fallback-with-__-and-end">7. Pattern Fallback with <code>__</code> and <code>.end()</code><a class="headerlink" href="#7-pattern-fallback-with-__-and-end" title="Permanent link">&para;</a></h2>
 <p>Use <code>__</code> as a pattern fallback that <strong>must be paired with <code>.end()</code></strong> to trigger match inference:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// For exhaustive data types (integers, enums, etc.)</span>
