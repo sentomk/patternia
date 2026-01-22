@@ -19,10 +19,9 @@ std::string describe(const std::variant<int, std::string, Point> &v) {
                  is<std::string>(bind()) >>
                      [](const std::string &s) { return "str:" + s; },
                  is<Point>(bind(has<&Point::x, &Point::y>())) >>
-                     [](int x, int y) { return "pt:" + std::to_string(x + y); },
-                 __ >> [] { return std::string("other"); }
+                     [](int x, int y) { return "pt:" + std::to_string(x + y); }
              )
-  ).end();
+  ).otherwise([] { return std::string("other"); });
 }
 
 int main() {
