@@ -60,6 +60,7 @@ namespace ptn {
 
   // type
   namespace type = ptn::pat::type;
+  using ptn::pat::type::is;
 
 } // namespace ptn
 
