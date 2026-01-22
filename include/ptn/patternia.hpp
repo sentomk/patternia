@@ -61,6 +61,7 @@ namespace ptn {
   // type
   namespace type = ptn::pat::type;
   using ptn::pat::type::is;
+  using ptn::pat::type::as;
 
 } // namespace ptn
 
