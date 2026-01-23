@@ -8,22 +8,25 @@ Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic c
 
 ## Navigation
 
-### Tutorials
-- [From Control Flow to Pattern Matching](tutorials/from-control-flow.md) - Start here if you are new to pattern matching
-- [Pattern Matching in Other Languages](tutorials/other-languages.md) - For readers familiar with pattern matching
-- [Custom Predicate Guards](tutorials/predicate-guards.md) - Using guards as part of case definition
-- [Example - Policy Constraint Matching](tutorials/policy-constraint.md) - From ad-hoc rules to declarative policies
-- [Example - Geometric Constraint Matching](tutorials/sphere-constraint.md) - From numeric conditions to declarative shape constraints
+### Start Here
+- <u><a href="guide/getting-started.md">Getting Started</a></u> - Minimal examples and core syntax
+- <u><a href="guide/installation.md">Installation</a></u> - How to integrate Patternia into your project
 
-### Quick Start
-- [Getting Started](guide/getting-started.md) - Complete examples from basics to advanced
-- [Installation](guide/installation.md) - How to integrate Patternia into your project
+### Concepts and Tutorials
+- <u><a href="tutorials/from-control-flow.md">From Control Flow to Pattern Matching</a></u> - Onramp for new users
+- <u><a href="tutorials/other-languages.md">Pattern Matching in Other Languages</a></u> - Mapping familiar ideas to Patternia
+- <u><a href="tutorials/predicate-guards.md">Custom Predicate Guards</a></u> - Guard design and composition
 
-### API Reference
-- [API Documentation](api.md) - Complete API reference for all patterns and functions
+### Worked Examples
+- <u><a href="tutorials/policy-constraint.md">Policy Constraint Matching</a></u> - Declarative rules and access control
+- <u><a href="tutorials/sphere-constraint.md">Geometric Constraint Matching</a></u> - Numeric constraints as patterns
+
+### Reference
+- <u><a href="api.md">API Documentation</a></u> - Complete API reference for all patterns and functions
+- <u><a href="design-overview.md">Design Overview</a></u> - Semantics and matching model
 
 ### Project Information
-- [Releases](changelog/releases.md) - Version update history
+- <u><a href="changelog/releases.md">Releases</a></u> - Version update history
 
 ---
 
