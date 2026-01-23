@@ -264,11 +264,11 @@ Here:
 * Guards can express **relationships between multiple bindings**
 
 
-### Variant Type Matching (std::variant)
+## 7. Variant Type Matching (std::variant)
 
-Patternia can match `std::variant` alternatives by type using `type::is<T>()` or its simplified version `is<T>`().
-If you want to bind the alternative value, use `as<T>()`, which is explicit
-binding sugar for `is<T>(bind())`.
+Patternia can match `std::variant` alternatives by type using `type::is<T>()`
+or its simplified version `is<T>()`. If you want to bind the alternative
+value, use `as<T>()`, which is explicit binding sugar for `is<T>(bind())`.
 
 ```cpp
 using V = std::variant<int, std::string, Point>;
@@ -282,7 +282,7 @@ match(v)
 ```
 
 
-## 7. Pattern Fallback with `__` and `.end()`
+## 8. Pattern Fallback with `__` and `.end()`
 
 Use `__` as a pattern fallback that **must be paired with `.end()`** to trigger match inference:
 
@@ -297,7 +297,7 @@ match(x)
 
 **Important:** `__` (pattern fallback) **must** be used with `.end()` to enable match inference. Without `.end()`, the `__` case will not trigger.
 
-## 8. Match Fallback with `.otherwise()`
+## 9. Match Fallback with `.otherwise()`
 
 Use `.otherwise()` as a match fallback for scenarios where exhaustive matching is not possible or practical:
 
@@ -314,7 +314,7 @@ match(data)
 * **`.otherwise()`**: Use when matching is **not guaranteed to be exhaustive** (complex structures, variants, etc.)
 * **Cannot mix**: `__`/`.end()` and `.otherwise()` **cannot** be used in the same match expression
 
-## 9. When to Use Pattern Fallback vs Match Fallback
+## 10. When to Use Pattern Fallback vs Match Fallback
 
 Choose the right fallback strategy based on your data type:
 
@@ -340,7 +340,7 @@ match(value)
 ```
 
 
-## 10. When to Use Patternia
+## 11. When to Use Patternia
 
 Patternia is particularly effective when:
 
