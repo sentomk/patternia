@@ -180,32 +180,30 @@ println!("{}", res);
 Simplest literal scenario:
 
 ```cpp
-auto res = match(x)
-    .when(lit(1) >> "one")
-    .when(lit(2) >> "two")
-    .when(__ >> "other")    // __ is pattern-level fallback here
-    .otherwise("panic");    // match-level fallback (defensive, usually never triggered)
+match(x)
+    .when(lit(1) >> [] { /* one */ })
+    .when(lit(2) >> [] { /* two */ })
+    .when(__ >> [] { /* other */ })    // __ is pattern-level fallback here
+    .end();
 ```
 
-* `__ >> "other"`: Represents "all other values".
-* `.otherwise("panic")`: Ideally never used, but can serve as defensive fallback.
+* `__ >> ...`: Represents "all other values".
 
 ### 4.2 Remaining Branch in Enum/Variant-like Matching
 
 For variant-like types (including future kind/alternative patterns):
 
 ```cpp
-auto info = match(v)
-    .when(type::is<int>         >> "int")
-    .when(type::is<std::string> >> "string")
-    .when(__                     >> "other-kind")
-    .otherwise("panic"); // match-level defense, ideally never triggered
+match(v)
+    .when(type::is<int>()         >> [] { /* int */ })
+    .when(type::is<std::string>() >> [] { /* string */ })
+    .when(__                       >> [] { /* other-kind */ })
+    .end();
 ```
 
 Here:
 
 * `__` represents "all alternatives except int and string".
-* `.otherwise("panic")` is the final match-level defense.
 
 ### 4.3 Field Wildcard in Struct Destructuring
 
@@ -244,106 +242,13 @@ Future named field versions could also be extended:
 
 ---
 
-## 5. When Do `__` and `.otherwise()` "Appear Together"?
+## 5. `__` and `.otherwise()` Are Mutually Exclusive
 
-### 5.1 Typical Scenario: Expression Match + Pattern Fallback + Match Fallback
+`__` is a pattern-level fallback, while `.otherwise()` is a match-level fallback.
+Patternia rejects `.otherwise()` if a wildcard case is present. Use either:
 
-In complex modes:
-
-* Pattern level might already use `__` for fallback matching all forms;
-* But you can still set `.otherwise(...)` at match level as "defensive branch that should never trigger".
-
-**Example:**
-
-```cpp
-auto label = match(v)
-    .when(type::is<int>         >> "int")
-    .when(type::is<std::string> >> "string")
-    .when(__                     >> "other-kind") // pattern-level fallback
-    .otherwise("unreachable");                    // match-level defense
-```
-
-Here `.otherwise("unreachable")` should ideally never trigger in normal logic, but:
-
-* Can be used for debug/assertions;
-* Semantically completely valid in the DSL.
-
-### 5.2 Expression Matches Must Use `.otherwise()`
-
-Whenever you write:
-
-```cpp
-auto res = match(subject)
-    .when(...)
-    ...
-```
-
-And want to assign the result to `res`, then **expression-style matches must be terminated with `.otherwise(...)`**.
-Even if the pattern level is already covered by `__`.
-
-The reason is:
-
-* Builder needs a finalizer to determine "this is an expression-style match";
-* C++ needs a clear return type, and `.otherwise(...)` is exactly this entry point.
-
-### 5.3 When Does Match-level Fallback Trigger?
-
-**The `.otherwise(handler)` is triggered in two scenarios:**
-
-#### Scenario 1: No Pattern Matches
-When none of the `.when()` cases match the subject value:
-
-```cpp
-auto result = match(42)
-    .when(lit(1) >> "one")      // ❌ No match
-    .when(lit(2) >> "two")      // ❌ No match  
-    .when(__ >> "other")           // ❌ No match (if no wildcard case for this specific scenario)
-    .otherwise("default");         // ✅ TRIGGERED: Returns "default"
-```
-
-#### Scenario 2: Explicit Match-level Defense
-Even when patterns (including `__`) could theoretically match everything, `.otherwise()` still serves as a **defensive fallback**:
-
-```cpp
-auto result = match(42)
-    .when(lit(1) >> "one")      // ❌ No match
-    .when(lit(2) >> "two")      // ❌ No match
-    .when(__ >> "other")           // ✅ PATTERN MATCHES: Returns "other"
-    .otherwise("unreachable");      // ❌ NOT TRIGGERED: Pattern already matched
-```
-
-**Key Principles:**
-
-1. **Pattern Priority**: Cases are evaluated in order. The first matching pattern wins.
-2. **Wildcard Coverage**: `__` matches any value, so if placed before `.otherwise()`, it will typically match first.
-3. **Defensive Purpose**: `.otherwise()` as "unreachable" provides runtime safety for logic errors or unexpected inputs.
-
-#### Practical Example with Pattern vs Match Fallback:
-
-```cpp
-// This demonstrates the execution order
-auto classify = std::string input;
-
-auto result = match(classify)
-    .when(lit_ci("error") >> "ERROR")           // Case 1: Specific match
-    .when(lit_ci("warning") >> "WARNING")       // Case 2: Specific match  
-    .when(__ >> "UNKNOWN")                      // Case 3: Pattern fallback
-    .otherwise("INVALID INPUT");                 // Case 4: Match-level fallback (unlikely to trigger)
-
-// For input "INFO":
-// - Cases 1,2: No match
-// - Case 3 (__): Matches → Returns "UNKNOWN"  
-// - Case 4 (.otherwise): NOT triggered
-
-// For input null/empty string (if it reaches match):
-// - Cases 1,2,3: All could potentially handle this
-// - Depending on implementation, might reach .otherwise() as defense
-```
-
-**Summary:**
-- **Pattern-level fallback (`__`)**: Only affects case matching process at pattern level
-- **Match-level fallback (`.otherwise()`)**: Determines final return value of match expression
-- **When `__` can match all pattern forms**: `.otherwise()` serves only as defensive fallback and typically won't trigger
+* `__` with `.end()` for pattern-level fallback, or
+* `.otherwise(...)` without `__` for match-level fallback.
 
 ---
 

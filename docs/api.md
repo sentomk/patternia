@@ -20,7 +20,6 @@ It defines how values are inspected, how cases are registered, and how matching 
 **Syntax**:
 ```cpp
 match(subject)
-match<AsType>(subject)
 ```
 
 **Core Characteristics**:
@@ -39,17 +38,8 @@ match(x)
 
 **Type Control**:
 
-```cpp
-// Automatic type deduction
-int x = 42;
-match(x);   // subject matched as int
-
-// Explicit matching view
-double d =3.14;
-match<int>(d);  // subject is matched as int
-```
-
-Specifying `AsType` explicitly forces the subject to be viewed as that type during pattern evaluation.
+Patternia currently matches the subject as its actual type; there is no
+`match<AsType>(subject)` override.
 
 ---
 
@@ -154,7 +144,7 @@ The key distinction between them is the use of the `__` pattern.
 
 **Characteristics**:
 
-* Can be used regardless of whether `__` pattern is present
+* Cannot be used when a `__` pattern is present
 * Acts as a defensive default, not as a regular case
 * Evaluated only if no pattern has already matched
 
@@ -185,6 +175,7 @@ auto result = match(42)
 * **Must** be used when `__` pattern is present in the match
 * Can be used with or without return values (not limited to `void`)
 * Not required when only using `.otherwise()`
+* `.otherwise()` is rejected if a `__` pattern is present
 
 ```cpp
 match(x)
@@ -285,13 +276,14 @@ match(value)
   .when(lit("success") >> "ok")
   .when(lit("error")   >> "fail")
   .when(__             >> "unknown")  // Pattern-level fallback
-  .otherwise("fallback");              // Expression-level fallback
+  .end();
 ```
 
 **Key Distinction**:
 
 * `__` — a pattern that participates in matching and ordering
 * `.otherwise()` — a match-level fallback executed only if no pattern matches
+* `__` and `.otherwise()` cannot be combined in the same match
 
 ---
 
