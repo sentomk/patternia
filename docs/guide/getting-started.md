@@ -145,15 +145,14 @@ int main() {
 **Key points:**
 
 * `match(subject, cases(...))` provides a compact syntax for simple cases
-* **No guards/predicates**: This syntax cannot be used with guard expressions or predicates
+* **No bindings/guards**: This syntax cannot be used with `bind()` or guard expressions
 * Cases are tested **top-to-bottom (first-match semantics)**
 * Supports both pattern fallback (`__`) and match fallback patterns
 * **Requires `.end()`** to trigger evaluation when using `__` pattern
 * Ideal for straightforward value matching without complex conditions
 
 **Limitations:**
-- Cannot use guard expressions `[]` with tuple syntax
-- Cannot use predicate-based guards
+- Cannot use `bind()` (and therefore cannot use guard expressions `[]`)
 - Best suited for simple literal and wildcard matching
 - **Must use `.end()` when using `__` pattern to trigger evaluation**
 
