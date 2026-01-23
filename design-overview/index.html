@@ -924,26 +924,22 @@
 <li>In <strong>struct destructuring</strong>:
     Used for "field-level ignoring", similar to Rust's <code>_</code> / <code>..</code>.</li>
 </ul>
-<h3 id="12-end-statement-style-match-finalizer">1.2 <code>.end()</code> (Statement-style Match Finalizer)<a class="headerlink" href="#12-end-statement-style-match-finalizer" title="Permanent link">&para;</a></h3>
+<h3 id="12-end-match-finalizer-for-__">1.2 <code>.end()</code> (Match Finalizer for <code>__</code>)<a class="headerlink" href="#12-end-match-finalizer-for-__" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
-<p><code>.end()</code> transforms the builder into <strong>statement-style matching</strong>:</p>
+<p><code>.end()</code> finalizes a match that uses the <code>__</code> pattern fallback:</p>
 </li>
 <li>
-<p>The entire <code>match(...)</code> expression <strong>does not return a value</strong>.</p>
+<p>The entire <code>match(...)</code> expression may return a value or be <code>void</code>.</p>
 </li>
-<li>Used only for side effects (printing, logging, state modification, etc.).</li>
-<li>
-<p>Corresponds to the <strong>statement form</strong> in the standard proposal's <code>inspect</code>:</p>
-</li>
-<li>
-<p><code>pattern: statement;</code></p>
-</li>
+<li>Used for exhaustive-style matches where <code>__</code> is a regular case.</li>
+<li>Corresponds to the <strong>statement form</strong> in the standard proposal's <code>inspect</code>
+  when handlers are <code>void</code>-returning.</li>
 <li>
 <p>Constraints:</p>
 </li>
 <li>
-<p>All case handlers must return <code>void</code>.</p>
+<p>All case handlers must return compatible types (or all <code>void</code>).</p>
 </li>
 <li>
 <p>For exhaustible types (enum, bool, variant-like), future <strong>exhaustiveness checking</strong> will be performed:</p>
@@ -971,7 +967,7 @@
 <p>Constraints:</p>
 </li>
 <li>
-<p>All <code>.when(pattern &gt;&gt; handler)</code> handlers must return non-void and be type-unifiable.</p>
+<p>All <code>.when(pattern &gt;&gt; handler)</code> handlers must return compatible types (or all <code>void</code>).</p>
 </li>
 <li>
 <p><code>.otherwise(...)</code> provides the final fallback value:</p>
@@ -1006,7 +1002,7 @@
 <tr>
 <td><code>.end()</code></td>
 <td>Match Level</td>
-<td>Entire match "executed as statement" with no return</td>
+<td>Finalizes a match that uses <code>__</code> as a case</td>
 </tr>
 <tr>
 <td><code>.otherwise</code></td>
@@ -1024,16 +1020,16 @@
 </ul>
 <hr />
 <h2 id="3-end-vs-otherwise-two-modes">3. <code>.end()</code> vs <code>.otherwise()</code>: Two Modes<a class="headerlink" href="#3-end-vs-otherwise-two-modes" title="Permanent link">&para;</a></h2>
-<h3 id="31-end-statement-style-matching">3.1 <code>.end()</code> — Statement-style Matching<a class="headerlink" href="#31-end-statement-style-matching" title="Permanent link">&para;</a></h3>
+<h3 id="31-end-__-finalized-matching">3.1 <code>.end()</code> — <code>__</code>-Finalized Matching<a class="headerlink" href="#31-end-__-finalized-matching" title="Permanent link">&para;</a></h3>
 <p><strong>Use Cases:</strong></p>
 <ul>
-<li>Only care about side effects, no return value needed.</li>
+<li>Want to use <code>__</code> as a regular case.</li>
 <li>Want exhaustiveness checking for enum/variant-like types.</li>
 </ul>
 <p><strong>Semantic Characteristics:</strong></p>
 <ul>
-<li>All handlers must return <code>void</code>.</li>
-<li>Return type is <code>void</code>.</li>
+<li>All handlers must return compatible types (or all <code>void</code>).</li>
+<li>Return type is deduced from the cases.</li>
 <li>Exhaustible types will be checked for "complete coverage".</li>
 </ul>
 <p><strong>Example (enum):</strong></p>
@@ -1043,7 +1039,7 @@
 <span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Pending</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Pending&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">})</span>
 <span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Running</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Running&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">})</span>
 <span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Other&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// pattern-level fallback</span>
-<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">                            </span><span class="c1">// match finalizer, no return value</span>
+<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">                            </span><span class="c1">// match finalizer for `__`</span>
 </code></pre></div>
 <p><strong>Rust Analogy:</strong></p>
 <div class="highlight"><pre><span></span><code><span class="k">match</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="p">{</span>
@@ -1155,11 +1151,11 @@ Patternia rejects <code>.otherwise()</code> if a wildcard case is present. Use e
 </thead>
 <tbody>
 <tr>
-<td>Only execute side effects, no match return value</td>
+<td>Use <code>__</code> as a case fallback</td>
 <td>Use <code>.end()</code></td>
 </tr>
 <tr>
-<td>Need to get a value from match (like Rust)</td>
+<td>Need a value without <code>__</code></td>
 <td>Use <code>.otherwise(...)</code></td>
 </tr>
 <tr>
@@ -1178,7 +1174,7 @@ Patternia rejects <code>.otherwise()</code> if a wildcard case is present. Use e
 </table>
 <h3 id="62-typical-patterns">6.2 Typical Patterns<a class="headerlink" href="#62-typical-patterns" title="Permanent link">&para;</a></h3>
 <ol>
-<li><strong>Statement-style with fallback:</strong></li>
+<li><strong><code>__</code>-finalized with fallback:</strong></li>
 </ol>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Pending</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">})</span>
@@ -1229,12 +1225,12 @@ Patternia rejects <code>.otherwise()</code> if a wildcard case is present. Use e
 <p><strong>Key Points:</strong></p>
 <ul>
 <li>Without <code>.end()</code> or <code>.otherwise()</code>, the builder never triggers execution.</li>
-<li><code>.end()</code> creates an empty fallback handler for statement-style execution.</li>
+<li><code>.end()</code> creates an empty fallback handler for <code>__</code>-finalized execution.</li>
 <li><code>.otherwise()</code> uses the provided handler as the final fallback for expression-style execution.</li>
 </ul>
 <h3 id="72-type-safety-guarantees">7.2 Type Safety Guarantees<a class="headerlink" href="#72-type-safety-guarantees" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Statement-style (<code>.end()</code>)</strong>: All handlers must return <code>void</code></li>
+<li><strong><code>.end()</code></strong>: All handlers must return compatible types (or all <code>void</code>)</li>
 <li><strong>Expression-style (<code>.otherwise()</code>)</strong>: All handlers must return compatible types</li>
 <li><strong>Pattern matching</strong>: Type-safe heterogeneous comparisons</li>
 <li><strong>Binding</strong>: Compile-time type deduction for bound values</li>
@@ -1260,7 +1256,7 @@ Patternia rejects <code>.otherwise()</code> if a wildcard case is present. Use e
 <li>
 <p><strong>Improved Error Messages</strong>:</p>
 </li>
-<li>Non-void handler under <code>.end()</code> → Clear error.</li>
+<li>Incompatible handler return types under <code>.end()</code> → Clear error.</li>
 <li>Handler return type inconsistency under <code>.otherwise()</code> → Clear type diagnostics.</li>
 <li>Wildcard + <code>.otherwise()</code> redundancy → Hint "potentially redundant patterns".</li>
 </ol>
