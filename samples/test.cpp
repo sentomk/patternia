@@ -1,5 +1,6 @@
 #include "ptn/patternia.hpp"
 #include <iostream>
+#include <variant>
 
 using namespace ptn;
 
@@ -24,4 +25,26 @@ int main() {
                 .when(lit(42) >> "42")
                 .when(__ >> "other")
                 .end();
+
+  using Point  = int;
+  using Height = int;
+  std::variant<Point, Height> v;
+
+  Point p = 32;
+
+  std::variant<int, char, std::string> pax;
+  auto                                 vv = match(pax)
+                .when(is<int>() >> "Point")
+                .when(is<char>() >> "Height")
+                .when(as<std::string>() >> "Str")
+                .when(__ >> "Other")
+                .end();
+
+  auto vr = match(v)
+                .when(alt<0>() >> "Point")
+                .when(alt<1>() >> "Height")
+                .when(__ >> "other")
+                .end();
+
+  std::cout << vr;
 }

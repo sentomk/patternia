@@ -12,6 +12,7 @@
 #include "ptn/meta/dsa/type_list.hpp"
 #include "ptn/meta/query/template_info.hpp"
 #include "ptn/core/common/common_traits.hpp"
+#include "ptn/pattern/base/pattern_traits.hpp"
 
 namespace ptn::core::common {
 
@@ -136,6 +137,17 @@ namespace ptn::core::common {
     static_assert(
         !HasMatchFallback,
         "[Patternia.match.end]: .end() cannot be used after otherwise().");
+  }
+
+  // Validates that cases(...) only uses non-binding patterns.
+  template <typename... Cases>
+  constexpr void static_assert_cases_precondition() {
+    static_assert(
+        (!ptn::pat::traits::is_binding_pattern_v<
+             ptn::core::traits::case_pattern_t<Cases>> &&
+         ...),
+        "[Patternia.cases]: binding/guards are not allowed in cases(...). "
+        "Use match(...).when(...) for binding and guard logic.");
   }
 
 
