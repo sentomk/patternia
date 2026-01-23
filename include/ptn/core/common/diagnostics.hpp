@@ -138,14 +138,6 @@ namespace ptn::core::common {
         "[Patternia.match.end]: .end() cannot be used after otherwise().");
   }
 
-  // Validates that .end() is used in statement-style matches.
-  template <typename Result>
-  constexpr void static_assert_end_result() {
-    static_assert(
-        traits::is_void_like_v<Result>,
-        "[Patternia.match.end]: .end() is statement-style; handlers must "
-        "return void. Use .otherwise(...) for value-returning matches.");
-  }
 
   // ------------------------------------------------------------
   // Variant Diagnostics

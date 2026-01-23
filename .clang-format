@@ -72,5 +72,8 @@ ForEachMacros:
   - wl_list_for_each_safe
 
 AlwaysBreakTemplateDeclarations: Yes
-AlignAfterOpenBracket: BlockIndent
+AlignAfterOpenBracket: Align
 BreakBeforeBinaryOperators: NonAssignment
+
+PenaltyBreakAssignment:        1000
+PenaltyBreakBeforeMemberAccess: 1000
