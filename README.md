@@ -294,7 +294,7 @@ For complete installation instructions, comprehensive examples, and in-depth tut
 ### I. Match DSL Core Framework
 
 * [`match(subject)`](https://sentomk.github.io/patternia/api/#matchsubject)
-* [`match(subject, case_tuple(...))`](https://sentomk.github.io/patternia/api/#matchsubject-case_tuple)
+* [`match(subject, cases(...))`](https://sentomk.github.io/patternia/api/#matchsubject-cases)
 * [`.when(pattern >> handler)`](https://sentomk.github.io/patternia/api/#whenpattern-handler)
 * [`.otherwise(...)`](https://sentomk.github.io/patternia/api/#otherwise)
 * [`.end()`](https://sentomk.github.io/patternia/api/#end )
