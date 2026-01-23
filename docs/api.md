@@ -287,6 +287,50 @@ match(value)
 
 ---
 
+### `type::is<T>()` and `type::as<T>()` (Variant Type Matching)
+
+**Role**: Match `std::variant` alternatives by type, with optional explicit binding.
+
+**Syntax**:
+```cpp
+type::is<T>()                 // type-only match
+type::is<T>(subpattern)       // apply subpattern to the alternative
+
+type::as<T>()                 // explicit binding sugar for is<T>(bind())
+type::as<T>(subpattern)       // explicit binding sugar for is<T>(bind(subpattern))
+```
+
+**Shorthand**:
+```cpp
+is<T>()   // alias of type::is<T>()
+as<T>()   // alias of type::as<T>()
+```
+
+**Key Properties**:
+
+* Works on `std::variant` subjects only
+* `type::is<T>()` does not bind values
+* `type::as<T>()` is an explicit binding shortcut; it does not introduce implicit binding
+* Alternative type `T` must appear exactly once in the variant
+
+**Examples**:
+
+```cpp
+match(v)
+  .when(type::is<int>() >> [] { /* type-only */ })
+  .when(type::as<std::string>() >> [](const std::string &s) { /* bound */ })
+  .when(type::is<Point>(bind(has<&Point::x, &Point::y>())) >>
+        [](int x, int y) { /* structural bind */ })
+  .otherwise([] {});
+```
+
+**Design Note**:
+`type::as<T>()` preserves the "explicit bind" rule by being a named shortcut for
+`bind()`, not an implicit binding mechanism.
+
+
+---
+
 ### `bind()` (Binding Pattern)
 
 **Role**: Explicit value binding primitive.
@@ -399,50 +443,6 @@ A pattern answers **“does this value match?”**
 A binding answers **“what values become available to the handler?”**
 
 This separation keeps control flow declarative and data flow explicit.
-
----
-
-### `type::is<T>()` and `type::as<T>()` (Variant Type Matching)
-
-**Role**: Match `std::variant` alternatives by type, with optional explicit binding.
-
-**Syntax**:
-```cpp
-type::is<T>()                 // type-only match
-type::is<T>(subpattern)       // apply subpattern to the alternative
-
-type::as<T>()                 // explicit binding sugar for is<T>(bind())
-type::as<T>(subpattern)       // explicit binding sugar for is<T>(bind(subpattern))
-```
-
-**Shorthand**:
-```cpp
-is<T>()   // alias of type::is<T>()
-as<T>()   // alias of type::as<T>()
-```
-
-**Key Properties**:
-
-* Works on `std::variant` subjects only
-* `type::is<T>()` does not bind values
-* `type::as<T>()` is an explicit binding shortcut; it does not introduce implicit binding
-* Alternative type `T` must appear exactly once in the variant
-
-**Examples**:
-
-```cpp
-match(v)
-  .when(type::is<int>() >> [] { /* type-only */ })
-  .when(type::as<std::string>() >> [](const std::string &s) { /* bound */ })
-  .when(type::is<Point>(bind(has<&Point::x, &Point::y>())) >>
-        [](int x, int y) { /* structural bind */ })
-  .otherwise([] {});
-```
-
-**Design Note**:
-`type::as<T>()` preserves the "explicit bind" rule by being a named shortcut for
-`bind()`, not an implicit binding mechanism.
-
 
 ---
 
