@@ -42,9 +42,8 @@ All discussions below revolve around these three levels.
 
   * The entire `match(...)` expression may return a value or be `void`.
   * Used for exhaustive-style matches where `__` is a regular case.
-* Corresponds to the **statement form** in the standard proposal's `inspect`:
-
-  * `pattern: statement;`
+* Corresponds to the **statement form** in the standard proposal's `inspect`
+  when handlers are `void`-returning.
 * Constraints:
 
   * All case handlers must return compatible types (or all `void`).
@@ -261,14 +260,14 @@ Use this decision table to directly guide user usage.
 | Requirement                                   | Recommended Usage       |
 | ------------------------------------------- | --------------------- |
 | Use `__` as a case fallback                      | Use `.end()`          |
-| Need to get a value from match (like Rust)     | Use `.otherwise(...)` |
+| Need a value without `__`                       | Use `.otherwise(...)` |
 | Want exhaustiveness checking for enum/variant     | Use `.end()`          |
 | Express "all remaining matching forms"           | Use `__` in pattern   |
 | Express "entire match fallback return value"      | Use `.otherwise(...)` |
 
 ### 6.2 Typical Patterns
 
-1. **Statement-style with fallback:**
+1. **`__`-finalized with fallback:**
 
    ```cpp
    match(s)
