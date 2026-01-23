@@ -36,18 +36,18 @@ All discussions below revolve around these three levels.
   * In **struct destructuring**:
     Used for "field-level ignoring", similar to Rust's `_` / `..`.
 
-### 1.2 `.end()` (Statement-style Match Finalizer)
+### 1.2 `.end()` (Match Finalizer for `__`)
 
-* `.end()` transforms the builder into **statement-style matching**:
+* `.end()` finalizes a match that uses the `__` pattern fallback:
 
-  * The entire `match(...)` expression **does not return a value**.
-  * Used only for side effects (printing, logging, state modification, etc.).
+  * The entire `match(...)` expression may return a value or be `void`.
+  * Used for exhaustive-style matches where `__` is a regular case.
 * Corresponds to the **statement form** in the standard proposal's `inspect`:
 
   * `pattern: statement;`
 * Constraints:
 
-  * All case handlers must return `void`.
+  * All case handlers must return compatible types (or all `void`).
   * For exhaustible types (enum, bool, variant-like), future **exhaustiveness checking** will be performed:
 
     * Compile-time diagnostics when not all enum values or alternatives are covered.
@@ -63,7 +63,7 @@ All discussions below revolve around these three levels.
   * `pattern => expression,`
 * Constraints:
 
-  * All `.when(pattern >> handler)` handlers must return non-void and be type-unifiable.
+  * All `.when(pattern >> handler)` handlers must return compatible types (or all `void`).
   * `.otherwise(...)` provides the final fallback value:
 
     * Used when no branches match.
@@ -83,7 +83,7 @@ They solve completely different problems:
 | Role           | Level          | Problem Solved                              |
 | --------------- | -------------- | ----------------------------------------- |
 | `__`           | Pattern Level  | How current case matches "any/remaining forms" |
-| `.end()`       | Match Level    | Entire match "executed as statement" with no return |
+| `.end()`       | Match Level    | Finalizes a match that uses `__` as a case |
 | `.otherwise`    | Match Level    | Entire match "as expression" with final return value |
 
 Therefore:
@@ -97,17 +97,17 @@ Therefore:
 
 ## 3. `.end()` vs `.otherwise()`: Two Modes
 
-### 3.1 `.end()` — Statement-style Matching
+### 3.1 `.end()` — `__`-Finalized Matching
 
 **Use Cases:**
 
-* Only care about side effects, no return value needed.
+* Want to use `__` as a regular case.
 * Want exhaustiveness checking for enum/variant-like types.
 
 **Semantic Characteristics:**
 
-* All handlers must return `void`.
-* Return type is `void`.
+* All handlers must return compatible types (or all `void`).
+* Return type is deduced from the cases.
 * Exhaustible types will be checked for "complete coverage".
 
 **Example (enum):**
@@ -119,7 +119,7 @@ match(status)
     .when(lit(Status::Pending) >> [] { log("Pending"); })
     .when(lit(Status::Running) >> [] { log("Running"); })
     .when(__ >> [] { log("Other"); })  // pattern-level fallback
-    .end();                            // match finalizer, no return value
+    .end();                            // match finalizer for `__`
 ```
 
 **Rust Analogy:**
@@ -260,7 +260,7 @@ Use this decision table to directly guide user usage.
 
 | Requirement                                   | Recommended Usage       |
 | ------------------------------------------- | --------------------- |
-| Only execute side effects, no match return value | Use `.end()`          |
+| Use `__` as a case fallback                      | Use `.end()`          |
 | Need to get a value from match (like Rust)     | Use `.otherwise(...)` |
 | Want exhaustiveness checking for enum/variant     | Use `.end()`          |
 | Express "all remaining matching forms"           | Use `__` in pattern   |
@@ -330,12 +330,12 @@ match(value).when(lit(42) >> [] { /* handler */ }).otherwise(fallback);
 **Key Points:**
 
 * Without `.end()` or `.otherwise()`, the builder never triggers execution.
-* `.end()` creates an empty fallback handler for statement-style execution.
+* `.end()` creates an empty fallback handler for `__`-finalized execution.
 * `.otherwise()` uses the provided handler as the final fallback for expression-style execution.
 
 ### 7.2 Type Safety Guarantees
 
-* **Statement-style (`.end()`)**: All handlers must return `void`
+* **`.end()`**: All handlers must return compatible types (or all `void`)
 * **Expression-style (`.otherwise()`)**: All handlers must return compatible types
 * **Pattern matching**: Type-safe heterogeneous comparisons
 * **Binding**: Compile-time type deduction for bound values
@@ -357,7 +357,7 @@ To make these semantics truly user-friendly, Patternia's future plans include:
    * Support guard/bind/nested patterns.
 
 3. **Improved Error Messages**:
-   * Non-void handler under `.end()` → Clear error.
+   * Incompatible handler return types under `.end()` → Clear error.
    * Handler return type inconsistency under `.otherwise()` → Clear type diagnostics.
    * Wildcard + `.otherwise()` redundancy → Hint "potentially redundant patterns".
 
