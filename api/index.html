@@ -970,6 +970,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#typeist-and-typeast-variant-type-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type::is&lt;T&gt;() and type::as&lt;T&gt;() (Variant Type Matching)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#bind-binding-pattern" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1016,17 +1027,6 @@
         
       </ul>
     </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#typeist-and-typeast-variant-type-matching" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        type::is&lt;T&gt;() and type::as&lt;T&gt;() (Variant Type Matching)
-      
-    </span>
-  </a>
   
 </li>
         
@@ -1672,6 +1672,38 @@ They describe <em>what</em> is matched, <em>what</em> is ignored, and <em>what</
 <li><code>__</code> and <code>.otherwise()</code> cannot be combined in the same match</li>
 </ul>
 <hr />
+<h3 id="typeist-and-typeast-variant-type-matching"><code>type::is&lt;T&gt;()</code> and <code>type::as&lt;T&gt;()</code> (Variant Type Matching)<a class="headerlink" href="#typeist-and-typeast-variant-type-matching" title="Permanent link">&para;</a></h3>
+<p><strong>Role</strong>: Match <code>std::variant</code> alternatives by type, with optional explicit binding.</p>
+<p><strong>Syntax</strong>:
+<div class="highlight"><pre><span></span><code><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">()</span><span class="w">                 </span><span class="c1">// type-only match</span>
+<span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subpattern</span><span class="p">)</span><span class="w">       </span><span class="c1">// apply subpattern to the alternative</span>
+
+<span class="n">type</span><span class="o">::</span><span class="n">as</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">()</span><span class="w">                 </span><span class="c1">// explicit binding sugar for is&lt;T&gt;(bind())</span>
+<span class="n">type</span><span class="o">::</span><span class="n">as</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subpattern</span><span class="p">)</span><span class="w">       </span><span class="c1">// explicit binding sugar for is&lt;T&gt;(bind(subpattern))</span>
+</code></pre></div></p>
+<p><strong>Shorthand</strong>:
+<div class="highlight"><pre><span></span><code><span class="n">is</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">()</span><span class="w">   </span><span class="c1">// alias of type::is&lt;T&gt;()</span>
+<span class="n">as</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">()</span><span class="w">   </span><span class="c1">// alias of type::as&lt;T&gt;()</span>
+</code></pre></div></p>
+<p><strong>Key Properties</strong>:</p>
+<ul>
+<li>Works on <code>std::variant</code> subjects only</li>
+<li><code>type::is&lt;T&gt;()</code> does not bind values</li>
+<li><code>type::as&lt;T&gt;()</code> is an explicit binding shortcut; it does not introduce implicit binding</li>
+<li>Alternative type <code>T</code> must appear exactly once in the variant</li>
+</ul>
+<p><strong>Examples</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* type-only */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">as</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* bound */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">()))</span><span class="w"> </span><span class="o">&gt;&gt;</span>
+<span class="w">        </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* structural bind */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
+</code></pre></div>
+<p><strong>Design Note</strong>:
+<code>type::as&lt;T&gt;()</code> preserves the "explicit bind" rule by being a named shortcut for
+<code>bind()</code>, not an implicit binding mechanism.</p>
+<hr />
 <h3 id="bind-binding-pattern"><code>bind()</code> (Binding Pattern)<a class="headerlink" href="#bind-binding-pattern" title="Permanent link">&para;</a></h3>
 <p><strong>Role</strong>: Explicit value binding primitive.</p>
 <p><code>bind()</code> is the <em>only</em> mechanism in Patternia that introduces bindings into a match.</p>
@@ -1766,38 +1798,6 @@ All bindings are introduced exclusively by <code>bind(...)</code>.</p>
 A pattern answers <strong>“does this value match?”</strong>
 A binding answers <strong>“what values become available to the handler?”</strong></p>
 <p>This separation keeps control flow declarative and data flow explicit.</p>
-<hr />
-<h3 id="typeist-and-typeast-variant-type-matching"><code>type::is&lt;T&gt;()</code> and <code>type::as&lt;T&gt;()</code> (Variant Type Matching)<a class="headerlink" href="#typeist-and-typeast-variant-type-matching" title="Permanent link">&para;</a></h3>
-<p><strong>Role</strong>: Match <code>std::variant</code> alternatives by type, with optional explicit binding.</p>
-<p><strong>Syntax</strong>:
-<div class="highlight"><pre><span></span><code><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">()</span><span class="w">                 </span><span class="c1">// type-only match</span>
-<span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subpattern</span><span class="p">)</span><span class="w">       </span><span class="c1">// apply subpattern to the alternative</span>
-
-<span class="n">type</span><span class="o">::</span><span class="n">as</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">()</span><span class="w">                 </span><span class="c1">// explicit binding sugar for is&lt;T&gt;(bind())</span>
-<span class="n">type</span><span class="o">::</span><span class="n">as</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subpattern</span><span class="p">)</span><span class="w">       </span><span class="c1">// explicit binding sugar for is&lt;T&gt;(bind(subpattern))</span>
-</code></pre></div></p>
-<p><strong>Shorthand</strong>:
-<div class="highlight"><pre><span></span><code><span class="n">is</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">()</span><span class="w">   </span><span class="c1">// alias of type::is&lt;T&gt;()</span>
-<span class="n">as</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">()</span><span class="w">   </span><span class="c1">// alias of type::as&lt;T&gt;()</span>
-</code></pre></div></p>
-<p><strong>Key Properties</strong>:</p>
-<ul>
-<li>Works on <code>std::variant</code> subjects only</li>
-<li><code>type::is&lt;T&gt;()</code> does not bind values</li>
-<li><code>type::as&lt;T&gt;()</code> is an explicit binding shortcut; it does not introduce implicit binding</li>
-<li>Alternative type <code>T</code> must appear exactly once in the variant</li>
-</ul>
-<p><strong>Examples</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* type-only */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">as</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* bound */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">()))</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">        </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* structural bind */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
-</code></pre></div>
-<p><strong>Design Note</strong>:
-<code>type::as&lt;T&gt;()</code> preserves the "explicit bind" rule by being a named shortcut for
-<code>bind()</code>, not an implicit binding mechanism.</p>
 <hr />
 <h2 id="iii-guard-system">III. Guard System<a class="headerlink" href="#iii-guard-system" title="Permanent link">&para;</a></h2>
 <p>Guards are <strong>declarative constraints attached to patterns</strong>. They refine a match <strong>after binding succeeds</strong>, and before the handler is invoked.</p>
