@@ -65,7 +65,7 @@ match(subject, cases(case1, case2, ...))
 **Key Characteristics**:
 
 * Provides a concise alternative to the standard `.when()` chain syntax
-* **No guards/predicates**: Cannot be used with guard expressions or predicates
+* **No bindings/guards**: Cannot be used with `bind()` or guard expressions
 * Supports both pattern fallback (`__`) and match fallback patterns
 * Cases are evaluated sequentially using **first-match semantics**
 * **Requires `.end()`** to trigger evaluation when using `__` pattern
@@ -82,8 +82,7 @@ match(x, cases(
 
 **Limitations**:
 
-- Cannot use guard expressions `[]` with tuple syntax
-- Cannot use predicate-based guards
+- Cannot use `bind()` (and therefore cannot use guard expressions `[]`)
 - Best suited for simple literal and wildcard matching
 - For complex matching with guards, use the standard DSL syntax
 - **Must use `.end()` when using `__` pattern to trigger evaluation**

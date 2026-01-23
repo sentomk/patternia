@@ -32,7 +32,7 @@ auto label = match(x, cases(
 )).end();
 ```
 
-The resemblance is intentional. For readers coming from expression-oriented languages, this form should feel immediately natural. What is different is what Patternia *does not* allow here. There are no guards, no predicates, and no partial bindings. This mirrors the idea that value-only matching should remain simple and readable, rather than becoming a staging ground for complex logic.
+The resemblance is intentional. For readers coming from expression-oriented languages, this form should feel immediately natural. What is different is what Patternia *does not* allow here. There are no bindings or guards. This mirrors the idea that value-only matching should remain simple and readable, rather than becoming a staging ground for complex logic.
 
 ---
 

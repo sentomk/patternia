@@ -24,7 +24,7 @@ auto describe(int x) {
 }
 ```
 
-This form is intentionally constrained. Each case is a direct mapping from a pattern to a result. There is no binding, no predicate, and no hidden control flow. The reader can understand the entire decision at a glance. This is not a limitation to be worked around; it is a design boundary. As long as your logic fits naturally into a `switch`, `cases()` is where it belongs.
+This form is intentionally constrained. Each case is a direct mapping from a pattern to a result. There is no binding, no guard, and no hidden control flow. The reader can understand the entire decision at a glance. This is not a limitation to be worked around; it is a design boundary. As long as your logic fits naturally into a `switch`, `cases()` is where it belongs.
 
 ---
 
