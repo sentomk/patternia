@@ -862,30 +862,13 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="6. Structural Matching">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#variant-type-matching-stdvariant" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Variant Type Matching (std::variant)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
-  <a href="#7-pattern-fallback-with-__-and-end" class="md-nav__link">
+  <a href="#7-variant-type-matching-stdvariant" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7. Pattern Fallback with __ and .end()
+        7. Variant Type Matching (std::variant)
       
     </span>
   </a>
@@ -893,10 +876,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#8-match-fallback-with-otherwise" class="md-nav__link">
+  <a href="#8-pattern-fallback-with-__-and-end" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8. Match Fallback with .otherwise()
+        8. Pattern Fallback with __ and .end()
       
     </span>
   </a>
@@ -904,10 +887,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#9-when-to-use-pattern-fallback-vs-match-fallback" class="md-nav__link">
+  <a href="#9-match-fallback-with-otherwise" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9. When to Use Pattern Fallback vs Match Fallback
+        9. Match Fallback with .otherwise()
       
     </span>
   </a>
@@ -915,10 +898,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#10-when-to-use-patternia" class="md-nav__link">
+  <a href="#10-when-to-use-pattern-fallback-vs-match-fallback" class="md-nav__link">
     <span class="md-ellipsis">
       
-        10. When to Use Patternia
+        10. When to Use Pattern Fallback vs Match Fallback
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-when-to-use-patternia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. When to Use Patternia
       
     </span>
   </a>
@@ -1358,10 +1352,10 @@ Once installed or fetched into your project, you can start using pattern matchin
 <li><code>bind(...)</code> extracts values explicitly</li>
 <li>Guards can express <strong>relationships between multiple bindings</strong></li>
 </ul>
-<h3 id="variant-type-matching-stdvariant">Variant Type Matching (std::variant)<a class="headerlink" href="#variant-type-matching-stdvariant" title="Permanent link">&para;</a></h3>
-<p>Patternia can match <code>std::variant</code> alternatives by type using <code>type::is&lt;T&gt;()</code> or its simplified version <code>is&lt;T&gt;</code>().
-If you want to bind the alternative value, use <code>as&lt;T&gt;()</code>, which is explicit
-binding sugar for <code>is&lt;T&gt;(bind())</code>.</p>
+<h2 id="7-variant-type-matching-stdvariant">7. Variant Type Matching (std::variant)<a class="headerlink" href="#7-variant-type-matching-stdvariant" title="Permanent link">&para;</a></h2>
+<p>Patternia can match <code>std::variant</code> alternatives by type using <code>type::is&lt;T&gt;()</code>
+or its simplified version <code>is&lt;T&gt;()</code>. If you want to bind the alternative
+value, use <code>as&lt;T&gt;()</code>, which is explicit binding sugar for <code>is&lt;T&gt;(bind())</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">V</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">Point</span><span class="o">&gt;</span><span class="p">;</span>
 
 <span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
@@ -1371,7 +1365,7 @@ binding sugar for <code>is&lt;T&gt;(bind())</code>.</p>
 <span class="w">        </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* structural bind */</span><span class="w"> </span><span class="p">})</span>
 <span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
 </code></pre></div>
-<h2 id="7-pattern-fallback-with-__-and-end">7. Pattern Fallback with <code>__</code> and <code>.end()</code><a class="headerlink" href="#7-pattern-fallback-with-__-and-end" title="Permanent link">&para;</a></h2>
+<h2 id="8-pattern-fallback-with-__-and-end">8. Pattern Fallback with <code>__</code> and <code>.end()</code><a class="headerlink" href="#8-pattern-fallback-with-__-and-end" title="Permanent link">&para;</a></h2>
 <p>Use <code>__</code> as a pattern fallback that <strong>must be paired with <code>.end()</code></strong> to trigger match inference:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// For exhaustive data types (integers, enums, etc.)</span>
 <span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -1381,7 +1375,7 @@ binding sugar for <code>is&lt;T&gt;(bind())</code>.</p>
 <span class="w">  </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">  </span><span class="c1">// required for __ to work</span>
 </code></pre></div>
 <p><strong>Important:</strong> <code>__</code> (pattern fallback) <strong>must</strong> be used with <code>.end()</code> to enable match inference. Without <code>.end()</code>, the <code>__</code> case will not trigger.</p>
-<h2 id="8-match-fallback-with-otherwise">8. Match Fallback with <code>.otherwise()</code><a class="headerlink" href="#8-match-fallback-with-otherwise" title="Permanent link">&para;</a></h2>
+<h2 id="9-match-fallback-with-otherwise">9. Match Fallback with <code>.otherwise()</code><a class="headerlink" href="#9-match-fallback-with-otherwise" title="Permanent link">&para;</a></h2>
 <p>Use <code>.otherwise()</code> as a match fallback for scenarios where exhaustive matching is not possible or practical:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// For non-exhaustive or complex data types</span>
 <span class="n">match</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -1394,7 +1388,7 @@ binding sugar for <code>is&lt;T&gt;(bind())</code>.</p>
 <li><strong><code>.otherwise()</code></strong>: Use when matching is <strong>not guaranteed to be exhaustive</strong> (complex structures, variants, etc.)</li>
 <li><strong>Cannot mix</strong>: <code>__</code>/<code>.end()</code> and <code>.otherwise()</code> <strong>cannot</strong> be used in the same match expression</li>
 </ul>
-<h2 id="9-when-to-use-pattern-fallback-vs-match-fallback">9. When to Use Pattern Fallback vs Match Fallback<a class="headerlink" href="#9-when-to-use-pattern-fallback-vs-match-fallback" title="Permanent link">&para;</a></h2>
+<h2 id="10-when-to-use-pattern-fallback-vs-match-fallback">10. When to Use Pattern Fallback vs Match Fallback<a class="headerlink" href="#10-when-to-use-pattern-fallback-vs-match-fallback" title="Permanent link">&para;</a></h2>
 <p>Choose the right fallback strategy based on your data type:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// ✅ For exhaustive types - use __ + end()</span>
 <span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Color</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Red</span><span class="p">,</span><span class="w"> </span><span class="n">Green</span><span class="p">,</span><span class="w"> </span><span class="n">Blue</span><span class="w"> </span><span class="p">};</span>
@@ -1415,7 +1409,7 @@ binding sugar for <code>is&lt;T&gt;(bind())</code>.</p>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">})</span>
 <span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">});</span><span class="w">  </span><span class="c1">// Compile error!</span>
 </code></pre></div>
-<h2 id="10-when-to-use-patternia">10. When to Use Patternia<a class="headerlink" href="#10-when-to-use-patternia" title="Permanent link">&para;</a></h2>
+<h2 id="11-when-to-use-patternia">11. When to Use Patternia<a class="headerlink" href="#11-when-to-use-patternia" title="Permanent link">&para;</a></h2>
 <p>Patternia is particularly effective when:</p>
 <ul>
 <li>branching depends on <strong>data shape</strong>, not just values</li>
