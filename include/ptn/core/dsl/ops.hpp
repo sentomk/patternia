@@ -9,6 +9,7 @@
 #include <type_traits>
 #include <utility>
 
+#include "ptn/core/common/diagnostics.hpp"
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/dsl/detail/case_expr_impl.hpp"
 
@@ -56,6 +57,8 @@ namespace ptn::core::dsl::ops {
     static_assert(
         (ptn::core::traits::is_case_expr_v<std::decay_t<CaseExprs>> && ...),
         "cases(...) arguments must be case expressions created with '>>'.");
+    ptn::core::common::static_assert_cases_precondition<
+        std::decay_t<CaseExprs>...>();
 
     using pack_t  = core::dsl::detail::cases_pack<std::decay_t<CaseExprs>...>;
     using tuple_t = typename pack_t::tuple_type;
