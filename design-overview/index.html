@@ -1088,28 +1088,26 @@
 <h2 id="4-__-roles-in-different-scenarios">4. <code>__</code> Roles in Different Scenarios<a class="headerlink" href="#4-__-roles-in-different-scenarios" title="Permanent link">&para;</a></h2>
 <h3 id="41-as-case-fallback-wildcard">4.1 As "Case Fallback" Wildcard<a class="headerlink" href="#41-as-case-fallback-wildcard" title="Permanent link">&para;</a></h3>
 <p>Simplest literal scenario:</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span><span class="p">)</span><span class="w">    </span><span class="c1">// __ is pattern-level fallback here</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;panic&quot;</span><span class="p">);</span><span class="w">    </span><span class="c1">// match-level fallback (defensive, usually never triggered)</span>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* one */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* two */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* other */</span><span class="w"> </span><span class="p">})</span><span class="w">    </span><span class="c1">// __ is pattern-level fallback here</span>
+<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
 </code></pre></div>
 <ul>
-<li><code>__ &gt;&gt; "other"</code>: Represents "all other values".</li>
-<li><code>.otherwise("panic")</code>: Ideally never used, but can serve as defensive fallback.</li>
+<li><code>__ &gt;&gt; ...</code>: Represents "all other values".</li>
 </ul>
 <h3 id="42-remaining-branch-in-enumvariant-like-matching">4.2 Remaining Branch in Enum/Variant-like Matching<a class="headerlink" href="#42-remaining-branch-in-enumvariant-like-matching" title="Permanent link">&para;</a></h3>
 <p>For variant-like types (including future kind/alternative patterns):</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">info</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w">         </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;int&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;string&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w">                     </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other-kind&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;panic&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// match-level defense, ideally never triggered</span>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span><span class="w">         </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* int */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* string */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w">                       </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* other-kind */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
 </code></pre></div>
 <p>Here:</p>
 <ul>
 <li><code>__</code> represents "all alternatives except int and string".</li>
-<li><code>.otherwise("panic")</code> is the final match-level defense.</li>
 </ul>
 <h3 id="43-field-wildcard-in-struct-destructuring">4.3 Field Wildcard in Struct Destructuring<a class="headerlink" href="#43-field-wildcard-in-struct-destructuring" title="Permanent link">&para;</a></h3>
 <p><strong>Corresponding Rust:</strong></p>
@@ -1137,85 +1135,13 @@ Future named field versions could also be extended:</p>
 <div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">Point</span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bind</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="w"> </span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">...)</span>
 </code></pre></div>
 <hr />
-<h2 id="5-when-do-__-and-otherwise-appear-together">5. When Do <code>__</code> and <code>.otherwise()</code> "Appear Together"?<a class="headerlink" href="#5-when-do-__-and-otherwise-appear-together" title="Permanent link">&para;</a></h2>
-<h3 id="51-typical-scenario-expression-match-pattern-fallback-match-fallback">5.1 Typical Scenario: Expression Match + Pattern Fallback + Match Fallback<a class="headerlink" href="#51-typical-scenario-expression-match-pattern-fallback-match-fallback" title="Permanent link">&para;</a></h3>
-<p>In complex modes:</p>
+<h2 id="5-__-and-otherwise-are-mutually-exclusive">5. <code>__</code> and <code>.otherwise()</code> Are Mutually Exclusive<a class="headerlink" href="#5-__-and-otherwise-are-mutually-exclusive" title="Permanent link">&para;</a></h2>
+<p><code>__</code> is a pattern-level fallback, while <code>.otherwise()</code> is a match-level fallback.
+Patternia rejects <code>.otherwise()</code> if a wildcard case is present. Use either:</p>
 <ul>
-<li>Pattern level might already use <code>__</code> for fallback matching all forms;</li>
-<li>But you can still set <code>.otherwise(...)</code> at match level as "defensive branch that should never trigger".</li>
+<li><code>__</code> with <code>.end()</code> for pattern-level fallback, or</li>
+<li><code>.otherwise(...)</code> without <code>__</code> for match-level fallback.</li>
 </ul>
-<p><strong>Example:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w">         </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;int&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;string&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w">                     </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other-kind&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// pattern-level fallback</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;unreachable&quot;</span><span class="p">);</span><span class="w">                    </span><span class="c1">// match-level defense</span>
-</code></pre></div>
-<p>Here <code>.otherwise("unreachable")</code> should ideally never trigger in normal logic, but:</p>
-<ul>
-<li>Can be used for debug/assertions;</li>
-<li>Semantically completely valid in the DSL.</li>
-</ul>
-<h3 id="52-expression-matches-must-use-otherwise">5.2 Expression Matches Must Use <code>.otherwise()</code><a class="headerlink" href="#52-expression-matches-must-use-otherwise" title="Permanent link">&para;</a></h3>
-<p>Whenever you write:</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(...)</span>
-<span class="w">    </span><span class="p">...</span>
-</code></pre></div>
-<p>And want to assign the result to <code>res</code>, then <strong>expression-style matches must be terminated with <code>.otherwise(...)</code></strong>.
-Even if the pattern level is already covered by <code>__</code>.</p>
-<p>The reason is:</p>
-<ul>
-<li>Builder needs a finalizer to determine "this is an expression-style match";</li>
-<li>C++ needs a clear return type, and <code>.otherwise(...)</code> is exactly this entry point.</li>
-</ul>
-<h3 id="53-when-does-match-level-fallback-trigger">5.3 When Does Match-level Fallback Trigger?<a class="headerlink" href="#53-when-does-match-level-fallback-trigger" title="Permanent link">&para;</a></h3>
-<p><strong>The <code>.otherwise(handler)</code> is triggered in two scenarios:</strong></p>
-<h4 id="scenario-1-no-pattern-matches">Scenario 1: No Pattern Matches<a class="headerlink" href="#scenario-1-no-pattern-matches" title="Permanent link">&para;</a></h4>
-<p>When none of the <code>.when()</code> cases match the subject value:</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">)</span><span class="w">      </span><span class="c1">// ❌ No match</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">)</span><span class="w">      </span><span class="c1">// ❌ No match  </span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span><span class="p">)</span><span class="w">           </span><span class="c1">// ❌ No match (if no wildcard case for this specific scenario)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;default&quot;</span><span class="p">);</span><span class="w">         </span><span class="c1">// ✅ TRIGGERED: Returns &quot;default&quot;</span>
-</code></pre></div>
-<h4 id="scenario-2-explicit-match-level-defense">Scenario 2: Explicit Match-level Defense<a class="headerlink" href="#scenario-2-explicit-match-level-defense" title="Permanent link">&para;</a></h4>
-<p>Even when patterns (including <code>__</code>) could theoretically match everything, <code>.otherwise()</code> still serves as a <strong>defensive fallback</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">)</span><span class="w">      </span><span class="c1">// ❌ No match</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">)</span><span class="w">      </span><span class="c1">// ❌ No match</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span><span class="p">)</span><span class="w">           </span><span class="c1">// ✅ PATTERN MATCHES: Returns &quot;other&quot;</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;unreachable&quot;</span><span class="p">);</span><span class="w">      </span><span class="c1">// ❌ NOT TRIGGERED: Pattern already matched</span>
-</code></pre></div>
-<p><strong>Key Principles:</strong></p>
-<ol>
-<li><strong>Pattern Priority</strong>: Cases are evaluated in order. The first matching pattern wins.</li>
-<li><strong>Wildcard Coverage</strong>: <code>__</code> matches any value, so if placed before <code>.otherwise()</code>, it will typically match first.</li>
-<li><strong>Defensive Purpose</strong>: <code>.otherwise()</code> as "unreachable" provides runtime safety for logic errors or unexpected inputs.</li>
-</ol>
-<h4 id="practical-example-with-pattern-vs-match-fallback">Practical Example with Pattern vs Match Fallback:<a class="headerlink" href="#practical-example-with-pattern-vs-match-fallback" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><span class="c1">// This demonstrates the execution order</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">classify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">input</span><span class="p">;</span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">classify</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit_ci</span><span class="p">(</span><span class="s">&quot;error&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;ERROR&quot;</span><span class="p">)</span><span class="w">           </span><span class="c1">// Case 1: Specific match</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit_ci</span><span class="p">(</span><span class="s">&quot;warning&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;WARNING&quot;</span><span class="p">)</span><span class="w">       </span><span class="c1">// Case 2: Specific match  </span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;UNKNOWN&quot;</span><span class="p">)</span><span class="w">                      </span><span class="c1">// Case 3: Pattern fallback</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;INVALID INPUT&quot;</span><span class="p">);</span><span class="w">                 </span><span class="c1">// Case 4: Match-level fallback (unlikely to trigger)</span>
-
-<span class="c1">// For input &quot;INFO&quot;:</span>
-<span class="c1">// - Cases 1,2: No match</span>
-<span class="c1">// - Case 3 (__): Matches → Returns &quot;UNKNOWN&quot;  </span>
-<span class="c1">// - Case 4 (.otherwise): NOT triggered</span>
-
-<span class="c1">// For input null/empty string (if it reaches match):</span>
-<span class="c1">// - Cases 1,2,3: All could potentially handle this</span>
-<span class="c1">// - Depending on implementation, might reach .otherwise() as defense</span>
-</code></pre></div>
-<p><strong>Summary:</strong>
-- <strong>Pattern-level fallback (<code>__</code>)</strong>: Only affects case matching process at pattern level
-- <strong>Match-level fallback (<code>.otherwise()</code>)</strong>: Determines final return value of match expression
-- <strong>When <code>__</code> can match all pattern forms</strong>: <code>.otherwise()</code> serves only as defensive fallback and typically won't trigger</p>
 <hr />
 <h2 id="6-when-to-use-end-when-to-use-otherwise">6. When to Use <code>.end()</code>, When to Use <code>.otherwise()</code>?<a class="headerlink" href="#6-when-to-use-end-when-to-use-otherwise" title="Permanent link">&para;</a></h2>
 <p>Use this decision table to directly guide user usage.</p>

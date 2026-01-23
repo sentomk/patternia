@@ -1442,7 +1442,6 @@ It defines how values are inspected, how cases are registered, and how matching 
 <p><strong>Role</strong>: DSL entry point and evaluation context for the entire system.</p>
 <p><strong>Syntax</strong>:
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
-<span class="n">match</span><span class="o">&lt;</span><span class="n">AsType</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
 </code></pre></div></p>
 <p><strong>Core Characteristics</strong>:</p>
 <ul>
@@ -1456,15 +1455,8 @@ It defines how values are inspected, how cases are registered, and how matching 
 <span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;default&quot;</span><span class="p">);</span>
 </code></pre></div>
 <p><strong>Type Control</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// Automatic type deduction</span>
-<span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
-<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">);</span><span class="w">   </span><span class="c1">// subject matched as int</span>
-
-<span class="c1">// Explicit matching view</span>
-<span class="kt">double</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="mf">3.14</span><span class="p">;</span>
-<span class="n">match</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">d</span><span class="p">);</span><span class="w">  </span><span class="c1">// subject is matched as int</span>
-</code></pre></div>
-<p>Specifying <code>AsType</code> explicitly forces the subject to be viewed as that type during pattern evaluation.</p>
+<p>Patternia currently matches the subject as its actual type; there is no
+<code>match&lt;AsType&gt;(subject)</code> override.</p>
 <hr />
 <h3 id="matchsubject-cases"><code>match(subject, cases(...))</code><a class="headerlink" href="#matchsubject-cases" title="Permanent link">&para;</a></h3>
 <p><strong>Role</strong>: Compact syntax for simple matching scenarios.</p>
@@ -1546,7 +1538,7 @@ The key distinction between them is the use of the <code>__</code> pattern.</p>
 <p><strong>Purpose</strong>: Provides a fallback when no prior <code>when</code> clause matches successfully.</p>
 <p><strong>Characteristics</strong>:</p>
 <ul>
-<li>Can be used regardless of whether <code>__</code> pattern is present</li>
+<li>Cannot be used when a <code>__</code> pattern is present</li>
 <li>Acts as a defensive default, not as a regular case</li>
 <li>Evaluated only if no pattern has already matched</li>
 </ul>
@@ -1569,6 +1561,7 @@ The key distinction between them is the use of the <code>__</code> pattern.</p>
 <li><strong>Must</strong> be used when <code>__</code> pattern is present in the match</li>
 <li>Can be used with or without return values (not limited to <code>void</code>)</li>
 <li>Not required when only using <code>.otherwise()</code></li>
+<li><code>.otherwise()</code> is rejected if a <code>__</code> pattern is present</li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;one</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
@@ -1670,12 +1663,13 @@ They describe <em>what</em> is matched, <em>what</em> is ignored, and <em>what</
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="s">&quot;success&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;ok&quot;</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="s">&quot;error&quot;</span><span class="p">)</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;fail&quot;</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w">             </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;unknown&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// Pattern-level fallback</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;fallback&quot;</span><span class="p">);</span><span class="w">              </span><span class="c1">// Expression-level fallback</span>
+<span class="w">  </span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
 </code></pre></div>
 <p><strong>Key Distinction</strong>:</p>
 <ul>
 <li><code>__</code> — a pattern that participates in matching and ordering</li>
 <li><code>.otherwise()</code> — a match-level fallback executed only if no pattern matches</li>
+<li><code>__</code> and <code>.otherwise()</code> cannot be combined in the same match</li>
 </ul>
 <hr />
 <h3 id="bind-binding-pattern"><code>bind()</code> (Binding Pattern)<a class="headerlink" href="#bind-binding-pattern" title="Permanent link">&para;</a></h3>
