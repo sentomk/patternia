@@ -1474,7 +1474,7 @@ It defines how values are inspected, how cases are registered, and how matching 
 <p><strong>Key Characteristics</strong>:</p>
 <ul>
 <li>Provides a concise alternative to the standard <code>.when()</code> chain syntax</li>
-<li><strong>No guards/predicates</strong>: Cannot be used with guard expressions or predicates</li>
+<li><strong>No bindings/guards</strong>: Cannot be used with <code>bind()</code> or guard expressions</li>
 <li>Supports both pattern fallback (<code>__</code>) and match fallback patterns</li>
 <li>Cases are evaluated sequentially using <strong>first-match semantics</strong></li>
 <li><strong>Requires <code>.end()</code></strong> to trigger evaluation when using <code>__</code> pattern</li>
@@ -1488,8 +1488,7 @@ It defines how values are inspected, how cases are registered, and how matching 
 </code></pre></div>
 <p><strong>Limitations</strong>:</p>
 <ul>
-<li>Cannot use guard expressions <code>[]</code> with tuple syntax</li>
-<li>Cannot use predicate-based guards</li>
+<li>Cannot use <code>bind()</code> (and therefore cannot use guard expressions <code>[]</code>)</li>
 <li>Best suited for simple literal and wildcard matching</li>
 <li>For complex matching with guards, use the standard DSL syntax</li>
 <li><strong>Must use <code>.end()</code> when using <code>__</code> pattern to trigger evaluation</strong></li>
