@@ -1051,7 +1051,7 @@
 <span class="w">  </span><span class="p">)).</span><span class="n">end</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>This form is intentionally constrained. Each case is a direct mapping from a pattern to a result. There is no binding, no predicate, and no hidden control flow. The reader can understand the entire decision at a glance. This is not a limitation to be worked around; it is a design boundary. As long as your logic fits naturally into a <code>switch</code>, <code>cases()</code> is where it belongs.</p>
+<p>This form is intentionally constrained. Each case is a direct mapping from a pattern to a result. There is no binding, no guard, and no hidden control flow. The reader can understand the entire decision at a glance. This is not a limitation to be worked around; it is a design boundary. As long as your logic fits naturally into a <code>switch</code>, <code>cases()</code> is where it belongs.</p>
 <hr />
 <h2 id="when-value-dispatch-is-no-longer-enough">When Value Dispatch Is No Longer Enough<a class="headerlink" href="#when-value-dispatch-is-no-longer-enough" title="Permanent link">&para;</a></h2>
 <p>The moment that boundary is crossed, imperative code usually starts to stretch. Consider logic that depends not just on a value, but on a property of that value:</p>

@@ -1268,15 +1268,14 @@ Once installed or fetched into your project, you can start using pattern matchin
 <p><strong>Key points:</strong></p>
 <ul>
 <li><code>match(subject, cases(...))</code> provides a compact syntax for simple cases</li>
-<li><strong>No guards/predicates</strong>: This syntax cannot be used with guard expressions or predicates</li>
+<li><strong>No bindings/guards</strong>: This syntax cannot be used with <code>bind()</code> or guard expressions</li>
 <li>Cases are tested <strong>top-to-bottom (first-match semantics)</strong></li>
 <li>Supports both pattern fallback (<code>__</code>) and match fallback patterns</li>
 <li><strong>Requires <code>.end()</code></strong> to trigger evaluation when using <code>__</code> pattern</li>
 <li>Ideal for straightforward value matching without complex conditions</li>
 </ul>
 <p><strong>Limitations:</strong>
-- Cannot use guard expressions <code>[]</code> with tuple syntax
-- Cannot use predicate-based guards
+- Cannot use <code>bind()</code> (and therefore cannot use guard expressions <code>[]</code>)
 - Best suited for simple literal and wildcard matching
 - <strong>Must use <code>.end()</code> when using <code>__</code> pattern to trigger evaluation</strong></p>
 <p>For complex matching with guards, use the standard DSL syntax shown above.</p>

@@ -1045,7 +1045,7 @@
 <span class="w">  </span><span class="n">__</span><span class="w">     </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;many&quot;</span>
 <span class="p">)).</span><span class="n">end</span><span class="p">();</span>
 </code></pre></div>
-<p>The resemblance is intentional. For readers coming from expression-oriented languages, this form should feel immediately natural. What is different is what Patternia <em>does not</em> allow here. There are no guards, no predicates, and no partial bindings. This mirrors the idea that value-only matching should remain simple and readable, rather than becoming a staging ground for complex logic.</p>
+<p>The resemblance is intentional. For readers coming from expression-oriented languages, this form should feel immediately natural. What is different is what Patternia <em>does not</em> allow here. There are no bindings or guards. This mirrors the idea that value-only matching should remain simple and readable, rather than becoming a staging ground for complex logic.</p>
 <hr />
 <h2 id="when-guards-enter-the-picture">When Guards Enter the Picture<a class="headerlink" href="#when-guards-enter-the-picture" title="Permanent link">&para;</a></h2>
 <p>In many languages, guards are written inline with patterns. Rust, for example, allows conditions to be attached directly to a match arm:</p>
