@@ -10,20 +10,20 @@ int main() {
         cases(
             lit(42) >> [] { std::cout << "42"; },
             lit(20) >> [] { std::cout << "20"; },
-            __ >> [] { std::cout << "Other"; }))
+            ptn::__ >> [] { std::cout << "Other"; }))
       .end();
 
   auto r = match(x,
                  cases(lit(42) >> "42",
                        lit(20) >> "20",
                        lit(1) >> "1",
-                       __ >> "other"))
+                       ptn::__ >> "other"))
                .end();
 
   auto r1 = match(x)
                 .when(lit(1) >> "1")
                 .when(lit(42) >> "42")
-                .when(__ >> "other")
+                .when(ptn::__ >> "other")
                 .end();
 
   using Point  = int;
@@ -37,13 +37,13 @@ int main() {
                 .when(is<int>() >> "Point")
                 .when(is<char>() >> "Height")
                 .when(as<std::string>() >> "Str")
-                .when(__ >> "Other")
+                .when(ptn::__ >> "Other")
                 .end();
 
   auto vr = match(v)
                 .when(alt<0>() >> "Point")
                 .when(alt<1>() >> "Height")
-                .when(__ >> "other")
+                .when(ptn::__ >> "other")
                 .end();
 
   std::cout << vr;
