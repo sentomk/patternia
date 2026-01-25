@@ -123,11 +123,9 @@ namespace ptn::core::common {
   // as wildcard matches everything and makes subsequent cases unreachable.
   template <bool HasPatternFallback>
   constexpr void static_assert_when_precondition() {
-    if constexpr (HasPatternFallback) {
-      static_assert(
-          false,
-          "[Patternia.match.when]: cannot add cases after wildcard '__'.");
-    }
+    static_assert(
+        !HasPatternFallback,
+        "[Patternia.match.when]: cannot add cases after wildcard '__'.");
   }
 
   // Validates the preconditions for calling .otherwise().
@@ -135,12 +133,10 @@ namespace ptn::core::common {
   // is already present, as the wildcard makes the explicit fallback redundant.
   template <bool HasPatternFallback>
   constexpr void static_assert_otherwise_precondition() {
-    if constexpr (HasPatternFallback) {
-      static_assert(
-          false,
-          "[Patternia.match.otherwise]: wildcard '__' already present. "
-          "Use .end() instead.");
-    }
+    static_assert(
+        !HasPatternFallback,
+        "[Patternia.match.otherwise]: wildcard '__' already present. "
+        "Use .end() instead.");
   }
 
   // Validates the preconditions for calling .end().
@@ -149,18 +145,14 @@ namespace ptn::core::common {
   // 2. No match-level fallback (from .otherwise()) has been added.
   template <bool HasPatternFallback, bool HasMatchFallback>
   constexpr void static_assert_end_precondition() {
-    if constexpr (!HasPatternFallback) {
-      static_assert(
-          false,
-          "[Patternia.match.end]: missing wildcard '__'. "
-          "Use .otherwise(...) for non-exhaustive matches.");
-    }
+    static_assert(
+        HasPatternFallback,
+        "[Patternia.match.end]: missing wildcard '__'. "
+        "Use .otherwise(...) for non-exhaustive matches.");
 
-    if constexpr (HasMatchFallback) {
-      static_assert(
-          false,
-          "[Patternia.match.end]: cannot be used after .otherwise().");
-    }
+    static_assert(
+        !HasMatchFallback,
+        "[Patternia.match.end]: cannot be used after .otherwise().");
   }
 
   // Validates that cases(...) only uses non-binding patterns.
@@ -172,11 +164,9 @@ namespace ptn::core::common {
          ...),
         "[Patternia.cases]: binding/guards are not allowed in cases(...). "
         "Use match(...).when(...) for binding and guard logic.");
-    if constexpr (!detail::fallback_is_last<Cases...>::value) {
-      static_assert(
-          false,
-          "[Patternia.cases]: wildcard '__' must be the last case.");
-    }
+    static_assert(
+        detail::fallback_is_last<Cases...>::value,
+        "[Patternia.cases]: wildcard '__' must be the last case.");
   }
 
 
