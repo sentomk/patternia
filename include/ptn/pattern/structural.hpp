@@ -35,6 +35,7 @@ namespace ptn::pat {
       // Any access failure is a hard compile-time error by design.
       template <typename Subject>
       constexpr bool match(const Subject &) const noexcept {
+        ptn::core::common::static_assert_structural_accessible<Subject, Ms...>();
         return true;
       }
 
