@@ -29,7 +29,7 @@ int main() {
                 .when(lit(42) >> "42")
                 .when(ptn::__ >> "other")
                 .end();
-  int xx = 42;
+  X xx;
   match(xx)
       .when(has<&X::x>() >> [] { std::cout << "xx"; })
       .when(__ >> [] { std::cout << "---"; })

@@ -5,7 +5,6 @@
 // This header provides validation utilities that detect common pattern matching
 // errors at compile time, providing clear error messages to guide developers.
 //
-#include <tuple>
 #include <type_traits>
 #include <utility>
 #include <variant>
@@ -49,15 +48,15 @@ namespace ptn::core::common {
 
     // (B) The otherwise handler must be callable with Subject or no args.
     static_assert(
-        std::is_invocable_v<Otherwise, Subject> ||
-            std::is_invocable_v<Otherwise>,
+        std::is_invocable_v<Otherwise, Subject>
+            || std::is_invocable_v<Otherwise>,
         "[Patternia Error] The `otherwise` handler has an invalid signature. "
         "It should be either callable with the subject value or callable with "
         "no arguments.");
 
     // (C) All handlers must share a common return type.
-    using common_return_type =
-        traits::match_result_t<Subject, Otherwise, Cases...>;
+    using common_return_type = traits::
+        match_result_t<Subject, Otherwise, Cases...>;
 
     // Force instantiation to catch potential type errors (skip for void)
     if constexpr (!std::is_void_v<common_return_type>) {
@@ -120,8 +119,8 @@ namespace ptn::core::common {
 
   // Convenience variable template for unreachable case detection.
   template <typename... Cases>
-  inline constexpr bool has_unreachable_case_v =
-      has_unreachable_case<Cases...>::value;
+  inline constexpr bool
+      has_unreachable_case_v = has_unreachable_case<Cases...>::value;
 
   // ------------------------------------------------------------
   // Builder API Validation
@@ -131,15 +130,14 @@ namespace ptn::core::common {
   // reference). This is a variable template because class bodies can only use
   // static_assert with constant boolean conditions, not function calls.
   template <typename Subject>
-  inline constexpr bool is_subject_type_valid_v =
-      std::is_lvalue_reference_v<Subject>;
+  inline constexpr bool
+      is_subject_type_valid_v = std::is_lvalue_reference_v<Subject>;
 
   // Emits a diagnostic if subject is not an lvalue reference.
   template <typename Subject>
   struct subject_type_validator {
-    static_assert(
-        is_subject_type_valid_v<Subject>,
-        "[Patternia.match]: subject must be an lvalue reference");
+    static_assert(is_subject_type_valid_v<Subject>,
+                  "[Patternia.match]: subject must be an lvalue reference");
   };
 
   // Validates the preconditions for adding a new case via .when().
@@ -159,10 +157,9 @@ namespace ptn::core::common {
   template <bool HasPatternFallback>
   constexpr void static_assert_otherwise_precondition() {
     // (A) .otherwise() is invalid when '__' is already present.
-    static_assert(
-        !HasPatternFallback,
-        "[Patternia.match.otherwise]: wildcard '__' already present. "
-        "Use .end() instead.");
+    static_assert(!HasPatternFallback,
+                  "[Patternia.match.otherwise]: wildcard '__' already present. "
+                  "Use .end() instead.");
   }
 
   // Validates the preconditions for calling .end().
@@ -172,15 +169,13 @@ namespace ptn::core::common {
   template <bool HasPatternFallback, bool HasMatchFallback>
   constexpr void static_assert_end_precondition() {
     // (A) .end() requires a wildcard case for pattern-level fallback.
-    static_assert(
-        HasPatternFallback,
-        "[Patternia.match.end]: missing wildcard '__'. "
-        "Use .otherwise(...) for non-exhaustive matches.");
+    static_assert(HasPatternFallback,
+                  "[Patternia.match.end]: missing wildcard '__'. "
+                  "Use .otherwise(...) for non-exhaustive matches.");
 
     // (B) .end() cannot follow .otherwise().
-    static_assert(
-        !HasMatchFallback,
-        "[Patternia.match.end]: cannot be used after .otherwise().");
+    static_assert(!HasMatchFallback,
+                  "[Patternia.match.end]: cannot be used after .otherwise().");
   }
 
   // Validates that cases(...) only uses non-binding patterns.
@@ -189,14 +184,13 @@ namespace ptn::core::common {
     // (A) cases(...) disallows binding/guards (no binding patterns).
     static_assert(
         (!ptn::pat::traits::is_binding_pattern_v<
-             ptn::core::traits::case_pattern_t<Cases>> &&
-         ...),
+             ptn::core::traits::case_pattern_t<Cases>>
+         && ...),
         "[Patternia.cases]: binding/guards are not allowed in cases(...). "
         "Use match(...).when(...) for binding and guard logic.");
     // (B) Wildcard must be last in cases(...).
-    static_assert(
-        detail::fallback_is_last<Cases...>::value,
-        "[Patternia.cases]: wildcard '__' must be the last case.");
+    static_assert(detail::fallback_is_last<Cases...>::value,
+                  "[Patternia.cases]: wildcard '__' must be the last case.");
   }
 
   // ------------------------------------------------------------
@@ -207,23 +201,20 @@ namespace ptn::core::common {
   template <typename StoreT>
   constexpr void static_assert_literal_store_type() {
     // (A) Literal storage type cannot be void.
-    static_assert(
-        !std::is_void_v<StoreT>,
-        "[Patternia.lit]: Literal value cannot be of type void.");
+    static_assert(!std::is_void_v<StoreT>,
+                  "[Patternia.lit]: Literal value cannot be of type void.");
     // (B) Literal storage must be a value type (not a reference).
     static_assert(
         !std::is_reference_v<StoreT>,
         "[Patternia.lit]: Literal value must be a value type (non-reference).");
     // (C) Literal storage must be movable.
-    static_assert(
-        std::is_move_constructible_v<StoreT>,
-        "[Patternia.lit]: Literal value must be move-constructible.");
+    static_assert(std::is_move_constructible_v<StoreT>,
+                  "[Patternia.lit]: Literal value must be move-constructible.");
     // (D) Literal storage must support equality comparison.
     static_assert(
-        std::is_constructible_v<
-            bool,
-            decltype(std::declval<const StoreT &>() ==
-                     std::declval<const StoreT &>())>,
+        std::is_constructible_v<bool,
+                                decltype(std::declval<const StoreT &>()
+                                         == std::declval<const StoreT &>())>,
         "[Patternia.lit]: Literal value type must support operator==.");
   }
 
@@ -238,6 +229,31 @@ namespace ptn::core::common {
     static_assert(
         (ptn::pat::traits::is_structural_element_v<Ms> && ...),
         "[Patternia.has]: only data member pointers or nullptr/_ign allowed.");
+  }
+
+  // Checks whether a subject exposes the requested member pointer.
+  // nullptr/_ign placeholders are treated as "ignored slots".
+  namespace detail {
+    template <typename Subject, auto M, typename = void>
+    struct has_member_access : std::false_type {};
+
+    template <typename Subject, auto M>
+    struct has_member_access<
+        Subject,
+        M,
+        std::void_t<decltype(std::declval<Subject &>().*M)>> : std::true_type {
+    };
+  } // namespace detail
+
+  // Validates that a subject type provides all requested members in has<...>.
+  template <typename Subject, auto... Ms>
+  constexpr void static_assert_structural_accessible() {
+    static_assert(
+        ((ptn::pat::traits::is_nullptr_placeholder_v<Ms>
+          || detail::has_member_access<Subject, Ms>::value)
+         && ...),
+        "[Patternia.has]: Subject does not expose one or more requested "
+        "members.");
   }
 
   // ------------------------------------------------------------
@@ -278,7 +294,6 @@ namespace ptn::core::common {
         "bound values.");
   }
 
-
   // ------------------------------------------------------------
   // Variant Diagnostics
   // ------------------------------------------------------------
@@ -290,9 +305,9 @@ namespace ptn::core::common {
 
     template <typename T, typename... Ts>
     struct type_count<T, meta::type_list<Ts...>>
-        : std::integral_constant<
-              std::size_t,
-              (0 + ... + (std::is_same_v<T, Ts> ? 1 : 0))> {};
+        : std::integral_constant<std::size_t,
+                                 (0 + ... + (std::is_same_v<T, Ts> ? 1 : 0))> {
+    };
   } // namespace detail
 
   // Ensures Subject is a std::variant specialization.
@@ -312,8 +327,8 @@ namespace ptn::core::common {
     using subject_t = meta::remove_cvref_t<Subject>;
     using args_t    = typename meta::template_info<subject_t>::args;
 
-    constexpr std::size_t count =
-        detail::type_count<meta::remove_cvref_t<Alt>, args_t>::value;
+    constexpr std::size_t
+        count = detail::type_count<meta::remove_cvref_t<Alt>, args_t>::value;
 
     // (A) Alternative type must appear exactly once.
     static_assert(
@@ -329,9 +344,8 @@ namespace ptn::core::common {
 
     using subject_t = meta::remove_cvref_t<Subject>;
     // (A) Alternative index must be in range.
-    static_assert(
-        I < std::variant_size_v<subject_t>,
-        "[Patternia.type::alt]: Alternative index is out of range.");
+    static_assert(I < std::variant_size_v<subject_t>,
+                  "[Patternia.type::alt]: Alternative index is out of range.");
   }
 
 } // namespace ptn::core::common
