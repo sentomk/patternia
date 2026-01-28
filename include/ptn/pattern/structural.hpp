@@ -12,6 +12,7 @@
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/pattern_base.hpp"
 #include "ptn/pattern/base/pattern_traits.hpp"
+#include "ptn/core/common/diagnostics.hpp"
 
 namespace ptn::pat {
 
@@ -25,13 +26,9 @@ namespace ptn::pat {
     template <auto... Ms>
     struct has_pattern : base::pattern_base<has_pattern<Ms...>> {
 
-      static_assert(
-          ((traits::is_data_member_ptr_v<Ms> ||
-            traits::is_nullptr_placeholder_v<Ms>) &&
-           ...),
-          "has<> only accepts:\n"
-          "  - data member pointers (e.g. &T::field)\n"
-          "  - nullptr (or its alias: _ign) as a placeholder");
+      constexpr has_pattern() {
+        ptn::core::common::static_assert_structural_elements<Ms...>();
+      }
 
       // Structural match:
       // If the member expressions are well-formed, the structure matches.

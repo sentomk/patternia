@@ -13,6 +13,7 @@
 #include <utility>
 
 #include "ptn/pattern/base/fwd.h"
+#include "ptn/core/common/diagnostics.hpp"
 
 namespace ptn::pat {
 
@@ -111,21 +112,7 @@ namespace ptn::pat {
   template <typename V>
   constexpr auto lit(V &&v) {
     using store_t = detail::literal_store_t<V>;
-
-    static_assert(
-        !std::is_void_v<store_t>,
-        "[Patternia.lit]: Literal value cannot be of type void.");
-    static_assert(
-        !std::is_reference_v<store_t>,
-        "[Patternia.lit]: Literal value must be a value type (non-reference).");
-    static_assert(
-        std::is_move_constructible_v<store_t>,
-        "[Patternia.lit]: Literal value must be move-constructible.");
-    static_assert(
-        std::is_constructible_v<
-            bool,
-            decltype(std::declval<const store_t &>() == std::declval<const store_t &>())>,
-        "[Patternia.lit]: Literal value type must support operator==.");
+    ptn::core::common::static_assert_literal_store_type<store_t>();
 
     return detail::literal_pattern<store_t>(store_t(std::forward<V>(v)));
   }

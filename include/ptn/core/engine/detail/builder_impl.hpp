@@ -30,10 +30,9 @@ namespace ptn::core::engine::detail {
     using subject_type = TV;
     using cases_type   = std::tuple<Cases...>;
 
-    // Validate subject type
-    static_assert(
-        ptn::core::common::is_subject_type_valid_v<subject_type>,
-        "[Patternia.match]: subject must be an lvalue reference");
+    // Validate subject type (diagnostics centralized in diagnostics.hpp)
+    using subject_type_check =
+        ptn::core::common::subject_type_validator<subject_type>;
 
   private:
     subject_type subject_; // The value being matched against patterns

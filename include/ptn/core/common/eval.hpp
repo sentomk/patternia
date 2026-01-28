@@ -13,6 +13,7 @@
 #include <cstdlib>
 
 #include "ptn/core/common/common_traits.hpp"
+#include "ptn/core/common/diagnostics.hpp"
 
 namespace ptn::core::common {
 
@@ -118,10 +119,8 @@ namespace ptn::core::common {
   constexpr decltype(auto) invoke_handler(const Case &c, Subject &&subject) {
     using pattern_type = traits::case_pattern_t<Case>;
 
-    static_assert(
-        detail::has_bind_member_v<pattern_type, Subject>,
-        "Pattern must have a 'bind(subject)' method that returns a tuple of "
-        "bound values.");
+    ptn::core::common::static_assert_pattern_has_bind<
+        detail::has_bind_member_v<pattern_type, Subject>>();
 
     // Extract bound values from the pattern
     auto bound_values = c.pattern.bind(std::forward<Subject>(subject));
