@@ -54,9 +54,8 @@ namespace ptn::core::dsl::ops {
 
   template <typename... CaseExprs>
   constexpr auto cases(CaseExprs &&...exprs) {
-    static_assert(
-        (ptn::core::traits::is_case_expr_v<std::decay_t<CaseExprs>> && ...),
-        "cases(...) arguments must be case expressions created with '>>'.");
+    ptn::core::common::static_assert_cases_are_case_expr<
+        std::decay_t<CaseExprs>...>();
     ptn::core::common::static_assert_cases_precondition<
         std::decay_t<CaseExprs>...>();
 

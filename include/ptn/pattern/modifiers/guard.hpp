@@ -15,6 +15,7 @@
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/pattern_base.hpp"
 #include "ptn/pattern/base/pattern_traits.hpp"
+#include "ptn/core/common/diagnostics.hpp"
 
 namespace ptn::pat::mod {
 
@@ -556,19 +557,14 @@ namespace ptn::pat::mod {
 
       if constexpr (ptn::pat::traits::is_tuple_guard_predicate_v<Pred>) {
         // compile-time bounds check: max arg index must be < N
-        static_assert(
-            ptn::pat::mod::max_tuple_guard_index_v<Pred> < N,
-            "[Patternia.guard]: arg<I> is out of range for the bound values.");
+        ptn::core::common::static_assert_tuple_guard_index<
+            ptn::pat::mod::max_tuple_guard_index_v<Pred>,
+            N>();
 
         return static_cast<bool>(pred(bound)); // tuple-level predicate
       }
       else if constexpr (ptn::pat::traits::is_guard_predicate_v<Pred>) {
-        static_assert(
-            N == 1,
-            "[Patternia.guard]: Unary guard predicates (_ / rng / && / ||) "
-            "require the pattern to bind exactly ONE value. "
-            "For multi-value guards, use a callable predicate (lambda / "
-            "where).");
+        ptn::core::common::static_assert_unary_guard_arity<N>();
 
         return static_cast<bool>(pred(std::get<0>(bound)));
       }

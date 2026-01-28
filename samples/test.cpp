@@ -4,6 +4,10 @@
 
 using namespace ptn;
 
+struct X {
+  int x;
+};
+
 int main() {
   int x = 42;
   match(x,
@@ -25,6 +29,11 @@ int main() {
                 .when(lit(42) >> "42")
                 .when(ptn::__ >> "other")
                 .end();
+  int xx = 42;
+  match(xx)
+      .when(has<&X::x>() >> [] { std::cout << "xx"; })
+      .when(__ >> [] { std::cout << "---"; })
+      .end();
 
   using Point  = int;
   using Height = int;
