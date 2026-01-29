@@ -1015,6 +1015,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#structural-binding-with-has" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structural Binding with has&lt;&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#binding-semantics" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1737,23 +1748,20 @@ They describe <em>what</em> is matched, <em>what</em> is ignored, and <em>what</
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">fmt</span><span class="p">(</span><span class="s">&quot;status = {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">s</span><span class="p">));</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">)</span>
-<span class="err">````</span>
-
-<span class="o">*</span><span class="w"> </span><span class="err">`</span><span class="n">bind</span><span class="p">(</span><span class="n">subpattern</span><span class="p">)</span><span class="err">`</span><span class="w"> </span><span class="n">introduces</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">binding</span><span class="w"> </span><span class="o">**</span><span class="n">only</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">subpattern</span><span class="w"> </span><span class="n">matches</span><span class="o">**</span>
-<span class="o">*</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bound</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">always</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="o">**</span><span class="n">entire</span><span class="w"> </span><span class="n">subject</span><span class="o">**</span>
-<span class="o">*</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">subpattern</span><span class="w"> </span><span class="n">itself</span><span class="w"> </span><span class="n">does</span><span class="w"> </span><span class="o">**</span><span class="k">not</span><span class="o">**</span><span class="w"> </span><span class="n">introduce</span><span class="w"> </span><span class="n">bindings</span><span class="w"> </span><span class="n">unless</span><span class="w"> </span><span class="n">explicitly</span><span class="w"> </span><span class="n">designed</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="n">so</span>
-
-<span class="n">This</span><span class="w"> </span><span class="n">form</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">useful</span><span class="w"> </span><span class="n">when</span><span class="o">:</span>
-
-<span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">must</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">both</span><span class="w"> </span><span class="o">**</span><span class="n">filtered</span><span class="o">**</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="o">**</span><span class="n">captured</span><span class="o">**</span>
-<span class="o">*</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">captured</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">needs</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">reused</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">handler</span>
-<span class="o">*</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">constraint</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">semantic</span><span class="w"> </span><span class="n">rather</span><span class="w"> </span><span class="n">than</span><span class="w"> </span><span class="n">structural</span>
-
-
-<span class="cp">#### Structural Binding with `has&lt;&gt;`</span>
-
-<span class="err">```</span><span class="n">cpp</span>
-<span class="k">struct</span><span class="w"> </span><span class="nc">Point</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
+</code></pre></div>
+<ul>
+<li><code>bind(subpattern)</code> introduces a binding <strong>only if the subpattern matches</strong></li>
+<li>The bound value is always the <strong>entire subject</strong></li>
+<li>The subpattern itself does <strong>not</strong> introduce bindings unless explicitly designed to do so</li>
+</ul>
+<p>This form is useful when:</p>
+<ul>
+<li>a value must be both <strong>filtered</strong> and <strong>captured</strong></li>
+<li>the captured value needs to be reused by the handler</li>
+<li>the constraint is semantic rather than structural</li>
+</ul>
+<h4 id="structural-binding-with-has">Structural Binding with <code>has&lt;&gt;</code><a class="headerlink" href="#structural-binding-with-has" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Point</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
 
 <span class="p">.</span><span class="n">when</span><span class="p">(</span>
 <span class="w">  </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span>
