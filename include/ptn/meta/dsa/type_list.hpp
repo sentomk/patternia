@@ -45,8 +45,8 @@ namespace ptn::meta {
     using type = T;
   };
 
-  // Convenience alias for nth_type.
+  // Convenience alias for nth_type (index-based lookup).
   template <std::size_t N, typename TL>
-  using nth_type_t = typename nth_type<N, TL>::type;
+  using index_t = typename nth_type<N, TL>::type;
 
 } // namespace ptn::meta

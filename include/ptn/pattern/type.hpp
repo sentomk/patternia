@@ -186,7 +186,7 @@ namespace ptn::pat::base {
     using args_t    = typename ptn::meta::template_info<subject_t>::args;
     // Derive alternative type from meta type_list instead of
     // std::variant_alternative.
-    using alt_t = ptn::meta::nth_type_t<I, args_t>;
+    using alt_t = ptn::meta::index_t<I, args_t>;
     using type  = typename binding_args<SubPattern, alt_t>::type;
   };
 
