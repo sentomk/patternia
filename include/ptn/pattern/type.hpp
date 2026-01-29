@@ -5,10 +5,11 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
-#include <variant>
 
 #include "ptn/core/common/diagnostics.hpp"
 #include "ptn/meta/base/traits.hpp"
+#include "ptn/meta/query/index.hpp"
+#include "ptn/meta/query/template_info.hpp"
 #include "ptn/pattern/bind.hpp"
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/pattern_base.hpp"
@@ -40,7 +41,14 @@ namespace ptn::pat::type {
       template <typename Subject>
       constexpr bool match(const Subject &subject) const noexcept {
         core::common::static_assert_variant_alt_unique<alt_t, Subject>();
-        if (!std::holds_alternative<alt_t>(subject))
+        using subject_t = meta::remove_cvref_t<Subject>;
+        using args_t    = typename meta::template_info<subject_t>::args;
+        // Map alternative type to its variant index using meta type_list.
+        constexpr int alt_index = meta::index_of_v<alt_t, args_t>;
+        static_assert(alt_index >= 0,
+                      "[Patternia.type::is]: Alternative type not found in "
+                      "std::variant.");
+        if (subject.index() != static_cast<std::size_t>(alt_index))
           return false;
         if constexpr (std::is_same_v<SubPattern, no_subpattern>) {
           return true;
@@ -174,9 +182,12 @@ namespace ptn::pat::base {
   template <std::size_t I, typename SubPattern, typename Subject>
   struct binding_args<ptn::pat::type::detail::type_alt_pattern<I, SubPattern>,
                       Subject> {
-    using alt_t = std::
-        variant_alternative_t<I, ptn::meta::remove_cvref_t<Subject>>;
-    using type = typename binding_args<SubPattern, alt_t>::type;
+    using subject_t = ptn::meta::remove_cvref_t<Subject>;
+    using args_t    = typename ptn::meta::template_info<subject_t>::args;
+    // Derive alternative type from meta type_list instead of
+    // std::variant_alternative.
+    using alt_t = ptn::meta::nth_type_t<I, args_t>;
+    using type  = typename binding_args<SubPattern, alt_t>::type;
   };
 
 } // namespace ptn::pat::base
