@@ -376,7 +376,7 @@ constexpr auto bind(SubPattern &&sub);    // Binds subject conditionally under a
     return fmt("status = {}", static_cast<int>(s));
   }
 )
-````
+```
 
 * `bind(subpattern)` introduces a binding **only if the subpattern matches**
 * The bound value is always the **entire subject**
