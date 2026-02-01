@@ -1701,12 +1701,14 @@ They describe <em>what</em> is matched, <em>what</em> is ignored, and <em>what</
 <li>Works on <code>std::variant</code> subjects only</li>
 <li><code>type::is&lt;T&gt;()</code> does not bind values</li>
 <li><code>type::as&lt;T&gt;()</code> is an explicit binding shortcut; it does not introduce implicit binding</li>
+<li>When a type pattern binds (e.g. <code>type::as&lt;T&gt;()</code>, or <code>type::is&lt;T&gt;(bind(...))</code>), it is a <strong>binding pattern</strong> and can be guarded with <code>[]</code></li>
 <li>Alternative type <code>T</code> must appear exactly once in the variant</li>
 </ul>
 <p><strong>Examples</strong>:</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* type-only */</span><span class="w"> </span><span class="p">})</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">as</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* bound */</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">as</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()[</span><span class="n">_</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* guarded */</span><span class="w"> </span><span class="p">})</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">()))</span><span class="w"> </span><span class="o">&gt;&gt;</span>
 <span class="w">        </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* structural bind */</span><span class="w"> </span><span class="p">})</span>
 <span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
@@ -1717,7 +1719,8 @@ They describe <em>what</em> is matched, <em>what</em> is ignored, and <em>what</
 <hr />
 <h3 id="bind-binding-pattern"><code>bind()</code> (Binding Pattern)<a class="headerlink" href="#bind-binding-pattern" title="Permanent link">&para;</a></h3>
 <p><strong>Role</strong>: Explicit value binding primitive.</p>
-<p><code>bind()</code> is the <em>only</em> mechanism in Patternia that introduces bindings into a match.</p>
+<p><code>bind()</code> is the primitive mechanism in Patternia that introduces bindings into a match.
+Some APIs (e.g. <code>type::as&lt;T&gt;()</code>) are explicit shorthands built on top of <code>bind()</code>.</p>
 <p><strong>Syntax</strong>:</p>
 <div class="highlight"><pre><span></span><code><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">bind</span><span class="p">();</span><span class="w">                    </span><span class="c1">// Binds the entire subject</span>
 
@@ -1838,6 +1841,13 @@ For multi-value patterns, use <code>arg&lt;N&gt;</code> or a lambda predicate.</
 <span class="w">      </span><span class="c1">// 4) handler runs only if guard passes</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
+</code></pre></div>
+<p>Type patterns can be guarded as well, as long as they bind:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">as</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()[</span><span class="n">_</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* guarded alternative */</span>
+<span class="w">  </span><span class="p">})</span>
 <span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
 </code></pre></div>
 <p><strong>Guard composition</strong> is supported:</p>
