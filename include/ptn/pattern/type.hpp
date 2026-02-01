@@ -12,6 +12,7 @@
 #include "ptn/meta/query/template_info.hpp"
 #include "ptn/pattern/bind.hpp"
 #include "ptn/pattern/base/fwd.h"
+#include "ptn/pattern/base/binding_base.hpp"
 #include "ptn/pattern/base/pattern_base.hpp"
 
 namespace ptn::pat::type {
@@ -25,12 +26,23 @@ namespace ptn::pat::type {
     // Sentinel type representing "no subpattern".
     struct no_subpattern {};
 
+    // Empty base used when a pattern is not a binding pattern.
+    struct non_binding_base {};
+
     // Matches a specific variant alternative by type, with optional subpattern.
     // - When SubPattern is no_subpattern: only checks the alternative.
     // - Otherwise: delegates match/bind to the subpattern on the selected alt.
+    //
+    // Important: when SubPattern is a binding pattern (e.g. bind(), bind(has<...>())),
+    // this type pattern itself becomes a binding pattern, enabling guard syntax:
+    //   type::as<T>()[predicate]   // equivalent to is<T>(bind()[predicate])
     template <typename T, typename SubPattern = no_subpattern>
     struct type_is_pattern
-        : base::pattern_base<type_is_pattern<T, SubPattern>> {
+        : base::pattern_base<type_is_pattern<T, SubPattern>>,
+          std::conditional_t<
+              ptn::pat::traits::is_binding_pattern_v<SubPattern>,
+              base::binding_pattern_base<type_is_pattern<T, SubPattern>>,
+              non_binding_base> {
       using alt_t = meta::remove_cvref_t<T>;
 
       SubPattern subpattern;
@@ -83,9 +95,16 @@ namespace ptn::pat::type {
     // Matches a specific alternative by index, with optional subpattern.
     // - When SubPattern is no_subpattern: only checks the index.
     // - Otherwise: delegates match/bind to the subpattern on the selected alt.
+    //
+    // Like type_is_pattern, this becomes a binding pattern when SubPattern binds,
+    // so guards can be attached directly to the type pattern.
     template <std::size_t I, typename SubPattern = no_subpattern>
     struct type_alt_pattern
-        : base::pattern_base<type_alt_pattern<I, SubPattern>> {
+        : base::pattern_base<type_alt_pattern<I, SubPattern>>,
+          std::conditional_t<
+              ptn::pat::traits::is_binding_pattern_v<SubPattern>,
+              base::binding_pattern_base<type_alt_pattern<I, SubPattern>>,
+              non_binding_base> {
       SubPattern subpattern;
 
       constexpr type_alt_pattern() = default;
