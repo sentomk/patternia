@@ -199,7 +199,9 @@ match(value)
 
 ## 4. Binding Values
 
-To access the matched value inside a handler, use `bind()`.
+To access matched values inside a handler, introduce bindings explicitly.
+For ordinary subjects, use `bind()`. For `std::variant` alternatives, you can
+also use `as<T>()` as an explicit binding shorthand.
 
 ```cpp
 match(x)
@@ -209,7 +211,9 @@ match(x)
   .otherwise([] {});
 ```
 
-`bind()` introduces bindings explicitly—nothing is bound implicitly.
+Bindings are always explicit—nothing is bound implicitly.
+`bind()` is the primitive binding pattern, and `as<T>()` is a named shorthand
+for `is<T>(bind())`.
 
 This makes data flow **visible and predictable**, especially in complex matches.
 
@@ -276,6 +280,7 @@ using V = std::variant<int, std::string, Point>;
 match(v)
   .when(is<int>() >> [] { /* type-only */ })
   .when(as<std::string>() >> [](const std::string &s) { /* bound */ })
+  .when(as<std::string>()[_ != ""] >> [](const std::string &s) { /* guarded */ })
   .when(is<Point>(bind(has<&Point::x, &Point::y>())) >>
         [](int x, int y) { /* structural bind */ })
   .otherwise([] {});
