@@ -13,15 +13,30 @@ struct Point {
 
 std::string describe(const std::variant<int, std::string, Point> &v) {
   return match(v)
-      .when(type::is<int>() >> [] { return std::string("int"); })
+      .when(type::is<int>() >> "int")
+      .when(type::is<std::string>(bind()) >>
+            [](const std::string &s) { return "str:" + s; })
+      .when(type::is<Point>(bind(has<&Point::x, &Point::y>())) >>
+            [](int x, int y) { return "pt:" + std::to_string(x + y); })
+      .otherwise([] { return std::string("other"); });
+}
+
+std::string describe_as(const std::variant<int, std::string, Point> &v) {
+  // Same as describe(...), but using the binding sugar type::as<T>().
+  //
+  // type::as<T>() is equivalent to type::is<T>(bind()), so the handler receives
+  // the alternative value (or the bound fields if combined with
+  // bind(has<...>())).
+  //
+  // With the recent change, type patterns become binding patterns when their
+  // subpattern binds, so guards can be attached directly to type::as<T>().
+  return match(v)
+      .when(type::is<int>() >> "int")
+      .when(type::as<std::string>()[_ != ""] >>
+            [](const std::string &s) { return "str:" + s; })
       .when(
-          type::is<std::string>(bind()) >>
-          [](const std::string &s) { return "str:" + s; }
-      )
-      .when(
-          type::is<Point>(bind(has<&Point::x, &Point::y>())) >>
-          [](int x, int y) { return "pt:" + std::to_string(x + y); }
-      )
+          type::as<Point>(has<&Point::x, &Point::y>())[arg<0> > 0 && arg<1> > 0]
+          >> [](int x, int y) { return "pt:" + std::to_string(x + y); })
       .otherwise([] { return std::string("other"); });
 }
 
@@ -29,8 +44,8 @@ int main() {
   std::variant<int, std::string, Point> v = 7;
   std::cout << describe(v) << "\n";
 
-  v = std::string("hi");
-  std::cout << describe(v) << "\n";
+  v = std::string("");
+  std::cout << describe_as(v) << "\n";
 
   v = Point{2, 3};
   std::cout << describe(v) << "\n";
