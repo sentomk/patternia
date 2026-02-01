@@ -311,6 +311,7 @@ as<T>()   // alias of type::as<T>()
 * Works on `std::variant` subjects only
 * `type::is<T>()` does not bind values
 * `type::as<T>()` is an explicit binding shortcut; it does not introduce implicit binding
+* When a type pattern binds (e.g. `type::as<T>()`, or `type::is<T>(bind(...))`), it is a **binding pattern** and can be guarded with `[]`
 * Alternative type `T` must appear exactly once in the variant
 
 **Examples**:
@@ -319,6 +320,7 @@ as<T>()   // alias of type::as<T>()
 match(v)
   .when(type::is<int>() >> [] { /* type-only */ })
   .when(type::as<std::string>() >> [](const std::string &s) { /* bound */ })
+  .when(type::as<std::string>()[_ != ""] >> [](const std::string &s) { /* guarded */ })
   .when(type::is<Point>(bind(has<&Point::x, &Point::y>())) >>
         [](int x, int y) { /* structural bind */ })
   .otherwise([] {});
@@ -335,7 +337,8 @@ match(v)
 
 **Role**: Explicit value binding primitive.
 
-`bind()` is the *only* mechanism in Patternia that introduces bindings into a match.
+`bind()` is the primitive mechanism in Patternia that introduces bindings into a match.
+Some APIs (e.g. `type::as<T>()`) are explicit shorthands built on top of `bind()`.
 
 **Syntax**:
 
@@ -486,6 +489,16 @@ match(x)
       // 4) handler runs only if guard passes
     }
   )
+  .otherwise([] {});
+```
+
+Type patterns can be guarded as well, as long as they bind:
+
+```cpp
+match(v)
+  .when(type::as<std::string>()[_ != ""] >> [](const std::string &s) {
+    /* guarded alternative */
+  })
   .otherwise([] {});
 ```
 
