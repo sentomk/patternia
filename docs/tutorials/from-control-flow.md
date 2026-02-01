@@ -105,7 +105,7 @@ A wildcard pattern (`__`) is an explicit, ordered case. A match-level fallback (
 
 ## Binding and Guards as a Discipline, Not a Convenience
 
-Throughout this progression, one rule remains consistent: **binding is always explicit, and guards only exist after binding**. You never “half-bind” a value, and you never attach a guard to a case that does not declare what data it operates on. This makes the relationship between a case and its handler mechanically obvious. The handler’s parameters are not inferred from context; they are earned by binding.
+Throughout this progression, one rule remains consistent: **binding is always explicit, and guards only exist after binding**. Whether the binding is introduced via `bind()` or via a named binding shorthand such as `as<T>()`, you never “half-bind” a value, and you never attach a guard to a case that does not declare what data it operates on. This makes the relationship between a case and its handler mechanically obvious. The handler’s parameters are not inferred from context; they are earned by binding.
 
 This discipline is what allows Patternia code to remain readable even as it grows. Each increase in expressiveness is accompanied by a visible structural change in the code.
 
