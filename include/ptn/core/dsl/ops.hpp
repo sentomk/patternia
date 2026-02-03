@@ -65,4 +65,17 @@ namespace ptn::core::dsl::ops {
     return pack_t{tuple_t{std::forward<CaseExprs>(exprs)...}};
   }
 
+  template <typename... CaseExprs>
+  constexpr auto when(CaseExprs &&...exprs) {
+    ptn::core::common::static_assert_when_pack_are_case_expr<
+        std::decay_t<CaseExprs>...>();
+    ptn::core::common::static_assert_when_pack_precondition<
+        std::decay_t<CaseExprs>...>();
+
+    using pack_t  = core::dsl::detail::when_pack<std::decay_t<CaseExprs>...>;
+    using tuple_t = typename pack_t::tuple_type;
+
+    return pack_t{tuple_t{std::forward<CaseExprs>(exprs)...}};
+  }
+
 } // namespace ptn::core::dsl::ops

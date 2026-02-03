@@ -207,6 +207,8 @@ namespace ptn::core::engine::detail {
 namespace ptn::core::dsl::detail {
   template <typename... Cases>
   struct cases_pack;
+  template <typename... Cases>
+  struct when_pack;
 }
 
 namespace ptn::core::engine {
@@ -218,6 +220,42 @@ namespace ptn::core::engine {
     using subject_ref_t = std::remove_reference_t<TV> &;
     using builder_t     = detail::match_builder<subject_ref_t, false, Cases...>;
     return builder_t::create(subject, std::move(pack.cases));
+  }
+
+  template <typename TV, typename... Cases>
+  constexpr decltype(auto)
+  match(TV &subject, core::dsl::detail::when_pack<Cases...> pack) {
+    using subject_ref_t = std::remove_reference_t<TV> &;
+    using subject_type_check =
+        ptn::core::common::subject_type_validator<subject_ref_t>;
+
+    (void) sizeof(subject_type_check);
+
+    ptn::core::common::static_assert_when_pack_has_fallback<Cases...>();
+    ptn::core::common::static_assert_when_pack_precondition<Cases...>();
+
+    auto dummy_fallback =
+        [](auto &&...) -> ptn::core::traits::detail::unreachable_t {
+      return {};
+    };
+    using dummy_handler_t = decltype(dummy_fallback);
+
+    ptn::core::common::
+        static_assert_valid_match<subject_ref_t, dummy_handler_t, Cases...>();
+
+    using result_type =
+        core::traits::match_result_t<subject_ref_t, dummy_handler_t, Cases...>;
+
+    auto cases = std::move(pack.cases);
+
+    if constexpr (traits::is_void_like_v<result_type>) {
+      detail::match_impl::eval<result_type>(
+          subject, cases, std::move(dummy_fallback));
+    }
+    else {
+      return detail::match_impl::eval<result_type>(
+          subject, cases, std::move(dummy_fallback));
+    }
   }
 
 } // namespace ptn::core::engine

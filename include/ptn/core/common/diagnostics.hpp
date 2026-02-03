@@ -31,6 +31,16 @@ namespace ptn::core::common {
         "with '>>'.");
   }
 
+  // Ensures when(...) only receives case expressions (pattern >> handler).
+  template <typename... CaseExprs>
+  constexpr void static_assert_when_pack_are_case_expr() {
+    constexpr bool ok = (ptn::core::traits::is_case_expr_v<CaseExprs> && ...);
+    static_assert(
+        ok,
+        "[Patternia.when]: arguments must be case expressions created "
+        "with '>>'.");
+  }
+
   // ------------------------------------------------------------
   // Match Expression Validation
   // ------------------------------------------------------------
@@ -206,6 +216,27 @@ namespace ptn::core::common {
     constexpr bool fallback_last = detail::fallback_is_last<Cases...>::value;
     static_assert(fallback_last,
                   "[Patternia.cases]: wildcard '__' must be the last case.");
+  }
+
+  // Validates that when(...) has a trailing wildcard case.
+  template <typename... Cases>
+  constexpr void static_assert_when_pack_has_fallback() {
+    constexpr bool has_fallback =
+        (ptn::core::traits::is_pattern_fallback_v<
+             ptn::core::traits::case_pattern_t<Cases>>
+         || ...);
+    static_assert(
+        has_fallback,
+        "[Patternia.match]: when(...) requires a trailing wildcard '__' case.");
+  }
+
+  // Validates ordering constraints for when(...).
+  template <typename... Cases>
+  constexpr void static_assert_when_pack_precondition() {
+    // (A) Wildcard must be last in when(...).
+    constexpr bool fallback_last = detail::fallback_is_last<Cases...>::value;
+    static_assert(fallback_last,
+                  "[Patternia.when]: wildcard '__' must be the last case.");
   }
 
   // ------------------------------------------------------------

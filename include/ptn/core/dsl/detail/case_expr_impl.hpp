@@ -39,4 +39,13 @@ namespace ptn::core::dsl::detail {
     }
   };
 
+  template <typename... Cases>
+  struct when_pack {
+    using tuple_type = std::tuple<Cases...>;
+    tuple_type cases;
+
+    constexpr explicit when_pack(tuple_type t) : cases(std::move(t)) {
+    }
+  };
+
 } // namespace ptn::core::dsl::detail
