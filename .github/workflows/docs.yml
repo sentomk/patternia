@@ -2,7 +2,7 @@ name: Build and Deploy Docs
 
 on:
   push:
-    branches: [main]
+    branches: [main, experiment]
   workflow_dispatch:
 
 permissions:
@@ -35,3 +35,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
           publish_branch: gh-pages
+          keep_files: true
+          destination_dir: ${{ github.ref_name == 'experiment' && 'experiment' || '' }}
