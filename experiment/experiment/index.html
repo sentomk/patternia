@@ -12,13 +12,11 @@
         <meta name="author" content="Y.F. Guo">
       
       
-        <link rel="canonical" href="https://sentomk.github.io/patternia/tutorials/predicate-guards/">
+        <link rel="canonical" href="https://sentomk.github.io/patternia/experiment/experiment/">
       
       
-        <link rel="prev" href="../other-languages/">
+        <link rel="prev" href="../../changelog/releases/">
       
-      
-        <link rel="next" href="../policy-constraint/">
       
       
         
@@ -29,7 +27,7 @@
     
     
       
-        <title>Custom Predicate Guards - Patternia</title>
+        <title>Experimental - Patternia</title>
       
     
     
@@ -81,11 +79,6 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
-        
-        <a href="#custom-predicate-guards" class="md-skip">
-          Skip to content
-        </a>
-      
     </div>
     <div data-md-component="announce">
       
@@ -115,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Custom Predicate Guards
+              Experimental
             
           </span>
         </div>
@@ -236,13 +229,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../from-control-flow/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../tutorials/from-control-flow/" class="md-tabs__link">
           
   
   
@@ -318,9 +309,11 @@
   
   
   
+    
   
-    <li class="md-tabs__item">
-      <a href="../../experiment/experiment/" class="md-tabs__link">
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
         
   
   
@@ -410,31 +403,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   
@@ -452,7 +440,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -470,7 +458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../from-control-flow/" class="md-nav__link">
+      <a href="../../tutorials/from-control-flow/" class="md-nav__link">
         
   
   
@@ -498,7 +486,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../other-languages/" class="md-nav__link">
+      <a href="../../tutorials/other-languages/" class="md-nav__link">
         
   
   
@@ -523,37 +511,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Custom Predicate Guards
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../tutorials/predicate-guards/" class="md-nav__link">
         
   
   
@@ -569,103 +530,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#guards-as-part-of-case-definition" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Guards as Part of Case Definition
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#using-built-in-guard-expressions-for-simple-logic" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Using Built-in Guard Expressions for Simple Logic
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multi-value-guards-and-explicit-relationships" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multi-Value Guards and Explicit Relationships
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#knowing-when-to-stop-using-expression-guards" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Knowing When to Stop Using Expression Guards
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#combining-expression-guards-and-lambdas" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Combining Expression Guards and Lambdas
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#guard-logic-belongs-at-the-boundary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Guard Logic Belongs at the Boundary
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#writing-guards-with-intent" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Writing Guards with Intent
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -678,7 +542,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../policy-constraint/" class="md-nav__link">
+      <a href="../../tutorials/policy-constraint/" class="md-nav__link">
         
   
   
@@ -706,7 +570,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sphere-constraint/" class="md-nav__link">
+      <a href="../../tutorials/sphere-constraint/" class="md-nav__link">
         
   
   
@@ -1027,10 +891,17 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../experiment/experiment/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1046,6 +917,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -1070,77 +942,9 @@
   
 
 
-<h1 id="custom-predicate-guards">Custom Predicate Guards<a class="headerlink" href="#custom-predicate-guards" title="Permanent link">&para;</a></h1>
-<h2 id="guards-as-part-of-case-definition">Guards as Part of Case Definition<a class="headerlink" href="#guards-as-part-of-case-definition" title="Permanent link">&para;</a></h2>
-<p>In Patternia, a guard is not a free-floating condition. It is not an <code>if</code> placed near a handler, nor a generic predicate applied to the input value. A guard belongs to a <em>case</em>, and more specifically, it belongs to a case that has already bound data.</p>
-<p>This is why guards only appear in the <code>when(...)</code> form, and only after a pattern introduces bindings. A guard refines an already matched and bound case. If the guard fails, the case simply does not apply, and matching continues. Nothing “falls through,” and nothing partially executes.</p>
-<p>Understanding this placement is the key to using guards correctly. Once that boundary is clear, the remaining question becomes practical: <strong>what kind of logic should live inside a guard?</strong></p>
-<hr />
-<h2 id="using-built-in-guard-expressions-for-simple-logic">Using Built-in Guard Expressions for Simple Logic<a class="headerlink" href="#using-built-in-guard-expressions-for-simple-logic" title="Permanent link">&para;</a></h2>
-<p>Patternia provides a small set of operator overloads designed specifically for guard expressions. These operators allow you to express simple, local constraints directly, without dropping back into lambdas.</p>
-<p>For a single bound value, this often reads naturally:</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">()[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;small&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
-</code></pre></div>
-<p>Here, <code>_</code> is not a runtime variable. It is a placeholder used to construct a predicate over the bound value. The expression <code>_ &gt; 0 &amp;&amp; _ &lt; 10</code> does not evaluate immediately; it builds a guard that will be evaluated after binding.</p>
-<p>This style is intended for <em>simple, relational constraints</em>: comparisons, ranges, and boolean combinations. The goal is clarity, not expressiveness at all costs. If the condition can be read as a short sentence about the value, it likely belongs in this form.</p>
-<p>Logical composition using <code>&amp;&amp;</code> and <code>||</code> is fully supported and is often sufficient for straightforward rules:</p>
-<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">()[</span><span class="n">_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;edge&quot;</span><span class="p">)</span>
-</code></pre></div>
-<p>As long as the logic remains local and obvious, keeping it in expression form improves readability by keeping the rule close to the case definition.</p>
-<hr />
-<h2 id="multi-value-guards-and-explicit-relationships">Multi-Value Guards and Explicit Relationships<a class="headerlink" href="#multi-value-guards-and-explicit-relationships" title="Permanent link">&para;</a></h2>
-<p>When a pattern binds multiple values, guards can express relationships between them. In this situation, the placeholder <code>_</code> is no longer sufficient, because there is more than one bound value. Patternia makes this explicit by requiring indexed access via <code>arg&lt;N&gt;</code>.</p>
-<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">  </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())</span>
-<span class="w">    </span><span class="p">[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">  </span><span class="s">&quot;diagonal&quot;</span>
-<span class="p">)</span>
-</code></pre></div>
-<p>Here, <code>arg&lt;0&gt;</code> and <code>arg&lt;1&gt;</code> refer to the first and second bound values, in binding order. This makes the dependency between values explicit and avoids ambiguity. The guard describes a relationship between bindings, not an opaque condition over the original object.</p>
-<p>As with single-value guards, logical operators can be used to combine constraints, but the same rule applies: if the condition reads cleanly as a declarative relationship, it fits well in this form.</p>
-<hr />
-<h2 id="knowing-when-to-stop-using-expression-guards">Knowing When to Stop Using Expression Guards<a class="headerlink" href="#knowing-when-to-stop-using-expression-guards" title="Permanent link">&para;</a></h2>
-<p>Not all logic belongs in an expression-based guard. Patternia deliberately does <strong>not</strong> try to turn guards into a full embedded language. Once a condition becomes algorithmic, stateful, or domain-specific, expression syntax stops helping.</p>
-<p>Consider a check such as “is this number prime?” or “does this payload satisfy protocol invariants?” Attempting to encode such logic through operator overloads would obscure intent rather than clarify it.</p>
-<p>In these cases, the correct approach is to step back into ordinary C++ and use a lambda:</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">is_prime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">v</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
-<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">v</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
-<span class="p">};</span>
+  <h1>Experimental</h1>
 
-<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">()[</span><span class="n">is_prime</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;prime&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;composite&quot;</span><span class="p">);</span>
-</code></pre></div>
-<p>This is not a fallback or a workaround; it is the intended design. Guards are predicates. When a predicate is complex, it should look like a predicate, written in normal C++.</p>
-<p>The lambda form keeps complex logic readable, testable, and reusable, without forcing it into an artificial DSL.</p>
-<hr />
-<h2 id="combining-expression-guards-and-lambdas">Combining Expression Guards and Lambdas<a class="headerlink" href="#combining-expression-guards-and-lambdas" title="Permanent link">&para;</a></h2>
-<p>Expression guards and lambda guards are not mutually exclusive. They can be mixed naturally, as long as the rule remains clear.</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">valid_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="p">};</span>
 
-<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">()[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">valid_id</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;valid&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;invalid&quot;</span><span class="p">);</span>
-</code></pre></div>
-<p>In this example, the simple relational constraint (<code>_ &gt; 0</code>) stays in expression form, while the domain-specific rule (<code>valid_id</code>) is expressed as a lambda. The guard reads as a composition of two ideas, each expressed in its most natural form.</p>
-<p>This composition works because guards are predicates, not control flow. Whether a predicate comes from an expression or a callable does not change how the case behaves.</p>
-<hr />
-<h2 id="guard-logic-belongs-at-the-boundary">Guard Logic Belongs at the Boundary<a class="headerlink" href="#guard-logic-belongs-at-the-boundary" title="Permanent link">&para;</a></h2>
-<p>A recurring theme in Patternia is that <strong>validation belongs at the boundary, not inside the handler</strong>. Guards exist to enforce that rule. A handler should assume its preconditions are satisfied and focus solely on behavior.</p>
-<p>If you find yourself writing defensive checks inside a handler, it is often a sign that the logic belongs in a guard instead. Conversely, if a guard starts to resemble a small program, it likely belongs in a lambda or outside the match entirely.</p>
-<p>Patternia does not attempt to blur this line. It gives you just enough syntax to express common constraints declaratively, and then relies on standard C++ for everything else.</p>
-<hr />
-<h2 id="writing-guards-with-intent">Writing Guards with Intent<a class="headerlink" href="#writing-guards-with-intent" title="Permanent link">&para;</a></h2>
-<p>Effective guard usage is less about knowing every operator and more about restraint. Use the built-in expression operators for small, obvious constraints. Use <code>&amp;&amp;</code> and <code>||</code> to combine them when the relationship remains readable. When logic becomes complex, name it and write it as a lambda.</p>
-<p>By following this discipline, guards remain what they are meant to be: precise refinements of cases, not miniature control-flow systems hidden inside brackets.</p>
-<p>This is the role of custom predicate guards in Patternia—not to replace C++, but to clarify where conditions belong.</p>
 
 
 
@@ -1176,7 +980,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../other-languages/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Pattern Matching in Other Languages">
+          <a href="../../changelog/releases/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Releases">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1186,27 +990,11 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Pattern Matching in Other Languages
+                Releases
               </div>
             </div>
           </a>
         
-        
-          
-          <a href="../policy-constraint/" class="md-footer__link md-footer__link--next" aria-label="Next: Example - Policy Constraint Matching">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                Example - Policy Constraint Matching
-              </div>
-            </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
-            </div>
-          </a>
         
       </nav>
     
