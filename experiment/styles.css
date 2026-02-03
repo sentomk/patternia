@@ -1,0 +1,97 @@
+/* =========================================================
+   Patternia — Dual Theme (Light + Dark)
+   Fully compatible with mkdocs-material
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   LIGHT THEME (scheme: default)
+   --------------------------------------------------------- */
+[data-md-color-scheme="default"] {
+  /* Background / Text */
+  --md-default-bg-color: #F7F9FC;
+  --md-default-fg-color: #0A0F18;
+
+  /* Brand blue */
+  --md-primary-fg-color: #0A1520;
+
+  /* Accent (Patternia Pink) */
+  --md-accent-fg-color: #c2185b;
+
+  /* Links */
+  --md-typeset-a-color: #333;
+
+  /* Navigation text */
+  --md-nav-link-color: #28303B;
+  --md-nav-link-color--active: #c2185b;
+}
+
+[data-md-color-scheme="default"] .md-header,
+[data-md-color-scheme="default"] .md-tabs,
+[data-md-color-scheme="default"] .md-footer {
+  background-color: #0A1520 !important;
+  color: #ffffff !important;
+}
+
+/* ---------------------------------------------------------
+   DARK THEME (scheme: slate)
+   --------------------------------------------------------- */
+[data-md-color-scheme="slate"] {
+  /* Background / Text */
+  --md-default-bg-color: #0B111A;
+  --md-default-fg-color: #E6E9EF;
+
+  /* Brand dark */
+  --md-primary-fg-color: #071019;
+
+  /* Accent (hot pink) */
+  --md-accent-fg-color: #298be7;
+
+  /* Links */
+  --md-typeset-a-color: #fff;
+
+  /* Navigation text */
+  --md-nav-link-color: #C8CDD6;
+  --md-nav-link-color--active: #298be7;
+}
+
+[data-md-color-scheme="slate"] .md-header,
+[data-md-color-scheme="slate"] .md-tabs,
+[data-md-color-scheme="slate"] .md-footer {
+  background-color: #071019 !important;
+  color: #ffffff !important;
+}
+
+/* ---------------------------------------------------------
+   SHARED STYLES (both light & dark)
+   --------------------------------------------------------- */
+
+.md-nav__link {
+  color: var(--md-nav-link-color) !important;
+}
+
+.md-nav__link--active {
+  color: var(--md-nav-link-color--active) !important;
+  font-weight: 600 !important;
+}
+
+a:hover {
+  color: var(--md-accent-fg-color) !important;
+}
+
+/* Buttons */
+.md-button,
+.md-typeset .md-button {
+  background-color: var(--md-accent-fg-color) !important;
+  color: #fff !important;
+}
+
+/* Page layout */
+.md-main__inner,
+.md-main,
+body {
+  background-color: var(--md-default-bg-color) !important;
+}
+
+.md-nav__item .md-nav__item>.md-nav {
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+}
