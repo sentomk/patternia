@@ -9,25 +9,25 @@ Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic c
 ## Navigation
 
 ### Start Here
-- <u><a href="guide/getting-started">Getting Started</a></u> - Minimal examples and core syntax
-- <u><a href="guide/installation">Installation</a></u> - How to integrate Patternia into your project
+- <u><a href="guide/getting-started/">Getting Started</a></u> - Minimal examples and core syntax
+- <u><a href="guide/installation/">Installation</a></u> - How to integrate Patternia into your project
 
 ### Concepts and Tutorials
-- <u><a href="tutorials/from-control-flow">From Control Flow to Pattern Matching</a></u> - Onramp for new users
-- <u><a href="tutorials/other-languages">Pattern Matching in Other Languages</a></u> - Mapping familiar ideas to Patternia
-- <u><a href="tutorials/predicate-guards">Custom Predicate Guards</a></u> - Guard design and composition
+- <u><a href="tutorials/from-control-flow/">From Control Flow to Pattern Matching</a></u> - Onramp for new users
+- <u><a href="tutorials/other-languages/">Pattern Matching in Other Languages</a></u> - Mapping familiar ideas to Patternia
+- <u><a href="tutorials/predicate-guards/">Custom Predicate Guards</a></u> - Guard design and composition
 
 ### Worked Examples
-- <u><a href="tutorials/policy-constraint">Policy Constraint Matching</a></u> - Declarative rules and access control
-- <u><a href="tutorials/sphere-constraint">Geometric Constraint Matching</a></u> - Numeric constraints as patterns
+- <u><a href="tutorials/policy-constraint/">Policy Constraint Matching</a></u> - Declarative rules and access control
+- <u><a href="tutorials/sphere-constraint/">Geometric Constraint Matching</a></u> - Numeric constraints as patterns
 
 ### Reference
-- <u><a href="api">API Documentation</a></u> - Complete API reference for all patterns and functions
-- <u><a href="design-overview">Design Overview</a></u> - Semantics and matching model
+- <u><a href="api/">API Documentation</a></u> - Complete API reference for all patterns and functions
+- <u><a href="design-overview/">Design Overview</a></u> - Semantics and matching model
 
 ### Project Information
-- <u><a href="changelog/releases">Releases</a></u> - Version update history
-- <u><a href="experiment/experiment">Experimental</a></u> - Experimental features and ideas (unstable)
+- <u><a href="changelog/releases/">Releases</a></u> - Version update history
+- <u><a href="experiment/experiment/">Experimental</a></u> - Experimental features and ideas (unstable)
 
 ---
 
