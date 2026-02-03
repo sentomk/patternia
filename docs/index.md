@@ -27,6 +27,7 @@ Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic c
 
 ### Project Information
 - <u><a href="changelog/releases.md">Releases</a></u> - Version update history
+- <u><a href="experiment/experiment.md">Experimental</a></u> - Experimental features and ideas (unstable)
 
 ---
 
