@@ -93,4 +93,4 @@ nav:
   - Changelog:
       - Releases: changelog/releases.md
 
-  - Experimental: experiment/experiment.md
+  - Experimental: experiment/index.md
