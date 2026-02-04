@@ -878,10 +878,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#matchsubject-on" class="md-nav__link">
+  <a href="#matchsubject-cases" class="md-nav__link">
     <span class="md-ellipsis">
       
-        match(subject) | on{...}
+        match(subject, cases(...))
       
     </span>
   </a>
@@ -1515,28 +1515,35 @@ It defines how values are inspected, how cases are registered, and how matching 
 <p>Patternia currently matches the subject as its actual type; there is no
 <code>match&lt;AsType&gt;(subject)</code> override.</p>
 <hr />
-<h3 id="matchsubject-on"><code>match(subject) | on{...}</code><a class="headerlink" href="#matchsubject-on" title="Permanent link">&para;</a></h3>
-<p><strong>Role</strong>: Compact syntax for immediate, exhaustive matching.</p>
+<h3 id="matchsubject-cases"><code>match(subject, cases(...))</code><a class="headerlink" href="#matchsubject-cases" title="Permanent link">&para;</a></h3>
+<p><strong>Role</strong>: Compact syntax for simple matching scenarios.</p>
 <p><strong>Syntax</strong>:
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">{</span><span class="n">case1</span><span class="p">,</span><span class="w"> </span><span class="n">case2</span><span class="p">,</span><span class="w"> </span><span class="p">...}</span>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="n">cases</span><span class="p">(</span><span class="n">case1</span><span class="p">,</span><span class="w"> </span><span class="n">case2</span><span class="p">,</span><span class="w"> </span><span class="p">...))</span>
 </code></pre></div></p>
 <p><strong>Key Characteristics</strong>:</p>
 <ul>
 <li>Provides a concise alternative to the standard <code>.when()</code> chain syntax</li>
+<li><strong>No bindings/guards</strong>: Cannot be used with <code>bind()</code> or guard expressions</li>
+<li>Supports both pattern fallback (<code>__</code>) and match fallback patterns</li>
 <li>Cases are evaluated sequentially using <strong>first-match semantics</strong></li>
-<li><strong>Requires a trailing <code>__</code> pattern</strong> as the exhaustive fallback</li>
-<li>Evaluates immediately (no builder returned)</li>
-<li>For non-exhaustive matches, use <code>.otherwise()</code> on the builder form</li>
+<li><strong>Requires <code>.end()</code></strong> to trigger evaluation when using <code>__</code> pattern</li>
 </ul>
 <p><strong>Basic Usage</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">cases</span><span class="p">(</span>
 <span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;one</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;two</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="n">__</span><span class="w">    </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;other</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-<span class="p">};</span>
+<span class="p">)).</span><span class="n">end</span><span class="p">();</span>
 </code></pre></div>
+<p><strong>Limitations</strong>:</p>
+<ul>
+<li>Cannot use <code>bind()</code> (and therefore cannot use guard expressions <code>[]</code>)</li>
+<li>Best suited for simple literal and wildcard matching</li>
+<li>For complex matching with guards, use the standard DSL syntax</li>
+<li><strong>Must use <code>.end()</code> when using <code>__</code> pattern to trigger evaluation</strong></li>
+</ul>
 <p><strong>Design Intent</strong>:
-This syntax is optimized for straightforward value discrimination while preserving the explicit, ordered nature of Patternia cases.</p>
+This syntax is optimized for straightforward value discrimination where the full power of the DSL (guards, complex patterns) is not needed.</p>
 <hr />
 <h3 id="whenpattern-handler"><code>.when(pattern &gt;&gt; handler)</code><a class="headerlink" href="#whenpattern-handler" title="Permanent link">&para;</a></h3>
 <p><strong>Role</strong>: Primary case-definition primitive.</p>
