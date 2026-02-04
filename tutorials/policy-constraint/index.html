@@ -1126,7 +1126,7 @@
 <p>This structure already hints at the nature of the problem. There is no single field that determines the outcome. The decision depends on relationships between fields, which immediately places us outside the realm of value dispatch.</p>
 <hr />
 <h2 id="recognizing-a-constraint-based-match">Recognizing a Constraint-Based Match<a class="headerlink" href="#recognizing-a-constraint-based-match" title="Permanent link">&para;</a></h2>
-<p>Because the outcome cannot be determined by enumerating values, <code>cases()</code> is not the right tool here. What we need is a set of rules, each defined by constraints over the request data. This is exactly the scenario where <code>when(...)</code> and guarded bindings are intended to be used.</p>
+<p>Because the outcome cannot be determined by enumerating values, <code>on{...}</code> is not the right tool here. What we need is a set of rules, each defined by constraints over the request data. This is exactly the scenario where <code>when(...)</code> and guarded bindings are intended to be used.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="cm">/* policy rule */</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="cm">/* policy rule */</span><span class="p">)</span>
