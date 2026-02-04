@@ -1,72 +1,47 @@
 #include "ptn/patternia.hpp"
 #include <iostream>
 #include <variant>
+#include <charconv>
+#include <string>
+#include <string_view>
 
-using namespace ptn;
-
-struct X {
-  int x;
+enum Direction {
+  North,
+  South,
+  East,
+  West,
 };
 
 int main() {
-  int x = 42;
-  match(x,
-        cases(
-            lit(42) >> [] { std::cout << "42"; },
-            lit(20) >> [] { std::cout << "20"; },
-            ptn::__ >> [] { std::cout << "Other"; }))
-      .end();
+  using namespace ptn;
 
-  auto r = match(x,
-                 cases(lit(42) >> "42",
-                       lit(20) >> "20",
-                       lit(1) >> "1",
-                       ptn::__ >> "other"))
-               .end();
+  using V = std::variant<int, std::string, char>;
 
-  auto r1 = match(x)
-                .when(lit(1) >> "1")
-                .when(lit(42) >> "42")
-                .when(ptn::__ >> "other")
-                .end();
-  X xx;
-  match(xx)
-      .when(has<&X::x>() >> [] { std::cout << "xx"; })
-      .when(__ >> [] { std::cout << "---"; })
-      .end();
+  V v1;
 
-  using Point  = int;
-  using Height = int;
-  std::variant<Point, Height> v;
+  std::string line;
+  std::getline(std::cin, line);
 
-  Point p = 32;
+  if (line.size() == 1 && !std::isdigit(static_cast<unsigned char>(line[0]))) {
+    v1 = line[0];
+  }
+  else {
+    int  value     = 0;
+    auto sv        = std::string_view(line);
+    auto [ptr, ec] = std::from_chars(sv.data(), sv.data() + sv.size(), value);
+    if (ec == std::errc{} && ptr == sv.data() + sv.size()) {
+      v1 = value;
+    }
+    else {
+      v1 = line;
+    }
+  }
 
-  std::variant<int, char, std::string> pax;
-  auto                                 vv = match(pax)
-                .when(is<int>() >> "Point")
-                .when(is<char>() >> "Height")
-                .when(as<std::string>() >> "Str")
-                .when(ptn::__ >> "Other")
-                .end();
+  auto res = match(v1)
+             | on{is<std::string>() >> "String",
+                  is<int>() >> "Integer",
+                  is<char>() >> "Character",
+                  __ >> "Other"};
 
-  auto vr = match(v)
-                .when(alt<0>() >> "Point")
-                .when(alt<1>() >> "Height")
-                .when(ptn::__ >> "other")
-                .end();
-
-  std::cout << vr;
-
-  auto r2 = match(x,
-                  when(lit(42) >> "42",
-                       lit(7) >> "seven",
-                       lit(4242) >> "4242",
-                       __ >> "other"));
-
-  auto r3 = match(x)
-            | on{lit(42) >> "42",
-                 lit(7) >> "seven",
-                 lit(100) >> "100",
-                 __ >> "other"};
-  // r is const char* (or std::string if you return that instead)
+  std::cout << res << '\n';
 }
