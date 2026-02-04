@@ -824,10 +824,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#compact-pipe-syntax-simple-cases" class="md-nav__link">
+  <a href="#tuple-based-syntax-simple-cases" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Compact Pipe Syntax (Simple Cases)
+        Tuple-Based Syntax (Simple Cases)
       
     </span>
   </a>
@@ -1288,8 +1288,8 @@ Once installed or fetched into your project, you can start using pattern matchin
 <span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">  </span><span class="c1">// required for __ to work</span>
 <span class="p">}</span>
 </code></pre></div>
-<h3 id="compact-pipe-syntax-simple-cases">Compact Pipe Syntax (Simple Cases)<a class="headerlink" href="#compact-pipe-syntax-simple-cases" title="Permanent link">&para;</a></h3>
-<p>For simple matching scenarios, Patternia provides a concise pipe-based syntax:</p>
+<h3 id="tuple-based-syntax-simple-cases">Tuple-Based Syntax (Simple Cases)<a class="headerlink" href="#tuple-based-syntax-simple-cases" title="Permanent link">&para;</a></h3>
+<p>For simple matching scenarios, Patternia provides a concise tuple-based syntax:</p>
 <div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ptn/patternia.hpp&gt;</span>
 
@@ -1298,22 +1298,27 @@ Once installed or fetched into your project, you can start using pattern matchin
 <span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
 
-<span class="w">  </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">{</span>
+<span class="w">  </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">cases</span><span class="p">(</span>
 <span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;one</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;two</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">    </span><span class="n">__</span><span class="w">    </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;other</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c1">// pattern fallback</span>
-<span class="w">  </span><span class="p">};</span>
+<span class="w">  </span><span class="p">)).</span><span class="n">end</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre></div>
 <p><strong>Key points:</strong></p>
 <ul>
-<li><code>match(subject) | on{...}</code> provides a compact syntax for simple cases</li>
+<li><code>match(subject, cases(...))</code> provides a compact syntax for simple cases</li>
+<li><strong>No bindings/guards</strong>: This syntax cannot be used with <code>bind()</code> or guard expressions</li>
 <li>Cases are tested <strong>top-to-bottom (first-match semantics)</strong></li>
-<li><strong>Requires a trailing <code>__</code> pattern</strong> as the exhaustive fallback</li>
-<li>Evaluates immediately (no builder returned)</li>
+<li>Supports both pattern fallback (<code>__</code>) and match fallback patterns</li>
+<li><strong>Requires <code>.end()</code></strong> to trigger evaluation when using <code>__</code> pattern</li>
 <li>Ideal for straightforward value matching without complex conditions</li>
 </ul>
-<p>For non-exhaustive matches or complex matching with guards, use the standard DSL syntax shown above with <code>.otherwise()</code>.</p>
+<p><strong>Limitations:</strong>
+- Cannot use <code>bind()</code> (and therefore cannot use guard expressions <code>[]</code>)
+- Best suited for simple literal and wildcard matching
+- <strong>Must use <code>.end()</code> when using <code>__</code> pattern to trigger evaluation</strong></p>
+<p>For complex matching with guards, use the standard DSL syntax shown above.</p>
 <h2 id="3-fallback-mechanisms-and-match-completion">3. Fallback Mechanisms and Match Completion<a class="headerlink" href="#3-fallback-mechanisms-and-match-completion" title="Permanent link">&para;</a></h2>
 <p>Patternia supports <strong>value-returning matches</strong>, similar to Rust or Scala.</p>
 <div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="nf">classify</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>

@@ -1085,11 +1085,11 @@
 <span class="p">};</span>
 </code></pre></div>
 <p>Patternia adopts the same expression-oriented mindset. A match computes a result, and every case participates in producing that result:</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">cases</span><span class="p">(</span>
 <span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="n">__</span><span class="w">     </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;many&quot;</span>
-<span class="p">};</span>
+<span class="p">)).</span><span class="n">end</span><span class="p">();</span>
 </code></pre></div>
 <p>The resemblance is intentional. For readers coming from expression-oriented languages, this form should feel immediately natural. What is different is what Patternia <em>does not</em> allow here. There are no bindings or guards. This mirrors the idea that value-only matching should remain simple and readable, rather than becoming a staging ground for complex logic.</p>
 <hr />
@@ -1100,7 +1100,7 @@
 <span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Patternia supports the same expressive power, but deliberately changes how it is introduced. Guards are not the point of the simple <code>on{...}</code> form. Instead, the presence of a guard signals a transition to a more expressive matching mode:</p>
+<p>Patternia supports the same expressive power, but deliberately changes how it is introduced. Guards do not appear in the simple <code>cases()</code> form. Instead, the presence of a guard signals a transition to a more expressive matching mode:</p>
 <div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">()[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;small&quot;</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
