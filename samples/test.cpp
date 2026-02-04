@@ -56,4 +56,17 @@ int main() {
                 .end();
 
   std::cout << vr;
+
+  auto r2 = match(x,
+                  when(lit(42) >> "42",
+                       lit(7) >> "seven",
+                       lit(4242) >> "4242",
+                       __ >> "other"));
+
+  auto r3 = match(x)
+            | on{lit(42) >> "42",
+                 lit(7) >> "seven",
+                 lit(100) >> "100",
+                 __ >> "other"};
+  // r is const char* (or std::string if you return that instead)
 }

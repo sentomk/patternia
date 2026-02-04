@@ -40,6 +40,7 @@ namespace ptn {
   using ptn::core::dsl::ops::operator>>;
   using ptn::core::dsl::ops::cases;
   using ptn::core::dsl::ops::when;
+  using ptn::core::dsl::ops::on;
 
   using ptn::pat::lit;
   using ptn::pat::lit_ci;

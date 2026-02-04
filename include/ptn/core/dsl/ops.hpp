@@ -6,6 +6,7 @@
 // domain-specific language for pattern matching, particularly the >> operator
 // for creating case expressions.
 
+#include <tuple>
 #include <type_traits>
 #include <utility>
 
@@ -77,5 +78,21 @@ namespace ptn::core::dsl::ops {
 
     return pack_t{tuple_t{std::forward<CaseExprs>(exprs)...}};
   }
+
+  // `on{...}`: aggregate-style case pack for pipe DSL.
+  template <typename... Cases>
+  struct on {
+    using tuple_type = std::tuple<Cases...>;
+    tuple_type cases;
+
+    constexpr explicit on(Cases... exprs) : cases(std::move(exprs)...) {
+      ptn::core::common::static_assert_when_pack_are_case_expr<Cases...>();
+      ptn::core::common::static_assert_when_pack_precondition<Cases...>();
+      ptn::core::common::static_assert_when_pack_has_fallback<Cases...>();
+    }
+  };
+
+  template <typename... Cases>
+  on(Cases...)->on<Cases...>;
 
 } // namespace ptn::core::dsl::ops

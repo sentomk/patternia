@@ -14,6 +14,26 @@
 #include "ptn/core/common/diagnostics.hpp"
 #include "ptn/core/engine/detail/match_impl.hpp"
 
+namespace ptn::core::dsl::detail {
+  template <typename... Cases>
+  struct when_pack;
+}
+
+namespace ptn::core::dsl::ops {
+  template <typename... Cases>
+  struct on;
+}
+
+namespace ptn::core::engine {
+  template <typename TV, typename... Cases>
+  constexpr decltype(auto) match(TV                                    &subject,
+                                 core::dsl::detail::when_pack<Cases...> pack);
+
+  template <typename TV, typename... Cases>
+  constexpr decltype(auto) match(TV                          &subject,
+                                 core::dsl::ops::on<Cases...> pack);
+} // namespace ptn::core::engine
+
 namespace ptn::core::engine::detail {
 
   // Builder class for constructing pattern match expressions.
@@ -21,9 +41,8 @@ namespace ptn::core::engine::detail {
   // chaining. TV: The type of the subject value to be matched Cases: The types
   // of case expressions added so far
   template <typename TV, bool HasMatchFallback, typename... Cases>
-  class [[nodiscard(
-      "[Patternia.match]: incomplete match expression. "
-      "Call .otherwise(...) or .end() to finalize.")]]
+  class [[nodiscard("[Patternia.match]: incomplete match expression. "
+                    "Call .otherwise(...) or .end() to finalize.")]]
   match_builder {
 
   public:
@@ -31,8 +50,8 @@ namespace ptn::core::engine::detail {
     using cases_type   = std::tuple<Cases...>;
 
     // Validate subject type (diagnostics centralized in diagnostics.hpp)
-    using subject_type_check =
-        ptn::core::common::subject_type_validator<subject_type>;
+    using subject_type_check = ptn::core::common::subject_type_validator<
+        subject_type>;
 
   private:
     subject_type subject_; // The value being matched against patterns
@@ -46,8 +65,8 @@ namespace ptn::core::engine::detail {
 
     // Static factory with an explicit case tuple (internal use).
     static constexpr auto create(subject_type subject, cases_type cases) {
-      return match_builder{
-          std::forward<subject_type>(subject), std::move(cases)};
+      return match_builder{std::forward<subject_type>(subject),
+                           std::move(cases)};
     }
 
     // Construct from subject and case tuple.
@@ -57,15 +76,17 @@ namespace ptn::core::engine::detail {
     }
 
     // Triggered by .when(__)
-    static constexpr bool has_pattern_fallback =
-        (traits::is_pattern_fallback_v<traits::case_pattern_t<Cases>> || ...);
+    static constexpr bool
+        has_pattern_fallback = (traits::is_pattern_fallback_v<
+                                    traits::case_pattern_t<Cases>>
+                                || ...);
 
     // Triggered by .otherwise()
     static constexpr bool has_match_fallback = HasMatchFallback;
 
     // unified exhaustiveness predicate
-    static constexpr bool is_exhaustive =
-        has_pattern_fallback || has_match_fallback;
+    static constexpr bool is_exhaustive = has_pattern_fallback
+                                          || has_match_fallback;
 
     // Chaining API: .when(...)
 
@@ -81,8 +102,8 @@ namespace ptn::core::engine::detail {
       using new_case_type = std::decay_t<CaseExpr>;
 
       // Compile-time validation of the new case
-      ptn::core::common::
-          static_assert_valid_case<new_case_type, subject_type>();
+      ptn::core::common::static_assert_valid_case<new_case_type,
+                                                  subject_type>();
 
       // Concatenate existing cases with the new case
       auto new_cases = std::tuple_cat(
@@ -90,14 +111,13 @@ namespace ptn::core::engine::detail {
           std::tuple<new_case_type>(std::forward<CaseExpr>(expr)));
 
       // Create a new builder type with the additional case
-      using builder_t = match_builder<
-          subject_type,
-          HasMatchFallback,
-          Cases...,
-          new_case_type>;
+      using builder_t = match_builder<subject_type,
+                                      HasMatchFallback,
+                                      Cases...,
+                                      new_case_type>;
 
-      return builder_t{
-          std::forward<subject_type>(subject_), std::move(new_cases)};
+      return builder_t{std::forward<subject_type>(subject_),
+                       std::move(new_cases)};
     }
 
     // Terminal API: .otherwise(...)
@@ -124,9 +144,9 @@ namespace ptn::core::engine::detail {
         else {
           // Case 2: Callable - normalize to an object (wrap function
           // pointers/references)
-          if constexpr (
-              std::is_function_v<std::remove_pointer_t<OtherwiseDecayed>> ||
-              std::is_pointer_v<OtherwiseDecayed>) {
+          if constexpr (std::is_function_v<
+                            std::remove_pointer_t<OtherwiseDecayed>>
+                        || std::is_pointer_v<OtherwiseDecayed>) {
             auto fp = std::forward<Otherwise>(otherwise_handler);
             return [fp](auto &&...xs) -> decltype(auto) {
               return fp(std::forward<decltype(xs)>(xs)...);
@@ -139,10 +159,9 @@ namespace ptn::core::engine::detail {
       }();
 
       // Validate that the match expression is well-formed
-      ptn::core::common::static_assert_valid_match<
-          subject_type,
-          decltype(final_handler),
-          Cases...>();
+      ptn::core::common::static_assert_valid_match<subject_type,
+                                                   decltype(final_handler),
+                                                   Cases...>();
 
       // Determine the result type of the entire match expression
       using result_type = core::traits::
@@ -168,9 +187,8 @@ namespace ptn::core::engine::detail {
     // Terminal API: .end()
     // Evaluate an exhaustive match finalized by a pattern-level fallback (__).
     constexpr auto end() && {
-      ptn::core::common::static_assert_end_precondition<
-          has_pattern_fallback,
-          has_match_fallback>();
+      ptn::core::common::static_assert_end_precondition<has_pattern_fallback,
+                                                        has_match_fallback>();
 
       // Dummy fallback handler (logically unreachable because '__' exists)
       auto dummy_fallback =
@@ -184,14 +202,13 @@ namespace ptn::core::engine::detail {
           static_assert_valid_match<subject_type, dummy_handler_t, Cases...>();
 
       // Compute match result type (now won't be polluted by 'void')
-      using result_type =
-          core::traits::match_result_t<subject_type, dummy_handler_t, Cases...>;
+      using result_type = core::traits::
+          match_result_t<subject_type, dummy_handler_t, Cases...>;
 
       if constexpr (traits::is_void_like_v<result_type>) {
-        match_impl::eval<result_type>(
-            std::forward<subject_type>(subject_),
-            cases_,
-            std::move(dummy_fallback));
+        match_impl::eval<result_type>(std::forward<subject_type>(subject_),
+                                      cases_,
+                                      std::move(dummy_fallback));
       }
       else {
         return match_impl::eval<result_type>(
@@ -200,6 +217,16 @@ namespace ptn::core::engine::detail {
             std::move(dummy_fallback));
       }
     }
+
+    // Pipe API: match(x) | on{...}
+    template <typename... OnCases>
+    constexpr decltype(auto) operator|(core::dsl::ops::on<OnCases...> pack) && {
+      constexpr bool no_cases = sizeof...(Cases) == 0;
+      static_assert(no_cases,
+                    "[Patternia.match]: cannot use `| on{...}` after .when().");
+
+      return core::engine::match(subject_, std::move(pack));
+    }
   };
 } // namespace ptn::core::engine::detail
 
@@ -207,15 +234,13 @@ namespace ptn::core::engine::detail {
 namespace ptn::core::dsl::detail {
   template <typename... Cases>
   struct cases_pack;
-  template <typename... Cases>
-  struct when_pack;
 }
 
 namespace ptn::core::engine {
 
   template <typename TV, typename... Cases>
-  constexpr auto
-  match(TV &subject, core::dsl::detail::cases_pack<Cases...> pack) {
+  constexpr auto match(TV                                     &subject,
+                       core::dsl::detail::cases_pack<Cases...> pack) {
 
     using subject_ref_t = std::remove_reference_t<TV> &;
     using builder_t     = detail::match_builder<subject_ref_t, false, Cases...>;
@@ -223,11 +248,11 @@ namespace ptn::core::engine {
   }
 
   template <typename TV, typename... Cases>
-  constexpr decltype(auto)
-  match(TV &subject, core::dsl::detail::when_pack<Cases...> pack) {
-    using subject_ref_t = std::remove_reference_t<TV> &;
-    using subject_type_check =
-        ptn::core::common::subject_type_validator<subject_ref_t>;
+  constexpr decltype(auto) match(TV                                    &subject,
+                                 core::dsl::detail::when_pack<Cases...> pack) {
+    using subject_ref_t      = std::remove_reference_t<TV> &;
+    using subject_type_check = ptn::core::common::subject_type_validator<
+        subject_ref_t>;
 
     (void) sizeof(subject_type_check);
 
@@ -243,8 +268,8 @@ namespace ptn::core::engine {
     ptn::core::common::
         static_assert_valid_match<subject_ref_t, dummy_handler_t, Cases...>();
 
-    using result_type =
-        core::traits::match_result_t<subject_ref_t, dummy_handler_t, Cases...>;
+    using result_type = core::traits::
+        match_result_t<subject_ref_t, dummy_handler_t, Cases...>;
 
     auto cases = std::move(pack.cases);
 
@@ -256,6 +281,13 @@ namespace ptn::core::engine {
       return detail::match_impl::eval<result_type>(
           subject, cases, std::move(dummy_fallback));
     }
+  }
+
+  template <typename TV, typename... Cases>
+  constexpr decltype(auto) match(TV                          &subject,
+                                 core::dsl::ops::on<Cases...> pack) {
+    core::dsl::detail::when_pack<Cases...> when{std::move(pack.cases)};
+    return match(subject, std::move(when));
   }
 
 } // namespace ptn::core::engine
