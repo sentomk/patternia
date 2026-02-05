@@ -1,3 +1,5 @@
+#include "ptn/core/dsl/ops.hpp"
+#include "ptn/core/engine/match.hpp"
 #include "ptn/patternia.hpp"
 #include <iostream>
 #include <variant>
@@ -42,6 +44,21 @@ int main() {
                   is<int>() >> "Integer",
                   is<char>() >> "Character",
                   __ >> "Other"};
+
+  using X = int;
+  using Y = int;
+  using Z = int;
+
+  using Point = std::variant<X, Y, Z>;
+
+  Point p{std::in_place_index<0>, 42};
+
+  match(p)
+      | on{alt<0>(bind())[_ > 0] >>
+               [](auto v) { std::cout << "X: " << v << '\n'; },
+           alt<1>(bind()) >> [](auto v) { std::cout << "Y: " << v << '\n'; },
+           alt<2>(bind()) >> [](auto v) { std::cout << "Z: " << v << '\n'; },
+           __ >> [] { std::cout << "Other\n"; }};
 
   std::cout << res << '\n';
 }
