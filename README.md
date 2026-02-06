@@ -26,6 +26,11 @@
 
 **A header-only, zero-overhead pattern matching library for modern C++ that transforms branching logic into expressive, maintainable code.**
 
+## *Update*
+
+- **Variant matching is now supported (v0.7.x)** — including `type::is`, `type::as`, and `type::alt`.
+- **Planned change (v0.8.x)** — `match(x, cases(...))` will be removed. The new experimental DSL is tracked on the **[Experiment](https://patternia.tech/experiment/)** page.
+
 
 ## *Learn Patternia*
 

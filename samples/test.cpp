@@ -2,6 +2,7 @@
 #include "ptn/core/engine/match.hpp"
 #include "ptn/patternia.hpp"
 #include <iostream>
+#include <utility>
 #include <variant>
 #include <charconv>
 #include <string>
