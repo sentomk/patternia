@@ -12,7 +12,7 @@
         <meta name="author" content="Y.F. Guo">
       
       
-        <link rel="canonical" href="https://sentomk.github.io/patternia/experiment/experiment/">
+        <link rel="canonical" href="https://sentomk.github.io/patternia/changelog/v0.7.1/">
       
       
       
@@ -25,7 +25,7 @@
     
     
       
-        <title>Experiment - Patternia</title>
+        <title>Patternia v0.7.1 Release Note - Patternia</title>
       
     
     
@@ -77,6 +77,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#patternia-v071-release-note" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -106,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Experiment
+              Patternia v0.7.1 Release Note
             
           </span>
         </div>
@@ -291,7 +296,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../changelog/releases/" class="md-tabs__link">
+        <a href="../releases/" class="md-tabs__link">
           
   
   
@@ -309,7 +314,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../" class="md-tabs__link">
+      <a href="../../experiment/" class="md-tabs__link">
         
   
   
@@ -855,7 +860,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../changelog/releases/" class="md-nav__link">
+      <a href="../releases/" class="md-nav__link">
         
   
   
@@ -890,7 +895,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../experiment/" class="md-nav__link">
         
   
   
@@ -930,9 +935,52 @@
   
 
 
-  <h1>Experiment</h1>
-
-
+<h1 id="patternia-v071-release-note">Patternia v0.7.1 Release Note<a class="headerlink" href="#patternia-v071-release-note" title="Permanent link">&para;</a></h1>
+<p><strong>Release Date:</strong> February 6, 2026
+<strong>Version:</strong> 0.7.1</p>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Patternia v0.7.1 is a diagnostics-focused patch release. This version improves
+compile-time error readability and adds direct fix hints for common misuse
+cases. No runtime behavior or matching semantics changed.</p>
+<hr />
+<h2 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h2>
+<h3 id="clearer-static-assert-requirements">Clearer Static-Assert Requirements<a class="headerlink" href="#clearer-static-assert-requirements" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Replaced generic requirement names such as <code>ok</code> with semantic names
+  (for example <code>can_add_after_wildcard</code>, <code>alt_index_in_range</code>,
+  <code>pattern_has_bind_method</code>).</li>
+<li>Compiler diagnostics now expose more meaningful failed requirements.</li>
+</ul>
+<h3 id="actionable-error-hints">Actionable Error Hints<a class="headerlink" href="#actionable-error-hints" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Added concise <code>Tip:</code> guidance to key diagnostics in match builder validation.</li>
+<li>Improved guidance for wildcard placement, <code>.end()</code>/<code>.otherwise()</code> misuse,
+  and lvalue subject requirements.</li>
+</ul>
+<h3 id="variant-type-diagnostics">Variant Type Diagnostics<a class="headerlink" href="#variant-type-diagnostics" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Improved <code>type::is&lt;T&gt;()</code> not-found diagnostics with clearer wording and
+  concrete recovery guidance.</li>
+<li>Added explicit guidance for duplicate variant alternatives:
+  prefer <code>type::alt&lt;I&gt;()</code> or distinct wrapper types.</li>
+</ul>
+<hr />
+<h2 id="compatibility-notes">Compatibility Notes<a class="headerlink" href="#compatibility-notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Source compatibility: unchanged.</li>
+<li>API surface: unchanged.</li>
+<li>Behavior: unchanged (diagnostic wording only).</li>
+</ul>
+<hr />
+<h2 id="implementation-notes">Implementation Notes<a class="headerlink" href="#implementation-notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>include/ptn/core/common/diagnostics.hpp</code></li>
+<li>Requirement names made semantic.</li>
+<li>Several static-assert messages now include fix-oriented hints.</li>
+<li><code>include/ptn/pattern/type.hpp</code></li>
+<li><code>type::is&lt;T&gt;()</code> alternative lookup diagnostics refined.</li>
+</ul>
 
 
 
