@@ -48,6 +48,7 @@ namespace ptn::core::common {
         "[Patternia.match] At least one case's handler cannot be invoked with "
         "the arguments bound by its pattern. "
         "Please check the handler's signature against the pattern's expected "
+        "bindings. Tip: ensure handler parameter types match the pattern's "
         "bindings.");
 
     // (B) The otherwise handler must be callable with Subject or no args.
@@ -57,7 +58,7 @@ namespace ptn::core::common {
         otherwise_ok,
         "[Patternia.match] The `otherwise` handler has an invalid signature. "
         "It should be either callable with the subject value or callable with "
-        "no arguments.");
+        "no arguments. Tip: make it callable with Subject or with no args.");
 
     // (C) All handlers must share a common return type.
     using common_return_type = traits::
@@ -147,7 +148,8 @@ namespace ptn::core::common {
   struct subject_type_validator {
     static constexpr bool is_lvalue_ref = is_subject_type_valid_v<Subject>;
     static_assert(is_lvalue_ref,
-                  "[Patternia.match]: subject must be an lvalue reference");
+                  "[Patternia.match]: subject must be an lvalue reference. "
+                  "Tip: pass an lvalue (match(v)), not std::move(v).");
   };
 
   // Validates the preconditions for adding a new case via .when().
@@ -159,7 +161,8 @@ namespace ptn::core::common {
     constexpr bool can_add_after_wildcard = !HasPatternFallback;
     static_assert(
         can_add_after_wildcard,
-        "[Patternia.match.when]: cannot add cases after wildcard '__'.");
+        "[Patternia.match.when]: cannot add cases after wildcard '__'. "
+        "Tip: move '__' to the last case.");
   }
 
   // Validates the preconditions for calling .otherwise().
@@ -171,7 +174,8 @@ namespace ptn::core::common {
     constexpr bool no_wildcard_present = !HasPatternFallback;
     static_assert(no_wildcard_present,
                   "[Patternia.match.otherwise]: wildcard '__' already present. "
-                  "Use .end() instead.");
+                  "Use .end() instead. Tip: remove .otherwise() when '__' is "
+                  "present.");
   }
 
   // Validates the preconditions for calling .end().
@@ -184,12 +188,14 @@ namespace ptn::core::common {
     constexpr bool has_fallback = HasPatternFallback;
     static_assert(has_fallback,
                   "[Patternia.match.end]: missing wildcard '__'. "
-                  "Use .otherwise(...) for non-exhaustive matches.");
+                  "Use .otherwise(...) for non-exhaustive matches. Tip: add "
+                  "a '__' case before calling .end().");
 
     // (B) .end() cannot follow .otherwise().
     constexpr bool no_match_fallback = !HasMatchFallback;
     static_assert(no_match_fallback,
-                  "[Patternia.match.end]: cannot be used after .otherwise().");
+                  "[Patternia.match.end]: cannot be used after .otherwise(). "
+                  "Tip: remove .otherwise() when using .end().");
   }
 
   // Validates that cases(...) only uses non-binding patterns.
@@ -207,7 +213,8 @@ namespace ptn::core::common {
     // (B) Wildcard must be last in cases(...).
     constexpr bool fallback_last = detail::fallback_is_last<Cases...>::value;
     static_assert(fallback_last,
-                  "[Patternia.cases]: wildcard '__' must be the last case.");
+                  "[Patternia.cases]: wildcard '__' must be the last case. "
+                  "Tip: move '__' to the end.");
   }
 
   // ------------------------------------------------------------
@@ -365,7 +372,8 @@ namespace ptn::core::common {
     static_assert(
         alt_appears_once,
         "[Patternia.type::is]: Alternative type must appear exactly once in "
-        "std::variant.");
+        "std::variant. Tip: use type::alt<I>() for duplicate types, or wrap "
+        "types in distinct structs.");
   }
 
   // Ensures index I is within the variant's alternative range.
@@ -377,7 +385,8 @@ namespace ptn::core::common {
     // (A) Alternative index must be in range.
     constexpr bool alt_index_in_range = I < std::variant_size_v<subject_t>;
     static_assert(alt_index_in_range,
-                  "[Patternia.type::alt]: Alternative index is out of range.");
+                  "[Patternia.type::alt]: Alternative index is out of range. "
+                  "Tip: valid indices are [0, variant_size-1].");
   }
 
 } // namespace ptn::core::common

@@ -59,9 +59,11 @@ namespace ptn::pat::type {
         using args_t    = typename meta::template_info<subject_t>::args;
         // Map alternative type to its variant index using meta type_list.
         constexpr int idx = meta::index_of_v<alt_t, args_t>;
-        static_assert(idx >= 0,
+        constexpr bool alt_type_found = (idx >= 0);
+        static_assert(alt_type_found,
                       "[Patternia.type::is]: Alternative type not found in "
-                      "std::variant.");
+                      "std::variant. Tip: ensure the variant lists T, or use "
+                      "type::alt<I>() to match by index.");
         return static_cast<std::size_t>(idx);
       }
 
