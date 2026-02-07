@@ -79,6 +79,9 @@ namespace ptn::core::engine::detail {
           has_pattern_fallback>();
 
       using new_case_type = std::decay_t<CaseExpr>;
+      ptn::core::common::static_assert_no_duplicate_plain_alt_case<
+          Cases...,
+          new_case_type>();
 
       // Compile-time validation of the new case
       ptn::core::common::

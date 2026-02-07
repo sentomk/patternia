@@ -15,6 +15,13 @@
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/pattern/base/pattern_traits.hpp"
 
+namespace ptn::pat::type::detail {
+  struct no_subpattern;
+
+  template <std::size_t I, typename SubPattern>
+  struct type_alt_pattern;
+} // namespace ptn::pat::type::detail
+
 namespace ptn::core::common {
 
   // ------------------------------------------------------------
@@ -123,14 +130,61 @@ namespace ptn::core::common {
 
   // Detects unreachable cases in pattern matching (placeholder for future
   // implementation).
+  namespace detail {
+    inline constexpr std::size_t plain_alt_npos = static_cast<std::size_t>(-1);
+
+    template <typename Pattern>
+    struct plain_alt_pattern_index
+        : std::integral_constant<std::size_t, plain_alt_npos> {};
+
+    template <std::size_t I>
+    struct plain_alt_pattern_index<ptn::pat::type::detail::type_alt_pattern<
+        I,
+        ptn::pat::type::detail::no_subpattern>>
+        : std::integral_constant<std::size_t, I> {};
+
+    template <typename Case>
+    inline constexpr std::size_t plain_alt_case_index_v =
+        plain_alt_pattern_index<ptn::core::traits::case_pattern_t<Case>>::value;
+
+    template <std::size_t I, typename... Cases>
+    inline constexpr bool contains_plain_alt_index_v =
+        ((plain_alt_case_index_v<Cases> == I) || ...);
+
+    template <typename... Cases>
+    struct has_duplicate_plain_alt_case : std::false_type {};
+
+    template <typename First, typename... Rest>
+    struct has_duplicate_plain_alt_case<First, Rest...>
+        : std::bool_constant<
+              ((plain_alt_case_index_v<First> != plain_alt_npos) &&
+               contains_plain_alt_index_v<plain_alt_case_index_v<First>, Rest...>) ||
+              has_duplicate_plain_alt_case<Rest...>::value> {};
+  } // namespace detail
+
   template <typename... Cases>
   struct has_unreachable_case
-      : std::bool_constant<!detail::fallback_is_last<Cases...>::value> {};
+      : std::bool_constant<
+            !detail::fallback_is_last<Cases...>::value ||
+            detail::has_duplicate_plain_alt_case<Cases...>::value> {};
 
   // Convenience variable template for unreachable case detection.
   template <typename... Cases>
   inline constexpr bool
       has_unreachable_case_v = has_unreachable_case<Cases...>::value;
+
+  // Emits diagnostic for deterministic unreachable duplicate plain alt<I>()
+  // cases. This intentionally ignores guarded and subpattern variants.
+  template <typename... Cases>
+  constexpr void static_assert_no_duplicate_plain_alt_case() {
+    constexpr bool no_duplicate_plain_alt_case =
+        !detail::has_duplicate_plain_alt_case<Cases...>::value;
+    static_assert(
+        no_duplicate_plain_alt_case,
+        "[Patternia.type::alt]: duplicate unguarded type::alt<I>() cases "
+        "make later cases unreachable. Tip: remove the duplicate case, or "
+        "attach a guard/subpattern.");
+  }
 
   // ------------------------------------------------------------
   // Builder API Validation
