@@ -56,7 +56,7 @@ namespace ptn::core::dsl::ops {
   constexpr auto cases(CaseExprs &&...exprs) {
     ptn::core::common::static_assert_cases_are_case_expr<
         std::decay_t<CaseExprs>...>();
-    ptn::core::common::static_assert_no_duplicate_plain_alt_case<
+    ptn::core::common::static_assert_no_unreachable_alt_after_plain_alt<
         std::decay_t<CaseExprs>...>();
     ptn::core::common::static_assert_cases_precondition<
         std::decay_t<CaseExprs>...>();
