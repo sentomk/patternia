@@ -22,6 +22,11 @@ namespace ptn::pat::type::detail {
   struct type_alt_pattern;
 } // namespace ptn::pat::type::detail
 
+namespace ptn::pat::mod {
+  template <typename Inner, typename Pred>
+  struct guarded_pattern;
+} // namespace ptn::pat::mod
+
 namespace ptn::core::common {
 
   // ------------------------------------------------------------
@@ -128,14 +133,25 @@ namespace ptn::core::common {
                              fallback_is_last<Next, Rest...>> {};
   } // namespace detail
 
-  // Detects unreachable cases in pattern matching (placeholder for future
-  // implementation).
+  // Detects unreachable cases in pattern matching.
   namespace detail {
-    inline constexpr std::size_t plain_alt_npos = static_cast<std::size_t>(-1);
+    inline constexpr std::size_t alt_npos = static_cast<std::size_t>(-1);
+
+    template <typename Pattern>
+    struct alt_pattern_index : std::integral_constant<std::size_t, alt_npos> {};
+
+    template <std::size_t I, typename SubPattern>
+    struct alt_pattern_index<ptn::pat::type::detail::type_alt_pattern<
+        I,
+        SubPattern>> : std::integral_constant<std::size_t, I> {};
+
+    template <typename Inner, typename Pred>
+    struct alt_pattern_index<ptn::pat::mod::guarded_pattern<Inner, Pred>>
+        : alt_pattern_index<Inner> {};
 
     template <typename Pattern>
     struct plain_alt_pattern_index
-        : std::integral_constant<std::size_t, plain_alt_npos> {};
+        : std::integral_constant<std::size_t, alt_npos> {};
 
     template <std::size_t I>
     struct plain_alt_pattern_index<ptn::pat::type::detail::type_alt_pattern<
@@ -144,46 +160,132 @@ namespace ptn::core::common {
         : std::integral_constant<std::size_t, I> {};
 
     template <typename Case>
+    inline constexpr std::size_t alt_case_index_v =
+        alt_pattern_index<ptn::core::traits::case_pattern_t<Case>>::value;
+
+    template <typename Case>
     inline constexpr std::size_t plain_alt_case_index_v =
         plain_alt_pattern_index<ptn::core::traits::case_pattern_t<Case>>::value;
 
-    template <std::size_t I, typename... Cases>
-    inline constexpr bool contains_plain_alt_index_v =
-        ((plain_alt_case_index_v<Cases> == I) || ...);
+    template <std::size_t... Is>
+    struct alt_index_set {};
+
+    template <std::size_t I, typename Set>
+    struct alt_index_set_contains;
+
+    template <std::size_t I, std::size_t... Is>
+    struct alt_index_set_contains<I, alt_index_set<Is...>>
+        : std::bool_constant<((I == Is) || ...)> {};
+
+    template <std::size_t I, typename Set>
+    struct alt_index_set_insert;
+
+    template <std::size_t I, std::size_t... Is>
+    struct alt_index_set_insert<I, alt_index_set<Is...>> {
+      using type = std::conditional_t<
+          alt_index_set_contains<I, alt_index_set<Is...>>::value,
+          alt_index_set<Is...>,
+          alt_index_set<Is..., I>>;
+    };
+
+    template <typename CoveredSet, typename... Cases>
+    struct has_unreachable_alt_after_plain_alt_from : std::false_type {};
+
+    template <std::size_t... Covered, typename First, typename... Rest>
+    struct has_unreachable_alt_after_plain_alt_from<
+        alt_index_set<Covered...>,
+        First,
+        Rest...>
+        : std::bool_constant<
+              (((alt_case_index_v<First> != alt_npos) &&
+                alt_index_set_contains<
+                    alt_case_index_v<First>,
+                    alt_index_set<Covered...>>::value)) ||
+              has_unreachable_alt_after_plain_alt_from<
+                  std::conditional_t<
+                      (plain_alt_case_index_v<First> == alt_npos),
+                      alt_index_set<Covered...>,
+                      typename alt_index_set_insert<
+                          plain_alt_case_index_v<First>,
+                          alt_index_set<Covered...>>::type>,
+                  Rest...>::value> {};
 
     template <typename... Cases>
-    struct has_duplicate_plain_alt_case : std::false_type {};
+    struct has_unreachable_alt_after_plain_alt
+        : has_unreachable_alt_after_plain_alt_from<alt_index_set<>, Cases...> {};
 
-    template <typename First, typename... Rest>
-    struct has_duplicate_plain_alt_case<First, Rest...>
+    template <typename CoveredSet, typename... Cases>
+    struct is_tail_case_unreachable_after_plain_alt : std::false_type {};
+
+    template <typename CoveredSet, typename Last>
+    struct is_tail_case_unreachable_after_plain_alt<CoveredSet, Last>
         : std::bool_constant<
-              ((plain_alt_case_index_v<First> != plain_alt_npos) &&
-               contains_plain_alt_index_v<plain_alt_case_index_v<First>, Rest...>) ||
-              has_duplicate_plain_alt_case<Rest...>::value> {};
+              ((alt_case_index_v<Last> != alt_npos) &&
+               alt_index_set_contains<
+                   alt_case_index_v<Last>,
+                   CoveredSet>::value)> {};
+
+    template <
+        std::size_t... Covered,
+        typename First,
+        typename Next,
+        typename... Rest>
+    struct is_tail_case_unreachable_after_plain_alt<
+        alt_index_set<Covered...>,
+        First,
+        Next,
+        Rest...>
+        : is_tail_case_unreachable_after_plain_alt<
+              std::conditional_t<
+                  (plain_alt_case_index_v<First> == alt_npos),
+                  alt_index_set<Covered...>,
+                  typename alt_index_set_insert<
+                      plain_alt_case_index_v<First>,
+                      alt_index_set<Covered...>>::type>,
+              Next,
+              Rest...> {};
+
+    template <typename... Cases>
+    struct is_new_case_unreachable_after_plain_alt
+        : is_tail_case_unreachable_after_plain_alt<alt_index_set<>, Cases...> {
+    };
   } // namespace detail
 
   template <typename... Cases>
   struct has_unreachable_case
       : std::bool_constant<
             !detail::fallback_is_last<Cases...>::value ||
-            detail::has_duplicate_plain_alt_case<Cases...>::value> {};
+            detail::has_unreachable_alt_after_plain_alt<Cases...>::value> {};
 
   // Convenience variable template for unreachable case detection.
   template <typename... Cases>
   inline constexpr bool
       has_unreachable_case_v = has_unreachable_case<Cases...>::value;
 
-  // Emits diagnostic for deterministic unreachable duplicate plain alt<I>()
-  // cases. This intentionally ignores guarded and subpattern variants.
+  // Emits diagnostic for deterministic unreachable alt<I>(...) cases caused by
+  // an earlier plain alt<I>() that already covers the same alternative.
   template <typename... Cases>
-  constexpr void static_assert_no_duplicate_plain_alt_case() {
-    constexpr bool no_duplicate_plain_alt_case =
-        !detail::has_duplicate_plain_alt_case<Cases...>::value;
+  constexpr void static_assert_no_unreachable_alt_after_plain_alt() {
+    constexpr bool no_unreachable_alt_after_plain_alt =
+        !detail::has_unreachable_alt_after_plain_alt<Cases...>::value;
     static_assert(
-        no_duplicate_plain_alt_case,
-        "[Patternia.type::alt]: duplicate unguarded type::alt<I>() cases "
-        "make later cases unreachable. Tip: remove the duplicate case, or "
-        "attach a guard/subpattern.");
+        no_unreachable_alt_after_plain_alt,
+        "[Patternia.type::alt]: case is unreachable because an earlier "
+        "plain type::alt<I>() already covers this alternative. Tip: remove "
+        "the later alt<I>(...) case, or reorder cases.");
+  }
+
+  // Emits diagnostic only for the newly appended case in builder .when(...),
+  // to avoid cascading errors on subsequent chained cases.
+  template <typename... Cases>
+  constexpr void static_assert_new_case_reachable_after_plain_alt() {
+    constexpr bool new_case_reachable =
+        !detail::is_new_case_unreachable_after_plain_alt<Cases...>::value;
+    static_assert(
+        new_case_reachable,
+        "[Patternia.type::alt]: case is unreachable because an earlier "
+        "plain type::alt<I>() already covers this alternative. Tip: remove "
+        "the later alt<I>(...) case, or reorder cases.");
   }
 
   // ------------------------------------------------------------
