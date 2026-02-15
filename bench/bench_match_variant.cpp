@@ -64,23 +64,29 @@ namespace {
   static int patternia_packet_route(const Packet &pkt) {
     using namespace ptn;
 
-    auto is_valid_payload = [&pkt](const std::vector<std::uint8_t> &payload) {
-      return pkt.type == 0x02 && pkt.length == payload.size() &&
-             (pkt.flags & FLAG_VALID);
+    auto is_ping_packet = [](std::uint8_t type, std::uint16_t length) {
+      return type == 0x01 && length == 0;
     };
 
-    auto is_error_packet = [](std::uint8_t                     type,
-                              const std::vector<std::uint8_t> &payload) {
-      return type == 0xFF && !payload.empty();
+    auto is_valid_data_packet = [&pkt](
+                                    std::uint8_t  type,
+                                    std::uint16_t length,
+                                    std::uint8_t  flags) {
+      return type == 0x02 && length == pkt.payload.size() &&
+             (flags & FLAG_VALID);
+    };
+
+    auto is_error_packet = [&pkt](std::uint8_t type) {
+      return type == 0xFF && !pkt.payload.empty();
     };
 
     return match(pkt)
+        .when(bind(has<&Packet::type, &Packet::length>())[is_ping_packet] >> 1)
         .when(
-            bind(has<&Packet::type, &Packet::length>())[arg<0> == 0x01 &&
-                                                        arg<1> == 0]
-            >> 1)
-        .when(bind(has<&Packet::payload>())[is_valid_payload] >> 2)
-        .when(bind(has<&Packet::type, &Packet::payload>())[is_error_packet] >> 3)
+            bind(has<&Packet::type, &Packet::length, &Packet::flags>())[
+                is_valid_data_packet]
+            >> 2)
+        .when(bind(has<&Packet::type>())[is_error_packet] >> 3)
         .otherwise(0);
   }
 
