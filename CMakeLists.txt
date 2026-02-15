@@ -178,31 +178,10 @@ if(PTN_BUILD_TESTS)
   endif()
 endif()
 
-# # ========== Benchmarks (optional, master default ON) ==========
-# if(PTN_BUILD_BENCHMARKS)
-# include(FetchContent)
-# find_package(Threads REQUIRED)
-# set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
-# set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "" FORCE)
+if(PTN_BUILD_BENCHMARKS)
+  add_subdirectory(bench)
+endif()
 
-# FetchContent_Declare(
-# benchmark
-# GIT_REPOSITORY https://github.com/google/benchmark.git
-# GIT_TAG v1.9.4
-# )
-# FetchContent_MakeAvailable(benchmark)
-
-# add_executable(bench_patternia
-# benchmarks/bench_main.cpp
-# benchmarks/bench_patternia.cpp
-# )
-# target_link_libraries(bench_patternia PRIVATE
-# patternia
-# benchmark::benchmark
-# Threads::Threads
-# )
-# target_compile_options(bench_patternia PRIVATE -O3 -march=native)
-# endif()
 add_executable(sample_fibo
   samples/fibo.cpp
 )
