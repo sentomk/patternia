@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "ptn//pattern/modifiers/fwd.h"
+#include "ptn/pattern/modifiers/fwd.h"
 #include "ptn/pattern/base/pattern_base.hpp"
 
 namespace ptn::pat::traits {
