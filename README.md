@@ -287,6 +287,70 @@ int classify(int x) {
 
 For complete installation instructions, comprehensive examples, and in-depth tutorials, visit the **[Getting Started Guide](https://sentomk.github.io/patternia/guide/getting-started/)**.
 
+## *Testing*
+
+### Build Tests
+
+```bash
+cmake -S . -B build -DPTN_BUILD_TESTS=ON
+cmake --build build --target ptn_tests
+```
+
+### Run Runtime Tests (GoogleTest)
+
+```bash
+./build/tests/ptn_tests
+```
+
+On Windows (PowerShell):
+
+```powershell
+.\build\tests\ptn_tests.exe
+```
+
+### Test Case Coverage
+
+Runtime tests (`ptn_tests`):
+
+- `LiteralPattern.LitMatchesExpectedValue`: verifies `lit(...)` exact-match branch selection.
+- `LiteralPattern.LitOtherwiseFallback`: verifies fallback when no literal case matches.
+- `LiteralPattern.LitCiMatchesAsciiCaseInsensitive`: verifies `lit_ci(...)` ASCII case-insensitive matching.
+- `MatchFlow.OtherwiseCallableWithSubject`: verifies `.otherwise(...)` callable can receive subject.
+- `MatchFlow.WildcardEndFlow`: verifies wildcard `__` + `.end()` terminal flow.
+- `MatchFlow.SubjectBindsAsLvalue`: regression check that subject binding stays on lvalue path.
+- `TypePattern.TypeIsAndTypeAs`: verifies `type::is<T>()` and `type::as<T>()` dispatch for `std::variant`.
+- `TypePattern.AltByIndex`: verifies `alt<I>()` index-based variant dispatch.
+- `Guard.UnaryPlaceholderPredicate`: verifies unary guard expressions with `_`.
+- `Guard.RangeHelperModes`: verifies range helper behavior (`rng`) across interval modes.
+- `Guard.MultiArgExpressionPredicate`: verifies tuple guard expressions using `arg<N>`.
+- `Guard.MultiArgCallablePredicate`: verifies callable multi-argument guard predicates.
+- `TerminalSemantics.OtherwiseUsedWhenNoCaseMatches`: verifies fallback executes when all cases fail.
+- `TerminalSemantics.OtherwiseNotInvokedOnMatch`: verifies fallback is skipped on matched branch.
+- `TerminalSemantics.EndWithWildcardReturnsFallbackCase`: verifies wildcard fallback result under `.end()`.
+- `TerminalSemantics.FirstMatchingCaseWins`: verifies first-match-wins evaluation order.
+
+Compile-fail tests (`ctest -R compile_fail`):
+
+- `compile_fail.otherwise_with_wildcard`: rejects `.otherwise(...)` when wildcard `__` is already present.
+- `compile_fail.end_without_wildcard`: rejects `.end()` without wildcard fallback.
+- `compile_fail.case_after_wildcard`: rejects adding `.when(...)` after wildcard case.
+- `compile_fail.cases_with_binding`: rejects binding patterns inside `cases(...)`.
+- `compile_fail.cases_with_guard`: rejects guard-attached binding patterns inside `cases(...)`.
+
+### Run Compile-Fail Tests (CTest)
+
+These tests are expected to fail compilation, and pass only when the failure
+is correctly detected.
+
+```bash
+ctest --test-dir build -R compile_fail --output-on-failure
+```
+
+### Run All Tests Through CTest
+
+```bash
+ctest --test-dir build --output-on-failure
+```
 
 ## *API Reference*
 
