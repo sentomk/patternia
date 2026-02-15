@@ -116,14 +116,14 @@ namespace ptn::core::common {
   //   handler( pattern.bind(subject)... )
   //   The subject itself is not passed as an extra first argument
   template <typename Case, typename Subject>
-  constexpr decltype(auto) invoke_handler(const Case &c, Subject &&subject) {
+  constexpr decltype(auto) invoke_handler(const Case &c, Subject &subject) {
     using pattern_type = traits::case_pattern_t<Case>;
 
     ptn::core::common::static_assert_pattern_has_bind<
-        detail::has_bind_member_v<pattern_type, Subject>>();
+        detail::has_bind_member_v<pattern_type, Subject &>>();
 
     // Extract bound values from the pattern
-    auto bound_values = c.pattern.bind(std::forward<Subject>(subject));
+    auto bound_values = c.pattern.bind(subject);
     return detail::invoke_from_tuple(c.handler, bound_values);
   }
 
@@ -153,7 +153,7 @@ namespace ptn::core::common {
 
         if (case_matcher<case_t, Subject>::matches(current_case, subject)) {
           // Found a match, invoke its handler
-          return invoke_handler(current_case, std::forward<Subject>(subject));
+          return invoke_handler(current_case, subject);
         }
         else {
           // Try the next case
@@ -226,8 +226,7 @@ namespace ptn::core::common {
         using case_t       = std::remove_reference_t<decltype(current_case)>;
 
         if (case_matcher<case_t, Subject>::matches(current_case, subject)) {
-          return static_cast<Result>(
-              invoke_handler(current_case, std::forward<Subject>(subject)));
+          return static_cast<Result>(invoke_handler(current_case, subject));
         }
         else {
           return eval_cases_impl_typed<I + 1, Result>(
