@@ -111,7 +111,7 @@ namespace ptn::core::common {
   template <typename Pattern, typename Subject>
   constexpr void static_assert_valid_pattern() {
     // (A) Provided type must satisfy Patternia's pattern contract.
-    constexpr bool is_pattern_type = ptn::pat::base::is_pattern_v<Pattern>;
+    constexpr bool is_pattern_type = ptn::pat::traits::is_pattern_v<Pattern>;
     static_assert(
         is_pattern_type,
         "[Patternia.match] The provided type is not a valid pattern. "

@@ -6,22 +6,12 @@
 // pattern that enables chaining .when() clauses in pattern matching
 // expressions.
 //
-// Internally, it is an alias to `ptn::core::detail::match_builder`.
+// Internally, it is an alias to `ptn::core::engine::detail::match_builder`.
 
 // Pull in the implementation
 #include "ptn/core/engine/detail/builder_impl.hpp"
 
 namespace ptn::core {
-
-  namespace detail {
-
-    // Forward declaration of the concrete builder implementation.
-    // TV    : subject type
-    // Cases : sequence of case_expr-like types
-    template <typename TV, bool HasMatchFallback, typename... Cases>
-    class match_builder;
-
-  } // namespace detail
 
   // Public alias forwarding to the actual implementation.
   // This type enables the fluent builder pattern for pattern matching:

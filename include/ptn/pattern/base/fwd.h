@@ -24,29 +24,4 @@ namespace ptn::pat::base {
   template <typename Derived>
   struct binding_pattern_base;
 
-  // has_match_method
-  template <typename P, typename = void>
-  struct has_match_method;
-
-  template <typename P>
-  inline constexpr bool has_match_method_v = has_match_method<P>::value;
-
-  // has_bind_method
-  template <typename P, typename = void>
-  struct has_bind_method;
-
-  template <typename P>
-  inline constexpr bool has_bind_method_v = has_bind_method<P>::value;
-
-  // is_pattern
-  template <typename P>
-  struct is_pattern;
-
-  template <typename P>
-  inline constexpr bool is_pattern_v = is_pattern<P>::value;
-
-  // pattern_category
-  template <typename P, typename = void>
-  struct pattern_category;
-
 } // namespace ptn::pat::base

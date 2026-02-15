@@ -10,9 +10,6 @@ namespace ptn::pat::mod {
   template <typename Inner, typename Pred>
   struct guarded_pattern;
 
-  // Guard predicate tag - forward declaration for traits
-  struct guard_predicate_tag;
-
   // Forward declare tuple predicate and related types
   template <typename Expr>
   struct tuple_predicate;
@@ -22,13 +19,6 @@ namespace ptn::pat::mod {
 
   template <typename L, typename R>
   struct pred_or;
-
-  // Forward declare guard predicate detection traits
-  template <typename T>
-  struct is_tuple_predicate;
-
-  template <typename T>
-  struct is_tuple_guard_predicate;
 
   // Forward declare expression template types
   template <std::size_t I>
@@ -42,10 +32,6 @@ namespace ptn::pat::mod {
 
   template <typename Op, typename X>
   struct un_expr;
-
-  // Forward declare expression traits
-  template <typename T>
-  struct is_arg_expr;
 
   // Forward declare max argument index traits
   template <typename E>

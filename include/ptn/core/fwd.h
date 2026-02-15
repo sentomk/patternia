@@ -7,54 +7,25 @@
 
 namespace ptn {
 
-  // Public API Functions
-
-  /// Primary match function for single-target pattern matching
-  template <typename T>
-  constexpr auto match(T &&);
-
-  /// Match function with explicit result type specification
-  template <typename U, typename T>
-  constexpr auto match(T &&);
-
-  namespace core {
-    /// Public-facing match builder class for fluent pattern matching
-    template <typename TV, typename... Cases>
-    class match_builder;
-  }
-
-  // Core Internal Components
-
-  namespace core::engine::detail {
-    /// Internal implementation of match builder
-    template <typename TV, typename... Cases>
-    class match_builder;
-  }
-
   namespace core::dsl::detail {
-    /// Internal case expression structure for DSL operations
     template <typename Pattern, typename Handler>
     struct case_expr;
-  }
+    template <typename... Cases>
+    struct cases_pack;
+  } // namespace core::dsl::detail
 
-  // Common Traits (Forward Declarations)
+  namespace core::engine::detail {
+    template <typename TV, bool HasMatchFallback, typename... Cases>
+    class match_builder;
+  } // namespace core::engine::detail
 
-  namespace core::common {
+  namespace core::engine {
+    template <typename TV, typename... Cases>
+    constexpr auto match(TV &subject, core::dsl::detail::cases_pack<Cases...>);
+  } // namespace core::engine
 
-    /// Type trait to detect if a type satisfies pattern requirements
-    /// C++17 SFINAE fallback for `pattern_like` concept
-    template <typename P, typename = void>
-    struct is_pattern;
-
-    /// Convenience variable template for is_pattern trait
-    template <typename P>
-    inline constexpr bool is_pattern_v = is_pattern<P>::value;
-
-    /// Core binding trait for extracting bound variables from patterns
-    /// Primary template - specializations should be provided in pattern headers
-    template <typename Pattern, typename Subject>
-    struct binding_args;
-
-  } // namespace core::common
+  // Public API match entry.
+  template <typename T>
+  constexpr auto match(T &value);
 
 } // namespace ptn
