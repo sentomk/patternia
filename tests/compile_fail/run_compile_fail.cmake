@@ -21,8 +21,40 @@ endif()
 get_filename_component(_obj_dir "${OBJECT_FILE}" DIRECTORY)
 file(MAKE_DIRECTORY "${_obj_dir}")
 
+set(_is_msvc_style FALSE)
+if(DEFINED CXX_COMPILER_ID AND CXX_COMPILER_ID STREQUAL "MSVC")
+  set(_is_msvc_style TRUE)
+elseif(DEFINED CXX_SIMULATE_ID AND CXX_SIMULATE_ID STREQUAL "MSVC")
+  set(_is_msvc_style TRUE)
+elseif(CXX_COMPILER MATCHES "([/\\\\]|^)(cl|clang-cl)(\\.exe)?$")
+  set(_is_msvc_style TRUE)
+endif()
+
+if(_is_msvc_style)
+  if(CXX_STANDARD GREATER_EQUAL 23)
+    set(_std_flag "/std:c++latest")
+  else()
+    set(_std_flag "/std:c++${CXX_STANDARD}")
+  endif()
+
+  set(_compile_args
+    "/nologo"
+    "${_std_flag}"
+    "/I${INCLUDE_DIR}"
+    "/c" "${SOURCE_FILE}"
+    "/Fo${OBJECT_FILE}"
+  )
+else()
+  set(_compile_args
+    "-std=c++${CXX_STANDARD}"
+    "-I${INCLUDE_DIR}"
+    "-c" "${SOURCE_FILE}"
+    "-o" "${OBJECT_FILE}"
+  )
+endif()
+
 execute_process(
-  COMMAND "${CXX_COMPILER}" "-std=c++${CXX_STANDARD}" "-I${INCLUDE_DIR}" "-c" "${SOURCE_FILE}" "-o" "${OBJECT_FILE}"
+  COMMAND "${CXX_COMPILER}" ${_compile_args}
   RESULT_VARIABLE _rv
   OUTPUT_VARIABLE _out
   ERROR_VARIABLE _err
