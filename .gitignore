@@ -97,6 +97,8 @@ cmake/patternia_dummy.cc
 
 # ===== Patternia documentation build =====
 
-# python virtual environment
-.venv-win
-scripts/
+# ===== Python virtual environment =====
+.venv
+
+# Local benchmark staging outputs
+bench/results/
