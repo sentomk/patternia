@@ -33,10 +33,10 @@ namespace ptn::pat {
         return true;
       }
 
-      // Binds subject itself as a tuple<Subject>.
+      // Binds subject itself as a tuple<const Subject&>.
       template <typename Subject>
       constexpr auto bind(const Subject &subject) const {
-        return std::tuple<Subject>(subject);
+        return std::forward_as_tuple(subject);
       }
     };
 
@@ -61,11 +61,11 @@ namespace ptn::pat {
         return subpattern.match(subject);
       }
 
-      // Binds the subject itself plus the sub-pattern's binding values.
+      // Binds the subject itself by reference plus sub-pattern bindings.
       template <typename Subject>
       constexpr auto bind(const Subject &subject) const {
         return std::tuple_cat(
-            std::tuple<Subject>(subject), subpattern.bind(subject));
+            std::forward_as_tuple(subject), subpattern.bind(subject));
       }
     };
 
@@ -109,8 +109,7 @@ namespace ptn::pat {
       template <auto M, typename Subject>
       static constexpr auto bind_one(const Subject &subject) {
         if constexpr (std::is_member_object_pointer_v<decltype(M)>) {
-          using field_t = std::decay_t<decltype(subject.*M)>;
-          return std::tuple<field_t>{static_cast<field_t>(subject.*M)};
+          return std::forward_as_tuple(subject.*M);
         }
         else {
           // nullptr placeholder (_ign) -> ignored
@@ -162,7 +161,7 @@ namespace ptn::pat::base {
   // binding_pattern binds 1 value: Subject.
   template <typename Subject>
   struct binding_args<pat::detail::binding_pattern, Subject> {
-    using type = std::tuple<Subject>;
+    using type = std::tuple<const std::remove_reference_t<Subject> &>;
   };
 
   // binding_as_pattern binds:
@@ -172,7 +171,7 @@ namespace ptn::pat::base {
       pat::detail::binding_as_pattern<Tag, SubPattern>,
       Subject> {
     using type = decltype(std::tuple_cat(
-        std::tuple<Subject>{},
+        std::tuple<const std::remove_reference_t<Subject> &>{},
         typename binding_args<SubPattern, Subject>::type{}));
   };
 

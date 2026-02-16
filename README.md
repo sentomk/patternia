@@ -28,6 +28,7 @@
 
 ## *Update*
 
+- **Performance-focused update (v0.7.3)** — binding paths now avoid unnecessary copies via reference-oriented `bind(...)`, with heavy-bind benchmarks and comparison tooling for regression tracking.
 - **Variant matching is now supported (v0.7.x)** — including `type::is`, `type::as`, and `type::alt`.
 - **Planned change (v0.8.x)** — `match(x, cases(...))` will be removed.
 
@@ -351,6 +352,39 @@ ctest --test-dir build -R compile_fail --output-on-failure
 ```bash
 ctest --test-dir build --output-on-failure
 ```
+
+## *Benchmarking (v0.7.3)*
+
+Patternia v0.7.3 adds a dedicated heavy-binding benchmark path to make
+`bind(...)` copy-cost regressions easy to detect.
+
+### Heavy-Bind Principle
+
+- `BM_Patternia_PacketMixed` measures the common/light packet-matching path.
+- `BM_Patternia_PacketMixedHeavyBind` intentionally binds large `payload`
+  fields through `bind(has<&Packet::payload ...>)` so copy/reference binding
+  differences are amplified and measurable.
+- Compare against `BM_Switch_PacketMixedHeavyBind` for a low-level baseline.
+
+### Reproducible Compare Workflow
+
+```powershell
+# 1) Stage two result.json files into standard local locations
+py -3 scripts/bench_stage_results.py `
+  --baseline "F:/code-backup/patternia/build/bench/result.json" `
+  --current "F:/code/patternia/build/bench/result.json"
+
+# 2) Render comparison chart + report (defaults to staged files)
+py -3 scripts/bench_compare.py `
+  --include "PacketMixedHeavyBind" `
+  --label-baseline "backup" `
+  --label-current "current" `
+  --prefix "packet_heavy"
+```
+
+### v0.7.3 Heavy-Bind Compare Snapshot
+
+![Patternia v0.7.3 Heavy Bind Benchmark](docs/assets/bench/v0.7.3-heavybind-compare.png)
 
 ## *API Reference*
 
