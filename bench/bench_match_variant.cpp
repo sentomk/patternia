@@ -52,12 +52,12 @@ namespace {
 
   static int switch_index_variant_route(const V &v) {
     switch (v.index()) {
-      case 0:
-        return 1;
-      case 1:
-        return 2;
-      default:
-        return 0;
+    case 0:
+      return 1;
+    case 1:
+      return 2;
+    default:
+      return 0;
     }
   }
 
@@ -68,13 +68,11 @@ namespace {
       return type == 0x01 && length == 0;
     };
 
-    auto is_valid_data_packet = [&pkt](
-                                    std::uint8_t  type,
-                                    std::uint16_t length,
-                                    std::uint8_t  flags) {
-      return type == 0x02 && length == pkt.payload.size() &&
-             (flags & FLAG_VALID);
-    };
+    auto is_valid_data_packet =
+        [&pkt](std::uint8_t type, std::uint16_t length, std::uint8_t flags) {
+          return type == 0x02 && length == pkt.payload.size()
+                 && (flags & FLAG_VALID);
+        };
 
     auto is_error_packet = [&pkt](std::uint8_t type) {
       return type == 0xFF && !pkt.payload.empty();
@@ -82,55 +80,54 @@ namespace {
 
     return match(pkt)
         .when(bind(has<&Packet::type, &Packet::length>())[is_ping_packet] >> 1)
-        .when(
-            bind(has<&Packet::type, &Packet::length, &Packet::flags>())[
-                is_valid_data_packet]
-            >> 2)
+        .when(bind(has<&Packet::type, &Packet::length, &Packet::flags>())
+                  [is_valid_data_packet]
+              >> 2)
         .when(bind(has<&Packet::type>())[is_error_packet] >> 3)
         .otherwise(0);
   }
 
   static int switch_packet_route(const Packet &pkt) {
     switch (pkt.type) {
-      case 0x01:
-        if (pkt.length == 0) {
-          return 1;
-        }
-        break;
-      case 0x02:
-        if (pkt.length == pkt.payload.size() && (pkt.flags & FLAG_VALID)) {
-          return 2;
-        }
-        break;
-      case 0xFF:
-        if (!pkt.payload.empty()) {
-          return 3;
-        }
-        break;
-      default:
-        break;
+    case 0x01:
+      if (pkt.length == 0) {
+        return 1;
+      }
+      break;
+    case 0x02:
+      if (pkt.length == pkt.payload.size() && (pkt.flags & FLAG_VALID)) {
+        return 2;
+      }
+      break;
+    case 0xFF:
+      if (!pkt.payload.empty()) {
+        return 3;
+      }
+      break;
+    default:
+      break;
     }
     return 0;
   }
 
   static const std::vector<V> &variant_workload() {
     static const std::vector<V> data = {
-        1,               std::string("a"),  2,               std::string("bb"),
-        3,               std::string("ccc"), 4,               std::string("dddd"),
-        5,               std::string("eeeee"), 6,             std::string("ffffff"),
-        7,               std::string("gg"),  8,               std::string("hhh"),
-        9,               std::string("iiii"), 10,             std::string("jjjjj"),
-        11,              std::string("k"),   12,              std::string("ll"),
-        13,              std::string("mmm"), 14,              std::string("nnnn"),
-        15,              std::string("ooooo"), 16,            std::string("pppppp"),
-        17,              std::string("qq"),  18,              std::string("rrr"),
-        19,              std::string("ssss"), 20,             std::string("ttttt"),
-        21,              std::string("u"),   22,              std::string("vv"),
-        23,              std::string("www"), 24,              std::string("xxxx"),
-        25,              std::string("yyyyy"), 26,            std::string("zzzzzz"),
-        27,              std::string("ab"),  28,              std::string("abc"),
-        29,              std::string("abcd"), 30,             std::string("abcde"),
-        31,              std::string("f"),   32,              std::string("gh"),
+        1,  std::string("a"),     2,  std::string("bb"),
+        3,  std::string("ccc"),   4,  std::string("dddd"),
+        5,  std::string("eeeee"), 6,  std::string("ffffff"),
+        7,  std::string("gg"),    8,  std::string("hhh"),
+        9,  std::string("iiii"),  10, std::string("jjjjj"),
+        11, std::string("k"),     12, std::string("ll"),
+        13, std::string("mmm"),   14, std::string("nnnn"),
+        15, std::string("ooooo"), 16, std::string("pppppp"),
+        17, std::string("qq"),    18, std::string("rrr"),
+        19, std::string("ssss"),  20, std::string("ttttt"),
+        21, std::string("u"),     22, std::string("vv"),
+        23, std::string("www"),   24, std::string("xxxx"),
+        25, std::string("yyyyy"), 26, std::string("zzzzzz"),
+        27, std::string("ab"),    28, std::string("abc"),
+        29, std::string("abcd"),  30, std::string("abcde"),
+        31, std::string("f"),     32, std::string("gh"),
     };
     return data;
   }
@@ -150,10 +147,8 @@ namespace {
   }
 
   template <typename T, typename F>
-  static void run_workload(
-      benchmark::State       &state,
-      const std::vector<T>   &workload,
-      F                        fn) {
+  static void
+  run_workload(benchmark::State &state, const std::vector<T> &workload, F fn) {
     std::size_t idx = 0;
     int         acc = 0;
 
