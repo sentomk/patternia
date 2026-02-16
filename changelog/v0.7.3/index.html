@@ -12,7 +12,7 @@
         <meta name="author" content="Y.F. Guo">
       
       
-        <link rel="canonical" href="https://sentomk.github.io/patternia/changelog/v0.5.2/">
+        <link rel="canonical" href="https://sentomk.github.io/patternia/changelog/v0.7.3/">
       
       
       
@@ -25,7 +25,7 @@
     
     
       
-        <title>Patternia v0.5.2 Release Note - Patternia</title>
+        <title>Patternia v0.7.3 Release Note - Patternia</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#patternia-v052-release-note" class="md-skip">
+        <a href="#patternia-v073-release-note" class="md-skip">
           Skip to content
         </a>
       
@@ -111,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Patternia v0.5.2 Release Note
+              Patternia v0.7.3 Release Note
             
           </span>
         </div>
@@ -889,136 +889,73 @@
   
 
 
-<h1 id="patternia-v052-release-note">Patternia v0.5.2 Release Note<a class="headerlink" href="#patternia-v052-release-note" title="Permanent link">&para;</a></h1>
-<p><strong>Release Date:</strong> December 10, 2025 <br />
-<strong>Version:</strong> 0.5.2</p>
+<h1 id="patternia-v073-release-note">Patternia v0.7.3 Release Note<a class="headerlink" href="#patternia-v073-release-note" title="Permanent link">&para;</a></h1>
+<p><strong>Release Date:</strong> February 16, 2026<br />
+<strong>Version:</strong> 0.7.3</p>
 <hr />
+<div align="center">
+<h1>🎆Happy Chinese NewYear!🎆</h1>
+</div>
+
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Patternia v0.5.2 introduces the wildcard pattern <code>__</code> and provides comprehensive documentation updates. This release focuses on semantic clarity, improved developer experience, and establishing a solid foundation for future exhaustiveness checking features.</p>
+<p>Patternia v0.7.3 is a performance-focused patch release. Compared with v0.7.2,
+this version reduces unnecessary value copies in binding paths and adds a
+repeatable heavy-bind benchmark workflow for regression tracking.</p>
 <hr />
-<h2 id="new-features">New Features<a class="headerlink" href="#new-features" title="Permanent link">&para;</a></h2>
-<h3 id="wildcard-pattern-__">Wildcard Pattern (<code>__</code>)<a class="headerlink" href="#wildcard-pattern-__" title="Permanent link">&para;</a></h3>
-<p><strong>Added:</strong> <code>ptn::__</code> - A pattern that matches any value without binding.</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// Basic wildcard usage</span>
-<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// Matches any other value</span>
-<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
-</code></pre></div>
-<p><strong>Key Characteristics:</strong>
-- Always matches regardless of input value
-- Binds no data (returns empty tuple <code>std::tuple&lt;&gt;</code>)
-- More explicit than <code>bind()</code> when no capture is needed
-- Essential for catch-all cases and future struct destructuring</p>
-<h3 id="enhanced-terminal-method-semantics">Enhanced Terminal Method Semantics<a class="headerlink" href="#enhanced-terminal-method-semantics" title="Permanent link">&para;</a></h3>
-<p><strong>Improved:</strong> Clear distinction between <code>.end()</code> and <code>.otherwise()</code> terminal methods.</p>
-<h4 id="end-statement-style-matching"><code>.end()</code> - Statement-style Matching<a class="headerlink" href="#end-statement-style-matching" title="Permanent link">&para;</a></h4>
+<h2 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h2>
+<h3 id="binding-path-performance-optimization">Binding Path Performance Optimization<a class="headerlink" href="#binding-path-performance-optimization" title="Permanent link">&para;</a></h3>
 <ul>
-<li>For void-returning matches (at v0.5.2; later versions allow non-void)</li>
-<li>Designed for exhaustiveness checking (future feature)</li>
-<li>Used when only side effects are needed</li>
+<li><code>bind()</code> now binds the subject by reference instead of materializing an
+  eager value copy.</li>
+<li><code>bind(subpattern)</code> now composes the subject binding by reference with
+  subpattern bindings.</li>
+<li>Structural binding (<code>bind(has&lt;...&gt;)</code>) now binds member fields by reference,
+  avoiding extra copies for large payload members.</li>
 </ul>
-<h4 id="otherwisehandler-expression-style-matching"><code>.otherwise(handler)</code> - Expression-style Matching<a class="headerlink" href="#otherwisehandler-expression-style-matching" title="Permanent link">&para;</a></h4>
+<h3 id="heavy-bind-benchmark-scenario">Heavy-Bind Benchmark Scenario<a class="headerlink" href="#heavy-bind-benchmark-scenario" title="Permanent link">&para;</a></h3>
 <ul>
-<li>For value-returning matches</li>
-<li>Provides explicit fallback behavior</li>
-<li>Used when computing results from matches</li>
+<li>Added <code>BM_Patternia_PacketMixedHeavyBind</code> to stress large payload binding
+  paths where copy/reference behavior is most visible.</li>
+<li>Added <code>BM_Switch_PacketMixedHeavyBind</code> as baseline for the same workload.</li>
 </ul>
-<h3 id="fallback-trigger-mechanism-clarification">Fallback Trigger Mechanism Clarification<a class="headerlink" href="#fallback-trigger-mechanism-clarification" title="Permanent link">&para;</a></h3>
-<p><strong>Added:</strong> Detailed explanation of when <code>.otherwise()</code> is triggered:</p>
-<ol>
-<li><strong>No Pattern Matches</strong>: When no <code>.when()</code> cases match the subject</li>
-<li><strong>Defensive Fallback</strong>: Even with pattern coverage, provides runtime safety</li>
-</ol>
-<p><strong>Key Principle:</strong> First matching pattern wins, regardless of fallback types.</p>
+<h3 id="benchmark-comparison-tooling">Benchmark Comparison Tooling<a class="headerlink" href="#benchmark-comparison-tooling" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Added <code>scripts/bench_stage_results.py</code> to normalize two <code>result.json</code> files
+  into a standard local layout.</li>
+<li>Added/updated <code>scripts/bench_compare.py</code> to render chart + markdown reports
+  with labels, filtering, and single-benchmark summary layout.</li>
+</ul>
 <hr />
-<h2 id="documentation-improvements">Documentation Improvements<a class="headerlink" href="#documentation-improvements" title="Permanent link">&para;</a></h2>
-<h3 id="design-overview-document">Design Overview Document<a class="headerlink" href="#design-overview-document" title="Permanent link">&para;</a></h3>
-<p><strong>Added:</strong> <code>docs/design-overview.md</code> - Comprehensive guide covering:
-- Three-level architecture (Pattern → Case → Match Finalizer)
-- Semantic differences between <code>__</code>, <code>.end()</code>, and <code>.otherwise()</code>
-- Usage scenarios and best practices
-- Implementation details and execution flow
-- Future roadmap for exhaustiveness checking</p>
-<h3 id="enhanced-api-reference">Enhanced API Reference<a class="headerlink" href="#enhanced-api-reference" title="Permanent link">&para;</a></h3>
-<p><strong>Updated:</strong> <code>docs/api.md</code> with:
-- Complete wildcard pattern documentation
-- Detailed comparison of terminal methods
-- Implementation notes about builder execution
-- Future features section with exhaustiveness checking roadmap</p>
-<h3 id="improved-user-guide">Improved User Guide<a class="headerlink" href="#improved-user-guide" title="Permanent link">&para;</a></h3>
-<p><strong>Updated:</strong> <code>README.md</code> featuring:
-- Wildcard pattern examples
-- Clear terminal method guidance
-- Future roadmap section
-- Better usage decision tables</p>
+<h2 id="performance-comparison-vs-v072">Performance Comparison vs v0.7.2<a class="headerlink" href="#performance-comparison-vs-v072" title="Permanent link">&para;</a></h2>
+<p>For the heavy-bind scenario (<code>PacketMixedHeavyBind</code>), v0.7.3 is designed to
+highlight the effect of copy elimination in binding paths.</p>
+<p>Reference visualization generated from local compare workflow:</p>
+<p><img alt="Patternia v0.7.3 Heavy Bind Benchmark" src="../../assets/bench/v0.7.3-heavybind-compare.png" /></p>
+<blockquote>
+<p>Note: absolute numbers vary by machine and run conditions. Use the staged
+compare scripts to evaluate your local baseline and current build under the
+same environment.</p>
+</blockquote>
 <hr />
-<h2 id="internal-improvements">Internal Improvements<a class="headerlink" href="#internal-improvements" title="Permanent link">&para;</a></h2>
-<h3 id="comment-standardization">Comment Standardization<a class="headerlink" href="#comment-standardization" title="Permanent link">&para;</a></h3>
-<p><strong>Fixed:</strong> Consistent English comment style across all modified files:
-- <code>include/ptn/pattern/wildcard.hpp</code> - Added comprehensive file header
-- <code>include/ptn/core/engine/detail/builder_impl.hpp</code> - Completed member variable documentation
-- <code>include/ptn/core/common/common_traits.hpp</code> - Enhanced type trait comments
-- <code>samples/test.cpp</code> - Added explanatory comments and examples</p>
-<h3 id="builder-implementation-enhancements">Builder Implementation Enhancements<a class="headerlink" href="#builder-implementation-enhancements" title="Permanent link">&para;</a></h3>
-<p><strong>Improved:</strong> Better documentation in <code>match_builder</code> implementation:
-- Clear explanation of builder execution flow
-- Documented member variable purposes
-- Enhanced inline comments for complex template logic</p>
+<h2 id="compatibility-notes">Compatibility Notes<a class="headerlink" href="#compatibility-notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>API surface: unchanged.</li>
+<li>Source compatibility: generally unchanged.</li>
+<li>Behavioral detail: bindings from <code>bind()</code>/structural bind paths are now
+  reference-oriented by default, reducing implicit copies.</li>
+</ul>
 <hr />
-<h2 id="architecture-changes">Architecture Changes<a class="headerlink" href="#architecture-changes" title="Permanent link">&para;</a></h2>
-<h3 id="three-level-design-formalization">Three-Level Design Formalization<a class="headerlink" href="#three-level-design-formalization" title="Permanent link">&para;</a></h3>
-<p>Patternia now explicitly follows a three-level architecture:</p>
-<ol>
-<li><strong>Pattern Level</strong>: <code>lit()</code>, <code>bind()</code>, <code>__</code>, etc.</li>
-<li><strong>Case Level</strong>: <code>.when(pattern &gt;&gt; handler)</code></li>
-<li><strong>Match Finalizer Level</strong>: <code>.end()</code> / <code>.otherwise()</code></li>
-</ol>
-<p>This design ensures:
-- Clear separation of concerns
-- Predictable behavior matching Rust/standard proposals
-- Extensible foundation for future features</p>
-<h3 id="semantic-clarity-improvements">Semantic Clarity Improvements<a class="headerlink" href="#semantic-clarity-improvements" title="Permanent link">&para;</a></h3>
-<p><strong>Established:</strong> Clear distinctions between:
-- <strong>Pattern-level wildcards</strong> (<code>__</code>) vs <strong>match-level fallbacks</strong> (<code>.otherwise()</code>)
-- <strong>Statement-style</strong> (<code>.end()</code>) vs <strong>expression-style</strong> (<code>.otherwise()</code>) matching
-- <strong>Field-level ignoring</strong> vs <strong>case-level fallbacks</strong></p>
-<hr />
-<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
-<h3 id="basic-pattern-matching">Basic Pattern Matching<a class="headerlink" href="#basic-pattern-matching" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ptn/patternia.hpp&gt;</span>
-
-<span class="c1">// Expression-style match</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">)</span><span class="w"> </span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// Wildcard fallback</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;default&quot;</span><span class="p">);</span><span class="w">  </span><span class="c1">// Match-level fallback</span>
-</code></pre></div>
-<h3 id="statement-style-matching">Statement-style Matching<a class="headerlink" href="#statement-style-matching" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="c1">// Statement-style match with exhaustiveness (future)</span>
-<span class="n">match</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Pending</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;pending&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Running</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;running&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// Pattern fallback</span>
-<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">  </span><span class="c1">// Statement termination</span>
-</code></pre></div>
-<h3 id="enum-with-wildcard">Enum with Wildcard<a class="headerlink" href="#enum-with-wildcard" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Color</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Red</span><span class="p">,</span><span class="w"> </span><span class="n">Green</span><span class="p">,</span><span class="w"> </span><span class="n">Blue</span><span class="w"> </span><span class="p">};</span>
-<span class="n">Color</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Color</span><span class="o">::</span><span class="n">Green</span><span class="p">;</span>
-
-<span class="n">match</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Color</span><span class="o">::</span><span class="n">Red</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;red&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Color</span><span class="o">::</span><span class="n">Green</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;green&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// Catch-all</span>
-<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
-</code></pre></div>
-<hr />
-<h2 id="bug-fixes">Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h2>
-<h3 id="api-clarity">API Clarity<a class="headerlink" href="#api-clarity" title="Permanent link">&para;</a></h3>
-<p><strong>Fixed:</strong> Ambiguous terminal method behavior
-- Clear distinction between <code>.end()</code> and <code>.otherwise()</code> 
-- Better examples showing appropriate use cases</p>
+<h2 id="implementation-notes">Implementation Notes<a class="headerlink" href="#implementation-notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>include/ptn/pattern/bind.hpp</code></li>
+<li>Updated binding construction to reference-based tuples.</li>
+<li><code>bench/bench_match_variant.cpp</code></li>
+<li>Added heavy-bind packet workload and benchmark pairs.</li>
+<li><code>scripts/bench_stage_results.py</code></li>
+<li>Added benchmark result staging utility.</li>
+<li><code>scripts/bench_compare.py</code></li>
+<li>Added improved comparison rendering and filtering.</li>
+</ul>
 
 
 
