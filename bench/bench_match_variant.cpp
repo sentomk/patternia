@@ -22,6 +22,26 @@ namespace {
 
   constexpr std::uint8_t FLAG_VALID = 0x01;
 
+  static std::vector<std::uint8_t>
+  make_payload(std::size_t size, std::uint8_t seed) {
+    std::vector<std::uint8_t> payload(size);
+    for (std::size_t i = 0; i < size; ++i) {
+      payload[i] = static_cast<std::uint8_t>((seed + i * 13u) & 0xFFu);
+    }
+    return payload;
+  }
+
+  static std::uint32_t payload_tag(const std::vector<std::uint8_t> &payload) {
+    if (payload.empty()) {
+      return 0u;
+    }
+
+    const std::size_t mid  = payload.size() / 2;
+    const std::size_t last = payload.size() - 1;
+    return static_cast<std::uint32_t>(payload.size()) + payload.front() +
+           payload[mid] + payload[last];
+  }
+
   static int patternia_variant_route(const V &v) {
     using namespace ptn;
     using ptn::pat::type::is;
@@ -110,6 +130,67 @@ namespace {
     return 0;
   }
 
+  static int patternia_packet_heavy_bind_route(const Packet &pkt) {
+    using namespace ptn;
+
+    auto is_ping_packet = [](std::uint8_t type, std::uint16_t length) {
+      return type == 0x01 && length == 0;
+    };
+
+    auto is_valid_data_packet = [](
+                                    std::uint8_t                      type,
+                                    std::uint16_t                     length,
+                                    std::uint8_t                      flags,
+                                    const std::vector<std::uint8_t> &payload) {
+      return type == 0x02 && length == payload.size() &&
+             (flags & FLAG_VALID) != 0u && payload_tag(payload) != 0u;
+    };
+
+    auto is_error_packet = [](
+                               std::uint8_t                      type,
+                               const std::vector<std::uint8_t> &payload) {
+      return type == 0xFF && payload_tag(payload) > 0u;
+    };
+
+    return match(pkt)
+        .when(bind(has<&Packet::type, &Packet::length>())[is_ping_packet] >> 1)
+        .when(
+            bind(has<
+                     &Packet::type,
+                     &Packet::length,
+                     &Packet::flags,
+                     &Packet::payload>())[is_valid_data_packet]
+            >> 2)
+        .when(
+            bind(has<&Packet::type, &Packet::payload>())[is_error_packet] >> 3)
+        .otherwise(0);
+  }
+
+  static int switch_packet_heavy_bind_route(const Packet &pkt) {
+    switch (pkt.type) {
+    case 0x01:
+      if (pkt.length == 0) {
+        return 1;
+      }
+      break;
+    case 0x02:
+      if (
+          pkt.length == pkt.payload.size() &&
+          (pkt.flags & FLAG_VALID) != 0u && payload_tag(pkt.payload) != 0u) {
+        return 2;
+      }
+      break;
+    case 0xFF:
+      if (payload_tag(pkt.payload) > 0u) {
+        return 3;
+      }
+      break;
+    default:
+      break;
+    }
+    return 0;
+  }
+
   static const std::vector<V> &variant_workload() {
     static const std::vector<V> data = {
         1,  std::string("a"),     2,  std::string("bb"),
@@ -142,6 +223,22 @@ namespace {
         {0x02, 4, FLAG_VALID, {9, 8, 7, 6}},
         {0xFF, 0, 0, {}},
         {0x02, 2, FLAG_VALID, {5, 5}},
+    };
+    return data;
+  }
+
+  static const std::vector<Packet> &packet_heavy_workload() {
+    static const std::vector<Packet> data = {
+        {0x01, 0, 0, {}},
+        {0x02, 256, FLAG_VALID, make_payload(256, 1)},
+        {0xFF, 1024, 0, make_payload(1024, 3)},
+        {0x02, 1024, FLAG_VALID, make_payload(1024, 7)},
+        {0x02, 4096, FLAG_VALID, make_payload(4096, 11)},
+        {0x02, 4096, 0, make_payload(4096, 13)},
+        {0xFF, 0, 0, {}},
+        {0x02, 512, FLAG_VALID, make_payload(511, 5)},
+        {0xFF, 2048, 0, make_payload(2048, 9)},
+        {0x01, 1, 0, make_payload(1, 2)},
     };
     return data;
   }
@@ -189,6 +286,15 @@ namespace {
     run_workload(state, packet_workload(), switch_packet_route);
   }
 
+  static void BM_Patternia_PacketMixedHeavyBind(benchmark::State &state) {
+    run_workload(
+        state, packet_heavy_workload(), patternia_packet_heavy_bind_route);
+  }
+
+  static void BM_Switch_PacketMixedHeavyBind(benchmark::State &state) {
+    run_workload(state, packet_heavy_workload(), switch_packet_heavy_bind_route);
+  }
+
 } // namespace
 
 BENCHMARK(BM_Patternia_VariantMixed);
@@ -196,3 +302,5 @@ BENCHMARK(BM_StdVisit_VariantMixed);
 BENCHMARK(BM_SwitchIndex_VariantMixed);
 BENCHMARK(BM_Patternia_PacketMixed);
 BENCHMARK(BM_Switch_PacketMixed);
+BENCHMARK(BM_Patternia_PacketMixedHeavyBind);
+BENCHMARK(BM_Switch_PacketMixedHeavyBind);
