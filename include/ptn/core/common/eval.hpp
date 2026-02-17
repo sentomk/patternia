@@ -52,6 +52,17 @@ namespace ptn::core::common {
 
     template <typename P, typename S>
     constexpr bool has_bind_member_v = has_bind_member<P, S>::value;
+
+    template <typename T>
+    struct is_guarded_pattern : std::false_type {};
+
+    template <typename Inner, typename Pred>
+    struct is_guarded_pattern<ptn::pat::mod::guarded_pattern<Inner, Pred>>
+        : std::true_type {};
+
+    template <typename T>
+    constexpr bool is_guarded_pattern_v =
+        is_guarded_pattern<std::decay_t<T>>::value;
   } // namespace detail
 
   // Case Matching
@@ -224,8 +235,44 @@ namespace ptn::core::common {
       else {
         auto &current_case = std::get<I>(cases);
         using case_t       = std::remove_reference_t<decltype(current_case)>;
+        using pattern_t    = traits::case_pattern_t<case_t>;
 
-        if (case_matcher<case_t, Subject>::matches(current_case, subject)) {
+        if constexpr (detail::is_guarded_pattern_v<pattern_t>) {
+          auto &guarded = current_case.pattern;
+          if (guarded.inner.match(subject)) {
+            auto bound    = guarded.inner.bind(subject);
+            using bound_t = std::decay_t<decltype(bound)>;
+            constexpr std::size_t bound_arity = std::tuple_size_v<bound_t>;
+
+            bool guard_ok = false;
+            if constexpr (ptn::pat::traits::is_tuple_guard_predicate_v<
+                              decltype(guarded.pred)>) {
+              ptn::core::common::static_assert_tuple_guard_index<
+                  ptn::pat::mod::max_tuple_guard_index<
+                      std::decay_t<decltype(guarded.pred)>>::value,
+                  bound_arity>();
+              guard_ok = static_cast<bool>(guarded.pred(bound));
+            }
+            else if constexpr (ptn::pat::traits::is_guard_predicate_v<
+                                   decltype(guarded.pred)>) {
+              ptn::core::common::static_assert_unary_guard_arity<bound_arity>();
+              guard_ok = static_cast<bool>(guarded.pred(std::get<0>(bound)));
+            }
+            else {
+              guard_ok = static_cast<bool>(std::apply(guarded.pred, bound));
+            }
+
+            if (guard_ok) {
+              return static_cast<Result>(
+                  detail::invoke_from_tuple(current_case.handler, bound));
+            }
+          }
+
+          return eval_cases_impl_typed<I + 1, Result>(
+              subject, cases, std::forward<Otherwise>(otherwise_handler));
+        }
+        else if (
+            case_matcher<case_t, Subject>::matches(current_case, subject)) {
           return static_cast<Result>(invoke_handler(current_case, subject));
         }
         else {
