@@ -236,6 +236,14 @@ namespace ptn::core::common {
         auto &current_case = std::get<I>(cases);
         using case_t       = std::remove_reference_t<decltype(current_case)>;
         using pattern_t    = traits::case_pattern_t<case_t>;
+        using handler_t    = traits::case_handler_t<case_t>;
+        using bound_args_t = pat::base::binding_args_t<pattern_t, Subject>;
+
+        // Typed-eval fast path:
+        // for zero-bind cases with no-arg handlers, avoid bind()+tuple dispatch.
+        constexpr bool zero_bind_noarg_handler =
+            std::tuple_size_v<bound_args_t> == 0 &&
+            std::is_invocable_v<handler_t>;
 
         if constexpr (detail::is_guarded_pattern_v<pattern_t>) {
           auto &guarded = current_case.pattern;
@@ -273,7 +281,13 @@ namespace ptn::core::common {
         }
         else if (
             case_matcher<case_t, Subject>::matches(current_case, subject)) {
-          return static_cast<Result>(invoke_handler(current_case, subject));
+          if constexpr (zero_bind_noarg_handler) {
+            // No binding payload to materialize; invoke directly.
+            return static_cast<Result>(current_case.handler());
+          }
+          else {
+            return static_cast<Result>(invoke_handler(current_case, subject));
+          }
         }
         else {
           return eval_cases_impl_typed<I + 1, Result>(
