@@ -43,15 +43,50 @@ for documentation comments.
 
 ### 5. Commit Style
 
-Use clear, conventional commit messages, for example:
+Use clear, conventional commit messages with a structured body.
+
+Recommended format:
+
+- **Subject line**: `type(scope): short summary`
+- Use imperative mood and keep the subject concise (around 50-72 chars)
+- Add a body for non-trivial changes, grouped by purpose
+- Use bullet lists in body sections; do not encode line breaks as literal `\n`
+
+Suggested body sections:
+
+- `Problem`
+- `Implementation`
+- `Tests`
+- `Notes`
+
+Example:
 
 ```
+perf(eval): avoid duplicate binding in guarded match path
 
-feat: add case-insensitive string matching
-fix: correct match_result type inference
-refactor: reorganize DSL operators
+Problem
+- Guarded cases could bind twice on a hit path.
+- This added avoidable overhead on heavy-bind workloads.
 
-````
+Implementation
+- Added a guarded fast path in typed evaluation.
+- Bound once and reused the same tuple for guard + handler.
+
+Tests
+- Added bind-count regression tests for guarded and fallthrough paths.
+
+Notes
+- Internal optimization only.
+- No DSL/API surface changes.
+```
+
+Additional valid one-line examples:
+
+```
+feat(pattern): add case-insensitive string matching
+fix(eval): correct match_result type inference
+refactor(dsl): reorganize case expression operators
+```
 
 ---
 
@@ -62,4 +97,4 @@ git clone https://github.com/SentoMK/patternia.git
 cd patternia
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
-````
+```
