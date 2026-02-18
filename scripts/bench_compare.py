@@ -109,12 +109,20 @@ def _to_rows(
     return rows
 
 
+def _is_finite(x: float) -> bool:
+    return not math.isnan(x) and not math.isinf(x)
+
+
+def _find_regressions(rows: List[BenchRow], max_regress_pct: float) -> List[BenchRow]:
+    return [r for r in rows if _is_finite(r.delta_pct) and r.delta_pct > max_regress_pct]
+
+
 def _display_name(name: str, max_len: int) -> Tuple[str, bool]:
     cleaned = name[3:] if name.startswith("BM_") else name
     cleaned = cleaned.replace("_", " ")
     if len(cleaned) <= max_len:
         return cleaned, False
-    return cleaned[: max_len - 1] + "…", True
+    return cleaned[: max_len - 3] + "...", True
 
 
 def _display_names(rows: List[BenchRow], max_len: int) -> Tuple[List[str], List[Tuple[str, str]]]:
@@ -389,6 +397,18 @@ def main() -> int:
     parser.add_argument("--name-max-len", type=int, default=28, help="Max display length for benchmark names")
     parser.add_argument("--outdir", default=str(DEFAULT_OUTDIR), help="Output directory")
     parser.add_argument("--prefix", default="bench_compare", help="Output file prefix")
+    parser.add_argument(
+        "--fail-if-regress-pct",
+        type=float,
+        default=None,
+        help="Fail if any benchmark delta %% is greater than this threshold (higher is slower).",
+    )
+    parser.add_argument(
+        "--fail-if-mean-regress-pct",
+        type=float,
+        default=None,
+        help="Fail if mean delta %% across selected rows is greater than this threshold.",
+    )
     args = parser.parse_args()
 
     baseline_path = Path(args.baseline).expanduser().resolve()
@@ -439,7 +459,36 @@ def main() -> int:
 
     print(f"Saved chart: {out_png}")
     print(f"Saved report: {out_md}")
-    return 0
+
+    exit_code = 0
+    if args.fail_if_regress_pct is not None:
+        regressions = _find_regressions(rows, args.fail_if_regress_pct)
+        if regressions:
+            print(
+                f"[bench-gate] FAIL: {len(regressions)} benchmark(s) exceed "
+                f"+{args.fail_if_regress_pct:.2f}% regression threshold."
+            )
+            for r in regressions:
+                print(f"  - {r.name}: {r.delta_pct:+.2f}%")
+            exit_code = 2
+
+    if args.fail_if_mean_regress_pct is not None:
+        deltas = [r.delta_pct for r in rows if _is_finite(r.delta_pct)]
+        if deltas:
+            mean_delta = sum(deltas) / len(deltas)
+            if mean_delta > args.fail_if_mean_regress_pct:
+                print(
+                    "[bench-gate] FAIL: mean delta "
+                    f"{mean_delta:+.2f}% exceeds +{args.fail_if_mean_regress_pct:.2f}%."
+                )
+                exit_code = 2
+
+    if exit_code == 0 and (
+        args.fail_if_regress_pct is not None or args.fail_if_mean_regress_pct is not None
+    ):
+        print("[bench-gate] PASS: regression thresholds satisfied.")
+
+    return exit_code
 
 
 if __name__ == "__main__":

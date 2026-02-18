@@ -2,13 +2,17 @@ name: patternia PR Check (Ubuntu)
 
 on:
   pull_request:
-    branches: [main, dev]
+    branches: [main, dev-main]
     paths-ignore:
       - "README.md"
       - "CONTRIBUTING.md"
       - "docs/**"
       - "LICENSE"
       - ".github/ISSUE_TEMPLATE/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   pr-test:
@@ -26,7 +30,13 @@ jobs:
           clang++ --version
 
       - name: Configure (Debug build)
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=${{ env.CXX }}
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_COMPILER=${{ env.CXX }} \
+            -DPTN_BUILD_TESTS=ON \
+            -DPTN_BUILD_BENCHMARKS=OFF \
+            -DPTN_SKIP_COMPILER_CHECK=ON
 
       - name: Build
         run: cmake --build build --parallel

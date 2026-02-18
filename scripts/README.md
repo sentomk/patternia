@@ -48,6 +48,18 @@ repetitions, aggregate report). You can run the variant suite directly:
   --benchmark_out_format=json
 ```
 
+## 4) Regression gate (CI-friendly)
+
+```powershell
+py -3 scripts/bench_compare.py \
+  --include "Variant(Mixed|AltHot)" \
+  --fail-if-regress-pct 3.0 \
+  --fail-if-mean-regress-pct 1.5
+```
+
+- `--fail-if-regress-pct`: fail when any selected benchmark regresses beyond threshold.
+- `--fail-if-mean-regress-pct`: fail when mean regression across selected benchmarks exceeds threshold.
+
 ## Dependency
 
 ```powershell

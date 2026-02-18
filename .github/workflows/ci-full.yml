@@ -7,6 +7,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-test:
     name: "${{ matrix.compiler }} C++${{ matrix.std }}"
@@ -102,11 +106,13 @@ jobs:
             cmake -S . -B build -G "Visual Studio 17 2022" -A x64 `
               -DCMAKE_CXX_STANDARD=${{ matrix.std }} `
               -DPTN_BUILD_TESTS=ON `
+              -DPTN_BUILD_BENCHMARKS=OFF `
               -DPTN_SKIP_COMPILER_CHECK=ON
           } else {
             cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -T ClangCL `
               -DCMAKE_CXX_STANDARD=${{ matrix.std }} `
               -DPTN_BUILD_TESTS=ON `
+              -DPTN_BUILD_BENCHMARKS=OFF `
               -DPTN_SKIP_COMPILER_CHECK=ON
           }
 
@@ -117,6 +123,7 @@ jobs:
           cmake -S . -B build \
             -DCMAKE_CXX_STANDARD=${{ matrix.std }} \
             -DPTN_BUILD_TESTS=ON \
+            -DPTN_BUILD_BENCHMARKS=OFF \
             -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
             -DPTN_SKIP_COMPILER_CHECK=ON
 
@@ -125,3 +132,10 @@ jobs:
 
       - name: Run tests
         run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Upload test log (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-log-${{ matrix.os }}-${{ matrix.compiler }}-cxx${{ matrix.std }}
+          path: build/Testing/Temporary/LastTest.log
