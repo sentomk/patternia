@@ -81,6 +81,29 @@ namespace {
     }
   }
 
+  template <typename F>
+  static void run_variant_alternating_hot(benchmark::State &state, F fn) {
+    // Microbench: isolate dispatch overhead with two prebuilt alternatives.
+    static const V int_alt = 7;
+    static const V str_alt = std::string("patternia");
+
+    bool pick_str = false;
+    int  acc      = 0;
+
+    for (auto _ : state) {
+      const V &v = pick_str ? str_alt : int_alt;
+      pick_str   = !pick_str;
+
+      benchmark::DoNotOptimize(v);
+      acc += fn(v);
+      benchmark::DoNotOptimize(acc);
+      benchmark::ClobberMemory();
+    }
+
+    benchmark::DoNotOptimize(acc);
+    state.SetItemsProcessed(state.iterations());
+  }
+
   static int patternia_packet_route(const Packet &pkt) {
     using namespace ptn;
 
@@ -278,6 +301,18 @@ namespace {
     run_workload(state, variant_workload(), switch_index_variant_route);
   }
 
+  static void BM_Patternia_VariantAltHot(benchmark::State &state) {
+    run_variant_alternating_hot(state, patternia_variant_route);
+  }
+
+  static void BM_StdVisit_VariantAltHot(benchmark::State &state) {
+    run_variant_alternating_hot(state, std_visit_variant_route);
+  }
+
+  static void BM_SwitchIndex_VariantAltHot(benchmark::State &state) {
+    run_variant_alternating_hot(state, switch_index_variant_route);
+  }
+
   static void BM_Patternia_PacketMixed(benchmark::State &state) {
     run_workload(state, packet_workload(), patternia_packet_route);
   }
@@ -297,9 +332,24 @@ namespace {
 
 } // namespace
 
-BENCHMARK(BM_Patternia_VariantMixed);
-BENCHMARK(BM_StdVisit_VariantMixed);
-BENCHMARK(BM_SwitchIndex_VariantMixed);
+namespace {
+  static benchmark::internal::Benchmark *
+  apply_stable_variant_profile(benchmark::internal::Benchmark *b) {
+    // Stable profile for variant dispatch runs: fixed unit/time/repetitions.
+    b->Unit(benchmark::kNanosecond);
+    b->MinTime(0.5);
+    b->Repetitions(20);
+    b->ReportAggregatesOnly(true);
+    return b;
+  }
+} // namespace
+
+apply_stable_variant_profile(BENCHMARK(BM_Patternia_VariantMixed));
+apply_stable_variant_profile(BENCHMARK(BM_StdVisit_VariantMixed));
+apply_stable_variant_profile(BENCHMARK(BM_SwitchIndex_VariantMixed));
+apply_stable_variant_profile(BENCHMARK(BM_Patternia_VariantAltHot));
+apply_stable_variant_profile(BENCHMARK(BM_StdVisit_VariantAltHot));
+apply_stable_variant_profile(BENCHMARK(BM_SwitchIndex_VariantAltHot));
 BENCHMARK(BM_Patternia_PacketMixed);
 BENCHMARK(BM_Switch_PacketMixed);
 BENCHMARK(BM_Patternia_PacketMixedHeavyBind);
