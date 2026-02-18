@@ -28,7 +28,7 @@
 
 ## *Update*
 
-- **Performance-focused update (v0.7.4)** — guarded/typed evaluation paths reduce redundant binding work, with expanded bind-count tests and variant benchmark stabilization for regression tracking.
+- **Hotfix update (v0.7.5)** — fixes MinGW benchmark registration compatibility in variant microbench setup while preserving the stable run profile.
 - **Variant matching is now supported (v0.7.x)** — including `type::is`, `type::as`, and `type::alt`.
 - **Planned change (v0.8.x)** — `match(x, cases(...))` will be removed.
 
@@ -353,11 +353,10 @@ ctest --test-dir build -R compile_fail --output-on-failure
 ctest --test-dir build --output-on-failure
 ```
 
-## *Benchmarking (v0.7.4)*
+## *Benchmarking (v0.7.5 Hotfix)*
 
-Patternia v0.7.4 keeps the heavy-bind benchmark path and adds a variant-focused
-microbench profile so dispatch-cost regressions are easier to detect and
-compare across runs.
+Patternia v0.7.5 hotfix keeps the same benchmark scenarios and stable profile,
+and fixes a MinGW compilation issue in variant benchmark registration.
 
 ### Heavy-Bind Principle
 
