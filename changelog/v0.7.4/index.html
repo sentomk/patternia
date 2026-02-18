@@ -12,10 +12,8 @@
         <meta name="author" content="Y.F. Guo">
       
       
-        <link rel="canonical" href="https://sentomk.github.io/patternia/changelog/releases/">
+        <link rel="canonical" href="https://sentomk.github.io/patternia/changelog/v0.7.4/">
       
-      
-        <link rel="prev" href="../../api/">
       
       
       
@@ -27,7 +25,7 @@
     
     
       
-        <title>Releases - Patternia</title>
+        <title>Patternia v0.7.4 Release Note - Patternia</title>
       
     
     
@@ -80,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#patternia-releases" class="md-skip">
+        <a href="#patternia-v074-release-note" class="md-skip">
           Skip to content
         </a>
       
@@ -113,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Releases
+              Patternia v0.7.4 Release Note
             
           </span>
         </div>
@@ -294,13 +292,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../releases/" class="md-tabs__link">
           
   
   
@@ -790,31 +786,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -832,7 +823,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -847,37 +838,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Releases
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../releases/" class="md-nav__link">
         
   
   
@@ -893,59 +857,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#05x" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        0.5.x
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#06x" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        0.6.x
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#07x" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        0.7.x
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -978,26 +889,60 @@
   
 
 
-<h1 id="patternia-releases">Patternia Releases<a class="headerlink" href="#patternia-releases" title="Permanent link">&para;</a></h1>
-<h2 id="05x">0.5.x<a class="headerlink" href="#05x" title="Permanent link">&para;</a></h2>
+<h1 id="patternia-v074-release-note">Patternia v0.7.4 Release Note<a class="headerlink" href="#patternia-v074-release-note" title="Permanent link">&para;</a></h1>
+<p><strong>Release Date:</strong> February 18, 2026<br />
+<strong>Version:</strong> 0.7.4</p>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Patternia v0.7.4 is a follow-up performance and engineering patch release.
+Compared with v0.7.3, this version reduces extra work in guarded/typed match
+evaluation paths, expands regression coverage for binding behavior, and
+stabilizes variant benchmark and CI verification workflows.</p>
+<hr />
+<h2 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h2>
+<h3 id="match-evaluation-performance-refinements">Match Evaluation Performance Refinements<a class="headerlink" href="#match-evaluation-performance-refinements" title="Permanent link">&para;</a></h3>
 <ul>
-<li><a href="../v0.5.2/">v0.5.2</a> - December 10, 2025</li>
-<li><a href="../v0.5.3/">v0.5.3</a> - December 14, 2025</li>
+<li>Guarded-case evaluation now avoids redundant binding work in the matched path.</li>
+<li>Typed-eval variant dispatch now takes a lower-overhead path for zero-bind
+  cases.</li>
 </ul>
-<h2 id="06x">0.6.x<a class="headerlink" href="#06x" title="Permanent link">&para;</a></h2>
+<h3 id="test-coverage-expansion">Test Coverage Expansion<a class="headerlink" href="#test-coverage-expansion" title="Permanent link">&para;</a></h3>
 <ul>
-<li><a href="../v0.6.0/">v0.6.0</a> - December 16, 2025</li>
-<li><a href="../v0.6.1/">v0.6.1</a> - December 20, 2025</li>
-<li><a href="../v0.6.2/">v0.6.2</a> - December 23, 2025</li>
-<li><a href="../v0.6.3/">v0.6.3</a> - January 2, 2026</li>
+<li>Added bind-count regression tests for guarded match flow to validate that
+  matched guarded paths bind once (instead of legacy two-bind behavior).</li>
+<li>Added explicit guarded-path sequence checks to keep bind-order semantics
+  locked down.</li>
 </ul>
-<h2 id="07x">0.7.x<a class="headerlink" href="#07x" title="Permanent link">&para;</a></h2>
+<h3 id="variant-focused-benchmarking">Variant-Focused Benchmarking<a class="headerlink" href="#variant-focused-benchmarking" title="Permanent link">&para;</a></h3>
 <ul>
-<li><a href="../v0.7.0/">v0.7.0</a> - February 5, 2026</li>
-<li><a href="../v0.7.1/">v0.7.1</a> - February 7, 2026</li>
-<li><a href="../v0.7.2/">v0.7.2</a> - February 14, 2026</li>
-<li><a href="../v0.7.3/">v0.7.3</a> - February 16, 2026</li>
-<li><a href="../v0.7.4/">v0.7.4</a> - February 18, 2026</li>
+<li>Added variant-focused microbench coverage for dispatch-sensitive scenarios.</li>
+<li>Registered variant benchmark cases with a stable run profile so cross-run
+  comparisons are less noisy.</li>
+</ul>
+<h3 id="ci-and-pipeline-improvements">CI and Pipeline Improvements<a class="headerlink" href="#ci-and-pipeline-improvements" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Added benchmark gate workflow to track benchmark regressions in CI.</li>
+<li>Tightened default CI pipelines for faster and clearer quality feedback.</li>
+</ul>
+<hr />
+<h2 id="compatibility-notes">Compatibility Notes<a class="headerlink" href="#compatibility-notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>API surface: unchanged for 0.7.x users.</li>
+<li>Source compatibility: unchanged.</li>
+<li>Runtime behavior: same external semantics; internal evaluation paths are
+  optimized and validated with new regression tests.</li>
+</ul>
+<hr />
+<h2 id="implementation-notes">Implementation Notes<a class="headerlink" href="#implementation-notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>include/ptn/core/common/eval.hpp</code></li>
+<li>Reduced redundant work in guarded/typed evaluation internals.</li>
+<li><code>tests/tests_match_flow.cpp</code></li>
+<li>Added guarded bind-count regression cases.</li>
+<li><code>bench/bench_match_variant.cpp</code></li>
+<li>Added variant-focused microbench case and stable benchmark profile.</li>
+<li><code>.github/workflows/ci.yml</code></li>
+<li>Updated CI flow and benchmark gate coverage.</li>
 </ul>
 
 
@@ -1029,28 +974,6 @@
       
         <footer class="md-footer">
   
-    
-      
-      <nav class="md-footer__inner md-grid" aria-label="Footer" >
-        
-          
-          <a href="../../api/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Patternia API Reference">
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-            </div>
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              <div class="md-ellipsis">
-                Patternia API Reference
-              </div>
-            </div>
-          </a>
-        
-        
-      </nav>
     
   
   <div class="md-footer-meta md-typeset">
