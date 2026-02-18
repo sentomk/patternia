@@ -84,14 +84,14 @@ namespace {
   template <typename F>
   static void run_variant_alternating_hot(benchmark::State &state, F fn) {
     // Microbench: isolate dispatch overhead with two prebuilt alternatives.
-    static const V int_alt = 7;
-    static const V str_alt = std::string("patternia");
+    static V int_alt = 7;
+    static V str_alt = std::string("patternia");
 
     bool pick_str = false;
     int  acc      = 0;
 
     for (auto _ : state) {
-      const V &v = pick_str ? str_alt : int_alt;
+      V &v = pick_str ? str_alt : int_alt;
       pick_str   = !pick_str;
 
       benchmark::DoNotOptimize(v);
@@ -332,24 +332,36 @@ namespace {
 
 } // namespace
 
-namespace {
-  static benchmark::internal::Benchmark *
-  apply_stable_variant_profile(benchmark::internal::Benchmark *b) {
-    // Stable profile for variant dispatch runs: fixed unit/time/repetitions.
-    b->Unit(benchmark::kNanosecond);
-    b->MinTime(0.5);
-    b->Repetitions(20);
-    b->ReportAggregatesOnly(true);
-    return b;
-  }
-} // namespace
-
-apply_stable_variant_profile(BENCHMARK(BM_Patternia_VariantMixed));
-apply_stable_variant_profile(BENCHMARK(BM_StdVisit_VariantMixed));
-apply_stable_variant_profile(BENCHMARK(BM_SwitchIndex_VariantMixed));
-apply_stable_variant_profile(BENCHMARK(BM_Patternia_VariantAltHot));
-apply_stable_variant_profile(BENCHMARK(BM_StdVisit_VariantAltHot));
-apply_stable_variant_profile(BENCHMARK(BM_SwitchIndex_VariantAltHot));
+BENCHMARK(BM_Patternia_VariantMixed)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
+BENCHMARK(BM_StdVisit_VariantMixed)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
+BENCHMARK(BM_SwitchIndex_VariantMixed)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
+BENCHMARK(BM_Patternia_VariantAltHot)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
+BENCHMARK(BM_StdVisit_VariantAltHot)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
+BENCHMARK(BM_SwitchIndex_VariantAltHot)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
 BENCHMARK(BM_Patternia_PacketMixed);
 BENCHMARK(BM_Switch_PacketMixed);
 BENCHMARK(BM_Patternia_PacketMixedHeavyBind);
