@@ -36,6 +36,18 @@ py -3 scripts/bench_compare.py \
   --prefix "packet_heavy"
 ```
 
+## 3) Stable variant run profile (mixed + microbench)
+
+Variant benchmarks now include an in-code stable profile (ns unit, min time,
+repetitions, aggregate report). You can run the variant suite directly:
+
+```powershell
+.\build\bench\ptn_bench.exe `
+  --benchmark_filter="Variant(Mixed|AltHot)" `
+  --benchmark_out=build/bench/result.json `
+  --benchmark_out_format=json
+```
+
 ## Dependency
 
 ```powershell

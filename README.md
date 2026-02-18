@@ -366,9 +366,23 @@ Patternia v0.7.3 adds a dedicated heavy-binding benchmark path to make
   differences are amplified and measurable.
 - Compare against `BM_Switch_PacketMixedHeavyBind` for a low-level baseline.
 
+### Variant Dispatch Microbench
+
+- `BM_*_VariantMixed` keeps the existing mixed workload route benchmark.
+- `BM_*_VariantAltHot` is a variant-focused microbench that alternates two
+  prebuilt alternatives to isolate dispatch overhead from workload traversal.
+- Variant benchmarks are registered with a stable run profile (ns unit,
+  minimum run time, repetitions, aggregate report output).
+
 ### Reproducible Compare Workflow
 
 ```powershell
+# 0) Optional: run variant-focused benchmark suite (stable profile in-code)
+.\build\bench\ptn_bench.exe `
+  --benchmark_filter="Variant(Mixed|AltHot)" `
+  --benchmark_out="build/bench/result.json" `
+  --benchmark_out_format=json
+
 # 1) Stage two result.json files into standard local locations
 py -3 scripts/bench_stage_results.py `
   --baseline "F:/code-backup/patternia/build/bench/result.json" `
