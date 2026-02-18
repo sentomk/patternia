@@ -28,7 +28,7 @@
 
 ## *Update*
 
-- **Performance-focused update (v0.7.3)** — binding paths now avoid unnecessary copies via reference-oriented `bind(...)`, with heavy-bind benchmarks and comparison tooling for regression tracking.
+- **Performance-focused update (v0.7.4)** — guarded/typed evaluation paths reduce redundant binding work, with expanded bind-count tests and variant benchmark stabilization for regression tracking.
 - **Variant matching is now supported (v0.7.x)** — including `type::is`, `type::as`, and `type::alt`.
 - **Planned change (v0.8.x)** — `match(x, cases(...))` will be removed.
 
@@ -353,10 +353,11 @@ ctest --test-dir build -R compile_fail --output-on-failure
 ctest --test-dir build --output-on-failure
 ```
 
-## *Benchmarking (v0.7.3)*
+## *Benchmarking (v0.7.4)*
 
-Patternia v0.7.3 adds a dedicated heavy-binding benchmark path to make
-`bind(...)` copy-cost regressions easy to detect.
+Patternia v0.7.4 keeps the heavy-bind benchmark path and adds a variant-focused
+microbench profile so dispatch-cost regressions are easier to detect and
+compare across runs.
 
 ### Heavy-Bind Principle
 
@@ -396,7 +397,7 @@ py -3 scripts/bench_compare.py `
   --prefix "packet_heavy"
 ```
 
-### v0.7.3 Heavy-Bind Compare Snapshot
+### v0.7.3 Heavy-Bind Compare Snapshot (Historical)
 
 ![Patternia v0.7.3 Heavy Bind Benchmark](docs/assets/bench/v0.7.3-heavybind-compare.png)
 

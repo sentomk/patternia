@@ -7,7 +7,7 @@ endif()
 
 # ========== Project ==========
 project(patternia
-  VERSION 0.7.3
+  VERSION 0.7.4
   DESCRIPTION "Header-only pattern matching library for modern C++"
   LANGUAGES CXX
 )

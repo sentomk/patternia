@@ -15,3 +15,4 @@
 - [v0.7.1](v0.7.1.md) - February 7, 2026
 - [v0.7.2](v0.7.2.md) - February 14, 2026
 - [v0.7.3](v0.7.3.md) - February 16, 2026
+- [v0.7.4](v0.7.4.md) - February 18, 2026
