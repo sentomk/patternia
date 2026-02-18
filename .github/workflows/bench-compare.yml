@@ -1,0 +1,122 @@
+name: Benchmark Compare
+
+on:
+  workflow_dispatch:
+    inputs:
+      baseline_ref:
+        description: "Git ref used as baseline (branch/tag/sha)"
+        required: true
+        default: "main"
+      include_regex:
+        description: "Regex for selected benchmark names"
+        required: true
+        default: "Variant(Mixed|AltHot)"
+      fail_if_regress_pct:
+        description: "Fail if any selected benchmark regresses above this percent"
+        required: true
+        default: "3.0"
+      fail_if_mean_regress_pct:
+        description: "Fail if mean regression across selected benchmarks exceeds this percent"
+        required: true
+        default: "1.5"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout baseline
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.baseline_ref }}
+          path: baseline
+
+      - name: Checkout current
+        uses: actions/checkout@v4
+        with:
+          path: current
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install plotting dependency
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install matplotlib
+
+      - name: Configure baseline benchmark build
+        run: |
+          cmake -S baseline -B baseline/build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPTN_BUILD_TESTS=OFF \
+            -DPTN_BUILD_BENCHMARKS=ON \
+            -DPTN_SKIP_COMPILER_CHECK=ON
+
+      - name: Build baseline benchmark target
+        run: cmake --build baseline/build --target ptn_bench --parallel
+
+      - name: Run baseline benchmark
+        run: |
+          baseline/build/bench/ptn_bench \
+            --benchmark_filter="${{ inputs.include_regex }}" \
+            --benchmark_out=baseline/build/bench/result.json \
+            --benchmark_out_format=json
+
+      - name: Configure current benchmark build
+        run: |
+          cmake -S current -B current/build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPTN_BUILD_TESTS=OFF \
+            -DPTN_BUILD_BENCHMARKS=ON \
+            -DPTN_SKIP_COMPILER_CHECK=ON
+
+      - name: Build current benchmark target
+        run: cmake --build current/build --target ptn_bench --parallel
+
+      - name: Run current benchmark
+        run: |
+          current/build/bench/ptn_bench \
+            --benchmark_filter="${{ inputs.include_regex }}" \
+            --benchmark_out=current/build/bench/result.json \
+            --benchmark_out_format=json
+
+      - name: Compare and enforce regression gate
+        id: compare
+        continue-on-error: true
+        run: |
+          python current/scripts/bench_compare.py \
+            --baseline baseline/build/bench/result.json \
+            --current current/build/bench/result.json \
+            --include "${{ inputs.include_regex }}" \
+            --label-baseline "${{ inputs.baseline_ref }}" \
+            --label-current "${{ github.sha }}" \
+            --outdir current/build/bench/compare \
+            --prefix bench_compare \
+            --fail-if-regress-pct "${{ inputs.fail_if_regress_pct }}" \
+            --fail-if-mean-regress-pct "${{ inputs.fail_if_mean_regress_pct }}"
+
+      - name: Upload benchmark compare artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-compare-${{ github.run_id }}
+          path: |
+            baseline/build/bench/result.json
+            current/build/bench/result.json
+            current/build/bench/compare/bench_compare.md
+            current/build/bench/compare/bench_compare.png
+
+      - name: Fail job when benchmark gate fails
+        if: steps.compare.outcome == 'failure'
+        run: |
+          echo "Benchmark regression gate failed."
+          exit 1

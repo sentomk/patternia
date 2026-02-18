@@ -18,6 +18,10 @@ on:
       - "LICENSE"
       - ".github/ISSUE_TEMPLATE/**"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -26,10 +30,22 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPTN_BUILD_TESTS=ON \
+            -DPTN_BUILD_BENCHMARKS=OFF \
+            -DPTN_SKIP_COMPILER_CHECK=ON
 
       - name: Build
         run: cmake --build build --parallel
 
       - name: Run Tests
         run: ctest --test-dir build --output-on-failure
+
+      - name: Upload test log (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-log
+          path: build/Testing/Temporary/LastTest.log
