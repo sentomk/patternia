@@ -31,10 +31,35 @@ struct ForwardingProbePattern
 int ForwardingProbePattern::lvalue_bind_calls = 0;
 int ForwardingProbePattern::rvalue_bind_calls = 0;
 
+struct ConditionalProbePattern
+    : ptn::pat::base::pattern_base<ConditionalProbePattern>,
+      ptn::pat::base::binding_pattern_base<ConditionalProbePattern> {
+  static bool should_match;
+  static int  bind_calls;
+
+  template <typename Subject>
+  constexpr bool match(const Subject &) const noexcept {
+    return should_match;
+  }
+
+  auto bind(const int &subject) const {
+    ++bind_calls;
+    return std::tuple<int>{subject};
+  }
+};
+
+bool ConditionalProbePattern::should_match = false;
+int  ConditionalProbePattern::bind_calls   = 0;
+
 namespace ptn::pat::base {
 
   template <typename Subject>
   struct binding_args<::ForwardingProbePattern, Subject> {
+    using type = std::tuple<int>;
+  };
+
+  template <typename Subject>
+  struct binding_args<::ConditionalProbePattern, Subject> {
     using type = std::tuple<int>;
   };
 
@@ -120,5 +145,62 @@ TEST(MatchFlow, GuardedPathOneBindVsLegacyTwoBindSequence) {
 
   EXPECT_EQ(result, 11);
   EXPECT_EQ(ForwardingProbePattern::lvalue_bind_calls, 1);
+  EXPECT_EQ(ForwardingProbePattern::rvalue_bind_calls, 0);
+}
+
+TEST(MatchFlow, BindCountMatrixNoBindWhenPatternMisses) {
+  ConditionalProbePattern::should_match = false;
+  ConditionalProbePattern::bind_calls   = 0;
+
+  int x      = 11;
+  int result = ptn::match(x)
+                   .when(ConditionalProbePattern{} >> [](int) { return 1; })
+                   .otherwise(0);
+
+  EXPECT_EQ(result, 0);
+  EXPECT_EQ(ConditionalProbePattern::bind_calls, 0);
+}
+
+TEST(MatchFlow, BindCountMatrixOneBindWhenPatternMatches) {
+  ConditionalProbePattern::should_match = true;
+  ConditionalProbePattern::bind_calls   = 0;
+
+  int x      = 11;
+  int result = ptn::match(x)
+                   .when(ConditionalProbePattern{} >> [](int v) { return v; })
+                   .otherwise(-1);
+
+  EXPECT_EQ(result, 11);
+  EXPECT_EQ(ConditionalProbePattern::bind_calls, 1);
+}
+
+TEST(MatchFlow, BindCountMatrixGuardMissBindsOnceThenOtherwise) {
+  ForwardingProbePattern::lvalue_bind_calls = 0;
+  ForwardingProbePattern::rvalue_bind_calls = 0;
+
+  int x      = 11;
+  int result = ptn::match(x)
+                   .when(ForwardingProbePattern{}[ptn::_ > 100] >>
+                         [](int) { return 1; })
+                   .otherwise(0);
+
+  EXPECT_EQ(result, 0);
+  EXPECT_EQ(ForwardingProbePattern::lvalue_bind_calls, 1);
+  EXPECT_EQ(ForwardingProbePattern::rvalue_bind_calls, 0);
+}
+
+TEST(MatchFlow, BindCountMatrixGuardMissThenNextCaseAddsSecondBind) {
+  ForwardingProbePattern::lvalue_bind_calls = 0;
+  ForwardingProbePattern::rvalue_bind_calls = 0;
+
+  int x      = 11;
+  int result = ptn::match(x)
+                   .when(ForwardingProbePattern{}[ptn::_ > 100] >>
+                         [](int) { return -1; })
+                   .when(ForwardingProbePattern{} >> [](int v) { return v; })
+                   .otherwise(0);
+
+  EXPECT_EQ(result, 11);
+  EXPECT_EQ(ForwardingProbePattern::lvalue_bind_calls, 2);
   EXPECT_EQ(ForwardingProbePattern::rvalue_bind_calls, 0);
 }
