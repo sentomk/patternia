@@ -31,9 +31,29 @@ struct ForwardingProbePattern
 int ForwardingProbePattern::lvalue_bind_calls = 0;
 int ForwardingProbePattern::rvalue_bind_calls = 0;
 
+struct ZeroBindProbePattern
+    : ptn::pat::base::pattern_base<ZeroBindProbePattern>,
+      ptn::pat::base::binding_pattern_base<ZeroBindProbePattern> {
+  // Counts bind() invocations for zero-bind cases.
+  static int bind_calls;
+
+  template <typename Subject>
+  constexpr bool match(const Subject &) const noexcept {
+    return true;
+  }
+
+  auto bind(const int &) const {
+    ++bind_calls;
+    return std::tuple<>{};
+  }
+};
+
+int ZeroBindProbePattern::bind_calls = 0;
+
 struct ConditionalProbePattern
     : ptn::pat::base::pattern_base<ConditionalProbePattern>,
       ptn::pat::base::binding_pattern_base<ConditionalProbePattern> {
+  // Test-controlled match gate and bind counter for matrix scenarios.
   static bool should_match;
   static int  bind_calls;
 
@@ -61,6 +81,11 @@ namespace ptn::pat::base {
   template <typename Subject>
   struct binding_args<::ConditionalProbePattern, Subject> {
     using type = std::tuple<int>;
+  };
+
+  template <typename Subject>
+  struct binding_args<::ZeroBindProbePattern, Subject> {
+    using type = std::tuple<>;
   };
 
 } // namespace ptn::pat::base
@@ -203,4 +228,18 @@ TEST(MatchFlow, BindCountMatrixGuardMissThenNextCaseAddsSecondBind) {
   EXPECT_EQ(result, 11);
   EXPECT_EQ(ForwardingProbePattern::lvalue_bind_calls, 2);
   EXPECT_EQ(ForwardingProbePattern::rvalue_bind_calls, 0);
+}
+
+TEST(MatchFlow, ZeroBindVariantStyleCaseSkipsBindInTypedEval) {
+  // This case mirrors variant style "type-only match + value/zero-arg handler".
+  ZeroBindProbePattern::bind_calls = 0;
+
+  int x      = 7;
+  int result = ptn::match(x)
+                   .when(ZeroBindProbePattern{} >> [] { return 42; })
+                   .otherwise(-1);
+
+  EXPECT_EQ(result, 42);
+  // Fast path contract: zero-bind case should not call bind().
+  EXPECT_EQ(ZeroBindProbePattern::bind_calls, 0);
 }
