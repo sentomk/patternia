@@ -81,6 +81,63 @@ namespace {
     }
   }
 
+  static int patternia_variant_guarded_route(const V &v) {
+    using namespace ptn;
+    auto long_string = [](const std::string &s) { return s.size() > 4; };
+
+    return match(v)
+        .when(type::as<int>()[_ > 100] >> 10)
+        .when(type::is<int>() >> 1)
+        .when(type::as<std::string>()[long_string] >> 20)
+        .when(type::is<std::string>() >> 2)
+        .when(__ >> 0)
+        .end();
+  }
+
+  static int std_visit_variant_guarded_route(const V &v) {
+    return std::visit(
+        [](const auto &x) -> int {
+          using T = std::decay_t<decltype(x)>;
+          if constexpr (std::is_same_v<T, int>) {
+            if (x > 100) {
+              return 10;
+            }
+            return 1;
+          }
+          else if constexpr (std::is_same_v<T, std::string>) {
+            if (x.size() > 4) {
+              return 20;
+            }
+            return 2;
+          }
+          else {
+            return 0;
+          }
+        },
+        v);
+  }
+
+  static int switch_index_variant_guarded_route(const V &v) {
+    switch (v.index()) {
+    case 0: {
+      const int x = std::get<0>(v);
+      if (x > 100) {
+        return 10;
+      }
+      return 1;
+    }
+    case 1: {
+      const auto &s = std::get<1>(v);
+      if (s.size() > 4) {
+        return 20;
+      }
+      return 2;
+    }
+    default:
+      return 0;
+    }
+  }
+
   template <typename F>
   static void run_variant_alternating_hot(benchmark::State &state, F fn) {
     // Microbench: isolate dispatch overhead with two prebuilt alternatives.
@@ -313,6 +370,30 @@ namespace {
     run_variant_alternating_hot(state, switch_index_variant_route);
   }
 
+  static void BM_Patternia_VariantMixedGuarded(benchmark::State &state) {
+    run_workload(state, variant_workload(), patternia_variant_guarded_route);
+  }
+
+  static void BM_StdVisit_VariantMixedGuarded(benchmark::State &state) {
+    run_workload(state, variant_workload(), std_visit_variant_guarded_route);
+  }
+
+  static void BM_SwitchIndex_VariantMixedGuarded(benchmark::State &state) {
+    run_workload(state, variant_workload(), switch_index_variant_guarded_route);
+  }
+
+  static void BM_Patternia_VariantAltHotGuarded(benchmark::State &state) {
+    run_variant_alternating_hot(state, patternia_variant_guarded_route);
+  }
+
+  static void BM_StdVisit_VariantAltHotGuarded(benchmark::State &state) {
+    run_variant_alternating_hot(state, std_visit_variant_guarded_route);
+  }
+
+  static void BM_SwitchIndex_VariantAltHotGuarded(benchmark::State &state) {
+    run_variant_alternating_hot(state, switch_index_variant_guarded_route);
+  }
+
   static void BM_Patternia_PacketMixed(benchmark::State &state) {
     run_workload(state, packet_workload(), patternia_packet_route);
   }
@@ -358,6 +439,36 @@ BENCHMARK(BM_StdVisit_VariantAltHot)
     ->Repetitions(20)
     ->ReportAggregatesOnly(true);
 BENCHMARK(BM_SwitchIndex_VariantAltHot)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
+BENCHMARK(BM_Patternia_VariantMixedGuarded)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
+BENCHMARK(BM_StdVisit_VariantMixedGuarded)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
+BENCHMARK(BM_SwitchIndex_VariantMixedGuarded)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
+BENCHMARK(BM_Patternia_VariantAltHotGuarded)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
+BENCHMARK(BM_StdVisit_VariantAltHotGuarded)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
+BENCHMARK(BM_SwitchIndex_VariantAltHotGuarded)
     ->Unit(benchmark::kNanosecond)
     ->MinTime(0.5)
     ->Repetitions(20)

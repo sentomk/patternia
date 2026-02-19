@@ -93,3 +93,51 @@ TEST(TypePattern, SimpleVariantDispatchUnlistedAltFallsToWildcard) {
   EXPECT_EQ(int_hits, 0);
   EXPECT_EQ(str_hits, 0);
 }
+
+TEST(TypePattern, MixedVariantGuardedFallsThroughToSimpleCase) {
+  std::variant<int, std::string> v = 42;
+
+  int guarded_hits = 0;
+  int simple_hits  = 0;
+
+  int result = ptn::match(v)
+                   .when(ptn::type::as<int>()[ptn::_ > 100] >> [&](int) {
+                     ++guarded_hits;
+                     return 10;
+                   })
+                   .when(ptn::type::is<int>() >> [&] {
+                     ++simple_hits;
+                     return 1;
+                   })
+                   .when(ptn::__ >> [] { return 0; })
+                   .end();
+
+  EXPECT_EQ(result, 1);
+  EXPECT_EQ(guarded_hits, 0);
+  EXPECT_EQ(simple_hits, 1);
+}
+
+TEST(TypePattern, MixedVariantGuardedCaseWinsWhenPredicateTrue) {
+  std::variant<int, std::string> v = std::string("patternia");
+  auto long_string = [](const std::string &s) { return s.size() > 4; };
+
+  int guarded_hits = 0;
+  int simple_hits  = 0;
+
+  int result = ptn::match(v)
+                   .when(ptn::type::as<std::string>()[long_string] >>
+                         [&](const std::string &) {
+                           ++guarded_hits;
+                           return 20;
+                         })
+                   .when(ptn::type::is<std::string>() >> [&] {
+                     ++simple_hits;
+                     return 2;
+                   })
+                   .when(ptn::__ >> [] { return 0; })
+                   .end();
+
+  EXPECT_EQ(result, 20);
+  EXPECT_EQ(guarded_hits, 1);
+  EXPECT_EQ(simple_hits, 0);
+}
