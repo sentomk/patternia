@@ -7,7 +7,7 @@
 
 namespace ptn::meta {
 
-  // contains<T, type_list<...>>
+  // `contains<T, type_list<...>>`.
 
   // Check whether a type_list contains the type T.
   template <typename T, typename TL>
@@ -21,7 +21,7 @@ namespace ptn::meta {
   template <typename T, typename TL>
   inline constexpr bool contains_v = contains<T, TL>::value;
 
-  // index_of<T, type_list<...>>
+  // `index_of<T, type_list<...>>`.
 
   // Compile-time index of T in a type_list (or -1 if not found).
   // Uses a constexpr loop for safe, deterministic behavior.

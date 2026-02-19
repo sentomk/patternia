@@ -17,9 +17,10 @@
 namespace ptn::core::engine::detail {
 
   // Builder class for constructing pattern match expressions.
-  // Provides fluent interface for building match expressions with method
-  // chaining. TV: The type of the subject value to be matched Cases: The types
-  // of case expressions added so far
+  // Provides a fluent interface for building match expressions with method
+  // chaining.
+  // TV is the type of the subject value being matched.
+  // Cases are the case-expression types accumulated so far.
   template <typename TV, bool HasMatchFallback, typename... Cases>
   class [[nodiscard(
       "[Patternia.match]: incomplete match expression. "
@@ -63,7 +64,7 @@ namespace ptn::core::engine::detail {
     // Triggered by .otherwise()
     static constexpr bool has_match_fallback = HasMatchFallback;
 
-    // unified exhaustiveness predicate
+    // Unified exhaustiveness predicate.
     static constexpr bool is_exhaustive =
         has_pattern_fallback || has_match_fallback;
 
@@ -206,7 +207,7 @@ namespace ptn::core::engine::detail {
   };
 } // namespace ptn::core::engine::detail
 
-// Forward Declaration
+// Forward declaration.
 namespace ptn::core::dsl::detail {
   template <typename... Cases>
   struct cases_pack;

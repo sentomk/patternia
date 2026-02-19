@@ -144,7 +144,7 @@ namespace ptn::pat::type {
   } // namespace detail
 
   // ------------------------------------------------------------
-  // Public API
+  // Public API.
   // ------------------------------------------------------------
 
   template <typename T>

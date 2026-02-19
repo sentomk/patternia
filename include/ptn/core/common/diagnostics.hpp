@@ -289,7 +289,7 @@ namespace ptn::core::common {
   }
 
   // ------------------------------------------------------------
-  // Builder API Validation
+  // Builder API validation.
   // ------------------------------------------------------------
 
   // Checks if the subject type is valid for pattern matching (must be an lvalue
@@ -486,7 +486,7 @@ namespace ptn::core::common {
   }
 
   // ------------------------------------------------------------
-  // Variant Diagnostics
+  // Variant diagnostics.
   // ------------------------------------------------------------
 
   namespace detail {

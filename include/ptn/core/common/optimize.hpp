@@ -9,17 +9,17 @@
 namespace ptn::core::common {
 
   namespace detail {
-    /// Primary template for case sequence optimization
-    /// Currently provides identity transformation - future implementations
-    /// may include case reordering, dead code elimination, etc.
+    // Primary template for case-sequence optimization.
+    // Currently provides identity transformation. Future implementations may
+    // include case reordering and dead-code elimination.
     template <typename Subject, typename CasesTuple>
     struct optimize_case_sequence {
       using type = CasesTuple;
     };
   } // namespace detail
 
-  /// Convenience alias for optimized case sequence type
-  /// Applies optimization transformations to a case sequence
+  // Convenience alias for optimized case-sequence type.
+  // Applies optimization transformations to a case sequence.
   template <typename Subject, typename CasesTuple>
   using optimize_case_sequence_t =
       typename detail::optimize_case_sequence<Subject, CasesTuple>::type;

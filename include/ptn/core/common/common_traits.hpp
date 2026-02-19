@@ -12,7 +12,7 @@
 #include <tuple>
 #include <utility>
 
-// Forward declaration
+// Forward declarations.
 namespace ptn::core::dsl::detail {
   template <typename Pattern, typename Handler>
   struct case_expr;
@@ -21,11 +21,11 @@ namespace ptn::core::dsl::detail {
 namespace ptn::pat::detail {
   struct wildcard_t;
 }
-// Forward declaration end
+// End of forward declarations.
 
 namespace ptn::core::traits {
 
-  // Basic Type Extraction
+  // Basic type extraction.
 
   // Detects if a type is a `case_expr`.
   template <typename T>

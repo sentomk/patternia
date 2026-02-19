@@ -10,24 +10,24 @@
 
 namespace ptn::core::dsl::detail {
 
-  /// Internal representation of a pattern-handler pair (case)
-  ///
-  /// This struct is created implicitly when using the >> operator:
-  /// ```cpp
-  /// pattern >> handler  // Creates a case_expr internally
-  /// ```
-  ///
-  /// @tparam Pattern The pattern type to match against
-  /// @tparam Handler The handler type to execute on match
-  ///
-  /// @internal This is an internal implementation detail. Use the >> operator.
+  // Internal representation of a pattern-handler pair (case).
+  //
+  // This struct is created implicitly when using the >> operator:
+  // ```cpp
+  // pattern >> handler  // Creates a case_expr internally.
+  // ```
+  //
+  // Pattern is the pattern type to match against.
+  // Handler is the handler type to execute on match.
+  //
+  // Internal implementation detail. Prefer using the >> operator.
   template <typename Pattern, typename Handler>
   struct case_expr {
     using pattern_type = Pattern;
     using handler_type = Handler;
 
-    Pattern pattern; ///< The pattern to match against
-    Handler handler; ///< The handler to execute if pattern matches
+    Pattern pattern; // The pattern to match against.
+    Handler handler; // The handler to execute if the pattern matches.
   };
 
   template <typename... Cases>

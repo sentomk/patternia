@@ -1,11 +1,10 @@
 #pragma once
 
-// Structural (decomposition) pattern: has<...>()
+// Structural (decomposition) pattern: `has<...>()`.
 //
 // Provides `has<&T::field...>()` to destructure aggregates / records by direct
 // non-static data member pointers.
-//
-//
+
 #include <cstddef>
 #include <tuple>
 
@@ -22,7 +21,7 @@ namespace ptn::pat {
 
   namespace detail {
 
-    // has_pattern
+    // Implements `has<...>` as a non-binding structural matcher.
     template <auto... Ms>
     struct has_pattern : base::pattern_base<has_pattern<Ms...>> {
 
@@ -30,7 +29,7 @@ namespace ptn::pat {
         ptn::core::common::static_assert_structural_elements<Ms...>();
       }
 
-      // Structural match:
+      // Performs structural matching.
       // If the member expressions are well-formed, the structure matches.
       // Any access failure is a hard compile-time error by design.
       template <typename Subject>
@@ -50,7 +49,7 @@ namespace ptn::pat {
 
   } // namespace detail
 
-  // public API
+  // Public API.
   template <auto... Ms>
   constexpr auto has() {
     return detail::has_pattern<Ms...>{};

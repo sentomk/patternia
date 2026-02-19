@@ -166,7 +166,7 @@ namespace ptn::core::common {
             std::remove_reference_t<CasesTuple>>::value;
   } // namespace detail
 
-  // Case Matching
+  // Case matching.
 
   // Checks if a case's pattern matches a subject value
   // Supports both class-based patterns with .match() and functional patterns
@@ -188,7 +188,7 @@ namespace ptn::core::common {
     }
   };
 
-  // Handler Invocation Logic
+  // Handler invocation logic.
 
   namespace detail {
 
@@ -239,7 +239,7 @@ namespace ptn::core::common {
     return detail::invoke_from_tuple(c.handler, bound_values);
   }
 
-  // Case Sequence Evaluation
+  // Case-sequence evaluation.
   namespace detail {
     // Recursive implementation for evaluating a tuple of cases in sequence
     template <
@@ -268,7 +268,7 @@ namespace ptn::core::common {
           return invoke_handler(current_case, subject);
         }
         else {
-          // Try the next case
+          // Try the next case.
           return eval_cases_impl<I + 1>(
               subject, cases, std::forward<Otherwise>(otherwise_handler));
         }

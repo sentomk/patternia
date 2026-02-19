@@ -1,19 +1,19 @@
 #pragma once
 
-// Introspection helpers for template instantiations:
-// extract arguments and provide a rebind alias.
+// Introspection helpers for template instantiations.
+// Extracts arguments and provides a rebind alias.
 
 #include "ptn/meta/dsa/type_list.hpp"
 
 namespace ptn::meta {
 
-  // template_info
-  // Extract template arguments and provide a rebind alias for a template specialization type.
+  // Primary template for non-specialized types.
+  // Exposes an empty argument list and no rebind alias.
   template <typename T>
   struct template_info {
     static constexpr bool is_specialization = false;
     using args                              = type_list<>;
-    // no rebind for non-template types
+    // Intentionally no rebind alias for non-template types.
   };
 
   template <template <typename...> typename Template, typename... Args>

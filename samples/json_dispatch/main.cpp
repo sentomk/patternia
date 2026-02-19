@@ -7,7 +7,7 @@
 
 using json = nlohmann::json;
 
-// forward declaration
+// Forward declaration.
 void parse_json(const json &j, int depth = 0);
 
 static json load_json_file(const std::string &path) {
