@@ -11,9 +11,21 @@
 #include <utility>
 #include <functional>
 #include <cstdlib>
+#include <variant>
 
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/common/diagnostics.hpp"
+
+namespace ptn::pat::type::detail {
+  // Forward declarations used by variant fast-path traits.
+  struct no_subpattern;
+
+  template <typename T, typename SubPattern>
+  struct type_is_pattern;
+
+  template <std::size_t I, typename SubPattern>
+  struct type_alt_pattern;
+} // namespace ptn::pat::type::detail
 
 namespace ptn::core::common {
 
@@ -63,6 +75,95 @@ namespace ptn::core::common {
     template <typename T>
     constexpr bool is_guarded_pattern_v =
         is_guarded_pattern<std::decay_t<T>>::value;
+
+    // Detects std::variant subjects so fast-path logic only engages on variants.
+    template <typename T>
+    struct is_variant_subject : std::false_type {};
+
+    template <typename... Alts>
+    struct is_variant_subject<std::variant<Alts...>> : std::true_type {};
+
+    template <typename T>
+    constexpr bool is_variant_subject_v =
+        is_variant_subject<std::remove_cv_t<std::remove_reference_t<T>>>::value;
+
+    // Matches `type::is<T>()` with no subpattern/binding.
+    template <typename Pattern>
+    struct is_simple_variant_type_is_pattern : std::false_type {};
+
+    template <typename Alt>
+    struct is_simple_variant_type_is_pattern<
+        ptn::pat::type::detail::type_is_pattern<
+            Alt,
+            ptn::pat::type::detail::no_subpattern>> : std::true_type {};
+
+    template <typename Pattern>
+    constexpr bool is_simple_variant_type_is_pattern_v =
+        is_simple_variant_type_is_pattern<std::decay_t<Pattern>>::value;
+
+    // Matches `type::alt<I>()` with no subpattern/binding.
+    template <typename Pattern>
+    struct is_simple_variant_type_alt_pattern : std::false_type {};
+
+    template <std::size_t I>
+    struct is_simple_variant_type_alt_pattern<
+        ptn::pat::type::detail::type_alt_pattern<
+            I,
+            ptn::pat::type::detail::no_subpattern>> : std::true_type {};
+
+    template <typename Pattern>
+    constexpr bool is_simple_variant_type_alt_pattern_v =
+        is_simple_variant_type_alt_pattern<std::decay_t<Pattern>>::value;
+
+    // Wildcard can act as default arm in the simple variant dispatcher.
+    template <typename Pattern>
+    constexpr bool is_wildcard_pattern_v =
+        std::is_same_v<std::decay_t<Pattern>, ptn::pat::detail::wildcard_t>;
+
+    template <typename Pattern>
+    constexpr bool is_simple_variant_dispatch_pattern_v =
+        is_simple_variant_type_is_pattern_v<Pattern> ||
+        is_simple_variant_type_alt_pattern_v<Pattern> ||
+        is_wildcard_pattern_v<Pattern>;
+
+    // Extracts alt index from `type::alt<I>()` patterns.
+    template <typename Pattern>
+    struct simple_variant_alt_index;
+
+    template <std::size_t I>
+    struct simple_variant_alt_index<
+        ptn::pat::type::detail::type_alt_pattern<
+            I,
+            ptn::pat::type::detail::no_subpattern>>
+        : std::integral_constant<std::size_t, I> {};
+
+    template <typename Case, typename Subject>
+    struct is_simple_variant_dispatch_case {
+      using case_t       = std::remove_reference_t<Case>;
+      using pattern_t    = traits::case_pattern_t<case_t>;
+      using handler_t    = traits::case_handler_t<case_t>;
+      using bound_args_t = pat::base::binding_args_t<pattern_t, Subject>;
+
+      static constexpr bool value =
+          is_simple_variant_dispatch_pattern_v<pattern_t> &&
+          std::tuple_size_v<bound_args_t> == 0 && std::is_invocable_v<handler_t>;
+    };
+
+    // Fast-path is enabled only when every case qualifies.
+    template <typename Subject, typename CasesTuple>
+    struct is_simple_variant_dispatch_cases_tuple : std::false_type {};
+
+    template <typename Subject, typename... Cases>
+    struct is_simple_variant_dispatch_cases_tuple<Subject, std::tuple<Cases...>>
+        : std::bool_constant<(
+              is_simple_variant_dispatch_case<Cases, Subject>::value && ...)> {
+    };
+
+    template <typename Subject, typename CasesTuple>
+    constexpr bool is_simple_variant_dispatch_cases_tuple_v =
+        is_simple_variant_dispatch_cases_tuple<
+            Subject,
+            std::remove_reference_t<CasesTuple>>::value;
   } // namespace detail
 
   // Case Matching
@@ -199,6 +300,91 @@ namespace ptn::core::common {
       std::abort();
     }
 
+    template <typename Result, typename Subject, typename Otherwise>
+    constexpr Result invoke_otherwise_typed(
+        Subject &subject, Otherwise &&otherwise_handler) {
+      // Shared typed otherwise flow for both generic and fast-path evaluators.
+      using otherwise_result = traits::otherwise_result_t<Otherwise, Subject>;
+
+      if constexpr (std::is_same_v<
+                        otherwise_result,
+                        traits::detail::unreachable_t>) {
+        if constexpr (std::is_invocable_v<Otherwise, Subject &>) {
+          std::forward<Otherwise>(otherwise_handler)(subject);
+        }
+        else {
+          std::forward<Otherwise>(otherwise_handler)();
+        }
+        return unreachable_result<Result>();
+      }
+      else if constexpr (std::is_invocable_v<Otherwise, Subject &>) {
+        return static_cast<Result>(
+            std::forward<Otherwise>(otherwise_handler)(subject));
+      }
+      else {
+        return static_cast<Result>(
+            std::forward<Otherwise>(otherwise_handler)());
+      }
+    }
+
+    template <typename Pattern, typename Subject>
+    constexpr bool simple_variant_pattern_matches_index(
+        std::size_t active_index) {
+      // Preserves existing diagnostics while matching by cached variant index.
+      using pattern_t = std::decay_t<Pattern>;
+
+      if constexpr (is_wildcard_pattern_v<pattern_t>) {
+        return true;
+      }
+      else if constexpr (is_simple_variant_type_is_pattern_v<pattern_t>) {
+        static_assert_variant_alt_unique<typename pattern_t::alt_t, Subject>();
+        return active_index == pattern_t::template alt_index<Subject>();
+      }
+      else if constexpr (is_simple_variant_type_alt_pattern_v<pattern_t>) {
+        constexpr std::size_t I = simple_variant_alt_index<pattern_t>::value;
+        static_assert_variant_alt_index<I, Subject>();
+        return active_index == I;
+      }
+      else {
+        return false;
+      }
+    }
+
+    template <
+        std::size_t I,
+        typename Result,
+        typename Subject,
+        typename CasesTuple,
+        typename Otherwise,
+        std::size_t N = std::tuple_size_v<std::remove_reference_t<CasesTuple>>>
+    constexpr Result eval_cases_impl_variant_simple_dispatch(
+        std::size_t active_index,
+        Subject &subject,
+        CasesTuple &cases,
+        Otherwise &&otherwise_handler) {
+      // Single-dispatch evaluator for simple variant-only case chains.
+      if constexpr (I >= N) {
+        return invoke_otherwise_typed<Result>(
+            subject, std::forward<Otherwise>(otherwise_handler));
+      }
+      else {
+        auto &current_case = std::get<I>(cases);
+        using case_t       = std::remove_reference_t<decltype(current_case)>;
+        using pattern_t    = traits::case_pattern_t<case_t>;
+
+        if (simple_variant_pattern_matches_index<pattern_t, Subject>(
+                active_index)) {
+          return static_cast<Result>(current_case.handler());
+        }
+
+        return eval_cases_impl_variant_simple_dispatch<I + 1, Result>(
+            active_index,
+            subject,
+            cases,
+            std::forward<Otherwise>(otherwise_handler));
+      }
+    }
+
     template <
         std::size_t I,
         typename Result,
@@ -209,28 +395,8 @@ namespace ptn::core::common {
     constexpr Result eval_cases_impl_typed(
         Subject &subject, CasesTuple &cases, Otherwise &&otherwise_handler) {
       if constexpr (I >= N) {
-        using otherwise_result =
-            traits::otherwise_result_t<Otherwise, Subject>;
-
-        if constexpr (std::is_same_v<
-                          otherwise_result,
-                          traits::detail::unreachable_t>) {
-          if constexpr (std::is_invocable_v<Otherwise, Subject &>) {
-            std::forward<Otherwise>(otherwise_handler)(subject);
-          }
-          else {
-            std::forward<Otherwise>(otherwise_handler)();
-          }
-          return unreachable_result<Result>();
-        }
-        else if constexpr (std::is_invocable_v<Otherwise, Subject &>) {
-          return static_cast<Result>(
-              std::forward<Otherwise>(otherwise_handler)(subject));
-        }
-        else {
-          return static_cast<Result>(
-              std::forward<Otherwise>(otherwise_handler)());
-        }
+        return invoke_otherwise_typed<Result>(
+            subject, std::forward<Otherwise>(otherwise_handler));
       }
       else {
         auto &current_case = std::get<I>(cases);
@@ -304,7 +470,25 @@ namespace ptn::core::common {
       typename Otherwise>
   constexpr Result eval_cases_typed(
       Subject &subject, CasesTuple &cases, Otherwise &&otherwise_handler) {
-    return detail::eval_cases_impl_typed<0, Result>(
-        subject, cases, std::forward<Otherwise>(otherwise_handler));
+    using subject_t = std::remove_cv_t<std::remove_reference_t<Subject>>;
+
+    constexpr bool use_simple_variant_dispatch =
+        detail::is_variant_subject_v<subject_t> &&
+        detail::is_simple_variant_dispatch_cases_tuple_v<subject_t, CasesTuple>;
+
+    if constexpr (use_simple_variant_dispatch) {
+      // Variant simple-dispatch fast path:
+      // read index once, then resolve by case order (first-match-wins).
+      const std::size_t active_index = subject.index();
+      return detail::eval_cases_impl_variant_simple_dispatch<0, Result>(
+          active_index,
+          subject,
+          cases,
+          std::forward<Otherwise>(otherwise_handler));
+    }
+    else {
+      return detail::eval_cases_impl_typed<0, Result>(
+          subject, cases, std::forward<Otherwise>(otherwise_handler));
+    }
   }
 } // namespace ptn::core::common

@@ -32,3 +32,36 @@ TEST(TypePattern, AltByIndex) {
 
   EXPECT_STREQ(result, "int");
 }
+
+TEST(TypePattern, SimpleVariantDispatchPreservesFirstMatchWins) {
+  std::variant<int, std::string> v = 42;
+
+  int hit_count = 0;
+  int result    = ptn::match(v)
+                   .when(ptn::type::is<int>() >> [&] {
+                     ++hit_count;
+                     return 1;
+                   })
+                   .when(ptn::type::is<int>() >> [&] {
+                     ++hit_count;
+                     return 2;
+                   })
+                   .when(ptn::__ >> [&] {
+                     ++hit_count;
+                     return 3;
+                   })
+                   .end();
+
+  EXPECT_EQ(result, 1);
+  EXPECT_EQ(hit_count, 1);
+}
+
+TEST(TypePattern, SimpleVariantDispatchFallsBackToOtherwise) {
+  std::variant<int, std::string> v = std::string("patternia");
+
+  int result = ptn::match(v)
+                   .when(ptn::type::is<int>() >> 1)
+                   .otherwise(99);
+
+  EXPECT_EQ(result, 99);
+}
