@@ -65,3 +65,31 @@ TEST(TypePattern, SimpleVariantDispatchFallsBackToOtherwise) {
 
   EXPECT_EQ(result, 99);
 }
+
+TEST(TypePattern, SimpleVariantDispatchUnlistedAltFallsToWildcard) {
+  std::variant<int, std::string, double> v = 3.14;
+
+  int wildcard_hits = 0;
+  int int_hits      = 0;
+  int str_hits      = 0;
+
+  int result = ptn::match(v)
+                   .when(ptn::type::is<int>() >> [&] {
+                     ++int_hits;
+                     return 1;
+                   })
+                   .when(ptn::type::is<std::string>() >> [&] {
+                     ++str_hits;
+                     return 2;
+                   })
+                   .when(ptn::__ >> [&] {
+                     ++wildcard_hits;
+                     return 7;
+                   })
+                   .end();
+
+  EXPECT_EQ(result, 7);
+  EXPECT_EQ(wildcard_hits, 1);
+  EXPECT_EQ(int_hits, 0);
+  EXPECT_EQ(str_hits, 0);
+}
