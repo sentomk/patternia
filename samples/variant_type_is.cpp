@@ -22,14 +22,14 @@ std::string describe(const std::variant<int, std::string, Point> &v) {
 }
 
 std::string describe_as(const std::variant<int, std::string, Point> &v) {
-  // Same as describe(...), but using the binding sugar type::as<T>().
+  // Same as describe(...), but uses the binding sugar `type::as<T>()`.
   //
-  // type::as<T>() is equivalent to type::is<T>(bind()), so the handler receives
-  // the alternative value (or the bound fields if combined with
-  // bind(has<...>())).
+  // `type::as<T>()` is equivalent to `type::is<T>(bind())`, so the handler
+  // receives the alternative value (or bound fields when combined with
+  // `bind(has<...>())`).
   //
-  // With the recent change, type patterns become binding patterns when their
-  // subpattern binds, so guards can be attached directly to type::as<T>().
+  // Type patterns become binding patterns when their subpattern binds.
+  // Guards can be attached directly to `type::as<T>()`.
   return match(v)
       .when(type::is<int>() >> "int")
       .when(type::as<std::string>()[_ != ""] >>

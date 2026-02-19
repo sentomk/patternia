@@ -15,7 +15,7 @@
 namespace ptn::pat::traits {
 
   // -----------------------------------------------------------------------
-  // Pattern Identification
+  // Pattern identification.
   // -----------------------------------------------------------------------
 
   // Detects if a type has a .match(Subject) method.
@@ -48,7 +48,7 @@ namespace ptn::pat::traits {
   inline constexpr bool is_pattern_v = is_pattern<P>::value;
 
   // -----------------------------------------------------------------------
-  // Binding Pattern Traits
+  // Binding-pattern traits.
   // -----------------------------------------------------------------------
 
   // Detects if a pattern is a binding pattern.
@@ -68,7 +68,7 @@ namespace ptn::pat::traits {
   inline constexpr bool is_binding_pattern_v = is_binding_pattern<P>::value;
 
   // -----------------------------------------------------------------------
-  // Structural Pattern Traits
+  // Structural-pattern traits.
   // -----------------------------------------------------------------------
 
   // Checks if M is a non-static data member pointer.
@@ -90,7 +90,7 @@ namespace ptn::pat::traits {
       is_data_member_ptr_v<M> || is_nullptr_placeholder_v<M>;
 
   // -----------------------------------------------------------------------
-  // Guard Predicate Traits
+  // Guard-predicate traits.
   // -----------------------------------------------------------------------
 
   // Marker tag for guard predicates.

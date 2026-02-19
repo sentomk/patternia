@@ -17,7 +17,7 @@
 #include "ptn/pattern/base/pattern_kind.hpp"
 
 // --- Core Matching Logic ---
-// The main entry point functions
+// Provides the main entry-point functions.
 #include "ptn/core/engine/match.hpp"
 
 // --- DSL Operators ---
@@ -36,7 +36,7 @@
 namespace ptn {
   using ptn::core::engine::match;
 
-  // Import DSL operators
+  // Imports DSL operators.
   using ptn::core::dsl::ops::operator>>;
   using ptn::core::dsl::ops::cases;
 
@@ -47,18 +47,18 @@ namespace ptn {
 
   using ptn::pat::__;
 
-  // guard
+  // Guard utilities.
   using ptn::pat::mod::_;
   using ptn::pat::mod::operator&&;
   using ptn::pat::mod::operator||;
   using ptn::pat::mod::arg;
   using ptn::pat::mod::rng;
 
-  // structural
+  // Structural matching utilities.
   using ptn::pat::_ign;
   using ptn::pat::has;
 
-  // type
+  // Type-pattern utilities.
   namespace type = ptn::pat::type;
   using ptn::pat::type::is;
   using ptn::pat::type::as;

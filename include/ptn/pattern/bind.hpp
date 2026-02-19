@@ -17,7 +17,7 @@
 
 namespace ptn::pat {
 
-  // Internal Implementation Details
+  // Internal implementation details.
 
   namespace detail {
 
@@ -69,7 +69,7 @@ namespace ptn::pat {
       }
     };
 
-    // Detect structural has-pattern
+    // Detects `has<...>` structural patterns.
     template <typename T>
     struct is_structural_has : std::false_type {};
 
@@ -81,11 +81,11 @@ namespace ptn::pat {
     inline constexpr bool is_structural_has_v =
         is_structural_has<std::decay_t<T>>::value;
 
-    // Forward declaration
+    // Forward declaration.
     template <typename HasPattern>
     struct structural_bind_pattern;
 
-    // Specialization for has_pattern<Ms...>
+    // Specialization for `has_pattern<Ms...>`.
     template <auto... Ms>
     struct structural_bind_pattern<pat::detail::has_pattern<Ms...>>
         : base::pattern_base<
@@ -125,7 +125,7 @@ namespace ptn::pat {
 
   } // namespace detail
 
-  // Public API
+  // Public API.
   //
   // Note: The bind(v) / bind(v, subpattern) forms are not provided.
   // In C++, v would be treated as a variable name in the DSL context,
@@ -154,17 +154,17 @@ namespace ptn::pat {
 
 } // namespace ptn::pat
 
-// binding_args Registration
+// Binding-args registration.
 
 namespace ptn::pat::base {
 
-  // binding_pattern binds 1 value: Subject.
+  // `binding_pattern` binds one value: Subject.
   template <typename Subject>
   struct binding_args<pat::detail::binding_pattern, Subject> {
     using type = std::tuple<const std::remove_reference_t<Subject> &>;
   };
 
-  // binding_as_pattern binds:
+  // `binding_as_pattern` binds:
   //   (Subject) + binding sequence returned by SubPattern::bind(Subject)
   template <typename Tag, typename SubPattern, typename Subject>
   struct binding_args<
@@ -175,7 +175,7 @@ namespace ptn::pat::base {
         typename binding_args<SubPattern, Subject>::type{}));
   };
 
-  // Structural-binding pattern binds
+  // Structural-binding pattern binds.
   template <auto... Ms, typename Subject>
   struct binding_args<
       pat::detail::structural_bind_pattern<pat::detail::has_pattern<Ms...>>,

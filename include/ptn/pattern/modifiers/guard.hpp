@@ -209,7 +209,7 @@ namespace ptn::pat::mod {
 
   // --- operator overloads (arith / cmp / logic / unary) ---
 
-  // Arithmetic operators
+  // Arithmetic operators.
   template <
       typename L,
       typename R,
@@ -266,7 +266,7 @@ namespace ptn::pat::mod {
         as_expr(std::forward<L>(l)), as_expr(std::forward<R>(r))};
   }
 
-  // Modulo operator
+  // Modulo operator.
   template <
       typename L,
       typename R,
