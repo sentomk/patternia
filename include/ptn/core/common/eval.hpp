@@ -115,6 +115,32 @@ namespace ptn::core::common {
     constexpr bool is_simple_variant_type_alt_pattern_v =
         is_simple_variant_type_alt_pattern<std::decay_t<Pattern>>::value;
 
+    // Matches `type::is<T>(...)` (any subpattern).
+    template <typename Pattern>
+    struct is_variant_type_is_pattern : std::false_type {};
+
+    template <typename Alt, typename SubPattern>
+    struct is_variant_type_is_pattern<
+        ptn::pat::type::detail::type_is_pattern<Alt, SubPattern>>
+        : std::true_type {};
+
+    template <typename Pattern>
+    constexpr bool is_variant_type_is_pattern_v =
+        is_variant_type_is_pattern<std::decay_t<Pattern>>::value;
+
+    // Matches `type::alt<I>(...)` (any subpattern).
+    template <typename Pattern>
+    struct is_variant_type_alt_pattern : std::false_type {};
+
+    template <std::size_t I, typename SubPattern>
+    struct is_variant_type_alt_pattern<
+        ptn::pat::type::detail::type_alt_pattern<I, SubPattern>>
+        : std::true_type {};
+
+    template <typename Pattern>
+    constexpr bool is_variant_type_alt_pattern_v =
+        is_variant_type_alt_pattern<std::decay_t<Pattern>>::value;
+
     // Wildcard can act as default arm in the simple variant dispatcher.
     template <typename Pattern>
     constexpr bool is_wildcard_pattern_v =
@@ -137,6 +163,22 @@ namespace ptn::core::common {
             ptn::pat::type::detail::no_subpattern>>
         : std::integral_constant<std::size_t, I> {};
 
+    template <typename Pattern>
+    struct variant_type_alt_index;
+
+    template <std::size_t I, typename SubPattern>
+    struct variant_type_alt_index<
+        ptn::pat::type::detail::type_alt_pattern<I, SubPattern>>
+        : std::integral_constant<std::size_t, I> {};
+
+    template <typename Pattern>
+    struct guarded_inner_pattern;
+
+    template <typename Inner, typename Pred>
+    struct guarded_inner_pattern<ptn::pat::mod::guarded_pattern<Inner, Pred>> {
+      using type = Inner;
+    };
+
     // Compile-time matcher for a fixed variant alternative index.
     // Used by the fast path to eliminate per-case runtime index checks.
     template <typename Pattern, typename Subject, std::size_t ActiveIndex>
@@ -157,6 +199,36 @@ namespace ptn::core::common {
       }
       else {
         return false;
+      }
+    }
+
+    // Runtime index prefilter for mixed variant case chains.
+    // Returns false only when a pattern is statically known to never match
+    // the active variant alternative.
+    template <typename Pattern, typename Subject>
+    constexpr bool variant_pattern_maybe_matches_active_index(
+        std::size_t active_index) {
+      using pattern_t = std::decay_t<Pattern>;
+
+      if constexpr (is_wildcard_pattern_v<pattern_t>) {
+        return true;
+      }
+      else if constexpr (is_guarded_pattern_v<pattern_t>) {
+        using inner_t = typename guarded_inner_pattern<pattern_t>::type;
+        return variant_pattern_maybe_matches_active_index<inner_t, Subject>(
+            active_index);
+      }
+      else if constexpr (is_variant_type_is_pattern_v<pattern_t>) {
+        static_assert_variant_alt_unique<typename pattern_t::alt_t, Subject>();
+        return active_index == pattern_t::template alt_index<Subject>();
+      }
+      else if constexpr (is_variant_type_alt_pattern_v<pattern_t>) {
+        constexpr std::size_t I = variant_type_alt_index<pattern_t>::value;
+        static_assert_variant_alt_index<I, Subject>();
+        return active_index == I;
+      }
+      else {
+        return true;
       }
     }
 
@@ -502,6 +574,98 @@ namespace ptn::core::common {
         }
       }
     }
+
+    template <
+        std::size_t I,
+        typename Result,
+        typename Subject,
+        typename CasesTuple,
+        typename Otherwise,
+        std::size_t N = std::tuple_size_v<std::remove_reference_t<CasesTuple>>>
+    constexpr Result eval_cases_impl_typed_variant_prefilter(
+        std::size_t active_index,
+        Subject &subject,
+        CasesTuple &cases,
+        Otherwise &&otherwise_handler) {
+      if constexpr (I >= N) {
+        return invoke_otherwise_typed<Result>(
+            subject, std::forward<Otherwise>(otherwise_handler));
+      }
+      else {
+        auto &current_case = std::get<I>(cases);
+        using case_t       = std::remove_reference_t<decltype(current_case)>;
+        using pattern_t    = traits::case_pattern_t<case_t>;
+        using handler_t    = traits::case_handler_t<case_t>;
+        using bound_args_t = pat::base::binding_args_t<pattern_t, Subject>;
+
+        if (!variant_pattern_maybe_matches_active_index<pattern_t, Subject>(
+                active_index)) {
+          return eval_cases_impl_typed_variant_prefilter<I + 1, Result>(
+              active_index,
+              subject,
+              cases,
+              std::forward<Otherwise>(otherwise_handler));
+        }
+
+        constexpr bool zero_bind_noarg_handler =
+            std::tuple_size_v<bound_args_t> == 0 &&
+            std::is_invocable_v<handler_t>;
+
+        if constexpr (detail::is_guarded_pattern_v<pattern_t>) {
+          auto &guarded = current_case.pattern;
+          if (guarded.inner.match(subject)) {
+            auto bound    = guarded.inner.bind(subject);
+            using bound_t = std::decay_t<decltype(bound)>;
+            constexpr std::size_t bound_arity = std::tuple_size_v<bound_t>;
+
+            bool guard_ok = false;
+            if constexpr (ptn::pat::traits::is_tuple_guard_predicate_v<
+                              decltype(guarded.pred)>) {
+              ptn::core::common::static_assert_tuple_guard_index<
+                  ptn::pat::mod::max_tuple_guard_index<
+                      std::decay_t<decltype(guarded.pred)>>::value,
+                  bound_arity>();
+              guard_ok = static_cast<bool>(guarded.pred(bound));
+            }
+            else if constexpr (ptn::pat::traits::is_guard_predicate_v<
+                                   decltype(guarded.pred)>) {
+              ptn::core::common::static_assert_unary_guard_arity<bound_arity>();
+              guard_ok = static_cast<bool>(guarded.pred(std::get<0>(bound)));
+            }
+            else {
+              guard_ok = static_cast<bool>(std::apply(guarded.pred, bound));
+            }
+
+            if (guard_ok) {
+              return static_cast<Result>(
+                  detail::invoke_from_tuple(current_case.handler, bound));
+            }
+          }
+
+          return eval_cases_impl_typed_variant_prefilter<I + 1, Result>(
+              active_index,
+              subject,
+              cases,
+              std::forward<Otherwise>(otherwise_handler));
+        }
+        else if (
+            case_matcher<case_t, Subject>::matches(current_case, subject)) {
+          if constexpr (zero_bind_noarg_handler) {
+            return static_cast<Result>(current_case.handler());
+          }
+          else {
+            return static_cast<Result>(invoke_handler(current_case, subject));
+          }
+        }
+        else {
+          return eval_cases_impl_typed_variant_prefilter<I + 1, Result>(
+              active_index,
+              subject,
+              cases,
+              std::forward<Otherwise>(otherwise_handler));
+        }
+      }
+    }
   } // namespace detail
 
   template <
@@ -523,6 +687,16 @@ namespace ptn::core::common {
       // for that alternative (preserves first-match-wins semantics).
       const std::size_t active_index = subject.index();
       return detail::eval_cases_impl_variant_simple_dispatch_by_index<0, Result>(
+          active_index,
+          subject,
+          cases,
+          std::forward<Otherwise>(otherwise_handler));
+    }
+    else if constexpr (detail::is_variant_subject_v<subject_t>) {
+      // Mixed variant path (e.g. simple + guarded): prefilter by active
+      // alternative before evaluating each case.
+      const std::size_t active_index = subject.index();
+      return detail::eval_cases_impl_typed_variant_prefilter<0, Result>(
           active_index,
           subject,
           cases,
