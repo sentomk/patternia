@@ -26,6 +26,26 @@ Default outputs:
 - `build/bench/compare/bench_compare.png`
 - `build/bench/compare/bench_compare.md`
 
+## 2.1) Single-file visualization (multi-impl in one JSON)
+
+Use this when one JSON already contains multiple implementations
+(Patternia / if-else / switch / std::visit) and you want per-scenario
+comparison.
+
+```powershell
+py -3 scripts/bench_single_report.py `
+  --input build/variant_all.json `
+  --include "Variant|ProtocolRouter|CommandParser" `
+  --outdir build/bench/single `
+  --prefix single_impl
+```
+
+Outputs:
+
+- `build/bench/single/single_impl.png`
+- `build/bench/single/single_impl.md`
+- `build/bench/single/single_impl.csv`
+
 ## Optional args
 
 ```powershell
