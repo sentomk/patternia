@@ -17,3 +17,4 @@
 - [v0.7.3](v0.7.3.md) - February 16, 2026
 - [v0.7.4](v0.7.4.md) - February 18, 2026
 - [v0.7.5](v0.7.5.md) - February 18, 2026 (Hotfix)
+- [v0.7.6](v0.7.6.md) - February 20, 2026
