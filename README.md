@@ -32,6 +32,12 @@
 - **Variant matching is now supported (v0.7.x)** — including `type::is`, `type::as`, and `type::alt`.
 - **Planned change (v0.8.x)** — `match(x, cases(...))` will be removed.
 
+## *Performance Snapshot*
+
+Current single-run snapshot (same JSON, multi-implementation comparison):
+
+![Patternia Variant Dispatch Snapshot](docs/assets/bench/variant-single-report.png)
+
 
 ## *Learn Patternia*
 
@@ -379,7 +385,7 @@ and fixes a MinGW compilation issue in variant benchmark registration.
 ```powershell
 # 0) Optional: run variant-focused benchmark suite (stable profile in-code)
 .\build\bench\ptn_bench.exe `
-  --benchmark_filter="Variant(Mixed|AltHot)" `
+  --benchmark_filter="Variant" `
   --benchmark_out="build/bench/result.json" `
   --benchmark_out_format=json
 
@@ -394,11 +400,14 @@ py -3 scripts/bench_compare.py `
   --label-baseline "backup" `
   --label-current "current" `
   --prefix "packet_heavy"
+
+# 2b) Single-file visualization for multi-impl comparison
+py -3 scripts/bench_single_report.py `
+  --input "build/bench/result.json" `
+  --include "Variant" `
+  --outdir "build/bench/single" `
+  --prefix "variant_single"
 ```
-
-### v0.7.3 Heavy-Bind Compare Snapshot (Historical)
-
-![Patternia v0.7.3 Heavy Bind Benchmark](docs/assets/bench/v0.7.3-heavybind-compare.png)
 
 ## *API Reference*
 
