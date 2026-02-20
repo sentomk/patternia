@@ -28,7 +28,7 @@
 
 ## *Update*
 
-- **Hotfix update (v0.7.5)** — fixes MinGW benchmark registration compatibility in variant microbench setup while preserving the stable run profile.
+- **Performance update (v0.7.6)** — adds variant dispatch fast paths, practical variant benchmark scenarios, and single-JSON visualization tooling.
 - **Variant matching is now supported (v0.7.x)** — including `type::is`, `type::as`, and `type::alt`.
 - **Planned change (v0.8.x)** — `match(x, cases(...))` will be removed.
 
@@ -359,10 +359,11 @@ ctest --test-dir build -R compile_fail --output-on-failure
 ctest --test-dir build --output-on-failure
 ```
 
-## *Benchmarking (v0.7.5 Hotfix)*
+## *Benchmarking (v0.7.6)*
 
-Patternia v0.7.5 hotfix keeps the same benchmark scenarios and stable profile,
-and fixes a MinGW compilation issue in variant benchmark registration.
+Patternia v0.7.6 keeps stable variant microbench profiling, adds practical
+variant scenarios (protocol router and command parser), and provides
+single-file JSON visualization tooling for multi-implementation comparison.
 
 ### Heavy-Bind Principle
 
