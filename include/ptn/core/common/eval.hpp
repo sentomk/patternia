@@ -179,10 +179,10 @@ namespace ptn::core::common {
       using type = Inner;
     };
 
-    // Compile-time matcher for a fixed variant alternative index.
-    // Used by the fast path to eliminate per-case runtime index checks.
-    template <typename Pattern, typename Subject, std::size_t ActiveIndex>
-    constexpr bool simple_variant_pattern_matches_alt_index() {
+    // Runtime matcher for simple variant patterns by active index.
+    template <typename Pattern, typename Subject>
+    constexpr bool simple_variant_pattern_matches_index(
+        std::size_t active_index) {
       using pattern_t = std::decay_t<Pattern>;
 
       if constexpr (is_wildcard_pattern_v<pattern_t>) {
@@ -190,12 +190,12 @@ namespace ptn::core::common {
       }
       else if constexpr (is_simple_variant_type_is_pattern_v<pattern_t>) {
         static_assert_variant_alt_unique<typename pattern_t::alt_t, Subject>();
-        return ActiveIndex == pattern_t::template alt_index<Subject>();
+        return active_index == pattern_t::template alt_index<Subject>();
       }
       else if constexpr (is_simple_variant_type_alt_pattern_v<pattern_t>) {
         constexpr std::size_t I = simple_variant_alt_index<pattern_t>::value;
         static_assert_variant_alt_index<I, Subject>();
-        return ActiveIndex == I;
+        return active_index == I;
       }
       else {
         return false;
@@ -423,18 +423,18 @@ namespace ptn::core::common {
     }
 
     template <
-        std::size_t ActiveIndex,
         std::size_t I,
         typename Result,
         typename Subject,
         typename CasesTuple,
         typename Otherwise,
         std::size_t N = std::tuple_size_v<std::remove_reference_t<CasesTuple>>>
-    constexpr Result eval_cases_impl_variant_simple_dispatch_for_alt(
+    constexpr Result eval_cases_impl_variant_simple_dispatch(
+        std::size_t active_index,
         Subject &subject,
         CasesTuple &cases,
         Otherwise &&otherwise_handler) {
-      // Evaluates cases for one concrete active alternative index.
+      // Single-dispatch evaluator for simple variant-only case chains.
       if constexpr (I >= N) {
         return invoke_otherwise_typed<Result>(
             subject, std::forward<Otherwise>(otherwise_handler));
@@ -444,53 +444,12 @@ namespace ptn::core::common {
         using case_t       = std::remove_reference_t<decltype(current_case)>;
         using pattern_t    = traits::case_pattern_t<case_t>;
 
-        if constexpr (simple_variant_pattern_matches_alt_index<
-                          pattern_t,
-                          Subject,
-                          ActiveIndex>()) {
+        if (simple_variant_pattern_matches_index<pattern_t, Subject>(
+                active_index)) {
           return static_cast<Result>(current_case.handler());
         }
 
-        return eval_cases_impl_variant_simple_dispatch_for_alt<
-            ActiveIndex,
-            I + 1,
-            Result>(
-            subject,
-            cases,
-            std::forward<Otherwise>(otherwise_handler));
-      }
-    }
-
-    template <
-        std::size_t ActiveIndex,
-        typename Result,
-        typename Subject,
-        typename CasesTuple,
-        typename Otherwise,
-        std::size_t VariantSize =
-            std::variant_size_v<std::remove_cv_t<std::remove_reference_t<Subject>>>>
-    constexpr Result eval_cases_impl_variant_simple_dispatch_by_index(
-        std::size_t active_index,
-        Subject &subject,
-        CasesTuple &cases,
-        Otherwise &&otherwise_handler) {
-      if constexpr (ActiveIndex >= VariantSize) {
-        // Also handles valueless_by_exception (index == variant_npos).
-        return invoke_otherwise_typed<Result>(
-            subject, std::forward<Otherwise>(otherwise_handler));
-      }
-      else {
-        if (active_index == ActiveIndex) {
-          return eval_cases_impl_variant_simple_dispatch_for_alt<
-              ActiveIndex,
-              0,
-              Result>(
-              subject, cases, std::forward<Otherwise>(otherwise_handler));
-        }
-
-        return eval_cases_impl_variant_simple_dispatch_by_index<
-            ActiveIndex + 1,
-            Result>(
+        return eval_cases_impl_variant_simple_dispatch<I + 1, Result>(
             active_index,
             subject,
             cases,
@@ -683,10 +642,9 @@ namespace ptn::core::common {
 
     if constexpr (use_simple_variant_dispatch) {
       // Variant simple-dispatch fast path:
-      // read index once, then dispatch to a compile-time-selected case chain
-      // for that alternative (preserves first-match-wins semantics).
+      // read index once, then resolve by case order (first-match-wins).
       const std::size_t active_index = subject.index();
-      return detail::eval_cases_impl_variant_simple_dispatch_by_index<0, Result>(
+      return detail::eval_cases_impl_variant_simple_dispatch<0, Result>(
           active_index,
           subject,
           cases,
