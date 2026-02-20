@@ -27,6 +27,7 @@ Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic c
 
 ### Project Information
 - <u><a href="changelog/releases/">Releases</a></u> - Version update history
+- <u><a href="https://github.com/SentoMK/patternia/blob/main/scripts/README.md">Benchmark Scripts</a></u> - JSON compare and visualization tooling
 
 ---
 
@@ -35,6 +36,22 @@ Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic c
 - **C++ Standard**: C++17 or later
 - **Compilers**: GCC ≥11, Clang ≥12, MSVC ≥2019
 - **Platforms**: Linux, Windows, macOS
+
+---
+
+## Benchmarking
+
+- Run benchmark suite from project root:
+
+```powershell
+.\build\bench\ptn_bench.exe --benchmark_filter="Variant" --benchmark_out=build/variant_all.json --benchmark_out_format=json
+```
+
+- Visualize one JSON across implementations:
+
+```powershell
+py -3 scripts/bench_single_report.py --input build/variant_all.json --include "Variant" --outdir build/bench/single --prefix variant_single
+```
 
 ---
 
