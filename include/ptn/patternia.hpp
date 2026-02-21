@@ -34,11 +34,8 @@
 #include "ptn/pattern/type.hpp"            // type::is, type::as, type::alt
 
 namespace ptn {
-  using ptn::core::engine::match;
-
   // Imports DSL operators.
   using ptn::core::dsl::ops::operator>>;
-  using ptn::core::dsl::ops::cases;
 
   using ptn::pat::lit;
   using ptn::pat::lit_ci;

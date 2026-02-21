@@ -206,22 +206,3 @@ namespace ptn::core::engine::detail {
     }
   };
 } // namespace ptn::core::engine::detail
-
-// Forward declaration.
-namespace ptn::core::dsl::detail {
-  template <typename... Cases>
-  struct cases_pack;
-}
-
-namespace ptn::core::engine {
-
-  template <typename TV, typename... Cases>
-  constexpr auto
-  match(TV &subject, core::dsl::detail::cases_pack<Cases...> pack) {
-
-    using subject_ref_t = std::remove_reference_t<TV> &;
-    using builder_t     = detail::match_builder<subject_ref_t, false, Cases...>;
-    return builder_t::create(subject, std::move(pack.cases));
-  }
-
-} // namespace ptn::core::engine
