@@ -243,3 +243,29 @@ TEST(MatchFlow, ZeroBindVariantStyleCaseSkipsBindInTypedEval) {
   // Fast path contract: zero-bind case should not call bind().
   EXPECT_EQ(ZeroBindProbePattern::bind_calls, 0);
 }
+
+TEST(MatchFlow, PipeOnSyntaxOtherwise) {
+  int x = 3;
+
+  int result = (ptn::match(x) |
+                ptn::on{
+                    ptn::lit(1) >> 10,
+                    ptn::lit(2) >> 20,
+                })
+                   .otherwise(-1);
+
+  EXPECT_EQ(result, -1);
+}
+
+TEST(MatchFlow, PipeOnSyntaxEndWithWildcard) {
+  int x = 2;
+
+  int result = (ptn::match(x) |
+                ptn::on{
+                    ptn::lit(1) >> 10,
+                    ptn::__ >> 99,
+                })
+                   .end();
+
+  EXPECT_EQ(result, 99);
+}
