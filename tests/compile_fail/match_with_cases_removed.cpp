@@ -3,7 +3,7 @@
 int main() {
   int x = 1;
   auto r = ptn::match(x, ptn::cases(
-               ptn::bind() >> 1,
+               ptn::lit(1) >> 1,
                ptn::__ >> 0
            )).end();
   (void)r;

@@ -35,8 +35,7 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/otherwise_with_wildcard.cpp
   compile_fail/end_without_wildcard.cpp
   compile_fail/case_after_wildcard.cpp
-  compile_fail/cases_with_binding.cpp
-  compile_fail/cases_with_guard.cpp
+  compile_fail/match_with_cases_removed.cpp
 )
 
 function(ptn_add_compile_fail_test SOURCE_REL)
