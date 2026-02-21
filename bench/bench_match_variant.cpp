@@ -101,6 +101,18 @@ namespace {
         .end();
   }
 
+  static int patternia_pipe_variant_route(const V &v) {
+    using namespace ptn;
+    using ptn::pat::type::is;
+
+    return match(v)
+           | on{
+               is<int>() >> 1,
+               is<std::string>() >> 2,
+               __ >> 0,
+           };
+  }
+
   static int std_visit_variant_route(const V &v) {
     return std::visit(
         [](const auto &x) -> int {
@@ -140,6 +152,20 @@ namespace {
         .when(type::is<std::string>() >> 2)
         .when(__ >> 0)
         .end();
+  }
+
+  static int patternia_pipe_variant_guarded_route(const V &v) {
+    using namespace ptn;
+    auto long_string = [](const std::string &s) { return s.size() > 4; };
+
+    return match(v)
+           | on{
+               type::as<int>()[_ > 100] >> 10,
+               type::is<int>() >> 1,
+               type::as<std::string>()[long_string] >> 20,
+               type::is<std::string>() >> 2,
+               __ >> 0,
+           };
   }
 
   static int std_visit_variant_guarded_route(const V &v) {
@@ -208,6 +234,31 @@ namespace {
         .when(type::is<ProtoControl>() >> 4)
         .when(__ >> 0)
         .end();
+  }
+
+  static int patternia_pipe_protocol_router(const ProtocolMsg &msg) {
+    using namespace ptn;
+    auto urgent_ping = [](const ProtoPing &p) { return p.urgent; };
+    auto heavy_data  = [](const ProtoData &d) {
+      return d.reliable && d.length >= 256;
+    };
+    auto fatal_error = [](const ProtoError &e) { return e.fatal; };
+    auto control_ack = [](const ProtoControl &c) {
+      return c.op == 1 && c.ack_required;
+    };
+
+    return match(msg)
+           | on{
+               type::as<ProtoPing>()[urgent_ping] >> 11,
+               type::is<ProtoPing>() >> 1,
+               type::as<ProtoData>()[heavy_data] >> 22,
+               type::is<ProtoData>() >> 2,
+               type::as<ProtoError>()[fatal_error] >> 33,
+               type::is<ProtoError>() >> 3,
+               type::as<ProtoControl>()[control_ack] >> 44,
+               type::is<ProtoControl>() >> 4,
+               __ >> 0,
+           };
   }
 
   static int if_else_protocol_router(const ProtocolMsg &msg) {
@@ -308,6 +359,29 @@ namespace {
         .when(type::is<CmdScan>() >> 400)
         .when(__ >> 0)
         .end();
+  }
+
+  static int patternia_pipe_command_parser(const CommandMsg &msg) {
+    using namespace ptn;
+    auto persistent_set = [](const CmdSet &c) {
+      return c.persist && c.value >= 0;
+    };
+    auto hot_get = [](const CmdGet &c) { return c.allow_stale && c.key < 256; };
+    auto deep_del  = [](const CmdDel &c) { return c.recursive; };
+    auto wide_scan = [](const CmdScan &c) { return c.limit >= 128; };
+
+    return match(msg)
+           | on{
+               type::as<CmdSet>()[persistent_set] >> 101,
+               type::is<CmdSet>() >> 100,
+               type::as<CmdGet>()[hot_get] >> 201,
+               type::is<CmdGet>() >> 200,
+               type::as<CmdDel>()[deep_del] >> 301,
+               type::is<CmdDel>() >> 300,
+               type::as<CmdScan>()[wide_scan] >> 401,
+               type::is<CmdScan>() >> 400,
+               __ >> 0,
+           };
   }
 
   static int if_else_command_parser(const CommandMsg &msg) {
@@ -437,6 +511,34 @@ namespace {
         .otherwise(0);
   }
 
+  static int patternia_pipe_packet_route(const Packet &pkt) {
+    using namespace ptn;
+
+    auto is_ping_packet = [](std::uint8_t type, std::uint16_t length) {
+      return type == 0x01 && length == 0;
+    };
+
+    auto is_valid_data_packet =
+        [&pkt](std::uint8_t type, std::uint16_t length, std::uint8_t flags) {
+          return type == 0x02 && length == pkt.payload.size()
+                 && (flags & FLAG_VALID);
+        };
+
+    auto is_error_packet = [&pkt](std::uint8_t type) {
+      return type == 0xFF && !pkt.payload.empty();
+    };
+
+    return match(pkt)
+           | on{
+               bind(has<&Packet::type, &Packet::length>())[is_ping_packet] >> 1,
+               bind(has<&Packet::type, &Packet::length, &Packet::flags>())
+                   [is_valid_data_packet]
+               >> 2,
+               bind(has<&Packet::type>())[is_error_packet] >> 3,
+               __ >> 0,
+           };
+  }
+
   static int switch_packet_route(const Packet &pkt) {
     switch (pkt.type) {
     case 0x01:
@@ -490,6 +592,40 @@ namespace {
         .when(bind(has<&Packet::type, &Packet::payload>())[is_error_packet]
               >> 3)
         .otherwise(0);
+  }
+
+  static int patternia_pipe_packet_heavy_bind_route(const Packet &pkt) {
+    using namespace ptn;
+
+    auto is_ping_packet = [](std::uint8_t type, std::uint16_t length) {
+      return type == 0x01 && length == 0;
+    };
+
+    auto is_valid_data_packet = [](std::uint8_t                     type,
+                                   std::uint16_t                    length,
+                                   std::uint8_t                     flags,
+                                   const std::vector<std::uint8_t> &payload) {
+      return type == 0x02 && length == payload.size()
+             && (flags & FLAG_VALID) != 0u && payload_tag(payload) != 0u;
+    };
+
+    auto is_error_packet = [](std::uint8_t                     type,
+                              const std::vector<std::uint8_t> &payload) {
+      return type == 0xFF && payload_tag(payload) > 0u;
+    };
+
+    return match(pkt)
+           | on{
+               bind(has<&Packet::type, &Packet::length>())[is_ping_packet] >> 1,
+               bind(has<&Packet::type,
+                        &Packet::length,
+                        &Packet::flags,
+                        &Packet::payload>())[is_valid_data_packet]
+               >> 2,
+               bind(has<&Packet::type, &Packet::payload>())[is_error_packet]
+               >> 3,
+               __ >> 0,
+           };
   }
 
   static int switch_packet_heavy_bind_route(const Packet &pkt) {
@@ -639,6 +775,10 @@ namespace {
     run_workload(state, variant_workload(), patternia_variant_route);
   }
 
+  static void BM_PatterniaPipe_VariantMixed(benchmark::State &state) {
+    run_workload(state, variant_workload(), patternia_pipe_variant_route);
+  }
+
   static void BM_StdVisit_VariantMixed(benchmark::State &state) {
     run_workload(state, variant_workload(), std_visit_variant_route);
   }
@@ -649,6 +789,10 @@ namespace {
 
   static void BM_Patternia_VariantAltHot(benchmark::State &state) {
     run_variant_alternating_hot(state, patternia_variant_route);
+  }
+
+  static void BM_PatterniaPipe_VariantAltHot(benchmark::State &state) {
+    run_variant_alternating_hot(state, patternia_pipe_variant_route);
   }
 
   static void BM_StdVisit_VariantAltHot(benchmark::State &state) {
@@ -663,6 +807,11 @@ namespace {
     run_workload(state, variant_workload(), patternia_variant_guarded_route);
   }
 
+  static void BM_PatterniaPipe_VariantMixedGuarded(benchmark::State &state) {
+    run_workload(
+        state, variant_workload(), patternia_pipe_variant_guarded_route);
+  }
+
   static void BM_StdVisit_VariantMixedGuarded(benchmark::State &state) {
     run_workload(state, variant_workload(), std_visit_variant_guarded_route);
   }
@@ -673,6 +822,10 @@ namespace {
 
   static void BM_Patternia_VariantAltHotGuarded(benchmark::State &state) {
     run_variant_alternating_hot(state, patternia_variant_guarded_route);
+  }
+
+  static void BM_PatterniaPipe_VariantAltHotGuarded(benchmark::State &state) {
+    run_variant_alternating_hot(state, patternia_pipe_variant_guarded_route);
   }
 
   static void BM_StdVisit_VariantAltHotGuarded(benchmark::State &state) {
@@ -687,6 +840,10 @@ namespace {
     run_workload(state, packet_workload(), patternia_packet_route);
   }
 
+  static void BM_PatterniaPipe_PacketMixed(benchmark::State &state) {
+    run_workload(state, packet_workload(), patternia_pipe_packet_route);
+  }
+
   static void BM_Switch_PacketMixed(benchmark::State &state) {
     run_workload(state, packet_workload(), switch_packet_route);
   }
@@ -696,6 +853,13 @@ namespace {
         state, packet_heavy_workload(), patternia_packet_heavy_bind_route);
   }
 
+  static void BM_PatterniaPipe_PacketMixedHeavyBind(benchmark::State &state) {
+    run_workload(
+        state,
+        packet_heavy_workload(),
+        patternia_pipe_packet_heavy_bind_route);
+  }
+
   static void BM_Switch_PacketMixedHeavyBind(benchmark::State &state) {
     run_workload(
         state, packet_heavy_workload(), switch_packet_heavy_bind_route);
@@ -703,6 +867,10 @@ namespace {
 
   static void BM_Patternia_ProtocolRouter(benchmark::State &state) {
     run_workload(state, protocol_workload(), patternia_protocol_router);
+  }
+
+  static void BM_PatterniaPipe_ProtocolRouter(benchmark::State &state) {
+    run_workload(state, protocol_workload(), patternia_pipe_protocol_router);
   }
 
   static void BM_IfElse_ProtocolRouter(benchmark::State &state) {
@@ -719,6 +887,10 @@ namespace {
 
   static void BM_Patternia_CommandParser(benchmark::State &state) {
     run_workload(state, command_workload(), patternia_command_parser);
+  }
+
+  static void BM_PatterniaPipe_CommandParser(benchmark::State &state) {
+    run_workload(state, command_workload(), patternia_pipe_command_parser);
   }
 
   static void BM_IfElse_CommandParser(benchmark::State &state) {
@@ -740,6 +912,11 @@ BENCHMARK(BM_Patternia_VariantMixed)
     ->MinTime(0.5)
     ->Repetitions(20)
     ->ReportAggregatesOnly(true);
+BENCHMARK(BM_PatterniaPipe_VariantMixed)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
 BENCHMARK(BM_StdVisit_VariantMixed)
     ->Unit(benchmark::kNanosecond)
     ->MinTime(0.5)
@@ -751,6 +928,11 @@ BENCHMARK(BM_SwitchIndex_VariantMixed)
     ->Repetitions(20)
     ->ReportAggregatesOnly(true);
 BENCHMARK(BM_Patternia_VariantAltHot)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
+BENCHMARK(BM_PatterniaPipe_VariantAltHot)
     ->Unit(benchmark::kNanosecond)
     ->MinTime(0.5)
     ->Repetitions(20)
@@ -770,6 +952,11 @@ BENCHMARK(BM_Patternia_VariantMixedGuarded)
     ->MinTime(0.5)
     ->Repetitions(20)
     ->ReportAggregatesOnly(true);
+BENCHMARK(BM_PatterniaPipe_VariantMixedGuarded)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
 BENCHMARK(BM_StdVisit_VariantMixedGuarded)
     ->Unit(benchmark::kNanosecond)
     ->MinTime(0.5)
@@ -785,6 +972,11 @@ BENCHMARK(BM_Patternia_VariantAltHotGuarded)
     ->MinTime(0.5)
     ->Repetitions(20)
     ->ReportAggregatesOnly(true);
+BENCHMARK(BM_PatterniaPipe_VariantAltHotGuarded)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
 BENCHMARK(BM_StdVisit_VariantAltHotGuarded)
     ->Unit(benchmark::kNanosecond)
     ->MinTime(0.5)
@@ -796,6 +988,11 @@ BENCHMARK(BM_SwitchIndex_VariantAltHotGuarded)
     ->Repetitions(20)
     ->ReportAggregatesOnly(true);
 BENCHMARK(BM_Patternia_ProtocolRouter)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
+BENCHMARK(BM_PatterniaPipe_ProtocolRouter)
     ->Unit(benchmark::kNanosecond)
     ->MinTime(0.5)
     ->Repetitions(20)
@@ -820,6 +1017,11 @@ BENCHMARK(BM_Patternia_CommandParser)
     ->MinTime(0.5)
     ->Repetitions(20)
     ->ReportAggregatesOnly(true);
+BENCHMARK(BM_PatterniaPipe_CommandParser)
+    ->Unit(benchmark::kNanosecond)
+    ->MinTime(0.5)
+    ->Repetitions(20)
+    ->ReportAggregatesOnly(true);
 BENCHMARK(BM_IfElse_CommandParser)
     ->Unit(benchmark::kNanosecond)
     ->MinTime(0.5)
@@ -836,6 +1038,8 @@ BENCHMARK(BM_StdVisit_CommandParser)
     ->Repetitions(20)
     ->ReportAggregatesOnly(true);
 BENCHMARK(BM_Patternia_PacketMixed);
+BENCHMARK(BM_PatterniaPipe_PacketMixed);
 BENCHMARK(BM_Switch_PacketMixed);
 BENCHMARK(BM_Patternia_PacketMixedHeavyBind);
+BENCHMARK(BM_PatterniaPipe_PacketMixedHeavyBind);
 BENCHMARK(BM_Switch_PacketMixedHeavyBind);
