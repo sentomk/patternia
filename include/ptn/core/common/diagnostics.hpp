@@ -30,21 +30,6 @@ namespace ptn::pat::mod {
 namespace ptn::core::common {
 
   // ------------------------------------------------------------
-  // Case Expression Validation
-  // ------------------------------------------------------------
-
-  // Ensures cases(...) only receives case expressions (pattern >> handler).
-  template <typename... CaseExprs>
-  constexpr void static_assert_cases_are_case_expr() {
-    constexpr bool all_are_case_exprs =
-        (ptn::core::traits::is_case_expr_v<CaseExprs> && ...);
-    static_assert(
-        all_are_case_exprs,
-        "[Patternia.cases]: arguments must be case expressions created "
-        "with '>>'.");
-  }
-
-  // ------------------------------------------------------------
   // Match Expression Validation
   // ------------------------------------------------------------
 
@@ -352,25 +337,6 @@ namespace ptn::core::common {
     static_assert(no_match_fallback,
                   "[Patternia.match.end]: cannot be used after .otherwise(). "
                   "Tip: remove .otherwise() when using .end().");
-  }
-
-  // Validates that cases(...) only uses non-binding patterns.
-  template <typename... Cases>
-  constexpr void static_assert_cases_precondition() {
-    // (A) cases(...) disallows binding/guards (no binding patterns).
-    constexpr bool no_bindings =
-        (!ptn::pat::traits::is_binding_pattern_v<
-             ptn::core::traits::case_pattern_t<Cases>>
-         && ...);
-    static_assert(
-        no_bindings,
-        "[Patternia.cases]: binding/guards are not allowed in cases(...). "
-        "Use match(...).when(...) for binding and guard logic.");
-    // (B) Wildcard must be last in cases(...).
-    constexpr bool fallback_last = detail::fallback_is_last<Cases...>::value;
-    static_assert(fallback_last,
-                  "[Patternia.cases]: wildcard '__' must be the last case. "
-                  "Tip: move '__' to the end.");
   }
 
   // ------------------------------------------------------------
