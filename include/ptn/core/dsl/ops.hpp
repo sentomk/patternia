@@ -9,7 +9,6 @@
 #include <type_traits>
 #include <utility>
 
-#include "ptn/core/common/diagnostics.hpp"
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/dsl/detail/case_expr_impl.hpp"
 
@@ -50,21 +49,6 @@ namespace ptn::core::dsl::ops {
       return core::dsl::detail::case_expr<P, H>{
           std::forward<Pattern>(pattern), std::forward<Handler>(handler)};
     }
-  }
-
-  template <typename... CaseExprs>
-  constexpr auto cases(CaseExprs &&...exprs) {
-    ptn::core::common::static_assert_cases_are_case_expr<
-        std::decay_t<CaseExprs>...>();
-    ptn::core::common::static_assert_no_unreachable_alt_after_plain_alt<
-        std::decay_t<CaseExprs>...>();
-    ptn::core::common::static_assert_cases_precondition<
-        std::decay_t<CaseExprs>...>();
-
-    using pack_t  = core::dsl::detail::cases_pack<std::decay_t<CaseExprs>...>;
-    using tuple_t = typename pack_t::tuple_type;
-
-    return pack_t{tuple_t{std::forward<CaseExprs>(exprs)...}};
   }
 
 } // namespace ptn::core::dsl::ops
