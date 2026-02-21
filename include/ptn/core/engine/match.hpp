@@ -11,7 +11,9 @@ namespace ptn {
 
   // Primary entry for pattern matching.
   // Subject type is automatically deduced as std::decay_t<T>.
-  // Usage: match(value).when(case1).when(case2).otherwise(handler)
+  // Usage:
+  //   - match(value).when(case1).when(case2).otherwise(handler)
+  //   - (match(value) | on{case1, case2, ...}).otherwise(handler)
   template <typename T>
   constexpr auto match(T &value) {
     using V = T &;

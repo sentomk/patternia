@@ -36,6 +36,7 @@
 namespace ptn {
   // Imports DSL operators.
   using ptn::core::dsl::ops::operator>>;
+  using ptn::core::dsl::detail::on;
 
   using ptn::pat::lit;
   using ptn::pat::lit_ci;
