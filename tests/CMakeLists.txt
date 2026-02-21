@@ -36,6 +36,7 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/end_without_wildcard.cpp
   compile_fail/case_after_wildcard.cpp
   compile_fail/match_with_cases_removed.cpp
+  compile_fail/on_pipeline_mixed_with_when.cpp
 )
 
 function(ptn_add_compile_fail_test SOURCE_REL)
