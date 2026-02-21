@@ -13,7 +13,7 @@ namespace ptn {
   // Subject type is automatically deduced as std::decay_t<T>.
   // Usage:
   //   - match(value).when(case1).when(case2).otherwise(handler)
-  //   - (match(value) | on{case1, case2, ...}).otherwise(handler)
+  //   - match(value) | on{case1, case2, ..., __ >> fallback}
   template <typename T>
   constexpr auto match(T &value) {
     using V = T &;

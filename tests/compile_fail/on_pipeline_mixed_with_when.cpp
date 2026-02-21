@@ -7,8 +7,7 @@ int main() {
   auto r = (match(x).when(lit(1) >> 1) |
             on{
                 __ >> 0,
-            })
-               .end();
+            });
   (void)r;
   return 0;
 }

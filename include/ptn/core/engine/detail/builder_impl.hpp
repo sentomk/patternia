@@ -111,7 +111,8 @@ namespace ptn::core::engine::detail {
 
     // Pipeline API: match(x) | on{ case1, case2, ... }
     template <typename... NewCases>
-    constexpr auto operator|(core::dsl::detail::on<NewCases...> on_cases) && {
+    constexpr decltype(auto)
+    operator|(core::dsl::detail::on<NewCases...> on_cases) && {
       constexpr bool is_fresh_pipeline = (sizeof...(Cases) == 0);
       static_assert(
           is_fresh_pipeline,
@@ -131,10 +132,38 @@ namespace ptn::core::engine::detail {
           "[Patternia.on]: case sequence contains unreachable cases. "
           "Tip: ensure wildcard '__' is last and remove shadowed cases.");
 
-      using builder_t = match_builder<subject_type, HasMatchFallback, NewCases...>;
+      constexpr bool has_pattern_fallback_in_on =
+          (traits::is_pattern_fallback_v<traits::case_pattern_t<NewCases>> ||
+           ...);
+      static_assert(
+          has_pattern_fallback_in_on,
+          "[Patternia.on]: missing wildcard '__' fallback. "
+          "Tip: add '__ >> handler' as the last case.");
 
-      return builder_t{
-          std::forward<subject_type>(subject_), std::move(on_cases.cases)};
+      auto dummy_fallback =
+          [](auto &&...) -> ptn::core::traits::detail::unreachable_t {
+        return {};
+      };
+      using dummy_handler_t = decltype(dummy_fallback);
+
+      ptn::core::common::
+          static_assert_valid_match<subject_type, dummy_handler_t, NewCases...>();
+
+      using result_type = core::traits::
+          match_result_t<subject_type, dummy_handler_t, NewCases...>;
+
+      if constexpr (traits::is_void_like_v<result_type>) {
+        match_impl::eval<result_type>(
+            std::forward<subject_type>(subject_),
+            on_cases.cases,
+            std::move(dummy_fallback));
+      }
+      else {
+        return match_impl::eval<result_type>(
+            std::forward<subject_type>(subject_),
+            on_cases.cases,
+            std::move(dummy_fallback));
+      }
     }
 
     // Terminal API: .otherwise(...)
