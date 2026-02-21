@@ -247,12 +247,12 @@ TEST(MatchFlow, ZeroBindVariantStyleCaseSkipsBindInTypedEval) {
 TEST(MatchFlow, PipeOnSyntaxOtherwise) {
   int x = 3;
 
-  int result = (ptn::match(x) |
-                ptn::on{
-                    ptn::lit(1) >> 10,
-                    ptn::lit(2) >> 20,
-                })
-                   .otherwise(-1);
+  int result = ptn::match(x) |
+               ptn::on{
+                   ptn::lit(1) >> 10,
+                   ptn::lit(2) >> 20,
+                   ptn::__ >> -1,
+               };
 
   EXPECT_EQ(result, -1);
 }
@@ -260,12 +260,11 @@ TEST(MatchFlow, PipeOnSyntaxOtherwise) {
 TEST(MatchFlow, PipeOnSyntaxEndWithWildcard) {
   int x = 2;
 
-  int result = (ptn::match(x) |
-                ptn::on{
-                    ptn::lit(1) >> 10,
-                    ptn::__ >> 99,
-                })
-                   .end();
+  int result = ptn::match(x) |
+               ptn::on{
+                   ptn::lit(1) >> 10,
+                   ptn::__ >> 99,
+               };
 
   EXPECT_EQ(result, 99);
 }
