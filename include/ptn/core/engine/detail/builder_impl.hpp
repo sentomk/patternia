@@ -14,6 +14,11 @@
 #include "ptn/core/common/diagnostics.hpp"
 #include "ptn/core/engine/detail/match_impl.hpp"
 
+namespace ptn::core::dsl::detail {
+  template <typename... Cases>
+  struct on;
+} // namespace ptn::core::dsl::detail
+
 namespace ptn::core::engine::detail {
 
   // Builder class for constructing pattern match expressions.
@@ -102,6 +107,34 @@ namespace ptn::core::engine::detail {
 
       return builder_t{
           std::forward<subject_type>(subject_), std::move(new_cases)};
+    }
+
+    // Pipeline API: match(x) | on{ case1, case2, ... }
+    template <typename... NewCases>
+    constexpr auto operator|(core::dsl::detail::on<NewCases...> on_cases) && {
+      constexpr bool is_fresh_pipeline = (sizeof...(Cases) == 0);
+      static_assert(
+          is_fresh_pipeline,
+          "[Patternia.on]: pipeline form only supports a fresh match(subject). "
+          "Use either match(subject) | on{...} or the chained .when(...) API.");
+
+      (ptn::core::common::static_assert_valid_case<NewCases, subject_type>(),
+       ...);
+
+      ptn::core::common::static_assert_no_unreachable_alt_after_plain_alt<
+          NewCases...>();
+
+      constexpr bool no_unreachable_cases =
+          !ptn::core::common::has_unreachable_case_v<NewCases...>;
+      static_assert(
+          no_unreachable_cases,
+          "[Patternia.on]: case sequence contains unreachable cases. "
+          "Tip: ensure wildcard '__' is last and remove shadowed cases.");
+
+      using builder_t = match_builder<subject_type, HasMatchFallback, NewCases...>;
+
+      return builder_t{
+          std::forward<subject_type>(subject_), std::move(on_cases.cases)};
     }
 
     // Terminal API: .otherwise(...)
