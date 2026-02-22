@@ -9,6 +9,13 @@
 
 #include "ptn/patternia.hpp"
 
+#define PTN_BENCH_MODE_PIPE_STD 1
+#define PTN_BENCH_MODE_PIPE_CHAIN 2
+
+#ifndef PTN_BENCH_MODE
+#define PTN_BENCH_MODE PTN_BENCH_MODE_PIPE_STD
+#endif
+
 namespace {
 
   using V = std::variant<int, std::string>;
@@ -462,6 +469,90 @@ namespace {
         msg);
   }
 
+  static int patternia_pipe_literal_match_route(int x) {
+    using namespace ptn;
+
+    return match(x)
+           | on{
+               lit(1) >> 1,
+               lit(2) >> 2,
+               lit(3) >> 3,
+               lit(4) >> 4,
+               lit(5) >> 5,
+               lit(6) >> 6,
+               lit(7) >> 7,
+               lit(8) >> 8,
+               __ >> 0,
+           };
+  }
+
+  static int patternia_literal_match_route(int x) {
+    using namespace ptn;
+
+    return match(x)
+        .when(lit(1) >> 1)
+        .when(lit(2) >> 2)
+        .when(lit(3) >> 3)
+        .when(lit(4) >> 4)
+        .when(lit(5) >> 5)
+        .when(lit(6) >> 6)
+        .when(lit(7) >> 7)
+        .when(lit(8) >> 8)
+        .when(__ >> 0)
+        .end();
+  }
+
+  static int if_else_literal_match_route(int x) {
+    if (x == 1) {
+      return 1;
+    }
+    if (x == 2) {
+      return 2;
+    }
+    if (x == 3) {
+      return 3;
+    }
+    if (x == 4) {
+      return 4;
+    }
+    if (x == 5) {
+      return 5;
+    }
+    if (x == 6) {
+      return 6;
+    }
+    if (x == 7) {
+      return 7;
+    }
+    if (x == 8) {
+      return 8;
+    }
+    return 0;
+  }
+
+  static int switch_literal_match_route(int x) {
+    switch (x) {
+    case 1:
+      return 1;
+    case 2:
+      return 2;
+    case 3:
+      return 3;
+    case 4:
+      return 4;
+    case 5:
+      return 5;
+    case 6:
+      return 6;
+    case 7:
+      return 7;
+    case 8:
+      return 8;
+    default:
+      return 0;
+    }
+  }
+
   template <typename F>
   static void run_variant_alternating_hot(benchmark::State &state, F fn) {
     // Microbench: isolate dispatch overhead with two prebuilt alternatives.
@@ -748,6 +839,14 @@ namespace {
     return data;
   }
 
+  static const std::vector<int> &literal_workload() {
+    static const std::vector<int> data = {
+        1, 2, 3, 4, 5, 6, 7, 8,
+        0, 9, 2, 4, 6, 8, 10, 3,
+    };
+    return data;
+  }
+
   template <typename T, typename F>
   static void
   run_workload(benchmark::State &state, const std::vector<T> &workload, F fn) {
@@ -905,141 +1004,81 @@ namespace {
     run_workload(state, command_workload(), std_visit_command_parser);
   }
 
+  static void BM_PatterniaPipe_LiteralMatch(benchmark::State &state) {
+    run_workload(
+        state, literal_workload(), patternia_pipe_literal_match_route);
+  }
+
+  static void BM_Patternia_LiteralMatch(benchmark::State &state) {
+    run_workload(state, literal_workload(), patternia_literal_match_route);
+  }
+
+  static void BM_IfElse_LiteralMatch(benchmark::State &state) {
+    run_workload(state, literal_workload(), if_else_literal_match_route);
+  }
+
+  static void BM_Switch_LiteralMatch(benchmark::State &state) {
+    run_workload(state, literal_workload(), switch_literal_match_route);
+  }
+
 } // namespace
 
-BENCHMARK(BM_Patternia_VariantMixed)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_PatterniaPipe_VariantMixed)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_StdVisit_VariantMixed)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_SwitchIndex_VariantMixed)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_Patternia_VariantAltHot)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_PatterniaPipe_VariantAltHot)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_StdVisit_VariantAltHot)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_SwitchIndex_VariantAltHot)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_Patternia_VariantMixedGuarded)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_PatterniaPipe_VariantMixedGuarded)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_StdVisit_VariantMixedGuarded)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_SwitchIndex_VariantMixedGuarded)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_Patternia_VariantAltHotGuarded)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_PatterniaPipe_VariantAltHotGuarded)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_StdVisit_VariantAltHotGuarded)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_SwitchIndex_VariantAltHotGuarded)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_Patternia_ProtocolRouter)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_PatterniaPipe_ProtocolRouter)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_IfElse_ProtocolRouter)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_Switch_ProtocolRouter)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_StdVisit_ProtocolRouter)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_Patternia_CommandParser)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_PatterniaPipe_CommandParser)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_IfElse_CommandParser)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_Switch_CommandParser)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_StdVisit_CommandParser)
-    ->Unit(benchmark::kNanosecond)
-    ->MinTime(0.5)
-    ->Repetitions(20)
-    ->ReportAggregatesOnly(true);
-BENCHMARK(BM_Patternia_PacketMixed);
-BENCHMARK(BM_PatterniaPipe_PacketMixed);
-BENCHMARK(BM_Switch_PacketMixed);
-BENCHMARK(BM_Patternia_PacketMixedHeavyBind);
-BENCHMARK(BM_PatterniaPipe_PacketMixedHeavyBind);
-BENCHMARK(BM_Switch_PacketMixedHeavyBind);
+#define PTN_REGISTER_STABLE_BENCH(name) \
+  BENCHMARK(name)                       \
+      ->Unit(benchmark::kNanosecond)    \
+      ->MinTime(0.5)                    \
+      ->Repetitions(20)                 \
+      ->ReportAggregatesOnly(true)
+
+#if PTN_BENCH_MODE == PTN_BENCH_MODE_PIPE_STD
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantMixed);
+PTN_REGISTER_STABLE_BENCH(BM_StdVisit_VariantMixed);
+PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantMixed);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltHot);
+PTN_REGISTER_STABLE_BENCH(BM_StdVisit_VariantAltHot);
+PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantAltHot);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantMixedGuarded);
+PTN_REGISTER_STABLE_BENCH(BM_StdVisit_VariantMixedGuarded);
+PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantMixedGuarded);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltHotGuarded);
+PTN_REGISTER_STABLE_BENCH(BM_StdVisit_VariantAltHotGuarded);
+PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantAltHotGuarded);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_ProtocolRouter);
+PTN_REGISTER_STABLE_BENCH(BM_IfElse_ProtocolRouter);
+PTN_REGISTER_STABLE_BENCH(BM_Switch_ProtocolRouter);
+PTN_REGISTER_STABLE_BENCH(BM_StdVisit_ProtocolRouter);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_CommandParser);
+PTN_REGISTER_STABLE_BENCH(BM_IfElse_CommandParser);
+PTN_REGISTER_STABLE_BENCH(BM_Switch_CommandParser);
+PTN_REGISTER_STABLE_BENCH(BM_StdVisit_CommandParser);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_LiteralMatch);
+PTN_REGISTER_STABLE_BENCH(BM_IfElse_LiteralMatch);
+PTN_REGISTER_STABLE_BENCH(BM_Switch_LiteralMatch);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_PacketMixed);
+PTN_REGISTER_STABLE_BENCH(BM_Switch_PacketMixed);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_PacketMixedHeavyBind);
+PTN_REGISTER_STABLE_BENCH(BM_Switch_PacketMixedHeavyBind);
+#elif PTN_BENCH_MODE == PTN_BENCH_MODE_PIPE_CHAIN
+PTN_REGISTER_STABLE_BENCH(BM_Patternia_VariantMixed);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantMixed);
+PTN_REGISTER_STABLE_BENCH(BM_Patternia_VariantAltHot);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltHot);
+PTN_REGISTER_STABLE_BENCH(BM_Patternia_VariantMixedGuarded);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantMixedGuarded);
+PTN_REGISTER_STABLE_BENCH(BM_Patternia_VariantAltHotGuarded);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltHotGuarded);
+PTN_REGISTER_STABLE_BENCH(BM_Patternia_ProtocolRouter);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_ProtocolRouter);
+PTN_REGISTER_STABLE_BENCH(BM_Patternia_CommandParser);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_CommandParser);
+PTN_REGISTER_STABLE_BENCH(BM_Patternia_LiteralMatch);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_LiteralMatch);
+PTN_REGISTER_STABLE_BENCH(BM_Patternia_PacketMixed);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_PacketMixed);
+PTN_REGISTER_STABLE_BENCH(BM_Patternia_PacketMixedHeavyBind);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_PacketMixedHeavyBind);
+#else
+#error "Unsupported PTN_BENCH_MODE. Use PTN_BENCH_MODE_PIPE_STD or PTN_BENCH_MODE_PIPE_CHAIN."
+#endif
+
+#undef PTN_REGISTER_STABLE_BENCH

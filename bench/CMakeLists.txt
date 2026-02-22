@@ -14,21 +14,27 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(benchmark)
 
 add_executable(ptn_bench
-  bench_match_variant.cpp
+  bench_pipe_vs_std.cpp
 )
 
-target_link_libraries(ptn_bench PRIVATE
-  patternia
-  benchmark::benchmark
-  benchmark::benchmark_main
-  Threads::Threads
+add_executable(ptn_bench_evolution
+  bench_pipe_vs_chain.cpp
 )
 
-target_compile_features(ptn_bench PRIVATE cxx_std_17)
+foreach(_ptn_bench_target IN ITEMS ptn_bench ptn_bench_evolution)
+  target_link_libraries(${_ptn_bench_target} PRIVATE
+    patternia
+    benchmark::benchmark
+    benchmark::benchmark_main
+    Threads::Threads
+  )
 
-if(MSVC)
-  target_compile_options(ptn_bench PRIVATE /O2)
-else()
-  target_compile_options(ptn_bench PRIVATE -O3)
-endif()
+  target_compile_features(${_ptn_bench_target} PRIVATE cxx_std_17)
+
+  if(MSVC)
+    target_compile_options(${_ptn_bench_target} PRIVATE /O2)
+  else()
+    target_compile_options(${_ptn_bench_target} PRIVATE -O3)
+  endif()
+endforeach()
 
