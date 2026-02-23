@@ -56,7 +56,7 @@ PointerAlignment: Right
 
 NamespaceIndentation: All
 
-ColumnLimit:          80
+ColumnLimit:          69
 Cpp11BracedListStyle: true
 SortIncludes:         Never
 IncludeBlocks:        Preserve
