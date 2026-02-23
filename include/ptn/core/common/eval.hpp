@@ -486,7 +486,7 @@ namespace ptn::core::common {
         if constexpr (detail::is_guarded_pattern_v<pattern_t>) {
           auto &guarded = current_case.pattern;
           if (guarded.inner.match(subject)) {
-            auto bound    = guarded.inner.bind(subject);
+            auto &&bound  = guarded.inner.bind(subject);
             using bound_t = std::decay_t<decltype(bound)>;
             constexpr std::size_t bound_arity = std::tuple_size_v<bound_t>;
 
@@ -573,7 +573,7 @@ namespace ptn::core::common {
         if constexpr (detail::is_guarded_pattern_v<pattern_t>) {
           auto &guarded = current_case.pattern;
           if (guarded.inner.match(subject)) {
-            auto bound    = guarded.inner.bind(subject);
+            auto &&bound  = guarded.inner.bind(subject);
             using bound_t = std::decay_t<decltype(bound)>;
             constexpr std::size_t bound_arity = std::tuple_size_v<bound_t>;
 
