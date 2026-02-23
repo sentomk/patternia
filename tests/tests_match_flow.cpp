@@ -3,6 +3,7 @@
 #include <ptn/patternia.hpp>
 
 #include <tuple>
+#include <variant>
 
 using namespace ptn;
 
@@ -267,4 +268,49 @@ TEST(MatchFlow, PipeOnSyntaxEndWithWildcard) {
                };
 
   EXPECT_EQ(result, 99);
+}
+
+TEST(MatchFlow, PipeOnVariantGuardedThenSameAltPlainGuardHit) {
+  using V = std::variant<int, std::string>;
+  V v     = 123;
+
+  int result = ptn::match(v) |
+               ptn::on{
+                   ptn::type::as<int>()[ptn::_ > 100] >> 10,
+                   ptn::type::is<int>() >> 1,
+                   ptn::type::is<std::string>() >> 2,
+                   ptn::__ >> 0,
+               };
+
+  EXPECT_EQ(result, 10);
+}
+
+TEST(MatchFlow, PipeOnVariantGuardedThenSameAltPlainGuardMissFallsThrough) {
+  using V = std::variant<int, std::string>;
+  V v     = 7;
+
+  int result = ptn::match(v) |
+               ptn::on{
+                   ptn::type::as<int>()[ptn::_ > 100] >> 10,
+                   ptn::type::is<int>() >> 1,
+                   ptn::type::is<std::string>() >> 2,
+                   ptn::__ >> 0,
+               };
+
+  EXPECT_EQ(result, 1);
+}
+
+TEST(MatchFlow, PipeOnVariantGuardedThenSameAltPlainDifferentAltUnaffected) {
+  using V = std::variant<int, std::string>;
+  V v     = std::string("ok");
+
+  int result = ptn::match(v) |
+               ptn::on{
+                   ptn::type::as<int>()[ptn::_ > 100] >> 10,
+                   ptn::type::is<int>() >> 1,
+                   ptn::type::is<std::string>() >> 2,
+                   ptn::__ >> 0,
+               };
+
+  EXPECT_EQ(result, 2);
 }
