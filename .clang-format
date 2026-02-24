@@ -76,4 +76,3 @@ AlignAfterOpenBracket: Align
 BreakBeforeBinaryOperators: NonAssignment
 
 PenaltyBreakAssignment:        1000
-PenaltyBreakBeforeMemberAccess: 1000
