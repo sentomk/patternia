@@ -424,6 +424,95 @@ namespace ptn::core::common {
       }
     }
 
+    template <typename GuardedPattern, typename BoundTuple>
+    constexpr bool
+    guard_predicate_holds(GuardedPattern &guarded, BoundTuple &bound) {
+      using bound_t = std::decay_t<BoundTuple>;
+      constexpr std::size_t bound_arity = std::tuple_size_v<bound_t>;
+
+      if constexpr (ptn::pat::traits::is_tuple_guard_predicate_v<
+                        decltype(guarded.pred)>) {
+        ptn::core::common::static_assert_tuple_guard_index<
+            ptn::pat::mod::max_tuple_guard_index<
+                std::decay_t<decltype(guarded.pred)>>::value,
+            bound_arity>();
+        return static_cast<bool>(guarded.pred(bound));
+      }
+      else if constexpr (ptn::pat::traits::is_guard_predicate_v<
+                             decltype(guarded.pred)>) {
+        ptn::core::common::static_assert_unary_guard_arity<bound_arity>();
+        return static_cast<bool>(guarded.pred(std::get<0>(bound)));
+      }
+      else {
+        return static_cast<bool>(std::apply(guarded.pred, bound));
+      }
+    }
+
+    template <typename Case,
+              typename Subject,
+              typename OnGuardHit,
+              typename OnMiss>
+    constexpr decltype(auto)
+    eval_guarded_case(Case       &current_case,
+                      Subject    &subject,
+                      OnGuardHit &&on_guard_hit,
+                      OnMiss     &&on_miss) {
+      auto &guarded = current_case.pattern;
+      if (guarded.inner.match(subject)) {
+        auto &&bound = guarded.inner.bind(subject);
+        if (guard_predicate_holds(guarded, bound)) {
+          return std::forward<OnGuardHit>(on_guard_hit)(bound);
+        }
+      }
+
+      return std::forward<OnMiss>(on_miss)();
+    }
+
+    template <typename Result, typename Case, typename Subject>
+    constexpr Result invoke_typed_case_handler(Case &current_case,
+                                               Subject &subject) {
+      using case_t       = std::remove_reference_t<Case>;
+      using pattern_t    = traits::case_pattern_t<case_t>;
+      using handler_t    = traits::case_handler_t<case_t>;
+      using bound_args_t = pat::base::binding_args_t<pattern_t, Subject>;
+
+      constexpr bool zero_bind_noarg_handler =
+          std::tuple_size_v<bound_args_t> == 0
+          && std::is_invocable_v<handler_t>;
+
+      if constexpr (zero_bind_noarg_handler) {
+        return static_cast<Result>(current_case.handler());
+      }
+      else {
+        return static_cast<Result>(invoke_handler(current_case, subject));
+      }
+    }
+
+    template <typename Result, typename Case, typename Subject, typename OnMiss>
+    constexpr Result eval_typed_case_or_else(Case    &current_case,
+                                             Subject &subject,
+                                             OnMiss  &&on_miss) {
+      using case_t    = std::remove_reference_t<Case>;
+      using pattern_t = traits::case_pattern_t<case_t>;
+
+      if constexpr (detail::is_guarded_pattern_v<pattern_t>) {
+        return eval_guarded_case(
+            current_case,
+            subject,
+            [&](auto &bound) -> Result {
+              return static_cast<Result>(
+                  detail::invoke_from_tuple(current_case.handler, bound));
+            },
+            std::forward<OnMiss>(on_miss));
+      }
+      else if (case_matcher<case_t, Subject>::matches(current_case, subject)) {
+        return invoke_typed_case_handler<Result>(current_case, subject);
+      }
+      else {
+        return std::forward<OnMiss>(on_miss)();
+      }
+    }
+
     template <
         std::size_t I,
         typename Result,
@@ -475,66 +564,13 @@ namespace ptn::core::common {
       }
       else {
         auto &current_case = std::get<I>(cases);
-        using case_t       = std::remove_reference_t<decltype(current_case)>;
-        using pattern_t    = traits::case_pattern_t<case_t>;
-        using handler_t    = traits::case_handler_t<case_t>;
-        using bound_args_t = pat::base::binding_args_t<pattern_t, Subject>;
-
-        // Typed-eval fast path:
-        // for zero-bind cases with no-arg handlers, avoid bind()+tuple
-        // dispatch.
-        constexpr bool
-            zero_bind_noarg_handler = std::tuple_size_v<bound_args_t> == 0
-                                      && std::is_invocable_v<handler_t>;
-
-        if constexpr (detail::is_guarded_pattern_v<pattern_t>) {
-          auto &guarded = current_case.pattern;
-          if (guarded.inner.match(subject)) {
-            auto &&bound                      = guarded.inner.bind(subject);
-            using bound_t                     = std::decay_t<decltype(bound)>;
-            constexpr std::size_t bound_arity = std::tuple_size_v<bound_t>;
-
-            bool guard_ok = false;
-            if constexpr (ptn::pat::traits::is_tuple_guard_predicate_v<
-                              decltype(guarded.pred)>) {
-              ptn::core::common::static_assert_tuple_guard_index<
-                  ptn::pat::mod::max_tuple_guard_index<
-                      std::decay_t<decltype(guarded.pred)>>::value,
-                  bound_arity>();
-              guard_ok = static_cast<bool>(guarded.pred(bound));
-            }
-            else if constexpr (ptn::pat::traits::is_guard_predicate_v<
-                                   decltype(guarded.pred)>) {
-              ptn::core::common::static_assert_unary_guard_arity<bound_arity>();
-              guard_ok = static_cast<bool>(guarded.pred(std::get<0>(bound)));
-            }
-            else {
-              guard_ok = static_cast<bool>(std::apply(guarded.pred, bound));
-            }
-
-            if (guard_ok) {
-              return static_cast<Result>(
-                  detail::invoke_from_tuple(current_case.handler, bound));
-            }
-          }
-
-          return eval_cases_impl_typed<I + 1, Result>(
-              subject, cases, std::forward<Otherwise>(otherwise_handler));
-        }
-        else if (case_matcher<case_t, Subject>::matches(current_case,
-                                                        subject)) {
-          if constexpr (zero_bind_noarg_handler) {
-            // No binding payload to materialize; invoke directly.
-            return static_cast<Result>(current_case.handler());
-          }
-          else {
-            return static_cast<Result>(invoke_handler(current_case, subject));
-          }
-        }
-        else {
-          return eval_cases_impl_typed<I + 1, Result>(
-              subject, cases, std::forward<Otherwise>(otherwise_handler));
-        }
+        return eval_typed_case_or_else<Result>(
+            current_case,
+            subject,
+            [&]() -> Result {
+              return eval_cases_impl_typed<I + 1, Result>(
+                  subject, cases, std::forward<Otherwise>(otherwise_handler));
+            });
       }
     }
 
@@ -558,8 +594,6 @@ namespace ptn::core::common {
         auto &current_case = std::get<I>(cases);
         using case_t       = std::remove_reference_t<decltype(current_case)>;
         using pattern_t    = traits::case_pattern_t<case_t>;
-        using handler_t    = traits::case_handler_t<case_t>;
-        using bound_args_t = pat::base::binding_args_t<pattern_t, Subject>;
 
         if (!variant_pattern_maybe_matches_active_index<pattern_t, Subject>(
                 active_index)) {
@@ -570,63 +604,16 @@ namespace ptn::core::common {
               std::forward<Otherwise>(otherwise_handler));
         }
 
-        constexpr bool
-            zero_bind_noarg_handler = std::tuple_size_v<bound_args_t> == 0
-                                      && std::is_invocable_v<handler_t>;
-
-        if constexpr (detail::is_guarded_pattern_v<pattern_t>) {
-          auto &guarded = current_case.pattern;
-          if (guarded.inner.match(subject)) {
-            auto &&bound                      = guarded.inner.bind(subject);
-            using bound_t                     = std::decay_t<decltype(bound)>;
-            constexpr std::size_t bound_arity = std::tuple_size_v<bound_t>;
-
-            bool guard_ok = false;
-            if constexpr (ptn::pat::traits::is_tuple_guard_predicate_v<
-                              decltype(guarded.pred)>) {
-              ptn::core::common::static_assert_tuple_guard_index<
-                  ptn::pat::mod::max_tuple_guard_index<
-                      std::decay_t<decltype(guarded.pred)>>::value,
-                  bound_arity>();
-              guard_ok = static_cast<bool>(guarded.pred(bound));
-            }
-            else if constexpr (ptn::pat::traits::is_guard_predicate_v<
-                                   decltype(guarded.pred)>) {
-              ptn::core::common::static_assert_unary_guard_arity<bound_arity>();
-              guard_ok = static_cast<bool>(guarded.pred(std::get<0>(bound)));
-            }
-            else {
-              guard_ok = static_cast<bool>(std::apply(guarded.pred, bound));
-            }
-
-            if (guard_ok) {
-              return static_cast<Result>(
-                  detail::invoke_from_tuple(current_case.handler, bound));
-            }
-          }
-
-          return eval_cases_impl_typed_variant_prefilter<I + 1, Result>(
-              active_index,
-              subject,
-              cases,
-              std::forward<Otherwise>(otherwise_handler));
-        }
-        else if (case_matcher<case_t, Subject>::matches(current_case,
-                                                        subject)) {
-          if constexpr (zero_bind_noarg_handler) {
-            return static_cast<Result>(current_case.handler());
-          }
-          else {
-            return static_cast<Result>(invoke_handler(current_case, subject));
-          }
-        }
-        else {
-          return eval_cases_impl_typed_variant_prefilter<I + 1, Result>(
-              active_index,
-              subject,
-              cases,
-              std::forward<Otherwise>(otherwise_handler));
-        }
+        return eval_typed_case_or_else<Result>(
+            current_case,
+            subject,
+            [&]() -> Result {
+              return eval_cases_impl_typed_variant_prefilter<I + 1, Result>(
+                  active_index,
+                  subject,
+                  cases,
+                  std::forward<Otherwise>(otherwise_handler));
+            });
       }
     }
   } // namespace detail
