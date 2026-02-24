@@ -36,13 +36,17 @@ jobs:
           clang-format --version
 
       - name: Check formatting
+        shell: bash
         run: |
-          files=$(git ls-files '*.h' '*.hpp' '*.hh' '*.hxx' '*.c' '*.cc' '*.cpp' '*.cxx' '*.ipp')
-          if [ -z "$files" ]; then
+          clang-format --style=file --dump-config > /dev/null
+
+          mapfile -t files < <(git ls-files '*.h' '*.hpp' '*.hh' '*.hxx' '*.c' '*.cc' '*.cpp' '*.cxx' '*.ipp')
+          if [ "${#files[@]}" -eq 0 ]; then
             echo "No C/C++ files to check."
             exit 0
           fi
-          echo "$files" | xargs clang-format --dry-run --Werror -style=file
+
+          clang-format --dry-run --Werror -style=file "${files[@]}"
 
   build-and-test:
     runs-on: ubuntu-latest
