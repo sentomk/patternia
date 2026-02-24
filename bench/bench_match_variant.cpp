@@ -9,7 +9,7 @@
 
 #include "ptn/patternia.hpp"
 
-#define PTN_BENCH_MODE_PIPE_STD 1
+#define PTN_BENCH_MODE_PIPE_STD   1
 #define PTN_BENCH_MODE_PIPE_CHAIN 2
 
 #ifndef PTN_BENCH_MODE
@@ -81,20 +81,22 @@ namespace {
                                                 std::uint8_t seed) {
     std::vector<std::uint8_t> payload(size);
     for (std::size_t i = 0; i < size; ++i) {
-      payload[i] = static_cast<std::uint8_t>((seed + i * 13u) & 0xFFu);
+      payload[i] = static_cast<std::uint8_t>((seed + i * 13u)
+                                             & 0xFFu);
     }
     return payload;
   }
 
-  static std::uint32_t payload_tag(const std::vector<std::uint8_t> &payload) {
+  static std::uint32_t
+  payload_tag(const std::vector<std::uint8_t> &payload) {
     if (payload.empty()) {
       return 0u;
     }
 
     const std::size_t mid  = payload.size() / 2;
     const std::size_t last = payload.size() - 1;
-    return static_cast<std::uint32_t>(payload.size()) + payload.front()
-           + payload[mid] + payload[last];
+    return static_cast<std::uint32_t>(payload.size())
+           + payload.front() + payload[mid] + payload[last];
   }
 
   static int patternia_variant_route(const V &v) {
@@ -150,7 +152,9 @@ namespace {
 
   static int patternia_variant_guarded_route(const V &v) {
     using namespace ptn;
-    auto long_string = [](const std::string &s) { return s.size() > 4; };
+    auto long_string = [](const std::string &s) {
+      return s.size() > 4;
+    };
 
     return match(v)
         .when(type::as<int>()[_ > 100] >> 10)
@@ -163,7 +167,9 @@ namespace {
 
   static int patternia_pipe_variant_guarded_route(const V &v) {
     using namespace ptn;
-    auto long_string = [](const std::string &s) { return s.size() > 4; };
+    auto long_string = [](const std::string &s) {
+      return s.size() > 4;
+    };
 
     return match(v)
            | on{
@@ -351,7 +357,9 @@ namespace {
     auto persistent_set = [](const CmdSet &c) {
       return c.persist && c.value >= 0;
     };
-    auto hot_get = [](const CmdGet &c) { return c.allow_stale && c.key < 256; };
+    auto hot_get = [](const CmdGet &c) {
+      return c.allow_stale && c.key < 256;
+    };
     auto deep_del  = [](const CmdDel &c) { return c.recursive; };
     auto wide_scan = [](const CmdScan &c) { return c.limit >= 128; };
 
@@ -373,7 +381,9 @@ namespace {
     auto persistent_set = [](const CmdSet &c) {
       return c.persist && c.value >= 0;
     };
-    auto hot_get = [](const CmdGet &c) { return c.allow_stale && c.key < 256; };
+    auto hot_get = [](const CmdGet &c) {
+      return c.allow_stale && c.key < 256;
+    };
     auto deep_del  = [](const CmdDel &c) { return c.recursive; };
     auto wide_scan = [](const CmdScan &c) { return c.limit >= 128; };
 
@@ -554,8 +564,10 @@ namespace {
   }
 
   template <typename F>
-  static void run_variant_alternating_hot(benchmark::State &state, F fn) {
-    // Microbench: isolate dispatch overhead with two prebuilt alternatives.
+  static void run_variant_alternating_hot(benchmark::State &state,
+                                          F                 fn) {
+    // Microbench: isolate dispatch overhead with two prebuilt
+    // alternatives.
     static V int_alt = 7;
     static V str_alt = std::string("patternia");
 
@@ -579,24 +591,29 @@ namespace {
   static int patternia_packet_route(const Packet &pkt) {
     using namespace ptn;
 
-    auto is_ping_packet = [](std::uint8_t type, std::uint16_t length) {
+    auto is_ping_packet = [](std::uint8_t  type,
+                             std::uint16_t length) {
       return type == 0x01 && length == 0;
     };
 
-    auto is_valid_data_packet =
-        [&pkt](std::uint8_t type, std::uint16_t length, std::uint8_t flags) {
-          return type == 0x02 && length == pkt.payload.size()
-                 && (flags & FLAG_VALID);
-        };
+    auto is_valid_data_packet = [&pkt](std::uint8_t  type,
+                                       std::uint16_t length,
+                                       std::uint8_t  flags) {
+      return type == 0x02 && length == pkt.payload.size()
+             && (flags & FLAG_VALID);
+    };
 
     auto is_error_packet = [&pkt](std::uint8_t type) {
       return type == 0xFF && !pkt.payload.empty();
     };
 
     return match(pkt)
-        .when(bind(has<&Packet::type, &Packet::length>())[is_ping_packet] >> 1)
-        .when(bind(has<&Packet::type, &Packet::length, &Packet::flags>())
-                  [is_valid_data_packet]
+        .when(bind(has<&Packet::type,
+                       &Packet::length>())[is_ping_packet]
+              >> 1)
+        .when(bind(has<&Packet::type,
+                       &Packet::length,
+                       &Packet::flags>())[is_valid_data_packet]
               >> 2)
         .when(bind(has<&Packet::type>())[is_error_packet] >> 3)
         .otherwise(0);
@@ -605,15 +622,17 @@ namespace {
   static int patternia_pipe_packet_route(const Packet &pkt) {
     using namespace ptn;
 
-    auto is_ping_packet = [](std::uint8_t type, std::uint16_t length) {
+    auto is_ping_packet = [](std::uint8_t  type,
+                             std::uint16_t length) {
       return type == 0x01 && length == 0;
     };
 
-    auto is_valid_data_packet =
-        [&pkt](std::uint8_t type, std::uint16_t length, std::uint8_t flags) {
-          return type == 0x02 && length == pkt.payload.size()
-                 && (flags & FLAG_VALID);
-        };
+    auto is_valid_data_packet = [&pkt](std::uint8_t  type,
+                                       std::uint16_t length,
+                                       std::uint8_t  flags) {
+      return type == 0x02 && length == pkt.payload.size()
+             && (flags & FLAG_VALID);
+    };
 
     auto is_error_packet = [&pkt](std::uint8_t type) {
       return type == 0xFF && !pkt.payload.empty();
@@ -621,10 +640,13 @@ namespace {
 
     return match(pkt)
            | on{
-               bind(has<&Packet::type, &Packet::length>())[is_ping_packet] >> 1,
-               bind(has<&Packet::type, &Packet::length, &Packet::flags>())
-                   [is_valid_data_packet]
-               >> 2,
+               bind(has<&Packet::type,
+                        &Packet::length>())[is_ping_packet]
+                   >> 1,
+               bind(has<&Packet::type,
+                        &Packet::length,
+                        &Packet::flags>())[is_valid_data_packet]
+                   >> 2,
                bind(has<&Packet::type>())[is_error_packet] >> 3,
                __ >> 0,
            };
@@ -638,7 +660,8 @@ namespace {
       }
       break;
     case 0x02:
-      if (pkt.length == pkt.payload.size() && (pkt.flags & FLAG_VALID)) {
+      if (pkt.length == pkt.payload.size()
+          && (pkt.flags & FLAG_VALID)) {
         return 2;
       }
       break;
@@ -656,65 +679,80 @@ namespace {
   static int patternia_packet_heavy_bind_route(const Packet &pkt) {
     using namespace ptn;
 
-    auto is_ping_packet = [](std::uint8_t type, std::uint16_t length) {
+    auto is_ping_packet = [](std::uint8_t  type,
+                             std::uint16_t length) {
       return type == 0x01 && length == 0;
     };
 
-    auto is_valid_data_packet = [](std::uint8_t                     type,
-                                   std::uint16_t                    length,
-                                   std::uint8_t                     flags,
-                                   const std::vector<std::uint8_t> &payload) {
-      return type == 0x02 && length == payload.size()
-             && (flags & FLAG_VALID) != 0u && payload_tag(payload) != 0u;
-    };
+    auto is_valid_data_packet =
+        [](std::uint8_t                     type,
+           std::uint16_t                    length,
+           std::uint8_t                     flags,
+           const std::vector<std::uint8_t> &payload) {
+          return type == 0x02 && length == payload.size()
+                 && (flags & FLAG_VALID) != 0u
+                 && payload_tag(payload) != 0u;
+        };
 
-    auto is_error_packet = [](std::uint8_t                     type,
-                              const std::vector<std::uint8_t> &payload) {
-      return type == 0xFF && payload_tag(payload) > 0u;
-    };
+    auto is_error_packet =
+        [](std::uint8_t                     type,
+           const std::vector<std::uint8_t> &payload) {
+          return type == 0xFF && payload_tag(payload) > 0u;
+        };
 
     return match(pkt)
-        .when(bind(has<&Packet::type, &Packet::length>())[is_ping_packet] >> 1)
+        .when(bind(has<&Packet::type,
+                       &Packet::length>())[is_ping_packet]
+              >> 1)
         .when(bind(has<&Packet::type,
                        &Packet::length,
                        &Packet::flags,
                        &Packet::payload>())[is_valid_data_packet]
               >> 2)
-        .when(bind(has<&Packet::type, &Packet::payload>())[is_error_packet]
+        .when(bind(has<&Packet::type,
+                       &Packet::payload>())[is_error_packet]
               >> 3)
         .otherwise(0);
   }
 
-  static int patternia_pipe_packet_heavy_bind_route(const Packet &pkt) {
+  static int
+  patternia_pipe_packet_heavy_bind_route(const Packet &pkt) {
     using namespace ptn;
 
-    auto is_ping_packet = [](std::uint8_t type, std::uint16_t length) {
+    auto is_ping_packet = [](std::uint8_t  type,
+                             std::uint16_t length) {
       return type == 0x01 && length == 0;
     };
 
-    auto is_valid_data_packet = [](std::uint8_t                     type,
-                                   std::uint16_t                    length,
-                                   std::uint8_t                     flags,
-                                   const std::vector<std::uint8_t> &payload) {
-      return type == 0x02 && length == payload.size()
-             && (flags & FLAG_VALID) != 0u && payload_tag(payload) != 0u;
-    };
+    auto is_valid_data_packet =
+        [](std::uint8_t                     type,
+           std::uint16_t                    length,
+           std::uint8_t                     flags,
+           const std::vector<std::uint8_t> &payload) {
+          return type == 0x02 && length == payload.size()
+                 && (flags & FLAG_VALID) != 0u
+                 && payload_tag(payload) != 0u;
+        };
 
-    auto is_error_packet = [](std::uint8_t                     type,
-                              const std::vector<std::uint8_t> &payload) {
-      return type == 0xFF && payload_tag(payload) > 0u;
-    };
+    auto is_error_packet =
+        [](std::uint8_t                     type,
+           const std::vector<std::uint8_t> &payload) {
+          return type == 0xFF && payload_tag(payload) > 0u;
+        };
 
     return match(pkt)
            | on{
-               bind(has<&Packet::type, &Packet::length>())[is_ping_packet] >> 1,
+               bind(has<&Packet::type,
+                        &Packet::length>())[is_ping_packet]
+                   >> 1,
                bind(has<&Packet::type,
                         &Packet::length,
                         &Packet::flags,
                         &Packet::payload>())[is_valid_data_packet]
-               >> 2,
-               bind(has<&Packet::type, &Packet::payload>())[is_error_packet]
-               >> 3,
+                   >> 2,
+               bind(has<&Packet::type,
+                        &Packet::payload>())[is_error_packet]
+                   >> 3,
                __ >> 0,
            };
   }
@@ -727,7 +765,8 @@ namespace {
       }
       break;
     case 0x02:
-      if (pkt.length == pkt.payload.size() && (pkt.flags & FLAG_VALID) != 0u
+      if (pkt.length == pkt.payload.size()
+          && (pkt.flags & FLAG_VALID) != 0u
           && payload_tag(pkt.payload) != 0u) {
         return 2;
       }
@@ -841,15 +880,30 @@ namespace {
 
   static const std::vector<int> &literal_workload() {
     static const std::vector<int> data = {
-        1, 2, 3, 4, 5, 6, 7, 8,
-        0, 9, 2, 4, 6, 8, 10, 3,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        0,
+        9,
+        2,
+        4,
+        6,
+        8,
+        10,
+        3,
     };
     return data;
   }
 
   template <typename T, typename F>
-  static void
-  run_workload(benchmark::State &state, const std::vector<T> &workload, F fn) {
+  static void run_workload(benchmark::State     &state,
+                           const std::vector<T> &workload,
+                           F                     fn) {
     std::size_t idx = 0;
     int         acc = 0;
 
@@ -874,8 +928,10 @@ namespace {
     run_workload(state, variant_workload(), patternia_variant_route);
   }
 
-  static void BM_PatterniaPipe_VariantMixed(benchmark::State &state) {
-    run_workload(state, variant_workload(), patternia_pipe_variant_route);
+  static void
+  BM_PatterniaPipe_VariantMixed(benchmark::State &state) {
+    run_workload(
+        state, variant_workload(), patternia_pipe_variant_route);
   }
 
   static void BM_StdVisit_VariantMixed(benchmark::State &state) {
@@ -883,14 +939,16 @@ namespace {
   }
 
   static void BM_SwitchIndex_VariantMixed(benchmark::State &state) {
-    run_workload(state, variant_workload(), switch_index_variant_route);
+    run_workload(
+        state, variant_workload(), switch_index_variant_route);
   }
 
   static void BM_Patternia_VariantAltHot(benchmark::State &state) {
     run_variant_alternating_hot(state, patternia_variant_route);
   }
 
-  static void BM_PatterniaPipe_VariantAltHot(benchmark::State &state) {
+  static void
+  BM_PatterniaPipe_VariantAltHot(benchmark::State &state) {
     run_variant_alternating_hot(state, patternia_pipe_variant_route);
   }
 
@@ -902,37 +960,54 @@ namespace {
     run_variant_alternating_hot(state, switch_index_variant_route);
   }
 
-  static void BM_Patternia_VariantMixedGuarded(benchmark::State &state) {
-    run_workload(state, variant_workload(), patternia_variant_guarded_route);
-  }
-
-  static void BM_PatterniaPipe_VariantMixedGuarded(benchmark::State &state) {
+  static void
+  BM_Patternia_VariantMixedGuarded(benchmark::State &state) {
     run_workload(
-        state, variant_workload(), patternia_pipe_variant_guarded_route);
+        state, variant_workload(), patternia_variant_guarded_route);
   }
 
-  static void BM_StdVisit_VariantMixedGuarded(benchmark::State &state) {
-    run_workload(state, variant_workload(), std_visit_variant_guarded_route);
+  static void
+  BM_PatterniaPipe_VariantMixedGuarded(benchmark::State &state) {
+    run_workload(state,
+                 variant_workload(),
+                 patternia_pipe_variant_guarded_route);
   }
 
-  static void BM_SwitchIndex_VariantMixedGuarded(benchmark::State &state) {
-    run_workload(state, variant_workload(), switch_index_variant_guarded_route);
+  static void
+  BM_StdVisit_VariantMixedGuarded(benchmark::State &state) {
+    run_workload(
+        state, variant_workload(), std_visit_variant_guarded_route);
   }
 
-  static void BM_Patternia_VariantAltHotGuarded(benchmark::State &state) {
-    run_variant_alternating_hot(state, patternia_variant_guarded_route);
+  static void
+  BM_SwitchIndex_VariantMixedGuarded(benchmark::State &state) {
+    run_workload(state,
+                 variant_workload(),
+                 switch_index_variant_guarded_route);
   }
 
-  static void BM_PatterniaPipe_VariantAltHotGuarded(benchmark::State &state) {
-    run_variant_alternating_hot(state, patternia_pipe_variant_guarded_route);
+  static void
+  BM_Patternia_VariantAltHotGuarded(benchmark::State &state) {
+    run_variant_alternating_hot(state,
+                                patternia_variant_guarded_route);
   }
 
-  static void BM_StdVisit_VariantAltHotGuarded(benchmark::State &state) {
-    run_variant_alternating_hot(state, std_visit_variant_guarded_route);
+  static void
+  BM_PatterniaPipe_VariantAltHotGuarded(benchmark::State &state) {
+    run_variant_alternating_hot(
+        state, patternia_pipe_variant_guarded_route);
   }
 
-  static void BM_SwitchIndex_VariantAltHotGuarded(benchmark::State &state) {
-    run_variant_alternating_hot(state, switch_index_variant_guarded_route);
+  static void
+  BM_StdVisit_VariantAltHotGuarded(benchmark::State &state) {
+    run_variant_alternating_hot(state,
+                                std_visit_variant_guarded_route);
+  }
+
+  static void
+  BM_SwitchIndex_VariantAltHotGuarded(benchmark::State &state) {
+    run_variant_alternating_hot(state,
+                                switch_index_variant_guarded_route);
   }
 
   static void BM_Patternia_PacketMixed(benchmark::State &state) {
@@ -940,40 +1015,49 @@ namespace {
   }
 
   static void BM_PatterniaPipe_PacketMixed(benchmark::State &state) {
-    run_workload(state, packet_workload(), patternia_pipe_packet_route);
+    run_workload(
+        state, packet_workload(), patternia_pipe_packet_route);
   }
 
   static void BM_Switch_PacketMixed(benchmark::State &state) {
     run_workload(state, packet_workload(), switch_packet_route);
   }
 
-  static void BM_Patternia_PacketMixedHeavyBind(benchmark::State &state) {
-    run_workload(
-        state, packet_heavy_workload(), patternia_packet_heavy_bind_route);
+  static void
+  BM_Patternia_PacketMixedHeavyBind(benchmark::State &state) {
+    run_workload(state,
+                 packet_heavy_workload(),
+                 patternia_packet_heavy_bind_route);
   }
 
-  static void BM_PatterniaPipe_PacketMixedHeavyBind(benchmark::State &state) {
-    run_workload(
-        state,
-        packet_heavy_workload(),
-        patternia_pipe_packet_heavy_bind_route);
+  static void
+  BM_PatterniaPipe_PacketMixedHeavyBind(benchmark::State &state) {
+    run_workload(state,
+                 packet_heavy_workload(),
+                 patternia_pipe_packet_heavy_bind_route);
   }
 
-  static void BM_Switch_PacketMixedHeavyBind(benchmark::State &state) {
-    run_workload(
-        state, packet_heavy_workload(), switch_packet_heavy_bind_route);
+  static void
+  BM_Switch_PacketMixedHeavyBind(benchmark::State &state) {
+    run_workload(state,
+                 packet_heavy_workload(),
+                 switch_packet_heavy_bind_route);
   }
 
   static void BM_Patternia_ProtocolRouter(benchmark::State &state) {
-    run_workload(state, protocol_workload(), patternia_protocol_router);
+    run_workload(
+        state, protocol_workload(), patternia_protocol_router);
   }
 
-  static void BM_PatterniaPipe_ProtocolRouter(benchmark::State &state) {
-    run_workload(state, protocol_workload(), patternia_pipe_protocol_router);
+  static void
+  BM_PatterniaPipe_ProtocolRouter(benchmark::State &state) {
+    run_workload(
+        state, protocol_workload(), patternia_pipe_protocol_router);
   }
 
   static void BM_IfElse_ProtocolRouter(benchmark::State &state) {
-    run_workload(state, protocol_workload(), if_else_protocol_router);
+    run_workload(
+        state, protocol_workload(), if_else_protocol_router);
   }
 
   static void BM_Switch_ProtocolRouter(benchmark::State &state) {
@@ -981,15 +1065,19 @@ namespace {
   }
 
   static void BM_StdVisit_ProtocolRouter(benchmark::State &state) {
-    run_workload(state, protocol_workload(), std_visit_protocol_router);
+    run_workload(
+        state, protocol_workload(), std_visit_protocol_router);
   }
 
   static void BM_Patternia_CommandParser(benchmark::State &state) {
-    run_workload(state, command_workload(), patternia_command_parser);
+    run_workload(
+        state, command_workload(), patternia_command_parser);
   }
 
-  static void BM_PatterniaPipe_CommandParser(benchmark::State &state) {
-    run_workload(state, command_workload(), patternia_pipe_command_parser);
+  static void
+  BM_PatterniaPipe_CommandParser(benchmark::State &state) {
+    run_workload(
+        state, command_workload(), patternia_pipe_command_parser);
   }
 
   static void BM_IfElse_CommandParser(benchmark::State &state) {
@@ -1001,33 +1089,39 @@ namespace {
   }
 
   static void BM_StdVisit_CommandParser(benchmark::State &state) {
-    run_workload(state, command_workload(), std_visit_command_parser);
+    run_workload(
+        state, command_workload(), std_visit_command_parser);
   }
 
-  static void BM_PatterniaPipe_LiteralMatch(benchmark::State &state) {
-    run_workload(
-        state, literal_workload(), patternia_pipe_literal_match_route);
+  static void
+  BM_PatterniaPipe_LiteralMatch(benchmark::State &state) {
+    run_workload(state,
+                 literal_workload(),
+                 patternia_pipe_literal_match_route);
   }
 
   static void BM_Patternia_LiteralMatch(benchmark::State &state) {
-    run_workload(state, literal_workload(), patternia_literal_match_route);
+    run_workload(
+        state, literal_workload(), patternia_literal_match_route);
   }
 
   static void BM_IfElse_LiteralMatch(benchmark::State &state) {
-    run_workload(state, literal_workload(), if_else_literal_match_route);
+    run_workload(
+        state, literal_workload(), if_else_literal_match_route);
   }
 
   static void BM_Switch_LiteralMatch(benchmark::State &state) {
-    run_workload(state, literal_workload(), switch_literal_match_route);
+    run_workload(
+        state, literal_workload(), switch_literal_match_route);
   }
 
 } // namespace
 
-#define PTN_REGISTER_STABLE_BENCH(name) \
-  BENCHMARK(name)                       \
-      ->Unit(benchmark::kNanosecond)    \
-      ->MinTime(0.5)                    \
-      ->Repetitions(20)                 \
+#define PTN_REGISTER_STABLE_BENCH(name)                             \
+  BENCHMARK(name)                                                   \
+      ->Unit(benchmark::kNanosecond)                                \
+      ->MinTime(0.5)                                                \
+      ->Repetitions(20)                                             \
       ->ReportAggregatesOnly(true)
 
 #if PTN_BENCH_MODE == PTN_BENCH_MODE_PIPE_STD
@@ -1078,7 +1172,8 @@ PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_PacketMixed);
 PTN_REGISTER_STABLE_BENCH(BM_Patternia_PacketMixedHeavyBind);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_PacketMixedHeavyBind);
 #else
-#error "Unsupported PTN_BENCH_MODE. Use PTN_BENCH_MODE_PIPE_STD or PTN_BENCH_MODE_PIPE_CHAIN."
+#error                                                              \
+    "Unsupported PTN_BENCH_MODE. Use PTN_BENCH_MODE_PIPE_STD or PTN_BENCH_MODE_PIPE_CHAIN."
 #endif
 
 #undef PTN_REGISTER_STABLE_BENCH
