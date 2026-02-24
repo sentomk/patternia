@@ -98,3 +98,15 @@ cd patternia
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
 ```
+
+Optional: enable local pre-commit formatting hook (recommended):
+
+```bash
+bash scripts/setup-git-hooks.sh
+```
+
+On Windows PowerShell:
+
+```powershell
+pwsh -File .\scripts\setup-git-hooks.ps1
+```

@@ -1,0 +1,70 @@
+name: clang-format Auto Format
+
+on:
+  pull_request:
+    branches: [main, dev-main]
+    paths:
+      - "**/*.h"
+      - "**/*.hpp"
+      - "**/*.hh"
+      - "**/*.hxx"
+      - "**/*.c"
+      - "**/*.cc"
+      - "**/*.cpp"
+      - "**/*.cxx"
+      - "**/*.ipp"
+      - ".clang-format"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  auto-format:
+    # GitHub token cannot push to fork branches.
+    if: github.event.pull_request.head.repo.fork == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format
+          clang-format --version
+
+      - name: Format changed C/C++ files
+        shell: bash
+        run: |
+          base_sha="${{ github.event.pull_request.base.sha }}"
+          head_sha="${{ github.event.pull_request.head.sha }}"
+
+          mapfile -t files < <(
+            git diff --name-only --diff-filter=ACMR "$base_sha" "$head_sha" -- \
+              '*.h' '*.hpp' '*.hh' '*.hxx' '*.c' '*.cc' '*.cpp' '*.cxx' '*.ipp'
+          )
+
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No changed C/C++ files to format."
+            exit 0
+          fi
+
+          clang-format -i -style=file "${files[@]}"
+
+          if git diff --quiet; then
+            echo "No formatting changes needed."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${files[@]}"
+          git commit -m "style: apply clang-format to PR changes"
+          git push
