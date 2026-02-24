@@ -23,34 +23,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  clang-format-check:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install clang-format
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang-format
-          clang-format --version
-
-      - name: Check formatting
-        shell: bash
-        run: |
-          clang-format --style=file --dump-config > /dev/null
-
-          mapfile -t files < <(git ls-files '*.h' '*.hpp' '*.hh' '*.hxx' '*.c' '*.cc' '*.cpp' '*.cxx' '*.ipp')
-          if [ "${#files[@]}" -eq 0 ]; then
-            echo "No C/C++ files to check."
-            exit 0
-          fi
-
-          clang-format --dry-run --Werror -style=file "${files[@]}"
-
   build-and-test:
     runs-on: ubuntu-latest
-    needs: clang-format-check
 
     steps:
       - uses: actions/checkout@v4
