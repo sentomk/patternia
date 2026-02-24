@@ -16,6 +16,38 @@
 #define PTN_BENCH_MODE PTN_BENCH_MODE_PIPE_STD
 #endif
 
+#ifndef PTN_BENCH_ENABLE_SUITE_VARIANT
+#define PTN_BENCH_ENABLE_SUITE_VARIANT 1
+#endif
+
+#ifndef PTN_BENCH_ENABLE_SUITE_VARIANT_GUARDED
+#define PTN_BENCH_ENABLE_SUITE_VARIANT_GUARDED 1
+#endif
+
+#ifndef PTN_BENCH_ENABLE_SUITE_PROTOCOL_ROUTER
+#define PTN_BENCH_ENABLE_SUITE_PROTOCOL_ROUTER 1
+#endif
+
+#ifndef PTN_BENCH_ENABLE_SUITE_COMMAND_PARSER
+#define PTN_BENCH_ENABLE_SUITE_COMMAND_PARSER 1
+#endif
+
+#ifndef PTN_BENCH_ENABLE_SUITE_LITERAL_MATCH
+#define PTN_BENCH_ENABLE_SUITE_LITERAL_MATCH 1
+#endif
+
+#ifndef PTN_BENCH_ENABLE_SUITE_LITERAL_MATCH_128
+#define PTN_BENCH_ENABLE_SUITE_LITERAL_MATCH_128 1
+#endif
+
+#ifndef PTN_BENCH_ENABLE_SUITE_PACKET
+#define PTN_BENCH_ENABLE_SUITE_PACKET 1
+#endif
+
+#ifndef PTN_BENCH_ENABLE_SUITE_PACKET_HEAVY_BIND
+#define PTN_BENCH_ENABLE_SUITE_PACKET_HEAVY_BIND 1
+#endif
+
 namespace {
 
   using V = std::variant<int, std::string>;
@@ -561,6 +593,100 @@ namespace {
     default:
       return 0;
     }
+  }
+
+  #define PTN_LIT_CASE_128(n) ptn::lit(n) >> (n)
+  #define PTN_SWITCH_CASE_128(n) case (n): return (n)
+
+  #define PTN_LIT_BLOCK_16(base)         \
+    PTN_LIT_CASE_128((base) + 0),        \
+        PTN_LIT_CASE_128((base) + 1),    \
+        PTN_LIT_CASE_128((base) + 2),    \
+        PTN_LIT_CASE_128((base) + 3),    \
+        PTN_LIT_CASE_128((base) + 4),    \
+        PTN_LIT_CASE_128((base) + 5),    \
+        PTN_LIT_CASE_128((base) + 6),    \
+        PTN_LIT_CASE_128((base) + 7),    \
+        PTN_LIT_CASE_128((base) + 8),    \
+        PTN_LIT_CASE_128((base) + 9),    \
+        PTN_LIT_CASE_128((base) + 10),   \
+        PTN_LIT_CASE_128((base) + 11),   \
+        PTN_LIT_CASE_128((base) + 12),   \
+        PTN_LIT_CASE_128((base) + 13),   \
+        PTN_LIT_CASE_128((base) + 14),   \
+        PTN_LIT_CASE_128((base) + 15)
+
+  #define PTN_SWITCH_BLOCK_16(base)      \
+    PTN_SWITCH_CASE_128((base) + 0);     \
+    PTN_SWITCH_CASE_128((base) + 1);     \
+    PTN_SWITCH_CASE_128((base) + 2);     \
+    PTN_SWITCH_CASE_128((base) + 3);     \
+    PTN_SWITCH_CASE_128((base) + 4);     \
+    PTN_SWITCH_CASE_128((base) + 5);     \
+    PTN_SWITCH_CASE_128((base) + 6);     \
+    PTN_SWITCH_CASE_128((base) + 7);     \
+    PTN_SWITCH_CASE_128((base) + 8);     \
+    PTN_SWITCH_CASE_128((base) + 9);     \
+    PTN_SWITCH_CASE_128((base) + 10);    \
+    PTN_SWITCH_CASE_128((base) + 11);    \
+    PTN_SWITCH_CASE_128((base) + 12);    \
+    PTN_SWITCH_CASE_128((base) + 13);    \
+    PTN_SWITCH_CASE_128((base) + 14);    \
+    PTN_SWITCH_CASE_128((base) + 15)
+
+  static int patternia_pipe_literal_match_128_route(int x) {
+    using namespace ptn;
+
+    return match(x)
+           | on{
+               PTN_LIT_BLOCK_16(1),
+               PTN_LIT_BLOCK_16(17),
+               PTN_LIT_BLOCK_16(33),
+               PTN_LIT_BLOCK_16(49),
+               PTN_LIT_BLOCK_16(65),
+               PTN_LIT_BLOCK_16(81),
+               PTN_LIT_BLOCK_16(97),
+               PTN_LIT_BLOCK_16(113),
+               __ >> 0,
+           };
+  }
+
+  static int switch_literal_match_128_route(int x) {
+    switch (x) {
+      PTN_SWITCH_BLOCK_16(1);
+      PTN_SWITCH_BLOCK_16(17);
+      PTN_SWITCH_BLOCK_16(33);
+      PTN_SWITCH_BLOCK_16(49);
+      PTN_SWITCH_BLOCK_16(65);
+      PTN_SWITCH_BLOCK_16(81);
+      PTN_SWITCH_BLOCK_16(97);
+      PTN_SWITCH_BLOCK_16(113);
+    default:
+      return 0;
+    }
+  }
+
+  static const std::vector<int> &literal_128_workload() {
+    static const std::vector<int> data = [] {
+      std::vector<int> v;
+      v.reserve(260);
+
+      for (int i = 1; i <= 128; ++i) {
+        v.push_back(i);
+      }
+
+      v.push_back(0);
+      v.push_back(129);
+      v.push_back(999);
+
+      for (int i = 128; i >= 1; --i) {
+        v.push_back(i);
+      }
+
+      return v;
+    }();
+
+    return data;
   }
 
   template <typename F>
@@ -1115,6 +1241,18 @@ namespace {
         state, literal_workload(), switch_literal_match_route);
   }
 
+  static void
+  BM_PatterniaPipe_LiteralMatch128(benchmark::State &state) {
+    run_workload(state,
+                 literal_128_workload(),
+                 patternia_pipe_literal_match_128_route);
+  }
+
+  static void BM_Switch_LiteralMatch128(benchmark::State &state) {
+    run_workload(
+        state, literal_128_workload(), switch_literal_match_128_route);
+  }
+
 } // namespace
 
 #define PTN_REGISTER_STABLE_BENCH(name)                             \
@@ -1125,55 +1263,104 @@ namespace {
       ->ReportAggregatesOnly(true)
 
 #if PTN_BENCH_MODE == PTN_BENCH_MODE_PIPE_STD
+#if PTN_BENCH_ENABLE_SUITE_VARIANT
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantMixed);
 PTN_REGISTER_STABLE_BENCH(BM_StdVisit_VariantMixed);
 PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantMixed);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltHot);
 PTN_REGISTER_STABLE_BENCH(BM_StdVisit_VariantAltHot);
 PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantAltHot);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_VARIANT_GUARDED
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantMixedGuarded);
 PTN_REGISTER_STABLE_BENCH(BM_StdVisit_VariantMixedGuarded);
 PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantMixedGuarded);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltHotGuarded);
 PTN_REGISTER_STABLE_BENCH(BM_StdVisit_VariantAltHotGuarded);
 PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantAltHotGuarded);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_PROTOCOL_ROUTER
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_ProtocolRouter);
 PTN_REGISTER_STABLE_BENCH(BM_IfElse_ProtocolRouter);
 PTN_REGISTER_STABLE_BENCH(BM_Switch_ProtocolRouter);
 PTN_REGISTER_STABLE_BENCH(BM_StdVisit_ProtocolRouter);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_COMMAND_PARSER
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_CommandParser);
 PTN_REGISTER_STABLE_BENCH(BM_IfElse_CommandParser);
 PTN_REGISTER_STABLE_BENCH(BM_Switch_CommandParser);
 PTN_REGISTER_STABLE_BENCH(BM_StdVisit_CommandParser);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_LITERAL_MATCH
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_LiteralMatch);
 PTN_REGISTER_STABLE_BENCH(BM_IfElse_LiteralMatch);
 PTN_REGISTER_STABLE_BENCH(BM_Switch_LiteralMatch);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_LITERAL_MATCH_128
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_LiteralMatch128);
+PTN_REGISTER_STABLE_BENCH(BM_Switch_LiteralMatch128);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_PACKET
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_PacketMixed);
 PTN_REGISTER_STABLE_BENCH(BM_Switch_PacketMixed);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_PACKET_HEAVY_BIND
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_PacketMixedHeavyBind);
 PTN_REGISTER_STABLE_BENCH(BM_Switch_PacketMixedHeavyBind);
+#endif
 #elif PTN_BENCH_MODE == PTN_BENCH_MODE_PIPE_CHAIN
+#if PTN_BENCH_ENABLE_SUITE_VARIANT
 PTN_REGISTER_STABLE_BENCH(BM_Patternia_VariantMixed);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantMixed);
 PTN_REGISTER_STABLE_BENCH(BM_Patternia_VariantAltHot);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltHot);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_VARIANT_GUARDED
 PTN_REGISTER_STABLE_BENCH(BM_Patternia_VariantMixedGuarded);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantMixedGuarded);
 PTN_REGISTER_STABLE_BENCH(BM_Patternia_VariantAltHotGuarded);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltHotGuarded);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_PROTOCOL_ROUTER
 PTN_REGISTER_STABLE_BENCH(BM_Patternia_ProtocolRouter);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_ProtocolRouter);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_COMMAND_PARSER
 PTN_REGISTER_STABLE_BENCH(BM_Patternia_CommandParser);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_CommandParser);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_LITERAL_MATCH
 PTN_REGISTER_STABLE_BENCH(BM_Patternia_LiteralMatch);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_LiteralMatch);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_PACKET
 PTN_REGISTER_STABLE_BENCH(BM_Patternia_PacketMixed);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_PacketMixed);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_PACKET_HEAVY_BIND
 PTN_REGISTER_STABLE_BENCH(BM_Patternia_PacketMixedHeavyBind);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_PacketMixedHeavyBind);
+#endif
 #else
 #error                                                              \
     "Unsupported PTN_BENCH_MODE. Use PTN_BENCH_MODE_PIPE_STD or PTN_BENCH_MODE_PIPE_CHAIN."
 #endif
 
 #undef PTN_REGISTER_STABLE_BENCH
+#undef PTN_SWITCH_BLOCK_16
+#undef PTN_LIT_BLOCK_16
+#undef PTN_SWITCH_CASE_128
+#undef PTN_LIT_CASE_128
