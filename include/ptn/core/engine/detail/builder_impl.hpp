@@ -109,10 +109,9 @@ namespace ptn::core::engine::detail {
           std::forward<subject_type>(subject_), std::move(new_cases)};
     }
 
-    // Pipeline API: match(x) | on{ case1, case2, ... }
     template <typename... NewCases>
     constexpr decltype(auto)
-    operator|(core::dsl::detail::on<NewCases...> on_cases) && {
+    eval_pipeline_on(core::dsl::detail::on<NewCases...> &on_cases) && {
       constexpr bool is_fresh_pipeline = (sizeof...(Cases) == 0);
       static_assert(
           is_fresh_pipeline,
@@ -164,6 +163,19 @@ namespace ptn::core::engine::detail {
             on_cases.cases,
             std::move(dummy_fallback));
       }
+    }
+
+    // Pipeline API: match(x) | on{ case1, case2, ... }
+    template <typename... NewCases>
+    constexpr decltype(auto)
+    operator|(core::dsl::detail::on<NewCases...> &on_cases) && {
+      return std::move(*this).template eval_pipeline_on<NewCases...>(on_cases);
+    }
+
+    template <typename... NewCases>
+    constexpr decltype(auto)
+    operator|(core::dsl::detail::on<NewCases...> &&on_cases) && {
+      return std::move(*this).template eval_pipeline_on<NewCases...>(on_cases);
     }
 
     // Terminal API: .otherwise(...)

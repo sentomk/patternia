@@ -24,6 +24,10 @@
 #define PTN_BENCH_ENABLE_SUITE_VARIANT_GUARDED 1
 #endif
 
+#ifndef PTN_BENCH_ENABLE_SUITE_VARIANT_FASTPATH
+#define PTN_BENCH_ENABLE_SUITE_VARIANT_FASTPATH 1
+#endif
+
 #ifndef PTN_BENCH_ENABLE_SUITE_PROTOCOL_ROUTER
 #define PTN_BENCH_ENABLE_SUITE_PROTOCOL_ROUTER 1
 #endif
@@ -51,6 +55,44 @@
 namespace {
 
   using V = std::variant<int, std::string>;
+
+  template <int I>
+  struct VariantAltToken {
+    int value;
+  };
+
+  using VAlt32 = std::variant<VariantAltToken<0>,
+                              VariantAltToken<1>,
+                              VariantAltToken<2>,
+                              VariantAltToken<3>,
+                              VariantAltToken<4>,
+                              VariantAltToken<5>,
+                              VariantAltToken<6>,
+                              VariantAltToken<7>,
+                              VariantAltToken<8>,
+                              VariantAltToken<9>,
+                              VariantAltToken<10>,
+                              VariantAltToken<11>,
+                              VariantAltToken<12>,
+                              VariantAltToken<13>,
+                              VariantAltToken<14>,
+                              VariantAltToken<15>,
+                              VariantAltToken<16>,
+                              VariantAltToken<17>,
+                              VariantAltToken<18>,
+                              VariantAltToken<19>,
+                              VariantAltToken<20>,
+                              VariantAltToken<21>,
+                              VariantAltToken<22>,
+                              VariantAltToken<23>,
+                              VariantAltToken<24>,
+                              VariantAltToken<25>,
+                              VariantAltToken<26>,
+                              VariantAltToken<27>,
+                              VariantAltToken<28>,
+                              VariantAltToken<29>,
+                              VariantAltToken<30>,
+                              VariantAltToken<31>>;
 
   struct Packet {
     std::uint8_t              type;
@@ -146,12 +188,64 @@ namespace {
     using namespace ptn;
     using ptn::pat::type::is;
 
-    return match(v)
-           | on{
-               is<int>() >> 1,
-               is<std::string>() >> 2,
-               __ >> 0,
-           };
+    static auto cases = on{
+        is<int>() >> 1,
+        is<std::string>() >> 2,
+        __ >> 0,
+    };
+    return match(v) | cases;
+  }
+
+  static int patternia_pipe_variant_alt_route(const V &v) {
+    using namespace ptn;
+
+    static auto cases = on{
+        type::alt<0>() >> 1,
+        type::alt<1>() >> 2,
+        __ >> 0,
+    };
+    return match(v) | cases;
+  }
+
+  static int patternia_pipe_variant_alt_32_route(const VAlt32 &v) {
+    using namespace ptn;
+
+    static auto cases = on{
+        type::alt<0>() >> 1,
+        type::alt<1>() >> 2,
+        type::alt<2>() >> 3,
+        type::alt<3>() >> 4,
+        type::alt<4>() >> 5,
+        type::alt<5>() >> 6,
+        type::alt<6>() >> 7,
+        type::alt<7>() >> 8,
+        type::alt<8>() >> 9,
+        type::alt<9>() >> 10,
+        type::alt<10>() >> 11,
+        type::alt<11>() >> 12,
+        type::alt<12>() >> 13,
+        type::alt<13>() >> 14,
+        type::alt<14>() >> 15,
+        type::alt<15>() >> 16,
+        type::alt<16>() >> 17,
+        type::alt<17>() >> 18,
+        type::alt<18>() >> 19,
+        type::alt<19>() >> 20,
+        type::alt<20>() >> 21,
+        type::alt<21>() >> 22,
+        type::alt<22>() >> 23,
+        type::alt<23>() >> 24,
+        type::alt<24>() >> 25,
+        type::alt<25>() >> 26,
+        type::alt<26>() >> 27,
+        type::alt<27>() >> 28,
+        type::alt<28>() >> 29,
+        type::alt<29>() >> 30,
+        type::alt<30>() >> 31,
+        type::alt<31>() >> 32,
+        __ >> 0,
+    };
+    return match(v) | cases;
   }
 
   static int std_visit_variant_route(const V &v) {
@@ -171,12 +265,93 @@ namespace {
         v);
   }
 
+  static int sequential_variant_route(const V &v) {
+    if (std::holds_alternative<int>(v)) {
+      return 1;
+    }
+    if (std::holds_alternative<std::string>(v)) {
+      return 2;
+    }
+    return 0;
+  }
+
   static int switch_index_variant_route(const V &v) {
     switch (v.index()) {
     case 0:
       return 1;
     case 1:
       return 2;
+    default:
+      return 0;
+    }
+  }
+
+  static int switch_index_variant_alt_32_route(const VAlt32 &v) {
+    switch (v.index()) {
+    case 0:
+      return 1;
+    case 1:
+      return 2;
+    case 2:
+      return 3;
+    case 3:
+      return 4;
+    case 4:
+      return 5;
+    case 5:
+      return 6;
+    case 6:
+      return 7;
+    case 7:
+      return 8;
+    case 8:
+      return 9;
+    case 9:
+      return 10;
+    case 10:
+      return 11;
+    case 11:
+      return 12;
+    case 12:
+      return 13;
+    case 13:
+      return 14;
+    case 14:
+      return 15;
+    case 15:
+      return 16;
+    case 16:
+      return 17;
+    case 17:
+      return 18;
+    case 18:
+      return 19;
+    case 19:
+      return 20;
+    case 20:
+      return 21;
+    case 21:
+      return 22;
+    case 22:
+      return 23;
+    case 23:
+      return 24;
+    case 24:
+      return 25;
+    case 25:
+      return 26;
+    case 26:
+      return 27;
+    case 27:
+      return 28;
+    case 28:
+      return 29;
+    case 29:
+      return 30;
+    case 30:
+      return 31;
+    case 31:
+      return 32;
     default:
       return 0;
     }
@@ -199,18 +374,18 @@ namespace {
 
   static int patternia_pipe_variant_guarded_route(const V &v) {
     using namespace ptn;
-    auto long_string = [](const std::string &s) {
+    static auto long_string = [](const std::string &s) {
       return s.size() > 4;
     };
 
-    return match(v)
-           | on{
-               type::as<int>()[_ > 100] >> 10,
-               type::is<int>() >> 1,
-               type::as<std::string>()[long_string] >> 20,
-               type::is<std::string>() >> 2,
-               __ >> 0,
-           };
+    static auto cases = on{
+        type::as<int>()[_ > 100] >> 10,
+        type::is<int>() >> 1,
+        type::as<std::string>()[long_string] >> 20,
+        type::is<std::string>() >> 2,
+        __ >> 0,
+    };
+    return match(v) | cases;
   }
 
   static int std_visit_variant_guarded_route(const V &v) {
@@ -234,6 +409,24 @@ namespace {
           }
         },
         v);
+  }
+
+  static int sequential_variant_guarded_route(const V &v) {
+    if (std::holds_alternative<int>(v)) {
+      const int x = std::get<int>(v);
+      if (x > 100) {
+        return 10;
+      }
+      return 1;
+    }
+    if (std::holds_alternative<std::string>(v)) {
+      const auto &s = std::get<std::string>(v);
+      if (s.size() > 4) {
+        return 20;
+      }
+      return 2;
+    }
+    return 0;
   }
 
   static int switch_index_variant_guarded_route(const V &v) {
@@ -714,6 +907,30 @@ namespace {
     state.SetItemsProcessed(state.iterations());
   }
 
+  template <typename F>
+  static void run_variant_alt_32_alternating_hot(benchmark::State &state,
+                                                  F                 fn) {
+    // Microbench: isolate dispatch overhead across far-apart alternatives.
+    static VAlt32 low_alt  = VAlt32{std::in_place_index<0>, VariantAltToken<0>{0}};
+    static VAlt32 high_alt = VAlt32{std::in_place_index<31>, VariantAltToken<31>{31}};
+
+    bool pick_high = false;
+    int  acc       = 0;
+
+    for (auto _ : state) {
+      VAlt32 &v = pick_high ? high_alt : low_alt;
+      pick_high = !pick_high;
+
+      benchmark::DoNotOptimize(v);
+      acc += fn(v);
+      benchmark::DoNotOptimize(acc);
+      benchmark::ClobberMemory();
+    }
+
+    benchmark::DoNotOptimize(acc);
+    state.SetItemsProcessed(state.iterations());
+  }
+
   static int patternia_packet_route(const Packet &pkt) {
     using namespace ptn;
 
@@ -930,6 +1147,76 @@ namespace {
     return data;
   }
 
+  static const std::vector<VAlt32> &variant_alt_32_workload() {
+    static const std::vector<VAlt32> data = {
+        VAlt32{std::in_place_index<0>, VariantAltToken<0>{0}},
+        VAlt32{std::in_place_index<1>, VariantAltToken<1>{1}},
+        VAlt32{std::in_place_index<2>, VariantAltToken<2>{2}},
+        VAlt32{std::in_place_index<3>, VariantAltToken<3>{3}},
+        VAlt32{std::in_place_index<4>, VariantAltToken<4>{4}},
+        VAlt32{std::in_place_index<5>, VariantAltToken<5>{5}},
+        VAlt32{std::in_place_index<6>, VariantAltToken<6>{6}},
+        VAlt32{std::in_place_index<7>, VariantAltToken<7>{7}},
+        VAlt32{std::in_place_index<8>, VariantAltToken<8>{8}},
+        VAlt32{std::in_place_index<9>, VariantAltToken<9>{9}},
+        VAlt32{std::in_place_index<10>, VariantAltToken<10>{10}},
+        VAlt32{std::in_place_index<11>, VariantAltToken<11>{11}},
+        VAlt32{std::in_place_index<12>, VariantAltToken<12>{12}},
+        VAlt32{std::in_place_index<13>, VariantAltToken<13>{13}},
+        VAlt32{std::in_place_index<14>, VariantAltToken<14>{14}},
+        VAlt32{std::in_place_index<15>, VariantAltToken<15>{15}},
+        VAlt32{std::in_place_index<16>, VariantAltToken<16>{16}},
+        VAlt32{std::in_place_index<17>, VariantAltToken<17>{17}},
+        VAlt32{std::in_place_index<18>, VariantAltToken<18>{18}},
+        VAlt32{std::in_place_index<19>, VariantAltToken<19>{19}},
+        VAlt32{std::in_place_index<20>, VariantAltToken<20>{20}},
+        VAlt32{std::in_place_index<21>, VariantAltToken<21>{21}},
+        VAlt32{std::in_place_index<22>, VariantAltToken<22>{22}},
+        VAlt32{std::in_place_index<23>, VariantAltToken<23>{23}},
+        VAlt32{std::in_place_index<24>, VariantAltToken<24>{24}},
+        VAlt32{std::in_place_index<25>, VariantAltToken<25>{25}},
+        VAlt32{std::in_place_index<26>, VariantAltToken<26>{26}},
+        VAlt32{std::in_place_index<27>, VariantAltToken<27>{27}},
+        VAlt32{std::in_place_index<28>, VariantAltToken<28>{28}},
+        VAlt32{std::in_place_index<29>, VariantAltToken<29>{29}},
+        VAlt32{std::in_place_index<30>, VariantAltToken<30>{30}},
+        VAlt32{std::in_place_index<31>, VariantAltToken<31>{31}},
+        VAlt32{std::in_place_index<31>, VariantAltToken<31>{31}},
+        VAlt32{std::in_place_index<30>, VariantAltToken<30>{30}},
+        VAlt32{std::in_place_index<29>, VariantAltToken<29>{29}},
+        VAlt32{std::in_place_index<28>, VariantAltToken<28>{28}},
+        VAlt32{std::in_place_index<27>, VariantAltToken<27>{27}},
+        VAlt32{std::in_place_index<26>, VariantAltToken<26>{26}},
+        VAlt32{std::in_place_index<25>, VariantAltToken<25>{25}},
+        VAlt32{std::in_place_index<24>, VariantAltToken<24>{24}},
+        VAlt32{std::in_place_index<23>, VariantAltToken<23>{23}},
+        VAlt32{std::in_place_index<22>, VariantAltToken<22>{22}},
+        VAlt32{std::in_place_index<21>, VariantAltToken<21>{21}},
+        VAlt32{std::in_place_index<20>, VariantAltToken<20>{20}},
+        VAlt32{std::in_place_index<19>, VariantAltToken<19>{19}},
+        VAlt32{std::in_place_index<18>, VariantAltToken<18>{18}},
+        VAlt32{std::in_place_index<17>, VariantAltToken<17>{17}},
+        VAlt32{std::in_place_index<16>, VariantAltToken<16>{16}},
+        VAlt32{std::in_place_index<15>, VariantAltToken<15>{15}},
+        VAlt32{std::in_place_index<14>, VariantAltToken<14>{14}},
+        VAlt32{std::in_place_index<13>, VariantAltToken<13>{13}},
+        VAlt32{std::in_place_index<12>, VariantAltToken<12>{12}},
+        VAlt32{std::in_place_index<11>, VariantAltToken<11>{11}},
+        VAlt32{std::in_place_index<10>, VariantAltToken<10>{10}},
+        VAlt32{std::in_place_index<9>, VariantAltToken<9>{9}},
+        VAlt32{std::in_place_index<8>, VariantAltToken<8>{8}},
+        VAlt32{std::in_place_index<7>, VariantAltToken<7>{7}},
+        VAlt32{std::in_place_index<6>, VariantAltToken<6>{6}},
+        VAlt32{std::in_place_index<5>, VariantAltToken<5>{5}},
+        VAlt32{std::in_place_index<4>, VariantAltToken<4>{4}},
+        VAlt32{std::in_place_index<3>, VariantAltToken<3>{3}},
+        VAlt32{std::in_place_index<2>, VariantAltToken<2>{2}},
+        VAlt32{std::in_place_index<1>, VariantAltToken<1>{1}},
+        VAlt32{std::in_place_index<0>, VariantAltToken<0>{0}},
+    };
+    return data;
+  }
+
   static const std::vector<Packet> &packet_workload() {
     static const std::vector<Packet> data = {
         {0x01, 0, 0, {}},
@@ -1064,6 +1351,10 @@ namespace {
     run_workload(state, variant_workload(), std_visit_variant_route);
   }
 
+  static void BM_Sequential_VariantMixed(benchmark::State &state) {
+    run_workload(state, variant_workload(), sequential_variant_route);
+  }
+
   static void BM_SwitchIndex_VariantMixed(benchmark::State &state) {
     run_workload(
         state, variant_workload(), switch_index_variant_route);
@@ -1082,8 +1373,58 @@ namespace {
     run_variant_alternating_hot(state, std_visit_variant_route);
   }
 
+  static void BM_Sequential_VariantAltHot(benchmark::State &state) {
+    run_variant_alternating_hot(state, sequential_variant_route);
+  }
+
   static void BM_SwitchIndex_VariantAltHot(benchmark::State &state) {
     run_variant_alternating_hot(state, switch_index_variant_route);
+  }
+
+  static void
+  BM_PatterniaPipe_VariantFastPathMixed(benchmark::State &state) {
+    run_workload(
+        state, variant_workload(), patternia_pipe_variant_route);
+  }
+
+  static void
+  BM_PatterniaPipe_VariantFastPathAltHot(benchmark::State &state) {
+    run_variant_alternating_hot(state, patternia_pipe_variant_route);
+  }
+
+  static void
+  BM_PatterniaPipe_VariantAltIndexMixed(benchmark::State &state) {
+    run_workload(
+        state, variant_workload(), patternia_pipe_variant_alt_route);
+  }
+
+  static void
+  BM_PatterniaPipe_VariantAltIndexAltHot(benchmark::State &state) {
+    run_variant_alternating_hot(state, patternia_pipe_variant_alt_route);
+  }
+
+  static void
+  BM_PatterniaPipe_VariantAltIndex32Mixed(benchmark::State &state) {
+    run_workload(
+        state, variant_alt_32_workload(), patternia_pipe_variant_alt_32_route);
+  }
+
+  static void
+  BM_SwitchIndex_VariantAltIndex32Mixed(benchmark::State &state) {
+    run_workload(
+        state, variant_alt_32_workload(), switch_index_variant_alt_32_route);
+  }
+
+  static void
+  BM_PatterniaPipe_VariantAltIndex32AltHot(benchmark::State &state) {
+    run_variant_alt_32_alternating_hot(
+        state, patternia_pipe_variant_alt_32_route);
+  }
+
+  static void
+  BM_SwitchIndex_VariantAltIndex32AltHot(benchmark::State &state) {
+    run_variant_alt_32_alternating_hot(
+        state, switch_index_variant_alt_32_route);
   }
 
   static void
@@ -1103,6 +1444,13 @@ namespace {
   BM_StdVisit_VariantMixedGuarded(benchmark::State &state) {
     run_workload(
         state, variant_workload(), std_visit_variant_guarded_route);
+  }
+
+  static void
+  BM_Sequential_VariantMixedGuarded(benchmark::State &state) {
+    run_workload(state,
+                 variant_workload(),
+                 sequential_variant_guarded_route);
   }
 
   static void
@@ -1128,6 +1476,12 @@ namespace {
   BM_StdVisit_VariantAltHotGuarded(benchmark::State &state) {
     run_variant_alternating_hot(state,
                                 std_visit_variant_guarded_route);
+  }
+
+  static void
+  BM_Sequential_VariantAltHotGuarded(benchmark::State &state) {
+    run_variant_alternating_hot(state,
+                                sequential_variant_guarded_route);
   }
 
   static void
@@ -1266,18 +1620,33 @@ namespace {
 #if PTN_BENCH_ENABLE_SUITE_VARIANT
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantMixed);
 PTN_REGISTER_STABLE_BENCH(BM_StdVisit_VariantMixed);
+PTN_REGISTER_STABLE_BENCH(BM_Sequential_VariantMixed);
 PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantMixed);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltHot);
 PTN_REGISTER_STABLE_BENCH(BM_StdVisit_VariantAltHot);
+PTN_REGISTER_STABLE_BENCH(BM_Sequential_VariantAltHot);
 PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantAltHot);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_VARIANT_FASTPATH
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantFastPathMixed);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantFastPathAltHot);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndexMixed);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndexAltHot);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndex32Mixed);
+PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantAltIndex32Mixed);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndex32AltHot);
+PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantAltIndex32AltHot);
 #endif
 
 #if PTN_BENCH_ENABLE_SUITE_VARIANT_GUARDED
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantMixedGuarded);
 PTN_REGISTER_STABLE_BENCH(BM_StdVisit_VariantMixedGuarded);
+PTN_REGISTER_STABLE_BENCH(BM_Sequential_VariantMixedGuarded);
 PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantMixedGuarded);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltHotGuarded);
 PTN_REGISTER_STABLE_BENCH(BM_StdVisit_VariantAltHotGuarded);
+PTN_REGISTER_STABLE_BENCH(BM_Sequential_VariantAltHotGuarded);
 PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantAltHotGuarded);
 #endif
 
@@ -1321,6 +1690,17 @@ PTN_REGISTER_STABLE_BENCH(BM_Patternia_VariantMixed);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantMixed);
 PTN_REGISTER_STABLE_BENCH(BM_Patternia_VariantAltHot);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltHot);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_VARIANT_FASTPATH
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantFastPathMixed);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantFastPathAltHot);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndexMixed);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndexAltHot);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndex32Mixed);
+PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantAltIndex32Mixed);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndex32AltHot);
+PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantAltIndex32AltHot);
 #endif
 
 #if PTN_BENCH_ENABLE_SUITE_VARIANT_GUARDED
