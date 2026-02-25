@@ -26,7 +26,11 @@ add_executable(ptn_bench_evolution
   bench_pipe_vs_chain.cpp
 )
 
-foreach(_ptn_bench_target IN ITEMS ptn_bench ptn_bench_lit ptn_bench_evolution)
+add_executable(ptn_bench_variant
+  bench_variant.cpp
+)
+
+foreach(_ptn_bench_target IN ITEMS ptn_bench ptn_bench_lit ptn_bench_evolution ptn_bench_variant)
   target_link_libraries(${_ptn_bench_target} PRIVATE
     patternia
     benchmark::benchmark
