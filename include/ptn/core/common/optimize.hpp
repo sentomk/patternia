@@ -217,6 +217,28 @@ namespace ptn::core::common {
       }
     }
 
+    // Compile-time matcher for simple variant patterns by active alternative.
+    template <typename Pattern, typename Subject, std::size_t ActiveIndex>
+    constexpr bool simple_variant_pattern_matches_alt_index() {
+      using pattern_t = std::decay_t<Pattern>;
+
+      if constexpr (is_wildcard_pattern_v<pattern_t>) {
+        return true;
+      }
+      else if constexpr (is_simple_variant_type_is_pattern_v<pattern_t>) {
+        static_assert_variant_alt_unique<typename pattern_t::alt_t, Subject>();
+        return ActiveIndex == pattern_t::template alt_index<Subject>();
+      }
+      else if constexpr (is_simple_variant_type_alt_pattern_v<pattern_t>) {
+        constexpr std::size_t I = simple_variant_alt_index<pattern_t>::value;
+        static_assert_variant_alt_index<I, Subject>();
+        return ActiveIndex == I;
+      }
+      else {
+        return false;
+      }
+    }
+
     // Runtime index prefilter for mixed variant case chains.
     template <typename Pattern, typename Subject>
     constexpr bool

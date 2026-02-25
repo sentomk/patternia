@@ -9,6 +9,7 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+#include <array>
 #include <functional>
 #include <cstdlib>
 #include <variant>
@@ -341,6 +342,102 @@ namespace ptn::core::common {
     }
 
     template <
+        std::size_t ActiveIndex,
+        std::size_t I,
+        typename Result,
+        typename Subject,
+        typename CasesTuple,
+        typename Otherwise,
+        std::size_t N = std::tuple_size_v<std::remove_reference_t<CasesTuple>>>
+    constexpr Result
+    eval_cases_impl_variant_simple_for_alt(Subject    &subject,
+                                           CasesTuple &cases,
+                                           Otherwise &&otherwise_handler) {
+      if constexpr (I >= N) {
+        return invoke_otherwise_typed<Result>(
+            subject, std::forward<Otherwise>(otherwise_handler));
+      }
+      else {
+        auto &current_case = std::get<I>(cases);
+        using case_t       = std::remove_reference_t<decltype(current_case)>;
+        using pattern_t    = traits::case_pattern_t<case_t>;
+
+        if constexpr (simple_variant_pattern_matches_alt_index<pattern_t,
+                                                               Subject,
+                                                               ActiveIndex>()) {
+          return static_cast<Result>(current_case.handler());
+        }
+        else {
+          return eval_cases_impl_variant_simple_for_alt<ActiveIndex,
+                                                        I + 1,
+                                                        Result>(
+              subject, cases, std::forward<Otherwise>(otherwise_handler));
+        }
+      }
+    }
+
+    template <std::size_t ActiveIndex,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename OtherwiseHandler>
+    constexpr Result
+    eval_cases_impl_variant_simple_for_alt_entry(Subject          &subject,
+                                                 CasesTuple       &cases,
+                                                 OtherwiseHandler &otherwise_handler) {
+      return eval_cases_impl_variant_simple_for_alt<ActiveIndex, 0, Result>(
+          subject, cases, otherwise_handler);
+    }
+
+    template <typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename OtherwiseHandler,
+              std::size_t... AltIndex>
+    constexpr auto
+    make_variant_simple_dispatch_table(std::index_sequence<AltIndex...>) {
+      using dispatch_fn_t =
+          Result (*)(Subject &, CasesTuple &, OtherwiseHandler &);
+
+      return std::array<dispatch_fn_t, sizeof...(AltIndex)>{
+          &eval_cases_impl_variant_simple_for_alt_entry<AltIndex,
+                                                        Result,
+                                                        Subject,
+                                                        CasesTuple,
+                                                        OtherwiseHandler>...};
+    }
+
+    template <
+        typename Result,
+        typename Subject,
+        typename CasesTuple,
+        typename Otherwise,
+        typename SubjectValue =
+            std::remove_cv_t<std::remove_reference_t<Subject>>,
+        std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    inline Result eval_cases_impl_variant_simple_dispatch_by_alt_table(
+        std::size_t active_index,
+        Subject    &subject,
+        CasesTuple &cases,
+        Otherwise &&otherwise_handler) {
+      if (active_index >= AltCount) {
+        return invoke_otherwise_typed<Result>(
+            subject, std::forward<Otherwise>(otherwise_handler));
+      }
+
+      using otherwise_handler_t = std::remove_reference_t<Otherwise>;
+      static constexpr auto dispatch_table =
+          make_variant_simple_dispatch_table<Result,
+                                             Subject,
+                                             CasesTuple,
+                                             otherwise_handler_t>(
+              std::make_index_sequence<AltCount>{});
+
+      otherwise_handler_t &otherwise_ref = otherwise_handler;
+      return dispatch_table[active_index](subject, cases, otherwise_ref);
+    }
+
+    template <
         std::size_t I,
         typename Result,
         typename Subject,
@@ -517,6 +614,67 @@ namespace ptn::core::common {
             std::forward<Otherwise>(otherwise_handler));
       }
     }
+
+    template <std::size_t ActiveIndex,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename OtherwiseHandler>
+    constexpr Result
+    eval_cases_impl_typed_variant_for_alt_entry(Subject          &subject,
+                                                CasesTuple       &cases,
+                                                OtherwiseHandler &otherwise_handler) {
+      return eval_cases_impl_typed_variant_for_alt<ActiveIndex, 0, Result>(
+          subject, cases, otherwise_handler);
+    }
+
+    template <typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename OtherwiseHandler,
+              std::size_t... AltIndex>
+    constexpr auto
+    make_typed_variant_dispatch_table(std::index_sequence<AltIndex...>) {
+      using dispatch_fn_t =
+          Result (*)(Subject &, CasesTuple &, OtherwiseHandler &);
+
+      return std::array<dispatch_fn_t, sizeof...(AltIndex)>{
+          &eval_cases_impl_typed_variant_for_alt_entry<AltIndex,
+                                                       Result,
+                                                       Subject,
+                                                       CasesTuple,
+                                                       OtherwiseHandler>...};
+    }
+
+    template <
+        typename Result,
+        typename Subject,
+        typename CasesTuple,
+        typename Otherwise,
+        typename SubjectValue =
+            std::remove_cv_t<std::remove_reference_t<Subject>>,
+        std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    inline Result eval_cases_impl_typed_variant_dispatch_by_alt_table(
+        std::size_t active_index,
+        Subject    &subject,
+        CasesTuple &cases,
+        Otherwise &&otherwise_handler) {
+      if (active_index >= AltCount) {
+        return invoke_otherwise_typed<Result>(
+            subject, std::forward<Otherwise>(otherwise_handler));
+      }
+
+      using otherwise_handler_t = std::remove_reference_t<Otherwise>;
+      static constexpr auto dispatch_table =
+          make_typed_variant_dispatch_table<Result,
+                                            Subject,
+                                            CasesTuple,
+                                            otherwise_handler_t>(
+              std::make_index_sequence<AltCount>{});
+
+      otherwise_handler_t &otherwise_ref = otherwise_handler;
+      return dispatch_table[active_index](subject, cases, otherwise_ref);
+    }
   } // namespace detail
 
   template <typename Result,
@@ -536,9 +694,9 @@ namespace ptn::core::common {
     }
     else if constexpr (dispatch_policy_t::use_simple_variant_dispatch) {
       // Variant simple-dispatch fast path:
-      // read index once, then resolve by case order (first-match-wins).
+      // read index once, then jump directly to active alt evaluator.
       const std::size_t active_index = subject.index();
-      return detail::eval_cases_impl_variant_simple_dispatch<0, Result>(
+      return detail::eval_cases_impl_variant_simple_dispatch_by_alt_table<Result>(
           active_index,
           subject,
           cases,
@@ -546,9 +704,9 @@ namespace ptn::core::common {
     }
     else if constexpr (dispatch_policy_t::use_variant_alt_dispatch) {
       // Mixed variant keyed path:
-      // choose active alternative first, then evaluate relevant cases only.
+      // jump to active alternative, then evaluate only relevant cases.
       const std::size_t active_index = subject.index();
-      return detail::eval_cases_impl_typed_variant_dispatch_by_alt<0, Result>(
+      return detail::eval_cases_impl_typed_variant_dispatch_by_alt_table<Result>(
           active_index,
           subject,
           cases,
