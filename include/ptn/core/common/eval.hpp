@@ -458,6 +458,14 @@ namespace ptn::core::common {
           &invoke_variant_simple_case_entry<CaseIndex, Result, CasesTuple>...};
     }
 
+    template <typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename SubjectValue,
+              std::size_t AltCount,
+              std::size_t CaseCount>
+    struct variant_simple_dispatch_cache;
+
     template <
         typename Result,
         typename Subject,
@@ -1072,6 +1080,14 @@ namespace ptn::core::common {
 
       return table;
     }
+
+    template <typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename OtherwiseHandler,
+              typename SubjectValue,
+              std::size_t AltCount>
+    struct typed_variant_dispatch_cache;
 
     template <
         typename Result,
