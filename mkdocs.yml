@@ -90,5 +90,8 @@ nav:
   - API:
       - api.md
 
+  - Performance:
+      - performance/index.md
+
   - Changelog:
       - Releases: changelog/releases.md
