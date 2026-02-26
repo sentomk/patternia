@@ -28,6 +28,8 @@ namespace ptn::pat::mod {
 } // namespace ptn::pat::mod
 
 namespace ptn::pat::detail {
+  struct binding_pattern;
+
   struct wildcard_t;
 
   template <typename V, typename Cmp>
@@ -185,6 +187,45 @@ namespace ptn::core::common {
     struct variant_type_alt_index<
         ptn::pat::type::detail::type_alt_pattern<I, SubPattern>>
         : std::integral_constant<std::size_t, I> {};
+
+    // Matches `type::is<T>(bind())`.
+    template <typename Pattern>
+    struct is_variant_direct_ref_bind_pattern : std::false_type {};
+
+    template <typename Alt>
+    struct is_variant_direct_ref_bind_pattern<
+        ptn::pat::type::detail::type_is_pattern<Alt,
+                                                ptn::pat::detail::binding_pattern>>
+        : std::true_type {};
+
+    // Matches `type::alt<I>(bind())`.
+    template <std::size_t I>
+    struct is_variant_direct_ref_bind_pattern<
+        ptn::pat::type::detail::type_alt_pattern<I,
+                                                 ptn::pat::detail::binding_pattern>>
+        : std::true_type {};
+
+    template <typename Pattern>
+    constexpr bool is_variant_direct_ref_bind_pattern_v =
+        is_variant_direct_ref_bind_pattern<std::decay_t<Pattern>>::value;
+
+    // Extracts bound reference directly from variant for direct bind patterns.
+    template <typename Pattern, typename Subject>
+    constexpr decltype(auto) variant_direct_ref_bind_get(Subject &subject) {
+      using pattern_t = std::decay_t<Pattern>;
+
+      if constexpr (is_variant_direct_ref_bind_pattern_v<pattern_t>) {
+        if constexpr (is_variant_type_is_pattern_v<pattern_t>) {
+          static_assert_variant_alt_unique<typename pattern_t::alt_t, Subject>();
+          return (std::get<pattern_t::template alt_index<Subject>()>(subject));
+        }
+        else {
+          constexpr std::size_t I = variant_type_alt_index<pattern_t>::value;
+          static_assert_variant_alt_index<I, Subject>();
+          return (std::get<I>(subject));
+        }
+      }
+    }
 
     template <typename Pattern>
     struct guarded_inner_pattern;
