@@ -188,29 +188,27 @@ namespace {
     using namespace ptn;
     using ptn::pat::type::is;
 
-    static auto cases = on{
+    return match(v) | on{
         is<int>() >> 1,
         is<std::string>() >> 2,
         __ >> 0,
     };
-    return match(v) | cases;
   }
 
   static int patternia_pipe_variant_alt_route(const V &v) {
     using namespace ptn;
 
-    static auto cases = on{
+    return match(v) | on{
         type::alt<0>() >> 1,
         type::alt<1>() >> 2,
         __ >> 0,
     };
-    return match(v) | cases;
   }
 
   static int patternia_pipe_variant_alt_32_route(const VAlt32 &v) {
     using namespace ptn;
 
-    static auto cases = on{
+    return match(v) | on{
         type::alt<0>() >> 1,
         type::alt<1>() >> 2,
         type::alt<2>() >> 3,
@@ -245,7 +243,6 @@ namespace {
         type::alt<31>() >> 32,
         __ >> 0,
     };
-    return match(v) | cases;
   }
 
   static int std_visit_variant_route(const V &v) {
@@ -378,14 +375,13 @@ namespace {
       return s.size() > 4;
     };
 
-    static auto cases = on{
+    return match(v) | on{
         type::as<int>()[_ > 100] >> 10,
         type::is<int>() >> 1,
         type::as<std::string>()[long_string] >> 20,
         type::is<std::string>() >> 2,
         __ >> 0,
     };
-    return match(v) | cases;
   }
 
   static int std_visit_variant_guarded_route(const V &v) {
