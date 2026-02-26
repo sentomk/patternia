@@ -2,8 +2,12 @@
 
 // Optimization strategy utilities for match case dispatch.
 
+#include <array>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
+#include <initializer_list>
+#include <limits>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -75,6 +79,10 @@ namespace ptn::core::common {
     template <typename T>
     constexpr bool is_variant_subject_v = is_variant_subject<
         std::remove_cv_t<std::remove_reference_t<T>>>::value;
+
+    constexpr std::size_t k_variant_inline_dispatch_alt_threshold = 16;
+    constexpr std::size_t k_variant_segmented_dispatch_alt_threshold = 64;
+    constexpr std::size_t k_variant_dispatch_segment_size = 16;
 
     // Matches `type::is<T>()` with no subpattern/binding.
     template <typename Pattern>
@@ -209,24 +217,6 @@ namespace ptn::core::common {
     constexpr bool is_variant_direct_ref_bind_pattern_v =
         is_variant_direct_ref_bind_pattern<std::decay_t<Pattern>>::value;
 
-    // Extracts bound reference directly from variant for direct bind patterns.
-    template <typename Pattern, typename Subject>
-    constexpr decltype(auto) variant_direct_ref_bind_get(Subject &subject) {
-      using pattern_t = std::decay_t<Pattern>;
-
-      if constexpr (is_variant_direct_ref_bind_pattern_v<pattern_t>) {
-        if constexpr (is_variant_type_is_pattern_v<pattern_t>) {
-          static_assert_variant_alt_unique<typename pattern_t::alt_t, Subject>();
-          return (std::get<pattern_t::template alt_index<Subject>()>(subject));
-        }
-        else {
-          constexpr std::size_t I = variant_type_alt_index<pattern_t>::value;
-          static_assert_variant_alt_index<I, Subject>();
-          return (std::get<I>(subject));
-        }
-      }
-    }
-
     template <typename Pattern>
     struct guarded_inner_pattern;
 
@@ -234,29 +224,6 @@ namespace ptn::core::common {
     struct guarded_inner_pattern<ptn::pat::mod::guarded_pattern<Inner, Pred>> {
       using type = Inner;
     };
-
-    // Runtime matcher for simple variant patterns by active index.
-    template <typename Pattern, typename Subject>
-    constexpr bool
-    simple_variant_pattern_matches_index(std::size_t active_index) {
-      using pattern_t = std::decay_t<Pattern>;
-
-      if constexpr (is_wildcard_pattern_v<pattern_t>) {
-        return true;
-      }
-      else if constexpr (is_simple_variant_type_is_pattern_v<pattern_t>) {
-        static_assert_variant_alt_unique<typename pattern_t::alt_t, Subject>();
-        return active_index == pattern_t::template alt_index<Subject>();
-      }
-      else if constexpr (is_simple_variant_type_alt_pattern_v<pattern_t>) {
-        constexpr std::size_t I = simple_variant_alt_index<pattern_t>::value;
-        static_assert_variant_alt_index<I, Subject>();
-        return active_index == I;
-      }
-      else {
-        return false;
-      }
-    }
 
     // Compile-time matcher for simple variant patterns by active alternative.
     template <typename Pattern, typename Subject, std::size_t ActiveIndex>
@@ -277,34 +244,6 @@ namespace ptn::core::common {
       }
       else {
         return false;
-      }
-    }
-
-    // Runtime index prefilter for mixed variant case chains.
-    template <typename Pattern, typename Subject>
-    constexpr bool
-    variant_pattern_maybe_matches_active_index(std::size_t active_index) {
-      using pattern_t = std::decay_t<Pattern>;
-
-      if constexpr (is_wildcard_pattern_v<pattern_t>) {
-        return true;
-      }
-      else if constexpr (is_guarded_pattern_v<pattern_t>) {
-        using inner_t = typename guarded_inner_pattern<pattern_t>::type;
-        return variant_pattern_maybe_matches_active_index<inner_t, Subject>(
-            active_index);
-      }
-      else if constexpr (is_variant_type_is_pattern_v<pattern_t>) {
-        static_assert_variant_alt_unique<typename pattern_t::alt_t, Subject>();
-        return active_index == pattern_t::template alt_index<Subject>();
-      }
-      else if constexpr (is_variant_type_alt_pattern_v<pattern_t>) {
-        constexpr std::size_t I = variant_type_alt_index<pattern_t>::value;
-        static_assert_variant_alt_index<I, Subject>();
-        return active_index == I;
-      }
-      else {
-        return true;
       }
     }
 
@@ -335,6 +274,237 @@ namespace ptn::core::common {
         return true;
       }
     }
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t ActiveIndex,
+              std::size_t I = 0,
+              std::size_t N =
+                  std::tuple_size_v<std::remove_reference_t<CasesTuple>>>
+    struct variant_simple_case_index_for_alt {
+      using tuple_t   = std::remove_reference_t<CasesTuple>;
+      using case_t    = std::tuple_element_t<I, tuple_t>;
+      using pattern_t = traits::case_pattern_t<case_t>;
+
+      static constexpr std::size_t value =
+          simple_variant_pattern_matches_alt_index<pattern_t,
+                                                   Subject,
+                                                   ActiveIndex>()
+              ? I
+              : variant_simple_case_index_for_alt<Subject,
+                                                  CasesTuple,
+                                                  ActiveIndex,
+                                                  I + 1,
+                                                  N>::value;
+    };
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t ActiveIndex,
+              std::size_t N>
+    struct variant_simple_case_index_for_alt<Subject,
+                                             CasesTuple,
+                                             ActiveIndex,
+                                             N,
+                                             N> {
+      static constexpr std::size_t value = N;
+    };
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t... AltIndex>
+    constexpr auto
+    make_variant_simple_case_index_table(std::index_sequence<AltIndex...>) {
+      return std::array<std::size_t, sizeof...(AltIndex)>{
+          variant_simple_case_index_for_alt<Subject, CasesTuple, AltIndex>::
+              value...};
+    }
+
+    template <
+        typename Subject,
+        typename CasesTuple,
+        typename SubjectValue =
+            std::remove_cv_t<std::remove_reference_t<Subject>>,
+        std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    struct variant_simple_dispatch_metadata {
+      static constexpr auto case_index_table =
+          make_variant_simple_case_index_table<Subject, CasesTuple>(
+              std::make_index_sequence<AltCount>{});
+    };
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t ActiveIndex,
+              std::size_t I = 0,
+              std::size_t N =
+                  std::tuple_size_v<std::remove_reference_t<CasesTuple>>>
+    struct variant_typed_case_first_match_index_for_alt {
+      using tuple_t   = std::remove_reference_t<CasesTuple>;
+      using case_t    = std::tuple_element_t<I, tuple_t>;
+      using pattern_t = traits::case_pattern_t<case_t>;
+
+      static constexpr std::size_t value =
+          variant_pattern_maybe_matches_alt_index<pattern_t,
+                                                  Subject,
+                                                  ActiveIndex>()
+              ? I
+              : variant_typed_case_first_match_index_for_alt<Subject,
+                                                             CasesTuple,
+                                                             ActiveIndex,
+                                                             I + 1,
+                                                             N>::value;
+    };
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t ActiveIndex,
+              std::size_t N>
+    struct variant_typed_case_first_match_index_for_alt<Subject,
+                                                        CasesTuple,
+                                                        ActiveIndex,
+                                                        N,
+                                                        N> {
+      static constexpr std::size_t value = N;
+    };
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t ActiveIndex,
+              std::size_t I = 0,
+              std::size_t N =
+                  std::tuple_size_v<std::remove_reference_t<CasesTuple>>>
+    struct variant_typed_case_last_match_index_exclusive_for_alt {
+      using tuple_t   = std::remove_reference_t<CasesTuple>;
+      using case_t    = std::tuple_element_t<I, tuple_t>;
+      using pattern_t = traits::case_pattern_t<case_t>;
+
+      static constexpr std::size_t tail =
+          variant_typed_case_last_match_index_exclusive_for_alt<Subject,
+                                                                CasesTuple,
+                                                                ActiveIndex,
+                                                                I + 1,
+                                                                N>::value;
+
+      static constexpr std::size_t value =
+          variant_pattern_maybe_matches_alt_index<pattern_t,
+                                                  Subject,
+                                                  ActiveIndex>()
+              ? (tail > (I + 1) ? tail : (I + 1))
+              : tail;
+    };
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t ActiveIndex,
+              std::size_t N>
+    struct variant_typed_case_last_match_index_exclusive_for_alt<Subject,
+                                                                  CasesTuple,
+                                                                  ActiveIndex,
+                                                                  N,
+                                                                  N> {
+      static constexpr std::size_t value = 0;
+    };
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t ActiveIndex,
+              std::size_t CaseCount =
+                  std::tuple_size_v<std::remove_reference_t<CasesTuple>>>
+    struct variant_typed_case_range_for_alt {
+      static constexpr std::size_t begin =
+          variant_typed_case_first_match_index_for_alt<Subject,
+                                                       CasesTuple,
+                                                       ActiveIndex>::value;
+
+      static constexpr std::size_t end =
+          variant_typed_case_last_match_index_exclusive_for_alt<Subject,
+                                                                 CasesTuple,
+                                                                 ActiveIndex>::value;
+
+      static constexpr bool has_any = begin < end && begin < CaseCount;
+    };
+
+    template <std::size_t UsedAltCount>
+    using variant_compact_alt_index_t = std::conditional_t<
+        (UsedAltCount <= std::numeric_limits<std::uint8_t>::max()),
+        std::uint8_t,
+        std::conditional_t<
+            (UsedAltCount <= std::numeric_limits<std::uint16_t>::max()),
+            std::uint16_t,
+            std::uint32_t>>;
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t CaseCount,
+              std::size_t... AltIndex>
+    constexpr std::size_t count_typed_variant_compact_dispatch_alts(
+        std::index_sequence<AltIndex...>) {
+      return (std::size_t{0}
+              + ... +
+              (variant_typed_case_range_for_alt<Subject,
+                                                CasesTuple,
+                                                AltIndex,
+                                                CaseCount>::has_any
+                   ? std::size_t{1}
+                   : std::size_t{0}));
+    }
+
+    template <typename CompactIndex,
+              typename Subject,
+              typename CasesTuple,
+              std::size_t AltCount,
+              std::size_t CaseCount,
+              std::size_t... AltIndex>
+    constexpr auto make_typed_variant_compact_alt_index_map(
+        std::index_sequence<AltIndex...>) {
+      std::array<CompactIndex, AltCount> map{};
+      constexpr CompactIndex invalid = std::numeric_limits<CompactIndex>::max();
+
+      for (auto &entry : map) {
+        entry = invalid;
+      }
+
+      CompactIndex next = 0;
+      (void) std::initializer_list<int>{
+          (variant_typed_case_range_for_alt<Subject,
+                                            CasesTuple,
+                                            AltIndex,
+                                            CaseCount>::has_any
+               ? (map[AltIndex] = next++, 0)
+               : 0)...};
+
+      return map;
+    }
+
+    template <
+        typename Subject,
+        typename CasesTuple,
+        typename SubjectValue =
+            std::remove_cv_t<std::remove_reference_t<Subject>>,
+        std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    struct typed_variant_dispatch_metadata {
+      static constexpr std::size_t case_count =
+          std::tuple_size_v<std::remove_reference_t<CasesTuple>>;
+
+      static constexpr std::size_t used_alt_count =
+          count_typed_variant_compact_dispatch_alts<Subject,
+                                                    CasesTuple,
+                                                    case_count>(
+              std::make_index_sequence<AltCount>{});
+
+      using compact_index_t = variant_compact_alt_index_t<used_alt_count>;
+      static constexpr compact_index_t k_invalid_compact_index =
+          std::numeric_limits<compact_index_t>::max();
+
+      // Flattened index map: variant index -> compact dispatch slot.
+      static constexpr auto compact_alt_index_map =
+          make_typed_variant_compact_alt_index_map<compact_index_t,
+                                                   Subject,
+                                                   CasesTuple,
+                                                   AltCount,
+                                                   case_count>(
+              std::make_index_sequence<AltCount>{});
+    };
 
     template <typename Case, typename Subject>
     struct is_simple_variant_dispatch_case {
