@@ -18,7 +18,7 @@
         <link rel="prev" href="../guide/installation/">
       
       
-        <link rel="next" href="../changelog/releases/">
+        <link rel="next" href="../performance/">
       
       
         
@@ -287,6 +287,26 @@
   
   
   API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../performance/" class="md-tabs__link">
+          
+  
+  
+  Performance
 
         </a>
       </li>
@@ -859,10 +879,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#matchsubject-cases" class="md-nav__link">
+  <a href="#matchsubject-on" class="md-nav__link">
     <span class="md-ellipsis">
       
-        match(subject, cases(...))
+        match(subject) | on{...}
       
     </span>
   </a>
@@ -881,22 +901,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#otherwise-and-end" class="md-nav__link">
+  <a href="#otherwise-and-end-chained-api-deprecated" class="md-nav__link">
     <span class="md-ellipsis">
       
-        .otherwise(...) and .end()
+        .otherwise(...) and .end() (Chained API, Deprecated)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label=".otherwise(...) and .end()">
+    <nav class="md-nav" aria-label=".otherwise(...) and .end() (Chained API, Deprecated)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#otherwise" class="md-nav__link">
+  <a href="#otherwise-deprecated" class="md-nav__link">
     <span class="md-ellipsis">
       
-        .otherwise(...)
+        .otherwise(...) (Deprecated)
       
     </span>
   </a>
@@ -904,10 +924,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#end" class="md-nav__link">
+  <a href="#end-deprecated" class="md-nav__link">
     <span class="md-ellipsis">
       
-        .end()
+        .end() (Deprecated)
       
     </span>
   </a>
@@ -1364,7 +1384,7 @@
   <span class="md-ellipsis">
     
   
-    Changelog
+    Performance
   
 
     
@@ -1377,6 +1397,93 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Performance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1469,35 +1576,30 @@ It defines how values are inspected, how cases are registered, and how matching 
 <p>Patternia currently matches the subject as its actual type; there is no
 <code>match&lt;AsType&gt;(subject)</code> override.</p>
 <hr />
-<h3 id="matchsubject-cases"><code>match(subject, cases(...))</code><a class="headerlink" href="#matchsubject-cases" title="Permanent link">&para;</a></h3>
-<p><strong>Role</strong>: Compact syntax for simple matching scenarios.</p>
+<h3 id="matchsubject-on"><code>match(subject) | on{...}</code><a class="headerlink" href="#matchsubject-on" title="Permanent link">&para;</a></h3>
+<p><strong>Role</strong>: Primary API for Patternia v0.8.x.</p>
 <p><strong>Syntax</strong>:
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="n">cases</span><span class="p">(</span><span class="n">case1</span><span class="p">,</span><span class="w"> </span><span class="n">case2</span><span class="p">,</span><span class="w"> </span><span class="p">...))</span>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">{</span><span class="w"> </span><span class="n">case1</span><span class="p">,</span><span class="w"> </span><span class="n">case2</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div></p>
 <p><strong>Key Characteristics</strong>:</p>
 <ul>
-<li>Provides a concise alternative to the standard <code>.when()</code> chain syntax</li>
-<li><strong>No bindings/guards</strong>: Cannot be used with <code>bind()</code> or guard expressions</li>
-<li>Supports both pattern fallback (<code>__</code>) and match fallback patterns</li>
+<li>Pipeline-style terminal form, evaluated immediately</li>
 <li>Cases are evaluated sequentially using <strong>first-match semantics</strong></li>
-<li><strong>Requires <code>.end()</code></strong> to trigger evaluation when using <code>__</code> pattern</li>
+<li>Requires a pattern fallback <code>__</code> in the <code>on{...}</code> case list</li>
+<li>Supports full pattern capabilities including guards and bindings</li>
 </ul>
 <p><strong>Basic Usage</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">cases</span><span class="p">(</span>
-<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;one</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;two</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="n">__</span><span class="w">    </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;other</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-<span class="p">)).</span><span class="n">end</span><span class="p">();</span>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">{</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="n">__</span><span class="w">     </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;other&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">};</span>
 </code></pre></div>
-<p><strong>Limitations</strong>:</p>
+<p><strong>Compatibility Note</strong>:</p>
 <ul>
-<li>Cannot use <code>bind()</code> (and therefore cannot use guard expressions <code>[]</code>)</li>
-<li>Best suited for simple literal and wildcard matching</li>
-<li>For complex matching with guards, use the standard DSL syntax</li>
-<li><strong>Must use <code>.end()</code> when using <code>__</code> pattern to trigger evaluation</strong></li>
+<li><code>match(subject, cases(...)).end()</code> was removed in v0.8.0.</li>
+<li>Migrate legacy compact forms to <code>match(subject) | on{...}</code>.</li>
 </ul>
-<p><strong>Design Intent</strong>:
-This syntax is optimized for straightforward value discrimination where the full power of the DSL (guards, complex patterns) is not needed.</p>
 <hr />
 <h3 id="whenpattern-handler"><code>.when(pattern &gt;&gt; handler)</code><a class="headerlink" href="#whenpattern-handler" title="Permanent link">&para;</a></h3>
 <p><strong>Role</strong>: Primary case-definition primitive.</p>
@@ -1540,11 +1642,16 @@ This syntax is optimized for straightforward value discrimination where the full
 </li>
 </ul>
 <hr />
-<h3 id="otherwise-and-end"><code>.otherwise(...)</code> and <code>.end()</code><a class="headerlink" href="#otherwise-and-end" title="Permanent link">&para;</a></h3>
+<h3 id="otherwise-and-end-chained-api-deprecated"><code>.otherwise(...)</code> and <code>.end()</code> (Chained API, Deprecated)<a class="headerlink" href="#otherwise-and-end-chained-api-deprecated" title="Permanent link">&para;</a></h3>
 <p>These terminal operations define how a match expression is finalized.
 The key distinction between them is the use of the <code>__</code> pattern.</p>
+<blockquote>
+<p>[!WARNING]
+Chained terminal forms are still available in v0.8.x, but are deprecated and
+planned for future removal. Prefer <code>match(subject) | on{...}</code>.</p>
+</blockquote>
 <hr />
-<h4 id="otherwise"><code>.otherwise(...)</code><a class="headerlink" href="#otherwise" title="Permanent link">&para;</a></h4>
+<h4 id="otherwise-deprecated"><code>.otherwise(...)</code> (Deprecated)<a class="headerlink" href="#otherwise-deprecated" title="Permanent link">&para;</a></h4>
 <p><strong>Role</strong>: Match fallback that works in all scenarios.</p>
 <p><strong>Purpose</strong>: Provides a fallback when no prior <code>when</code> clause matches successfully.</p>
 <p><strong>Characteristics</strong>:</p>
@@ -1565,7 +1672,7 @@ The key distinction between them is the use of the <code>__</code> pattern.</p>
 <span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;default&quot;</span><span class="p">);</span><span class="w">          </span><span class="c1">// Executed as fallback</span>
 </code></pre></div>
 <hr />
-<h4 id="end"><code>.end()</code><a class="headerlink" href="#end" title="Permanent link">&para;</a></h4>
+<h4 id="end-deprecated"><code>.end()</code> (Deprecated)<a class="headerlink" href="#end-deprecated" title="Permanent link">&para;</a></h4>
 <p><strong>Purpose</strong>: Required when using the <code>__</code> pattern fallback.</p>
 <p><strong>Characteristics</strong>:</p>
 <ul>
@@ -1580,7 +1687,8 @@ The key distinction between them is the use of the <code>__</code> pattern.</p>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;other</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// pattern fallback</span>
 <span class="w">  </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">  </span><span class="c1">// Required for __ to work</span>
 </code></pre></div>
-<p><strong>Critical Rule</strong>: If <code>__</code> pattern is used without <code>.end()</code>, the <code>__</code> case will <strong>not trigger</strong>.</p>
+<p><strong>Critical Rule (chained API only)</strong>: If <code>__</code> is used in chained <code>.when(...)</code>
+style without <code>.end()</code>, the match is not finalized.</p>
 <p><strong>Design Philosophy</strong>:
 The distinction between <code>.otherwise()</code> and <code>.end()</code> is driven by the <code>__</code> pattern's requirement for match inference.</p>
 <hr />
@@ -2172,13 +2280,13 @@ Unlisted members are simply ignored.</p>
         
         
           
-          <a href="../changelog/releases/" class="md-footer__link md-footer__link--next" aria-label="Next: Releases">
+          <a href="../performance/" class="md-footer__link md-footer__link--next" aria-label="Next: Performance Notes">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Releases
+                Performance Notes
               </div>
             </div>
             <div class="md-footer__button md-icon">

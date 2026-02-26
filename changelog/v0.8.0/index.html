@@ -12,7 +12,7 @@
         <meta name="author" content="Y.F. Guo">
       
       
-        <link rel="canonical" href="https://sentomk.github.io/patternia/changelog/v0.7.1/">
+        <link rel="canonical" href="https://sentomk.github.io/patternia/changelog/v0.8.0/">
       
       
       
@@ -25,7 +25,7 @@
     
     
       
-        <title>Patternia v0.7.1 Release Note - Patternia</title>
+        <title>Patternia v0.8.0 Release Note - Patternia</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#patternia-v071-release-note" class="md-skip">
+        <a href="#patternia-v080-release-note" class="md-skip">
           Skip to content
         </a>
       
@@ -111,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Patternia v0.7.1 Release Note
+              Patternia v0.8.0 Release Note
             
           </span>
         </div>
@@ -996,51 +996,85 @@
   
 
 
-<h1 id="patternia-v071-release-note">Patternia v0.7.1 Release Note<a class="headerlink" href="#patternia-v071-release-note" title="Permanent link">&para;</a></h1>
-<p><strong>Release Date:</strong> February 7, 2026<br />
-<strong>Version:</strong> 0.7.1</p>
+<h1 id="patternia-v080-release-note">Patternia v0.8.0 Release Note<a class="headerlink" href="#patternia-v080-release-note" title="Permanent link">&para;</a></h1>
+<p><strong>Release Date:</strong> February 27, 2026<br />
+<strong>Version:</strong> 0.8.0</p>
 <hr />
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Patternia v0.7.1 is a diagnostics-focused patch release. This version improves
-compile-time error readability and adds direct fix hints for common misuse
-cases. No runtime behavior or matching semantics changed.</p>
+<p>Patternia v0.8.0 is an API and performance release.</p>
+<p>Compared with v0.7.6, this version removes the legacy
+<code>match(x, cases(...)).end()</code> terminal form and focuses the public usage on
+<code>match(x) | on{...}</code>. It also upgrades variant dispatch internals with a
+tiered hot/warm/cold strategy for better large-branch behavior.</p>
 <hr />
 <h2 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h2>
-<h3 id="clearer-static-assert-requirements">Clearer Static-Assert Requirements<a class="headerlink" href="#clearer-static-assert-requirements" title="Permanent link">&para;</a></h3>
+<h3 id="api-update-breaking">API Update (Breaking)<a class="headerlink" href="#api-update-breaking" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Replaced generic requirement names such as <code>ok</code> with semantic names
-  (for example <code>can_add_after_wildcard</code>, <code>alt_index_in_range</code>,
-  <code>pattern_has_bind_method</code>).</li>
-<li>Compiler diagnostics now expose more meaningful failed requirements.</li>
+<li>Removed legacy terminal API:</li>
+<li><code>match(x, cases(...)).end()</code></li>
+<li>Recommended forms in v0.8.x:</li>
+<li><code>match(x) | on{...};</code></li>
+<li><code>match(x).when(...).when(...).end();</code> for chained style
+    (deprecated; planned for future removal)</li>
+<li><code>match(x).when(...).otherwise(...);</code> for non-exhaustive matches
+    (deprecated; planned for future removal)</li>
 </ul>
-<h3 id="actionable-error-hints">Actionable Error Hints<a class="headerlink" href="#actionable-error-hints" title="Permanent link">&para;</a></h3>
+<h3 id="performance-core-dispatch-algorithms-in-v080">Performance: Core Dispatch Algorithms in v0.8.0<a class="headerlink" href="#performance-core-dispatch-algorithms-in-v080" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added concise <code>Tip:</code> guidance to key diagnostics in match builder validation.</li>
-<li>Improved guidance for wildcard placement, <code>.end()</code>/<code>.otherwise()</code> misuse,
-  and lvalue subject requirements.</li>
+<li>Added explicit variant dispatch tiering:</li>
+<li><code>hot_inline</code> for small alternative counts</li>
+<li><code>warm_segmented</code> for medium alternative counts</li>
+<li><code>cold_compact</code> for large alternative counts</li>
+<li>Added compact index mapping for large typed-variant dispatch:</li>
+<li><code>active_index -&gt; compact slot</code></li>
+<li>miss goes directly to fallback path</li>
+<li>hit jumps into dense trampoline table</li>
+<li>Added typed-variant per-alt case-range narrowing:</li>
+<li>only scans the relevant case range for the active alternative</li>
+<li>Retained direct-reference bind fast path for variant typed bindings to reduce
+  tuple plumbing on common paths.</li>
+<li>Separated hot entry logic from cold large-branch logic using non-inline cold
+  helpers to reduce hot-path code footprint.</li>
 </ul>
-<h3 id="variant-type-diagnostics">Variant Type Diagnostics<a class="headerlink" href="#variant-type-diagnostics" title="Permanent link">&para;</a></h3>
+<h3 id="internal-architecture-cleanup">Internal Architecture Cleanup<a class="headerlink" href="#internal-architecture-cleanup" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Improved <code>type::is&lt;T&gt;()</code> not-found diagnostics with clearer wording and
-  concrete recovery guidance.</li>
-<li>Added explicit guidance for duplicate variant alternatives:
-  prefer <code>type::alt&lt;I&gt;()</code> or distinct wrapper types.</li>
+<li>Further separated optimization metadata from runtime evaluation flow:</li>
+<li>strategy/metadata stays in <code>optimize.hpp</code></li>
+<li>runtime execution stays in <code>eval.hpp</code></li>
 </ul>
+<hr />
+<h2 id="migration-guide">Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
+<p>If you still use legacy terminal form, migrate to pipeline or chained API.</p>
+<p>Before:</p>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">cases</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">)).</span><span class="n">end</span><span class="p">();</span>
+</code></pre></div>
+<p>After:</p>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">{</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
 <hr />
 <h2 id="compatibility-notes">Compatibility Notes<a class="headerlink" href="#compatibility-notes" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Source compatibility: unchanged.</li>
-<li>API surface: unchanged.</li>
-<li>Behavior: unchanged (diagnostic wording only).</li>
+<li>API surface: <strong>breaking change</strong> in 0.8.0 due to removal of
+  <code>match(x, cases(...)).end()</code>.</li>
+<li>Runtime semantics: unchanged for equivalent case ordering and fallback
+  behavior.</li>
+<li>Source compatibility: users of <code>match(x) | on{...}</code> and chain
+  <code>.when(...).end()/.otherwise(...)</code> remain compatible.</li>
 </ul>
 <hr />
 <h2 id="implementation-notes">Implementation Notes<a class="headerlink" href="#implementation-notes" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>include/ptn/core/common/diagnostics.hpp</code></li>
-<li>Requirement names made semantic.</li>
-<li>Several static-assert messages now include fix-oriented hints.</li>
-<li><code>include/ptn/pattern/type.hpp</code></li>
-<li><code>type::is&lt;T&gt;()</code> alternative lookup diagnostics refined.</li>
+<li><code>include/ptn/core/common/optimize.hpp</code></li>
+<li>Added dispatch tier model and variant metadata helpers.</li>
+<li><code>include/ptn/core/common/eval.hpp</code></li>
+<li>Integrated hot/warm/cold dispatch flow and cold-path helpers.</li>
+<li>Updated typed/simple variant dispatch to use compact metadata.</li>
 </ul>
 
 
