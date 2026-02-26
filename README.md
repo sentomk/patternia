@@ -28,15 +28,104 @@
 
 ## *Update*
 
-- **Performance update (v0.7.6)** — adds variant dispatch fast paths, practical variant benchmark scenarios, and single-JSON visualization tooling.
-- **Variant matching is now supported (v0.7.x)** — including `type::is`, `type::as`, and `type::alt`.
-- **Planned change (v0.8.x)** — `match(x, cases(...))` will be removed.
+- **Release update (v0.8.0)** — removes `match(x, cases(...)).end()` and focuses public usage on `match(x) | on{...}`.
+- **Performance update (v0.8.0)** — adds tiered variant dispatch (`hot_inline` / `warm_segmented` / `cold_compact`) and large-branch cold-path separation.
+- **Variant matching support (v0.7.x+)** — includes `type::is`, `type::as`, and `type::alt`.
 
 ## *Performance Snapshot*
 
-Current single-run snapshot (same JSON, multi-implementation comparison):
+Current snapshot is generated from `ptn_bench_variant` JSON via
+`scripts/bench_single_report.py` (same JSON, multi-implementation comparison):
 
-![Patternia Variant Dispatch Snapshot](docs/assets/bench/variant-single-report.png)
+![Patternia Variant Dispatch Snapshot (v0.8.0)](docs/assets/bench/v0.8.0-variant-single-report.png)
+
+### Variant Bench Guide (`ptn_bench_variant`)
+
+`ptn_bench_variant` currently focuses on variant dispatch and registers these
+scenario groups (all compared against `StdVisit` / `Sequential` / `SwitchIndex`
+where applicable):
+
+- `VariantMixed` / `VariantAltHot`
+- `VariantFastPathMixed` / `VariantFastPathAltHot`
+- `VariantAltIndexMixed` / `VariantAltIndexAltHot`
+- `VariantAltIndex32Mixed` / `VariantAltIndex32AltHot`
+
+#### 1) `VariantMixed` / `VariantAltHot` (baseline type dispatch)
+
+**Use**: baseline `std::variant<int, std::string>` routing with two different
+input distributions.
+
+**Code shape**:
+
+```cpp
+match(v) | on{
+  type::is<int>() >> 1,
+  type::is<std::string>() >> 2,
+  __ >> 0,
+};
+```
+
+**Meaning**:
+- `VariantMixed`: mixed alternatives, reflects average dispatch behavior.
+- `VariantAltHot`: one alternative is hot, shows branch-locality sensitivity.
+- Used as a baseline for `type::is<T>()` paths.
+
+#### 2) `VariantFastPathMixed` / `VariantFastPathAltHot` (simple-case fast path)
+
+**Use**: verify the simple variant fast path (minimal pattern complexity).
+
+**Code shape**:
+
+```cpp
+match(v) | on{
+  type::alt<0>() >> 1,
+  type::alt<1>() >> 2,
+  __ >> 0,
+};
+```
+
+**Meaning**:
+- Isolates dispatch overhead when patterns are direct alt checks.
+- Confirms whether optimized simple-dispatch entry is effective.
+
+#### 3) `VariantAltIndexMixed` / `VariantAltIndexAltHot` (index-addressed dispatch)
+
+**Use**: same 2-alt routing but expressed explicitly through `type::alt<I>()`.
+
+**Code shape**:
+
+```cpp
+match(v) | on{
+  type::alt<0>() >> 1,
+  type::alt<1>() >> 2,
+  __ >> 0,
+};
+```
+
+**Meaning**:
+- Measures indexed dispatch behavior independent of type-name matching.
+- Helps distinguish type-based vs index-based dispatch costs.
+
+#### 4) `VariantAltIndex32Mixed` / `VariantAltIndex32AltHot` (32-branch scale test)
+
+**Use**: stress test for large branch sets (32 alternatives).
+
+**Code shape**:
+
+```cpp
+match(v32) | on{
+  type::alt<0>() >> 1,
+  type::alt<1>() >> 2,
+  // ...
+  type::alt<31>() >> 32,
+  __ >> 0,
+};
+```
+
+**Meaning**:
+- Directly targets large-N dispatch scalability.
+- Evaluates effectiveness of compact map + cold-path strategy.
+- Compared against `SwitchIndex` baseline for dense branch routing.
 
 
 ## *Learn Patternia*
@@ -144,11 +233,12 @@ As a result, **structural assumptions about data are rarely explicit**, and reas
 Patternia allows control flow to be written *in terms of structure*:
 
 ```cpp
-match(p)
-  .when(bind(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+match(p) | on{
+  bind(has<&Point::x, &Point::y>()) >> [](int x, int y) {
     // explicitly operates on {x, y}
-  })
-  .otherwise(...);
+  },
+  __ >> [] { /* fallback */ },
+};
 ```
 
 Each branch clearly states *what shape of data it expects* and *what it binds*, making invariants explicit and local.
@@ -173,11 +263,11 @@ Patternia separates these concerns:
 * **Guards** describe *constraints over the bound values*.
 
 ```cpp
-match(p)
-  .when(
-    bind(has<&Point::x, &Point::y>())[arg<0> + arg<1> == 0] >>
-    [](int x, int y) { ... }
-  );
+match(p) | on{
+  bind(has<&Point::x, &Point::y>())[arg<0> + arg<1> == 0] >>
+      [](int x, int y) { /* ... */ },
+  __ >> [] { /* ... */ },
+};
 ```
 
 This separation improves readability and enables richer forms of reasoning over multi-value relationships.
@@ -235,10 +325,11 @@ within one coherent, expression-oriented model.
 Patternia treats pattern matching as an **expression**, not just a control-flow statement:
 
 ```cpp
-auto result = match(n)
-  .when(lit(0) >> 0)
-  .when(lit(1) >> 1)
-  .otherwise([] { return compute(); });
+auto result = match(n) | on{
+  lit(0) >> 0,
+  lit(1) >> 1,
+  __ >> [] { return compute(); },
+};
 ```
 
 At the same time, it adheres strictly to C++’s zero-overhead principle:
@@ -285,10 +376,12 @@ Patternia is a **header-only** library that brings expressive pattern matching t
 #include <ptn/patternia.hpp>
 
 int classify(int x) {
-  return ptn::match(x)
-    .when(ptn::lit(0) >> 0)
-    .when(ptn::lit(1) >> 1)
-    .otherwise(-1);
+  using namespace ptn;
+  return match(x) | on{
+    lit(0) >> 0,
+    lit(1) >> 1,
+    __ >> -1,
+  };
 }
 ```
 
@@ -359,55 +452,49 @@ ctest --test-dir build -R compile_fail --output-on-failure
 ctest --test-dir build --output-on-failure
 ```
 
-## *Benchmarking (v0.7.6)*
+## *Benchmarking (v0.8.0)*
 
-Patternia v0.7.6 keeps stable variant microbench profiling, adds practical
-variant scenarios (protocol router and command parser), and provides
-single-file JSON visualization tooling for multi-implementation comparison.
+v0.8.0 keeps the unified benchmark suite and adds tiered-variant dispatch
+optimizations. For dispatch-focused evaluation, prefer `ptn_bench_variant`.
 
-### Heavy-Bind Principle
+### Recommended Variant Run Profile
 
-- `BM_Patternia_PacketMixed` measures the common/light packet-matching path.
-- `BM_Patternia_PacketMixedHeavyBind` intentionally binds large `payload`
-  fields through `bind(has<&Packet::payload ...>)` so copy/reference binding
-  differences are amplified and measurable.
-- Compare against `BM_Switch_PacketMixedHeavyBind` for a low-level baseline.
-
-### Variant Dispatch Microbench
-
-- `BM_*_VariantMixed` keeps the existing mixed workload route benchmark.
-- `BM_*_VariantAltHot` is a variant-focused microbench that alternates two
-  prebuilt alternatives to isolate dispatch overhead from workload traversal.
-- Variant benchmarks are registered with a stable run profile (ns unit,
-  minimum run time, repetitions, aggregate report output).
+- Unit: nanoseconds (`ns`)
+- Stable profile: min time + repetitions + aggregate output
+- Filter: `Variant`
 
 ### Reproducible Compare Workflow
 
 ```powershell
-# 0) Optional: run variant-focused benchmark suite (stable profile in-code)
-.\build\bench\ptn_bench.exe `
+# 0) Build variant benchmark target
+cmake --build build --config Release --target ptn_bench_variant --parallel
+
+# 1) Run variant-focused suite
+.\build\bench\ptn_bench_variant.exe `
   --benchmark_filter="Variant" `
-  --benchmark_out="build/bench/result.json" `
+  --benchmark_min_time=0.5 `
+  --benchmark_repetitions=20 `
+  --benchmark_report_aggregates_only=true `
+  --benchmark_out="build/bench/variant_current.json" `
   --benchmark_out_format=json
 
-# 1) Stage two result.json files into standard local locations
-py -3 scripts/bench_stage_results.py `
-  --baseline "F:/code-backup/patternia/build/bench/result.json" `
-  --current "F:/code/patternia/build/bench/result.json"
-
-# 2) Render comparison chart + report (defaults to staged files)
-py -3 scripts/bench_compare.py `
-  --include "PacketMixedHeavyBind" `
-  --label-baseline "backup" `
-  --label-current "current" `
-  --prefix "packet_heavy"
-
-# 2b) Single-file visualization for multi-impl comparison
+# 2) Single-file visualization (same JSON, multi-implementation)
 py -3 scripts/bench_single_report.py `
-  --input "build/bench/result.json" `
+  --input "build/bench/variant_current.json" `
   --include "Variant" `
   --outdir "build/bench/single" `
-  --prefix "variant_single"
+  --prefix "variant_current"
+
+# 3) Optional: compare two snapshots
+py -3 scripts/bench_stage_results.py `
+  --baseline "build/bench/variant_baseline.json" `
+  --current "build/bench/variant_current.json"
+
+py -3 scripts/bench_compare.py `
+  --include "Variant" `
+  --label-baseline "baseline" `
+  --label-current "current" `
+  --prefix "variant_compare"
 ```
 
 ## *API Reference*
@@ -421,10 +508,10 @@ py -3 scripts/bench_single_report.py `
 ### I. Match DSL Core Framework
 
 * [`match(subject)`](https://sentomk.github.io/patternia/api/#matchsubject)
-* [`match(subject, cases(...))`](https://sentomk.github.io/patternia/api/#matchsubject-cases)
-* [`.when(pattern >> handler)`](https://sentomk.github.io/patternia/api/#whenpattern-handler)
-* [`.otherwise(...)`](https://sentomk.github.io/patternia/api/#otherwise)
-* [`.end()`](https://sentomk.github.io/patternia/api/#end )
+* [`match(subject) | on{...}`](https://sentomk.github.io/patternia/api/#matchsubject-on)
+* [`.when(pattern >> handler)` *(legacy chain; deprecating)*](https://sentomk.github.io/patternia/api/#whenpattern-handler)
+* [`.otherwise(...)` *(legacy chain; deprecating)*](https://sentomk.github.io/patternia/api/#otherwise)
+* [`.end()` *(legacy chain; deprecating)*](https://sentomk.github.io/patternia/api/#end)
 * [Fallback Mechanisms Comparison](https://sentomk.github.io/patternia/api/#comparison-summary)
 
 ---
@@ -473,8 +560,6 @@ py -3 scripts/bench_single_report.py `
 
 ## *Contributing*
 
-## Contributing
-
 Contributions are welcome.
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting issues or pull requests.  
@@ -483,5 +568,5 @@ This project is governed by a [Code of Conduct](CODE_OF_CONDUCT.md).
 ---
 
 <div align="center">
-  <sub>Built with ❤️ for modern C++ development</sub>
+  <sub>Built for modern C++ development</sub>
 </div>
