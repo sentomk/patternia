@@ -20,6 +20,13 @@
 #include "ptn/core/common/optimize.hpp"
 
 namespace ptn::core::common {
+#if defined(_MSC_VER)
+#define PTN_DETAIL_NOINLINE __declspec(noinline)
+#elif defined(__GNUC__) || defined(__clang__)
+#define PTN_DETAIL_NOINLINE __attribute__((noinline))
+#else
+#define PTN_DETAIL_NOINLINE
+#endif
 
   // SFINAE Helper for C++17
   namespace detail {
@@ -455,6 +462,37 @@ namespace ptn::core::common {
         typename Result,
         typename Subject,
         typename CasesTuple,
+        typename Otherwise,
+        typename SubjectValue =
+            std::remove_cv_t<std::remove_reference_t<Subject>>,
+        std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    PTN_DETAIL_NOINLINE inline Result
+    eval_cases_impl_variant_simple_dispatch_by_alt_cold(
+        std::size_t active_index,
+        Subject    &subject,
+        CasesTuple &cases,
+        Otherwise &&otherwise_handler) {
+      using cache_t = variant_simple_dispatch_cache<Result,
+                                                    Subject,
+                                                    CasesTuple,
+                                                    SubjectValue,
+                                                    AltCount>;
+      constexpr std::size_t case_count =
+          std::tuple_size_v<std::remove_reference_t<CasesTuple>>;
+
+      const std::size_t case_index = cache_t::case_index_table[active_index];
+      if (case_index < case_count) {
+        return cache_t::case_invoke_table[case_index](cases);
+      }
+
+      return invoke_otherwise_typed<Result>(
+          subject, std::forward<Otherwise>(otherwise_handler));
+    }
+
+    template <
+        typename Result,
+        typename Subject,
+        typename CasesTuple,
         typename SubjectValue =
             std::remove_cv_t<std::remove_reference_t<Subject>>,
         std::size_t AltCount = std::variant_size_v<SubjectValue>,
@@ -635,34 +673,25 @@ namespace ptn::core::common {
             subject, std::forward<Otherwise>(otherwise_handler));
       }
 
-      if constexpr (AltCount <= k_variant_inline_dispatch_alt_threshold) {
+      constexpr auto tier = variant_dispatch_tier_for_alt_count<AltCount>();
+      if constexpr (tier == variant_dispatch_tier::hot_inline) {
         // Small-variant fast path:
         // avoid indirect function-pointer calls to improve inlining.
         return eval_cases_impl_variant_simple_dispatch_by_alt_inline<0, Result>(
             active_index, subject, cases, std::forward<Otherwise>(otherwise_handler));
       }
-      else if constexpr (AltCount <= k_variant_segmented_dispatch_alt_threshold) {
+      else if constexpr (tier == variant_dispatch_tier::warm_segmented) {
         // Medium-variant fast path:
         // segmented direct dispatch to limit code size while preserving locality.
         return eval_cases_impl_variant_simple_dispatch_by_alt_segmented<0, Result>(
             active_index, subject, cases, std::forward<Otherwise>(otherwise_handler));
       }
-
-      using cache_t = variant_simple_dispatch_cache<Result,
-                                                    Subject,
-                                                    CasesTuple,
-                                                    SubjectValue,
-                                                    AltCount>;
-      constexpr std::size_t case_count =
-          std::tuple_size_v<std::remove_reference_t<CasesTuple>>;
-
-      const std::size_t case_index = cache_t::case_index_table[active_index];
-      if (case_index < case_count) {
-        return cache_t::case_invoke_table[case_index](cases);
+      else {
+        // Large-variant cold path:
+        // isolate compact-table dispatch from hot inline entry.
+        return eval_cases_impl_variant_simple_dispatch_by_alt_cold<Result>(
+            active_index, subject, cases, std::forward<Otherwise>(otherwise_handler));
       }
-
-      return invoke_otherwise_typed<Result>(
-          subject, std::forward<Otherwise>(otherwise_handler));
     }
 
     template <
@@ -1048,6 +1077,39 @@ namespace ptn::core::common {
         typename Result,
         typename Subject,
         typename CasesTuple,
+        typename Otherwise,
+        typename SubjectValue =
+            std::remove_cv_t<std::remove_reference_t<Subject>>,
+        std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    PTN_DETAIL_NOINLINE inline Result
+    eval_cases_impl_typed_variant_dispatch_by_alt_cold(
+        std::size_t active_index,
+        Subject    &subject,
+        CasesTuple &cases,
+        Otherwise &&otherwise_handler) {
+      using otherwise_handler_t = std::remove_reference_t<Otherwise>;
+      using cache_t = typed_variant_dispatch_cache<Result,
+                                                   Subject,
+                                                   CasesTuple,
+                                                   otherwise_handler_t,
+                                                   SubjectValue,
+                                                   AltCount>;
+
+      const auto compact_index = cache_t::compact_alt_index_map[active_index];
+      if (compact_index == cache_t::k_invalid_compact_index) {
+        return invoke_otherwise_typed<Result>(
+            subject, std::forward<Otherwise>(otherwise_handler));
+      }
+
+      otherwise_handler_t &otherwise_ref = otherwise_handler;
+      return cache_t::compact_dispatch_table[static_cast<std::size_t>(
+          compact_index)](subject, cases, otherwise_ref);
+    }
+
+    template <
+        typename Result,
+        typename Subject,
+        typename CasesTuple,
         typename OtherwiseHandler,
         typename SubjectValue =
             std::remove_cv_t<std::remove_reference_t<Subject>>,
@@ -1094,36 +1156,25 @@ namespace ptn::core::common {
             subject, std::forward<Otherwise>(otherwise_handler));
       }
 
-      if constexpr (AltCount <= k_variant_inline_dispatch_alt_threshold) {
+      constexpr auto tier = variant_dispatch_tier_for_alt_count<AltCount>();
+      if constexpr (tier == variant_dispatch_tier::hot_inline) {
         // Small-variant fast path:
         // inline-friendly recursive dispatch instead of function pointer table.
         return eval_cases_impl_typed_variant_dispatch_by_alt<0, Result>(
             active_index, subject, cases, std::forward<Otherwise>(otherwise_handler));
       }
-      else if constexpr (AltCount <= k_variant_segmented_dispatch_alt_threshold) {
+      else if constexpr (tier == variant_dispatch_tier::warm_segmented) {
         // Medium-variant fast path:
         // segmented direct dispatch to reduce monolithic recursion depth.
         return eval_cases_impl_typed_variant_dispatch_by_alt_segmented<0, Result>(
             active_index, subject, cases, std::forward<Otherwise>(otherwise_handler));
       }
-
-      using otherwise_handler_t = std::remove_reference_t<Otherwise>;
-      using cache_t = typed_variant_dispatch_cache<Result,
-                                                   Subject,
-                                                   CasesTuple,
-                                                   otherwise_handler_t,
-                                                   SubjectValue,
-                                                   AltCount>;
-
-      const auto compact_index = cache_t::compact_alt_index_map[active_index];
-      if (compact_index == cache_t::k_invalid_compact_index) {
-        return invoke_otherwise_typed<Result>(
-            subject, std::forward<Otherwise>(otherwise_handler));
+      else {
+        // Large-variant cold path:
+        // compact map + trampoline table in a separate non-inline frame.
+        return eval_cases_impl_typed_variant_dispatch_by_alt_cold<Result>(
+            active_index, subject, cases, std::forward<Otherwise>(otherwise_handler));
       }
-
-      otherwise_handler_t &otherwise_ref = otherwise_handler;
-      return cache_t::compact_dispatch_table[static_cast<std::size_t>(
-          compact_index)](subject, cases, otherwise_ref);
     }
   } // namespace detail
 
@@ -1168,3 +1219,5 @@ namespace ptn::core::common {
     }
   }
 } // namespace ptn::core::common
+
+#undef PTN_DETAIL_NOINLINE

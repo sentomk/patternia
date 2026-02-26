@@ -84,6 +84,25 @@ namespace ptn::core::common {
     constexpr std::size_t k_variant_segmented_dispatch_alt_threshold = 64;
     constexpr std::size_t k_variant_dispatch_segment_size = 16;
 
+    enum class variant_dispatch_tier {
+      hot_inline,
+      warm_segmented,
+      cold_compact
+    };
+
+    template <std::size_t AltCount>
+    constexpr variant_dispatch_tier variant_dispatch_tier_for_alt_count() {
+      if constexpr (AltCount <= k_variant_inline_dispatch_alt_threshold) {
+        return variant_dispatch_tier::hot_inline;
+      }
+      else if constexpr (AltCount <= k_variant_segmented_dispatch_alt_threshold) {
+        return variant_dispatch_tier::warm_segmented;
+      }
+      else {
+        return variant_dispatch_tier::cold_compact;
+      }
+    }
+
     // Matches `type::is<T>()` with no subpattern/binding.
     template <typename Pattern>
     struct is_simple_variant_type_is_pattern : std::false_type {};
