@@ -43,42 +43,36 @@ Patternia currently matches the subject as its actual type; there is no
 
 ---
 
-### `match(subject, cases(...))`
+### `match(subject) | on{...}`
 
-**Role**: Compact syntax for simple matching scenarios.
+**Role**: Primary API for Patternia v0.8.x.
 
 **Syntax**:
 ```cpp
-match(subject, cases(case1, case2, ...))
+match(subject) | on{ case1, case2, ... }
 ```
 
 **Key Characteristics**:
 
-* Provides a concise alternative to the standard `.when()` chain syntax
-* **No bindings/guards**: Cannot be used with `bind()` or guard expressions
-* Supports both pattern fallback (`__`) and match fallback patterns
+* Pipeline-style terminal form, evaluated immediately
 * Cases are evaluated sequentially using **first-match semantics**
-* **Requires `.end()`** to trigger evaluation when using `__` pattern
+* Requires a pattern fallback `__` in the `on{...}` case list
+* Supports full pattern capabilities including guards and bindings
 
 **Basic Usage**:
 
 ```cpp
-match(x, cases(
-  lit(1) >> [] { std::cout << "one\n"; },
-  lit(2) >> [] { std::cout << "two\n"; },
-  __    >> [] { std::cout << "other\n"; }
-)).end();
+auto r = match(x) | on{
+  lit(1) >> [] { return "one"; },
+  lit(2) >> [] { return "two"; },
+  __     >> [] { return "other"; }
+};
 ```
 
-**Limitations**:
+**Compatibility Note**:
 
-- Cannot use `bind()` (and therefore cannot use guard expressions `[]`)
-- Best suited for simple literal and wildcard matching
-- For complex matching with guards, use the standard DSL syntax
-- **Must use `.end()` when using `__` pattern to trigger evaluation**
-
-**Design Intent**:
-This syntax is optimized for straightforward value discrimination where the full power of the DSL (guards, complex patterns) is not needed.
+- `match(subject, cases(...)).end()` was removed in v0.8.0.
+- Migrate legacy compact forms to `match(subject) | on{...}`.
 
 ---
 
@@ -129,14 +123,18 @@ This syntax is optimized for straightforward value discrimination where the full
 
 ---
 
-### `.otherwise(...)` and `.end()`
+### `.otherwise(...)` and `.end()` (Chained API, Deprecated)
 
 These terminal operations define how a match expression is finalized.
 The key distinction between them is the use of the `__` pattern.
 
+> [!WARNING]
+> Chained terminal forms are still available in v0.8.x, but are deprecated and
+> planned for future removal. Prefer `match(subject) | on{...}`.
+
 ---
 
-#### `.otherwise(...)`
+#### `.otherwise(...)` (Deprecated)
 
 **Role**: Match fallback that works in all scenarios.
 
@@ -166,7 +164,7 @@ auto result = match(42)
 
 ---
 
-#### `.end()`
+#### `.end()` (Deprecated)
 
 **Purpose**: Required when using the `__` pattern fallback.
 
@@ -185,7 +183,8 @@ match(x)
   .end();  // Required for __ to work
 ```
 
-**Critical Rule**: If `__` pattern is used without `.end()`, the `__` case will **not trigger**.
+**Critical Rule (chained API only)**: If `__` is used in chained `.when(...)`
+style without `.end()`, the match is not finalized.
 
 **Design Philosophy**:
 The distinction between `.otherwise()` and `.end()` is driven by the `__` pattern's requirement for match inference.
