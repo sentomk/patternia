@@ -23,6 +23,8 @@ namespace ptn::core::common {
   // SFINAE Helper for C++17
   namespace detail {
     constexpr std::size_t k_variant_inline_dispatch_alt_threshold = 16;
+    constexpr std::size_t k_variant_segmented_dispatch_alt_threshold = 64;
+    constexpr std::size_t k_variant_dispatch_segment_size = 16;
 
     // Helper type to provide void type for SFINAE expressions
     template <typename... Ts>
@@ -499,6 +501,101 @@ namespace ptn::core::common {
     }
 
     template <
+        std::size_t BeginAlt,
+        std::size_t EndAlt,
+        typename Result,
+        typename Subject,
+        typename CasesTuple,
+        typename Otherwise,
+        typename SubjectValue =
+            std::remove_cv_t<std::remove_reference_t<Subject>>,
+        std::size_t AltCount = std::variant_size_v<SubjectValue>,
+        std::size_t CaseCount =
+            std::tuple_size_v<std::remove_reference_t<CasesTuple>>>
+    constexpr Result eval_cases_impl_variant_simple_dispatch_by_alt_range(
+        std::size_t active_index,
+        Subject    &subject,
+        CasesTuple &cases,
+        Otherwise &&otherwise_handler) {
+      if constexpr (BeginAlt >= EndAlt || BeginAlt >= AltCount) {
+        return invoke_otherwise_typed<Result>(
+            subject, std::forward<Otherwise>(otherwise_handler));
+      }
+      else {
+        if (active_index == BeginAlt) {
+          using cache_t = variant_simple_dispatch_cache<Result,
+                                                        Subject,
+                                                        CasesTuple,
+                                                        SubjectValue,
+                                                        AltCount,
+                                                        CaseCount>;
+          constexpr std::size_t case_index = cache_t::case_index_table[BeginAlt];
+
+          if constexpr (case_index < CaseCount) {
+            return invoke_variant_simple_case_entry<case_index, Result>(cases);
+          }
+          else {
+            return invoke_otherwise_typed<Result>(
+                subject, std::forward<Otherwise>(otherwise_handler));
+          }
+        }
+
+        return eval_cases_impl_variant_simple_dispatch_by_alt_range<
+            BeginAlt + 1,
+            EndAlt,
+            Result>(active_index,
+                    subject,
+                    cases,
+                    std::forward<Otherwise>(otherwise_handler));
+      }
+    }
+
+    template <std::size_t BlockIndex,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise,
+              typename SubjectValue =
+                  std::remove_cv_t<std::remove_reference_t<Subject>>,
+              std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    constexpr Result eval_cases_impl_variant_simple_dispatch_by_alt_segmented(
+        std::size_t active_index,
+        Subject    &subject,
+        CasesTuple &cases,
+        Otherwise &&otherwise_handler) {
+      constexpr std::size_t block_begin =
+          BlockIndex * k_variant_dispatch_segment_size;
+
+      if constexpr (block_begin >= AltCount) {
+        return invoke_otherwise_typed<Result>(
+            subject, std::forward<Otherwise>(otherwise_handler));
+      }
+      else {
+        constexpr std::size_t block_end =
+            (block_begin + k_variant_dispatch_segment_size < AltCount)
+                ? block_begin + k_variant_dispatch_segment_size
+                : AltCount;
+
+        if (active_index < block_end) {
+          return eval_cases_impl_variant_simple_dispatch_by_alt_range<
+              block_begin,
+              block_end,
+              Result>(active_index,
+                      subject,
+                      cases,
+                      std::forward<Otherwise>(otherwise_handler));
+        }
+
+        return eval_cases_impl_variant_simple_dispatch_by_alt_segmented<
+            BlockIndex + 1,
+            Result>(active_index,
+                    subject,
+                    cases,
+                    std::forward<Otherwise>(otherwise_handler));
+      }
+    }
+
+    template <
         typename Result,
         typename Subject,
         typename CasesTuple,
@@ -520,6 +617,12 @@ namespace ptn::core::common {
         // Small-variant fast path:
         // avoid indirect function-pointer calls to improve inlining.
         return eval_cases_impl_variant_simple_dispatch_by_alt_inline<0, Result>(
+            active_index, subject, cases, std::forward<Otherwise>(otherwise_handler));
+      }
+      else if constexpr (AltCount <= k_variant_segmented_dispatch_alt_threshold) {
+        // Medium-variant fast path:
+        // segmented direct dispatch to limit code size while preserving locality.
+        return eval_cases_impl_variant_simple_dispatch_by_alt_segmented<0, Result>(
             active_index, subject, cases, std::forward<Otherwise>(otherwise_handler));
       }
 
@@ -718,18 +821,98 @@ namespace ptn::core::common {
       }
     }
 
-    template <std::size_t ActiveIndex,
+    template <std::size_t BeginAlt,
+              std::size_t EndAlt,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise,
+              typename SubjectValue =
+                  std::remove_cv_t<std::remove_reference_t<Subject>>,
+              std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    constexpr Result eval_cases_impl_typed_variant_dispatch_by_alt_range(
+        std::size_t active_index,
+        Subject    &subject,
+        CasesTuple &cases,
+        Otherwise &&otherwise_handler) {
+      if constexpr (BeginAlt >= EndAlt || BeginAlt >= AltCount) {
+        return invoke_otherwise_typed<Result>(
+            subject, std::forward<Otherwise>(otherwise_handler));
+      }
+      else {
+        if (active_index == BeginAlt) {
+          return eval_cases_impl_typed_variant_for_alt<BeginAlt, 0, Result>(
+              subject, cases, std::forward<Otherwise>(otherwise_handler));
+        }
+
+        return eval_cases_impl_typed_variant_dispatch_by_alt_range<BeginAlt + 1,
+                                                                   EndAlt,
+                                                                   Result>(
+            active_index,
+            subject,
+            cases,
+            std::forward<Otherwise>(otherwise_handler));
+      }
+    }
+
+    template <std::size_t BlockIndex,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise,
+              typename SubjectValue =
+                  std::remove_cv_t<std::remove_reference_t<Subject>>,
+              std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    constexpr Result eval_cases_impl_typed_variant_dispatch_by_alt_segmented(
+        std::size_t active_index,
+        Subject    &subject,
+        CasesTuple &cases,
+        Otherwise &&otherwise_handler) {
+      constexpr std::size_t block_begin =
+          BlockIndex * k_variant_dispatch_segment_size;
+
+      if constexpr (block_begin >= AltCount) {
+        return invoke_otherwise_typed<Result>(
+            subject, std::forward<Otherwise>(otherwise_handler));
+      }
+      else {
+        constexpr std::size_t block_end =
+            (block_begin + k_variant_dispatch_segment_size < AltCount)
+                ? block_begin + k_variant_dispatch_segment_size
+                : AltCount;
+
+        if (active_index < block_end) {
+          return eval_cases_impl_typed_variant_dispatch_by_alt_range<
+              block_begin,
+              block_end,
+              Result>(active_index,
+                      subject,
+                      cases,
+                      std::forward<Otherwise>(otherwise_handler));
+        }
+
+        return eval_cases_impl_typed_variant_dispatch_by_alt_segmented<
+            BlockIndex + 1,
+            Result>(active_index,
+                    subject,
+                    cases,
+                    std::forward<Otherwise>(otherwise_handler));
+      }
+    }
+
+    template <std::size_t AltIndex,
               typename Result,
               typename Subject,
               typename CasesTuple,
               typename OtherwiseHandler>
-    constexpr Result
-    eval_cases_impl_typed_variant_for_alt_entry(Subject          &subject,
-                                                CasesTuple       &cases,
-                                                OtherwiseHandler &otherwise_handler) {
-      return eval_cases_impl_typed_variant_for_alt<ActiveIndex, 0, Result>(
-          subject, cases, otherwise_handler);
-    }
+    struct variant_alt_trampoline {
+      static Result invoke(Subject          &subject,
+                           CasesTuple       &cases,
+                           OtherwiseHandler &otherwise_handler) {
+        return eval_cases_impl_typed_variant_for_alt<AltIndex, 0, Result>(
+            subject, cases, otherwise_handler);
+      }
+    };
 
     template <typename Result,
               typename Subject,
@@ -742,11 +925,11 @@ namespace ptn::core::common {
           Result (*)(Subject &, CasesTuple &, OtherwiseHandler &);
 
       return std::array<dispatch_fn_t, sizeof...(AltIndex)>{
-          &eval_cases_impl_typed_variant_for_alt_entry<AltIndex,
-                                                       Result,
-                                                       Subject,
-                                                       CasesTuple,
-                                                       OtherwiseHandler>...};
+          &variant_alt_trampoline<AltIndex,
+                                  Result,
+                                  Subject,
+                                  CasesTuple,
+                                  OtherwiseHandler>::invoke...};
     }
 
     template <
@@ -789,6 +972,12 @@ namespace ptn::core::common {
         // Small-variant fast path:
         // inline-friendly recursive dispatch instead of function pointer table.
         return eval_cases_impl_typed_variant_dispatch_by_alt<0, Result>(
+            active_index, subject, cases, std::forward<Otherwise>(otherwise_handler));
+      }
+      else if constexpr (AltCount <= k_variant_segmented_dispatch_alt_threshold) {
+        // Medium-variant fast path:
+        // segmented direct dispatch to reduce monolithic recursion depth.
+        return eval_cases_impl_typed_variant_dispatch_by_alt_segmented<0, Result>(
             active_index, subject, cases, std::forward<Otherwise>(otherwise_handler));
       }
 
