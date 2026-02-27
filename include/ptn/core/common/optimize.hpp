@@ -103,6 +103,50 @@ namespace ptn::core::common {
       }
     }
 
+    // Compile-time binary dispatcher for variant alternative indexes.
+    // Keeps strategy policy in optimize.hpp while evaluators provide
+    // concrete on-hit / on-miss behavior.
+    template <std::size_t BeginAlt,
+              std::size_t EndAlt,
+              std::size_t AltCount>
+    struct variant_binary_alt_dispatch {
+      template <typename OnHit, typename OnMiss>
+      static constexpr decltype(auto)
+      dispatch(std::size_t active_index, OnHit &&on_hit, OnMiss &&on_miss) {
+        if constexpr (BeginAlt >= EndAlt || BeginAlt >= AltCount) {
+          return std::forward<OnMiss>(on_miss)();
+        }
+        else if constexpr ((EndAlt - BeginAlt) == 1) {
+          if (active_index == BeginAlt) {
+            return std::forward<OnHit>(on_hit)(
+                std::integral_constant<std::size_t, BeginAlt>{});
+          }
+
+          return std::forward<OnMiss>(on_miss)();
+        }
+        else {
+          constexpr std::size_t
+              mid = BeginAlt + ((EndAlt - BeginAlt) / 2);
+
+          if (active_index < mid) {
+            return variant_binary_alt_dispatch<BeginAlt,
+                                               mid,
+                                               AltCount>::dispatch(
+                active_index,
+                std::forward<OnHit>(on_hit),
+                std::forward<OnMiss>(on_miss));
+          }
+
+          return variant_binary_alt_dispatch<mid,
+                                             EndAlt,
+                                             AltCount>::dispatch(
+              active_index,
+              std::forward<OnHit>(on_hit),
+              std::forward<OnMiss>(on_miss));
+        }
+      }
+    };
+
     // Matches `type::is<T>()` with no subpattern/binding.
     template <typename Pattern>
     struct is_simple_variant_type_is_pattern : std::false_type {};
@@ -331,13 +375,28 @@ namespace ptn::core::common {
 
     template <typename Subject,
               typename CasesTuple,
+              typename CaseIndex,
               std::size_t... AltIndex>
     constexpr auto
     make_variant_simple_case_index_table(std::index_sequence<AltIndex...>) {
-      return std::array<std::size_t, sizeof...(AltIndex)>{
-          variant_simple_case_index_for_alt<Subject, CasesTuple, AltIndex>::
-              value...};
+      return std::array<CaseIndex, sizeof...(AltIndex)>{
+          static_cast<CaseIndex>(
+              variant_simple_case_index_for_alt<Subject,
+                                                CasesTuple,
+                                                AltIndex>::value)...};
     }
+
+    template <std::size_t CaseCount>
+    using variant_case_index_t = std::conditional_t<
+        (CaseCount <= std::numeric_limits<std::uint8_t>::max()),
+        std::uint8_t,
+        std::conditional_t<
+            (CaseCount <= std::numeric_limits<std::uint16_t>::max()),
+            std::uint16_t,
+            std::conditional_t<
+                (CaseCount <= std::numeric_limits<std::uint32_t>::max()),
+                std::uint32_t,
+                std::size_t>>>;
 
     template <
         typename Subject,
@@ -346,8 +405,19 @@ namespace ptn::core::common {
             std::remove_cv_t<std::remove_reference_t<Subject>>,
         std::size_t AltCount = std::variant_size_v<SubjectValue>>
     struct variant_simple_dispatch_metadata {
-      static constexpr auto case_index_table =
-          make_variant_simple_case_index_table<Subject, CasesTuple>(
+      static constexpr std::size_t case_count = std::tuple_size_v<
+          std::remove_reference_t<CasesTuple>>;
+      using case_index_t = variant_case_index_t<case_count>;
+      static_assert(
+          case_count
+              <= static_cast<std::size_t>(
+                  std::numeric_limits<case_index_t>::max()),
+          "variant simple dispatch case index exceeds compact type range");
+
+      alignas(64) static constexpr auto case_index_table =
+          make_variant_simple_case_index_table<Subject,
+                                               CasesTuple,
+                                               case_index_t>(
               std::make_index_sequence<AltCount>{});
     };
 

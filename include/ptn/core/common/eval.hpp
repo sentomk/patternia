@@ -784,14 +784,40 @@ namespace ptn::core::common {
       else if constexpr (tier
                          == variant_dispatch_tier::warm_segmented) {
         // Medium-variant fast path:
-        // segmented direct dispatch to limit code size while
-        // preserving locality.
-        return eval_cases_impl_variant_simple_dispatch_by_alt_segmented<
-            0,
-            Result>(active_index,
-                    subject,
-                    cases,
-                    std::forward<Otherwise>(otherwise_handler));
+        // binary indexed dispatch to reduce branch chain depth while
+        // preserving direct case invocation.
+        using cache_t = variant_simple_dispatch_cache<Result,
+                                                      Subject,
+                                                      CasesTuple,
+                                                      SubjectValue,
+                                                      AltCount>;
+        constexpr std::size_t case_count = std::tuple_size_v<
+            std::remove_reference_t<CasesTuple>>;
+
+        auto on_hit = [&](auto alt_index_c) -> Result {
+          constexpr std::size_t
+              alt_index = decltype(alt_index_c)::value;
+          constexpr std::size_t
+              case_index = cache_t::case_index_table[alt_index];
+
+          if constexpr (case_index < case_count) {
+            return invoke_variant_simple_case_entry<case_index,
+                                                    Result>(cases);
+          }
+
+          return invoke_otherwise_typed<Result>(
+              subject, std::forward<Otherwise>(otherwise_handler));
+        };
+
+        auto on_miss = [&]() -> Result {
+          return invoke_otherwise_typed<Result>(
+              subject, std::forward<Otherwise>(otherwise_handler));
+        };
+
+        return variant_binary_alt_dispatch<0,
+                                           AltCount,
+                                           AltCount>::dispatch(
+            active_index, on_hit, on_miss);
       }
       else {
         // Large-variant cold path:
@@ -1331,14 +1357,27 @@ namespace ptn::core::common {
       else if constexpr (tier
                          == variant_dispatch_tier::warm_segmented) {
         // Medium-variant fast path:
-        // segmented direct dispatch to reduce monolithic recursion
-        // depth.
-        return eval_cases_impl_typed_variant_dispatch_by_alt_segmented<
-            0,
-            Result>(active_index,
-                    subject,
-                    cases,
-                    std::forward<Otherwise>(otherwise_handler));
+        // binary indexed dispatch to reduce branch chain depth while
+        // preserving per-alt typed narrowing.
+        auto on_hit = [&](auto alt_index_c) -> Result {
+          constexpr std::size_t
+              alt_index = decltype(alt_index_c)::value;
+          return eval_cases_impl_typed_variant_dispatch_for_alt_hit<
+              alt_index,
+              Result>(subject,
+                      cases,
+                      std::forward<Otherwise>(otherwise_handler));
+        };
+
+        auto on_miss = [&]() -> Result {
+          return invoke_otherwise_typed<Result>(
+              subject, std::forward<Otherwise>(otherwise_handler));
+        };
+
+        return variant_binary_alt_dispatch<0,
+                                           AltCount,
+                                           AltCount>::dispatch(
+            active_index, on_hit, on_miss);
       }
       else {
         // Large-variant cold path:
