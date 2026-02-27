@@ -188,27 +188,71 @@ namespace {
     using namespace ptn;
     using ptn::pat::type::is;
 
-    return match(v) | on{
-        is<int>() >> 1,
-        is<std::string>() >> 2,
-        __ >> 0,
-    };
+    return match(v)
+           | on{
+               is<int>() >> 1,
+               is<std::string>() >> 2,
+               __ >> 0,
+           };
   }
 
   static int patternia_pipe_variant_alt_route(const V &v) {
     using namespace ptn;
 
-    return match(v) | on{
-        type::alt<0>() >> 1,
-        type::alt<1>() >> 2,
-        __ >> 0,
-    };
+    return match(v)
+           | on{
+               type::alt<0>() >> 1,
+               type::alt<1>() >> 2,
+               __ >> 0,
+           };
   }
 
   static int patternia_pipe_variant_alt_32_route(const VAlt32 &v) {
     using namespace ptn;
 
-    return match(v) | on{
+    return match(v)
+           | on{
+               type::alt<0>() >> 1,
+               type::alt<1>() >> 2,
+               type::alt<2>() >> 3,
+               type::alt<3>() >> 4,
+               type::alt<4>() >> 5,
+               type::alt<5>() >> 6,
+               type::alt<6>() >> 7,
+               type::alt<7>() >> 8,
+               type::alt<8>() >> 9,
+               type::alt<9>() >> 10,
+               type::alt<10>() >> 11,
+               type::alt<11>() >> 12,
+               type::alt<12>() >> 13,
+               type::alt<13>() >> 14,
+               type::alt<14>() >> 15,
+               type::alt<15>() >> 16,
+               type::alt<16>() >> 17,
+               type::alt<17>() >> 18,
+               type::alt<18>() >> 19,
+               type::alt<19>() >> 20,
+               type::alt<20>() >> 21,
+               type::alt<21>() >> 22,
+               type::alt<22>() >> 23,
+               type::alt<23>() >> 24,
+               type::alt<24>() >> 25,
+               type::alt<25>() >> 26,
+               type::alt<26>() >> 27,
+               type::alt<27>() >> 28,
+               type::alt<28>() >> 29,
+               type::alt<29>() >> 30,
+               type::alt<30>() >> 31,
+               type::alt<31>() >> 32,
+               __ >> 0,
+           };
+  }
+
+  static int
+  patternia_pipe_variant_alt_32_route_static_cases(const VAlt32 &v) {
+    using namespace ptn;
+
+    static auto cases = on{
         type::alt<0>() >> 1,
         type::alt<1>() >> 2,
         type::alt<2>() >> 3,
@@ -243,6 +287,8 @@ namespace {
         type::alt<31>() >> 32,
         __ >> 0,
     };
+
+    return match(v) | cases;
   }
 
   static int std_visit_variant_route(const V &v) {
@@ -375,13 +421,14 @@ namespace {
       return s.size() > 4;
     };
 
-    return match(v) | on{
-        type::as<int>()[_ > 100] >> 10,
-        type::is<int>() >> 1,
-        type::as<std::string>()[long_string] >> 20,
-        type::is<std::string>() >> 2,
-        __ >> 0,
-    };
+    return match(v)
+           | on{
+               type::as<int>()[_ > 100] >> 10,
+               type::is<int>() >> 1,
+               type::as<std::string>()[long_string] >> 20,
+               type::is<std::string>() >> 2,
+               __ >> 0,
+           };
   }
 
   static int std_visit_variant_guarded_route(const V &v) {
@@ -784,44 +831,38 @@ namespace {
     }
   }
 
-  #define PTN_LIT_CASE_128(n) ptn::lit(n) >> (n)
-  #define PTN_SWITCH_CASE_128(n) case (n): return (n)
+#define PTN_LIT_CASE_128(n) ptn::lit(n) >> (n)
+#define PTN_SWITCH_CASE_128(n)                                      \
+  case (n):                                                         \
+    return (n)
 
-  #define PTN_LIT_BLOCK_16(base)         \
-    PTN_LIT_CASE_128((base) + 0),        \
-        PTN_LIT_CASE_128((base) + 1),    \
-        PTN_LIT_CASE_128((base) + 2),    \
-        PTN_LIT_CASE_128((base) + 3),    \
-        PTN_LIT_CASE_128((base) + 4),    \
-        PTN_LIT_CASE_128((base) + 5),    \
-        PTN_LIT_CASE_128((base) + 6),    \
-        PTN_LIT_CASE_128((base) + 7),    \
-        PTN_LIT_CASE_128((base) + 8),    \
-        PTN_LIT_CASE_128((base) + 9),    \
-        PTN_LIT_CASE_128((base) + 10),   \
-        PTN_LIT_CASE_128((base) + 11),   \
-        PTN_LIT_CASE_128((base) + 12),   \
-        PTN_LIT_CASE_128((base) + 13),   \
-        PTN_LIT_CASE_128((base) + 14),   \
-        PTN_LIT_CASE_128((base) + 15)
+#define PTN_LIT_BLOCK_16(base)                                      \
+  PTN_LIT_CASE_128((base) + 0), PTN_LIT_CASE_128((base) + 1),       \
+      PTN_LIT_CASE_128((base) + 2), PTN_LIT_CASE_128((base) + 3),   \
+      PTN_LIT_CASE_128((base) + 4), PTN_LIT_CASE_128((base) + 5),   \
+      PTN_LIT_CASE_128((base) + 6), PTN_LIT_CASE_128((base) + 7),   \
+      PTN_LIT_CASE_128((base) + 8), PTN_LIT_CASE_128((base) + 9),   \
+      PTN_LIT_CASE_128((base) + 10), PTN_LIT_CASE_128((base) + 11), \
+      PTN_LIT_CASE_128((base) + 12), PTN_LIT_CASE_128((base) + 13), \
+      PTN_LIT_CASE_128((base) + 14), PTN_LIT_CASE_128((base) + 15)
 
-  #define PTN_SWITCH_BLOCK_16(base)      \
-    PTN_SWITCH_CASE_128((base) + 0);     \
-    PTN_SWITCH_CASE_128((base) + 1);     \
-    PTN_SWITCH_CASE_128((base) + 2);     \
-    PTN_SWITCH_CASE_128((base) + 3);     \
-    PTN_SWITCH_CASE_128((base) + 4);     \
-    PTN_SWITCH_CASE_128((base) + 5);     \
-    PTN_SWITCH_CASE_128((base) + 6);     \
-    PTN_SWITCH_CASE_128((base) + 7);     \
-    PTN_SWITCH_CASE_128((base) + 8);     \
-    PTN_SWITCH_CASE_128((base) + 9);     \
-    PTN_SWITCH_CASE_128((base) + 10);    \
-    PTN_SWITCH_CASE_128((base) + 11);    \
-    PTN_SWITCH_CASE_128((base) + 12);    \
-    PTN_SWITCH_CASE_128((base) + 13);    \
-    PTN_SWITCH_CASE_128((base) + 14);    \
-    PTN_SWITCH_CASE_128((base) + 15)
+#define PTN_SWITCH_BLOCK_16(base)                                   \
+  PTN_SWITCH_CASE_128((base) + 0);                                  \
+  PTN_SWITCH_CASE_128((base) + 1);                                  \
+  PTN_SWITCH_CASE_128((base) + 2);                                  \
+  PTN_SWITCH_CASE_128((base) + 3);                                  \
+  PTN_SWITCH_CASE_128((base) + 4);                                  \
+  PTN_SWITCH_CASE_128((base) + 5);                                  \
+  PTN_SWITCH_CASE_128((base) + 6);                                  \
+  PTN_SWITCH_CASE_128((base) + 7);                                  \
+  PTN_SWITCH_CASE_128((base) + 8);                                  \
+  PTN_SWITCH_CASE_128((base) + 9);                                  \
+  PTN_SWITCH_CASE_128((base) + 10);                                 \
+  PTN_SWITCH_CASE_128((base) + 11);                                 \
+  PTN_SWITCH_CASE_128((base) + 12);                                 \
+  PTN_SWITCH_CASE_128((base) + 13);                                 \
+  PTN_SWITCH_CASE_128((base) + 14);                                 \
+  PTN_SWITCH_CASE_128((base) + 15)
 
   static int patternia_pipe_literal_match_128_route(int x) {
     using namespace ptn;
@@ -904,11 +945,14 @@ namespace {
   }
 
   template <typename F>
-  static void run_variant_alt_32_alternating_hot(benchmark::State &state,
-                                                  F                 fn) {
-    // Microbench: isolate dispatch overhead across far-apart alternatives.
-    static VAlt32 low_alt  = VAlt32{std::in_place_index<0>, VariantAltToken<0>{0}};
-    static VAlt32 high_alt = VAlt32{std::in_place_index<31>, VariantAltToken<31>{31}};
+  static void
+  run_variant_alt_32_alternating_hot(benchmark::State &state, F fn) {
+    // Microbench: isolate dispatch overhead across far-apart
+    // alternatives.
+    static VAlt32 low_alt  = VAlt32{std::in_place_index<0>,
+                                   VariantAltToken<0>{0}};
+    static VAlt32 high_alt = VAlt32{std::in_place_index<31>,
+                                    VariantAltToken<31>{31}};
 
     bool pick_high = false;
     int  acc       = 0;
@@ -1348,7 +1392,8 @@ namespace {
   }
 
   static void BM_Sequential_VariantMixed(benchmark::State &state) {
-    run_workload(state, variant_workload(), sequential_variant_route);
+    run_workload(
+        state, variant_workload(), sequential_variant_route);
   }
 
   static void BM_SwitchIndex_VariantMixed(benchmark::State &state) {
@@ -1396,25 +1441,41 @@ namespace {
 
   static void
   BM_PatterniaPipe_VariantAltIndexAltHot(benchmark::State &state) {
-    run_variant_alternating_hot(state, patternia_pipe_variant_alt_route);
+    run_variant_alternating_hot(state,
+                                patternia_pipe_variant_alt_route);
   }
 
   static void
   BM_PatterniaPipe_VariantAltIndex32Mixed(benchmark::State &state) {
-    run_workload(
-        state, variant_alt_32_workload(), patternia_pipe_variant_alt_32_route);
+    run_workload(state,
+                 variant_alt_32_workload(),
+                 patternia_pipe_variant_alt_32_route);
+  }
+
+  static void BM_PatterniaPipe_VariantAltIndex32MixedStatic(
+      benchmark::State &state) {
+    run_workload(state,
+                 variant_alt_32_workload(),
+                 patternia_pipe_variant_alt_32_route_static_cases);
   }
 
   static void
   BM_SwitchIndex_VariantAltIndex32Mixed(benchmark::State &state) {
-    run_workload(
-        state, variant_alt_32_workload(), switch_index_variant_alt_32_route);
+    run_workload(state,
+                 variant_alt_32_workload(),
+                 switch_index_variant_alt_32_route);
   }
 
   static void
   BM_PatterniaPipe_VariantAltIndex32AltHot(benchmark::State &state) {
     run_variant_alt_32_alternating_hot(
         state, patternia_pipe_variant_alt_32_route);
+  }
+
+  static void BM_PatterniaPipe_VariantAltIndex32AltHotStatic(
+      benchmark::State &state) {
+    run_variant_alt_32_alternating_hot(
+        state, patternia_pipe_variant_alt_32_route_static_cases);
   }
 
   static void
@@ -1444,9 +1505,8 @@ namespace {
 
   static void
   BM_Sequential_VariantMixedGuarded(benchmark::State &state) {
-    run_workload(state,
-                 variant_workload(),
-                 sequential_variant_guarded_route);
+    run_workload(
+        state, variant_workload(), sequential_variant_guarded_route);
   }
 
   static void
@@ -1599,8 +1659,9 @@ namespace {
   }
 
   static void BM_Switch_LiteralMatch128(benchmark::State &state) {
-    run_workload(
-        state, literal_128_workload(), switch_literal_match_128_route);
+    run_workload(state,
+                 literal_128_workload(),
+                 switch_literal_match_128_route);
   }
 
 } // namespace
@@ -1630,8 +1691,12 @@ PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantFastPathAltHot);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndexMixed);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndexAltHot);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndex32Mixed);
+PTN_REGISTER_STABLE_BENCH(
+    BM_PatterniaPipe_VariantAltIndex32MixedStatic);
 PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantAltIndex32Mixed);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndex32AltHot);
+PTN_REGISTER_STABLE_BENCH(
+    BM_PatterniaPipe_VariantAltIndex32AltHotStatic);
 PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantAltIndex32AltHot);
 #endif
 
@@ -1694,8 +1759,12 @@ PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantFastPathAltHot);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndexMixed);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndexAltHot);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndex32Mixed);
+PTN_REGISTER_STABLE_BENCH(
+    BM_PatterniaPipe_VariantAltIndex32MixedStatic);
 PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantAltIndex32Mixed);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_VariantAltIndex32AltHot);
+PTN_REGISTER_STABLE_BENCH(
+    BM_PatterniaPipe_VariantAltIndex32AltHotStatic);
 PTN_REGISTER_STABLE_BENCH(BM_SwitchIndex_VariantAltIndex32AltHot);
 #endif
 
