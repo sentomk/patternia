@@ -598,24 +598,18 @@ namespace ptn::core::common {
       return table;
     }
 
-    template <typename Subject,
+    template <typename Plan,
+              typename Subject,
               typename CasesTuple,
-              typename SubjectValue =
-                  std::remove_cv_t<std::remove_reference_t<Subject>>,
-              bool Enabled = static_literal_dispatch_metadata<
-                  Subject,
-                  CasesTuple,
-                  SubjectValue>::use_dense_table>
+              bool Enabled = Plan::metadata_t::use_dense_table>
     struct static_literal_dispatch_cache;
 
-    template <typename Subject, typename CasesTuple, typename SubjectValue>
-    struct static_literal_dispatch_cache<Subject,
+    template <typename Plan, typename Subject, typename CasesTuple>
+    struct static_literal_dispatch_cache<Plan,
+                                         Subject,
                                          CasesTuple,
-                                         SubjectValue,
                                          true> {
-      using metadata_t = static_literal_dispatch_metadata<Subject,
-                                                          CasesTuple,
-                                                          SubjectValue>;
+      using metadata_t = typename Plan::metadata_t;
 
       static constexpr auto case_index_table =
           make_static_literal_case_index_table<metadata_t,
@@ -665,37 +659,34 @@ namespace ptn::core::common {
       }
     }
 
-    template <typename Result,
+    template <typename Plan,
+              typename Result,
               typename Subject,
               typename CasesTuple,
-              typename Otherwise,
-              typename SubjectValue =
-                  std::remove_cv_t<std::remove_reference_t<Subject>>>
+              typename Otherwise>
     inline Result eval_cases_impl_static_literal_dispatch(
         Subject    &subject,
         CasesTuple &cases,
         Otherwise &&otherwise_handler) {
-      using metadata_t = static_literal_dispatch_metadata<Subject,
-                                                          CasesTuple,
-                                                          SubjectValue>;
-      using cache_t = static_literal_dispatch_cache<Subject,
-                                                    CasesTuple,
-                                                    SubjectValue>;
-      using key_t = typename metadata_t::key_t;
+      using metadata_t = typename Plan::metadata_t;
+      using cache_t    = static_literal_dispatch_cache<Plan,
+                                                    Subject,
+                                                    CasesTuple>;
+      using key_t      = typename Plan::key_t;
 
       const key_t value = static_cast<key_t>(subject);
-      if (value >= metadata_t::min_value && value <= metadata_t::max_value) {
+      if (value >= Plan::min_value && value <= Plan::max_value) {
         const auto case_index = cache_t::case_index_table
-            [static_cast<std::size_t>(value - metadata_t::min_value)];
-        if (case_index != metadata_t::k_invalid_case_index) {
+            [static_cast<std::size_t>(value - Plan::min_value)];
+        if (case_index != Plan::k_invalid_case_index) {
           return dispatch_static_literal_case_index<Result>(case_index,
                                                             cases);
         }
       }
 
-      if constexpr (metadata_t::has_default_case) {
+      if constexpr (Plan::has_default_case) {
         return invoke_static_literal_case_entry<
-            static_cast<std::size_t>(metadata_t::default_case_index),
+            static_cast<std::size_t>(Plan::default_case_index),
             Result>(cases);
       }
       else {
@@ -704,40 +695,31 @@ namespace ptn::core::common {
       }
     }
 
-    template <typename Result,
-              typename Subject,
+    template <typename Plan,
+              typename Result,
               typename CasesTuple,
-              typename SubjectValue,
-              std::size_t AltCount,
               std::size_t CaseCount>
     struct variant_simple_dispatch_cache;
 
-    template <
-        typename Result,
-        typename Subject,
-        typename CasesTuple,
-        typename Otherwise,
-        typename SubjectValue =
-            std::remove_cv_t<std::remove_reference_t<Subject>>,
-        std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    template <typename Plan,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise>
     PTN_DETAIL_NOINLINE inline Result
     eval_cases_impl_variant_simple_dispatch_by_alt_cold(
         std::size_t active_index,
         Subject    &subject,
         CasesTuple &cases,
         Otherwise &&otherwise_handler) {
-      constexpr std::size_t case_count = std::tuple_size_v<
-          std::remove_reference_t<CasesTuple>>;
-      using cache_t = variant_simple_dispatch_cache<Result,
-                                                    Subject,
+      using cache_t = variant_simple_dispatch_cache<Plan,
+                                                    Result,
                                                     CasesTuple,
-                                                    SubjectValue,
-                                                    AltCount,
-                                                    case_count>;
+                                                    Plan::case_count>;
 
       const std::size_t
           case_index = cache_t::case_index_table[active_index];
-      if (case_index < case_count) {
+      if (case_index < Plan::case_count) {
         return cache_t::case_invoke_table[case_index](cases);
       }
 
@@ -745,21 +727,13 @@ namespace ptn::core::common {
           subject, std::forward<Otherwise>(otherwise_handler));
     }
 
-    template <
-        typename Result,
-        typename Subject,
-        typename CasesTuple,
-        typename SubjectValue = std::remove_cv_t<
-            std::remove_reference_t<Subject>>,
-        std::size_t AltCount  = std::variant_size_v<SubjectValue>,
-        std::size_t CaseCount = std::tuple_size_v<
-            std::remove_reference_t<CasesTuple>>>
+    template <typename Plan,
+              typename Result,
+              typename CasesTuple,
+              std::size_t CaseCount = std::tuple_size_v<
+                  std::remove_reference_t<CasesTuple>>>
     struct variant_simple_dispatch_cache {
-      using metadata_t = variant_simple_dispatch_metadata<
-          Subject,
-          CasesTuple,
-          SubjectValue,
-          AltCount>;
+      using metadata_t = typename Plan::metadata_t;
       static constexpr auto
           case_index_table = metadata_t::case_index_table;
 
@@ -770,39 +744,32 @@ namespace ptn::core::common {
               CasesTuple>(std::make_index_sequence<CaseCount>{});
     };
 
-    template <
-        std::size_t ActiveIndex,
-        typename Result,
-        typename Subject,
-        typename CasesTuple,
-        typename Otherwise,
-        typename SubjectValue =
-            std::remove_cv_t<std::remove_reference_t<Subject>>,
-        std::size_t AltCount = std::variant_size_v<SubjectValue>,
-        std::size_t CaseCount =
-            std::tuple_size_v<std::remove_reference_t<CasesTuple>>>
+    template <std::size_t ActiveIndex,
+              typename Plan,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise>
     constexpr Result
     eval_cases_impl_variant_simple_dispatch_by_alt_inline(
         std::size_t active_index,
         Subject    &subject,
         CasesTuple &cases,
         Otherwise &&otherwise_handler) {
-      if constexpr (ActiveIndex >= AltCount) {
+      if constexpr (ActiveIndex >= Plan::alt_count) {
         return invoke_otherwise_typed<Result>(
             subject, std::forward<Otherwise>(otherwise_handler));
       }
       else {
         if (active_index == ActiveIndex) {
-          using cache_t = variant_simple_dispatch_cache<Result,
-                                                        Subject,
+          using cache_t = variant_simple_dispatch_cache<Plan,
+                                                        Result,
                                                         CasesTuple,
-                                                        SubjectValue,
-                                                        AltCount,
-                                                        CaseCount>;
+                                                        Plan::case_count>;
           constexpr std::size_t
               case_index = cache_t::case_index_table[ActiveIndex];
 
-          if constexpr (case_index < CaseCount) {
+          if constexpr (case_index < Plan::case_count) {
             return invoke_variant_simple_case_entry<case_index,
                                                     Result>(cases);
           }
@@ -814,6 +781,7 @@ namespace ptn::core::common {
 
         return eval_cases_impl_variant_simple_dispatch_by_alt_inline<
             ActiveIndex + 1,
+            Plan,
             Result>(active_index,
                     subject,
                     cases,
@@ -821,40 +789,33 @@ namespace ptn::core::common {
       }
     }
 
-    template <
-        std::size_t BeginAlt,
-        std::size_t EndAlt,
-        typename Result,
-        typename Subject,
-        typename CasesTuple,
-        typename Otherwise,
-        typename SubjectValue =
-            std::remove_cv_t<std::remove_reference_t<Subject>>,
-        std::size_t AltCount = std::variant_size_v<SubjectValue>,
-        std::size_t CaseCount =
-            std::tuple_size_v<std::remove_reference_t<CasesTuple>>>
+    template <std::size_t BeginAlt,
+              std::size_t EndAlt,
+              typename Plan,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise>
     constexpr Result
     eval_cases_impl_variant_simple_dispatch_by_alt_range(
         std::size_t active_index,
         Subject    &subject,
         CasesTuple &cases,
         Otherwise &&otherwise_handler) {
-      if constexpr (BeginAlt >= EndAlt || BeginAlt >= AltCount) {
+      if constexpr (BeginAlt >= EndAlt || BeginAlt >= Plan::alt_count) {
         return invoke_otherwise_typed<Result>(
             subject, std::forward<Otherwise>(otherwise_handler));
       }
       else {
         if (active_index == BeginAlt) {
-          using cache_t = variant_simple_dispatch_cache<Result,
-                                                        Subject,
+          using cache_t = variant_simple_dispatch_cache<Plan,
+                                                        Result,
                                                         CasesTuple,
-                                                        SubjectValue,
-                                                        AltCount,
-                                                        CaseCount>;
+                                                        Plan::case_count>;
           constexpr std::size_t
               case_index = cache_t::case_index_table[BeginAlt];
 
-          if constexpr (case_index < CaseCount) {
+          if constexpr (case_index < Plan::case_count) {
             return invoke_variant_simple_case_entry<case_index,
                                                     Result>(cases);
           }
@@ -867,6 +828,7 @@ namespace ptn::core::common {
         return eval_cases_impl_variant_simple_dispatch_by_alt_range<
             BeginAlt + 1,
             EndAlt,
+            Plan,
             Result>(active_index,
                     subject,
                     cases,
@@ -874,15 +836,12 @@ namespace ptn::core::common {
       }
     }
 
-    template <
-        std::size_t BlockIndex,
-        typename Result,
-        typename Subject,
-        typename CasesTuple,
-        typename Otherwise,
-        typename SubjectValue =
-            std::remove_cv_t<std::remove_reference_t<Subject>>,
-        std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    template <std::size_t BlockIndex,
+              typename Plan,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise>
     constexpr Result
     eval_cases_impl_variant_simple_dispatch_by_alt_segmented(
         std::size_t active_index,
@@ -892,7 +851,7 @@ namespace ptn::core::common {
       constexpr std::size_t
           block_begin = BlockIndex * k_variant_dispatch_segment_size;
 
-      if constexpr (block_begin >= AltCount) {
+      if constexpr (block_begin >= Plan::alt_count) {
         return invoke_otherwise_typed<Result>(
             subject, std::forward<Otherwise>(otherwise_handler));
       }
@@ -900,15 +859,16 @@ namespace ptn::core::common {
         constexpr std::size_t
             block_end = (block_begin
                              + k_variant_dispatch_segment_size
-                         < AltCount)
+                         < Plan::alt_count)
                             ? block_begin
                                   + k_variant_dispatch_segment_size
-                            : AltCount;
+                            : Plan::alt_count;
 
         if (active_index < block_end) {
           return eval_cases_impl_variant_simple_dispatch_by_alt_range<
               block_begin,
               block_end,
+              Plan,
               Result>(active_index,
                       subject,
                       cases,
@@ -917,6 +877,7 @@ namespace ptn::core::common {
 
         return eval_cases_impl_variant_simple_dispatch_by_alt_segmented<
             BlockIndex + 1,
+            Plan,
             Result>(active_index,
                     subject,
                     cases,
@@ -924,49 +885,42 @@ namespace ptn::core::common {
       }
     }
 
-    template <
-        typename Result,
-        typename Subject,
-        typename CasesTuple,
-        typename Otherwise,
-        typename SubjectValue =
-            std::remove_cv_t<std::remove_reference_t<Subject>>,
-        std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    template <typename Plan,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise>
     inline Result
     eval_cases_impl_variant_simple_dispatch_by_alt_table(
         std::size_t active_index,
         Subject    &subject,
         CasesTuple &cases,
         Otherwise &&otherwise_handler) {
-      if (active_index >= AltCount) {
+      if (active_index >= Plan::alt_count) {
         return invoke_otherwise_typed<Result>(
             subject, std::forward<Otherwise>(otherwise_handler));
       }
 
-      constexpr auto
-          tier = variant_dispatch_tier_for_alt_count<AltCount>();
-      if constexpr (tier == variant_dispatch_tier::hot_inline) {
+      if constexpr (Plan::tier == variant_dispatch_tier::hot_inline) {
         // Small-variant fast path:
         // avoid indirect function-pointer calls to improve inlining.
         return eval_cases_impl_variant_simple_dispatch_by_alt_inline<
             0,
+            Plan,
             Result>(active_index,
                     subject,
                     cases,
                     std::forward<Otherwise>(otherwise_handler));
       }
-      else if constexpr (tier
+      else if constexpr (Plan::tier
                          == variant_dispatch_tier::warm_segmented) {
         // Medium-variant fast path:
         // binary indexed dispatch to reduce branch chain depth while
         // preserving direct case invocation.
-        using cache_t = variant_simple_dispatch_cache<Result,
-                                                      Subject,
+        using cache_t = variant_simple_dispatch_cache<Plan,
+                                                      Result,
                                                       CasesTuple,
-                                                      SubjectValue,
-                                                      AltCount>;
-        constexpr std::size_t case_count = std::tuple_size_v<
-            std::remove_reference_t<CasesTuple>>;
+                                                      Plan::case_count>;
 
         auto on_hit = [&](auto alt_index_c) -> Result {
           constexpr std::size_t
@@ -974,7 +928,7 @@ namespace ptn::core::common {
           constexpr std::size_t
               case_index = cache_t::case_index_table[alt_index];
 
-          if constexpr (case_index < case_count) {
+          if constexpr (case_index < Plan::case_count) {
             return invoke_variant_simple_case_entry<case_index,
                                                     Result>(cases);
           }
@@ -989,14 +943,15 @@ namespace ptn::core::common {
         };
 
         return variant_binary_alt_dispatch<0,
-                                           AltCount,
-                                           AltCount>::dispatch(
+                                           Plan::alt_count,
+                                           Plan::alt_count>::dispatch(
             active_index, on_hit, on_miss);
       }
       else {
         // Large-variant cold path:
         // isolate compact-table dispatch from hot inline entry.
         return eval_cases_impl_variant_simple_dispatch_by_alt_cold<
+            Plan,
             Result>(active_index,
                     subject,
                     cases,
@@ -1416,22 +1371,18 @@ namespace ptn::core::common {
       return table;
     }
 
-    template <typename Result,
+    template <typename Plan,
+              typename Result,
               typename Subject,
               typename CasesTuple,
-              typename OtherwiseHandler,
-              typename SubjectValue,
-              std::size_t AltCount>
+              typename OtherwiseHandler>
     struct typed_variant_dispatch_cache;
 
-    template <
-        typename Result,
-        typename Subject,
-        typename CasesTuple,
-        typename Otherwise,
-        typename SubjectValue =
-            std::remove_cv_t<std::remove_reference_t<Subject>>,
-        std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    template <typename Plan,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise>
     PTN_DETAIL_NOINLINE inline Result
     eval_cases_impl_typed_variant_dispatch_by_alt_cold(
         std::size_t active_index,
@@ -1440,12 +1391,11 @@ namespace ptn::core::common {
         Otherwise &&otherwise_handler) {
       using otherwise_handler_t = std::remove_reference_t<Otherwise>;
       using cache_t             = typed_variant_dispatch_cache<
+                      Plan,
                       Result,
                       Subject,
                       CasesTuple,
-                      otherwise_handler_t,
-                      SubjectValue,
-                      AltCount>;
+                      otherwise_handler_t>;
 
       const auto compact_index = cache_t::compact_alt_index_map
           [active_index];
@@ -1460,28 +1410,20 @@ namespace ptn::core::common {
               subject, cases, otherwise_ref);
     }
 
-    template <
-        typename Result,
-        typename Subject,
-        typename CasesTuple,
-        typename OtherwiseHandler,
-        typename SubjectValue = std::remove_cv_t<
-            std::remove_reference_t<Subject>>,
-        std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    template <typename Plan,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename OtherwiseHandler>
     struct typed_variant_dispatch_cache {
-      using metadata_t = typed_variant_dispatch_metadata<
-          Subject,
-          CasesTuple,
-          SubjectValue,
-          AltCount>;
+      using metadata_t = typename Plan::metadata_t;
       static constexpr std::size_t
-          case_count = metadata_t::case_count;
+          case_count = Plan::case_count;
       static constexpr std::size_t
-          used_alt_count    = metadata_t::used_alt_count;
-      using compact_index_t = typename metadata_t::compact_index_t;
+          used_alt_count    = Plan::used_alt_count;
+      using compact_index_t = typename Plan::compact_index_t;
       static constexpr compact_index_t
-          k_invalid_compact_index = metadata_t::
-              k_invalid_compact_index;
+          k_invalid_compact_index = Plan::k_invalid_compact_index;
       static constexpr auto
           compact_alt_index_map = metadata_t::compact_alt_index_map;
 
@@ -1493,31 +1435,26 @@ namespace ptn::core::common {
                                                     OtherwiseHandler,
                                                     case_count,
                                                     used_alt_count>(
-              std::make_index_sequence<AltCount>{});
+              std::make_index_sequence<Plan::alt_count>{});
     };
 
-    template <
-        typename Result,
-        typename Subject,
-        typename CasesTuple,
-        typename Otherwise,
-        typename SubjectValue =
-            std::remove_cv_t<std::remove_reference_t<Subject>>,
-        std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    template <typename Plan,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise>
     inline Result
     eval_cases_impl_typed_variant_dispatch_by_alt_table(
         std::size_t active_index,
         Subject    &subject,
         CasesTuple &cases,
         Otherwise &&otherwise_handler) {
-      if (active_index >= AltCount) {
+      if (active_index >= Plan::alt_count) {
         return invoke_otherwise_typed<Result>(
             subject, std::forward<Otherwise>(otherwise_handler));
       }
 
-      constexpr auto
-          tier = variant_dispatch_tier_for_alt_count<AltCount>();
-      if constexpr (tier == variant_dispatch_tier::hot_inline) {
+      if constexpr (Plan::tier == variant_dispatch_tier::hot_inline) {
         // Small-variant fast path:
         // inline-friendly recursive dispatch instead of function
         // pointer table.
@@ -1528,7 +1465,7 @@ namespace ptn::core::common {
             cases,
             std::forward<Otherwise>(otherwise_handler));
       }
-      else if constexpr (tier
+      else if constexpr (Plan::tier
                          == variant_dispatch_tier::warm_segmented) {
         // Medium-variant fast path:
         // binary indexed dispatch to reduce branch chain depth while
@@ -1549,8 +1486,8 @@ namespace ptn::core::common {
         };
 
         return variant_binary_alt_dispatch<0,
-                                           AltCount,
-                                           AltCount>::dispatch(
+                                           Plan::alt_count,
+                                           Plan::alt_count>::dispatch(
             active_index, on_hit, on_miss);
       }
       else {
@@ -1558,6 +1495,7 @@ namespace ptn::core::common {
         // compact map + trampoline table in a separate non-inline
         // frame.
         return eval_cases_impl_typed_variant_dispatch_by_alt_cold<
+            Plan,
             Result>(active_index,
                     subject,
                     cases,
@@ -1568,7 +1506,7 @@ namespace ptn::core::common {
     // Executes a precomputed dispatch plan.
     // The planner owns dispatch selection; evaluator code here only maps the
     // selected shape to its runtime entry point.
-    template <dispatch_plan_kind PlanKind,
+    template <typename Plan,
               typename Result,
               typename Subject,
               typename CasesTuple,
@@ -1577,30 +1515,32 @@ namespace ptn::core::common {
         Subject    &subject,
         CasesTuple &cases,
         Otherwise &&otherwise_handler) {
-      if constexpr (PlanKind == dispatch_plan_kind::static_literal_dense) {
-        return eval_cases_impl_static_literal_dispatch<Result>(
+      if constexpr (Plan::kind == dispatch_plan_kind::static_literal_dense) {
+        return eval_cases_impl_static_literal_dispatch<Plan, Result>(
             subject,
             cases,
             std::forward<Otherwise>(otherwise_handler));
       }
-      else if constexpr (PlanKind == dispatch_plan_kind::literal_linear) {
+      else if constexpr (Plan::kind == dispatch_plan_kind::literal_linear) {
         return eval_cases_impl_literal_simple_dispatch<0, Result>(
             subject,
             cases,
             std::forward<Otherwise>(otherwise_handler));
       }
-      else if constexpr (PlanKind == dispatch_plan_kind::variant_simple) {
+      else if constexpr (Plan::kind == dispatch_plan_kind::variant_simple) {
         const std::size_t active_index = subject.index();
         return eval_cases_impl_variant_simple_dispatch_by_alt_table<
+            Plan,
             Result>(active_index,
                     subject,
                     cases,
                     std::forward<Otherwise>(otherwise_handler));
       }
-      else if constexpr (PlanKind
+      else if constexpr (Plan::kind
                          == dispatch_plan_kind::variant_alt_bucketed) {
         const std::size_t active_index = subject.index();
         return eval_cases_impl_typed_variant_dispatch_by_alt_table<
+            Plan,
             Result>(active_index,
                     subject,
                     cases,
@@ -1626,7 +1566,7 @@ namespace ptn::core::common {
                                                   CasesTuple>;
 
     return detail::eval_cases_with_dispatch_plan<
-        dispatch_plan_t::kind,
+        dispatch_plan_t,
         Result>(
         subject,
         cases,
