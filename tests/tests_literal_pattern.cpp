@@ -20,6 +20,20 @@ TEST(LiteralPattern, LitOtherwiseFallback) {
   EXPECT_EQ(result, -1);
 }
 
+TEST(LiteralPattern, LitVMatchesExpectedValue) {
+  int x      = 5;
+  int result = ptn::match(x).when(ptn::lit_v<5>() >> 42).otherwise(-1);
+
+  EXPECT_EQ(result, 42);
+}
+
+TEST(LiteralPattern, LitVOtherwiseFallback) {
+  int x      = 3;
+  int result = ptn::match(x).when(ptn::lit_v<5>() >> 42).otherwise(-1);
+
+  EXPECT_EQ(result, -1);
+}
+
 TEST(LiteralPattern, LitCiMatchesAsciiCaseInsensitive) {
   std::string s = "HeLLo";
   int result    = ptn::match(s).when(ptn::lit_ci("hello") >> 1).otherwise(0);

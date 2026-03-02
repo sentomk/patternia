@@ -38,6 +38,9 @@ namespace ptn::pat::detail {
 
   template <typename V, typename Cmp>
   struct literal_pattern;
+
+  template <auto V, typename Cmp>
+  struct static_literal_pattern;
 } // namespace ptn::pat::detail
 
 namespace ptn::core::common {
@@ -68,8 +71,20 @@ namespace ptn::core::common {
     constexpr bool is_equality_comparable_v =
         is_equality_comparable<Lhs, Rhs>::value;
 
-    // Detects std::variant subjects so fast-path logic only engages on
-    // variants.
+    template <typename T, bool = std::is_enum_v<T>>
+    struct literal_subject_key {
+      using type = T;
+    };
+
+    template <typename T>
+    struct literal_subject_key<T, true> {
+      using type = std::underlying_type_t<T>;
+    };
+
+    template <typename T>
+    using literal_subject_key_t = typename literal_subject_key<T>::type;
+
+    // Detects std::variant subjects so lowering only engages on variants.
     template <typename T>
     struct is_variant_subject : std::false_type {};
 
@@ -83,6 +98,9 @@ namespace ptn::core::common {
     constexpr std::size_t k_variant_inline_dispatch_alt_threshold = 16;
     constexpr std::size_t k_variant_segmented_dispatch_alt_threshold = 64;
     constexpr std::size_t k_variant_dispatch_segment_size = 16;
+    constexpr std::size_t k_static_literal_dense_dispatch_max_cases = 256;
+    constexpr std::size_t k_static_literal_dense_dispatch_max_span = 512;
+    constexpr std::size_t k_static_literal_dense_dispatch_max_density = 4;
 
     enum class variant_dispatch_tier {
       hot_inline,
@@ -104,7 +122,7 @@ namespace ptn::core::common {
     }
 
     // Compile-time binary dispatcher for variant alternative indexes.
-    // Keeps strategy policy in optimize.hpp while evaluators provide
+    // Keeps lowering analysis in optimize.hpp while evaluators provide
     // concrete on-hit / on-miss behavior.
     template <std::size_t BeginAlt,
               std::size_t EndAlt,
@@ -229,6 +247,19 @@ namespace ptn::core::common {
             std::decay_t<Pattern>>::value;
 
     template <typename Pattern>
+    struct is_static_literal_pattern : std::false_type {};
+
+    template <auto V>
+    struct is_static_literal_pattern<ptn::pat::detail::static_literal_pattern<
+        V,
+        std::equal_to<>>> : std::true_type {};
+
+    template <typename Pattern>
+    constexpr bool
+        is_static_literal_pattern_v = is_static_literal_pattern<
+            std::decay_t<Pattern>>::value;
+
+    template <typename Pattern>
     constexpr bool is_simple_literal_dispatch_pattern_v =
         is_simple_literal_pattern_v<Pattern> || is_wildcard_pattern_v<Pattern>;
 
@@ -240,6 +271,33 @@ namespace ptn::core::common {
         : std::bool_constant<is_equality_comparable_v<
               Subject,
               typename std::decay_t<Pattern>::store_t>> {};
+
+    template <typename Pattern, typename Subject, bool = false>
+    struct is_static_literal_subject_compatible : std::false_type {};
+
+    template <typename Pattern, typename Subject>
+    struct is_static_literal_subject_compatible<Pattern, Subject, true>
+        : std::bool_constant<
+              is_equality_comparable_v<
+                  Subject,
+                  typename std::decay_t<Pattern>::store_t>
+              && std::is_constructible_v<
+                  literal_subject_key_t<
+                      std::remove_cv_t<std::remove_reference_t<Subject>>>,
+                  decltype(std::decay_t<Pattern>::value)>> {};
+
+    template <typename Pattern, typename Subject>
+    struct static_literal_case_value;
+
+    template <auto V, typename Subject>
+    struct static_literal_case_value<
+        ptn::pat::detail::static_literal_pattern<V, std::equal_to<>>,
+        Subject> {
+      using subject_t = std::remove_cv_t<std::remove_reference_t<Subject>>;
+      using key_t     = literal_subject_key_t<subject_t>;
+
+      inline static constexpr key_t value = static_cast<key_t>(V);
+    };
 
     // Extracts alt index from `type::alt<I>()` patterns.
     template <typename Pattern>
@@ -627,7 +685,26 @@ namespace ptn::core::common {
           && std::is_invocable_v<handler_t>;
     };
 
-    // Fast-path is enabled only when every case qualifies.
+    template <typename Case, typename Subject>
+    struct is_static_literal_dispatch_case {
+      using case_t       = std::remove_reference_t<Case>;
+      using pattern_t    = traits::case_pattern_t<case_t>;
+      using handler_t    = traits::case_handler_t<case_t>;
+      using bound_args_t = pat::base::binding_args_t<pattern_t, Subject>;
+
+      static constexpr bool literal_subject_compatible =
+          is_static_literal_subject_compatible<
+              pattern_t,
+              Subject,
+              is_static_literal_pattern_v<pattern_t>>::value;
+
+      static constexpr bool value =
+          (is_wildcard_pattern_v<pattern_t> || literal_subject_compatible)
+          && std::tuple_size_v<bound_args_t> == 0
+          && std::is_invocable_v<handler_t>;
+    };
+
+    // Lowered dispatch is enabled only when every case qualifies.
     template <typename Subject, typename CasesTuple>
     struct is_simple_variant_dispatch_cases_tuple : std::false_type {};
 
@@ -658,36 +735,315 @@ namespace ptn::core::common {
             Subject,
             std::remove_reference_t<CasesTuple>>::value;
 
-    // Central policy entry for dispatch-strategy selection.
-    // Future C++20-specific policies should be routed here, so evaluators stay
-    // stable.
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t I = 0,
+              std::size_t N =
+                  std::tuple_size_v<std::remove_reference_t<CasesTuple>>>
+    struct is_static_literal_dispatch_sequence {
+      using tuple_t   = std::remove_reference_t<CasesTuple>;
+      using case_t    = std::tuple_element_t<I, tuple_t>;
+      using pattern_t = traits::case_pattern_t<case_t>;
+
+      static constexpr bool current_case_ok =
+          is_static_literal_dispatch_case<case_t, Subject>::value;
+
+      static constexpr bool value =
+          current_case_ok
+          && (is_wildcard_pattern_v<pattern_t>
+                  ? (I + 1 == N)
+                  : is_static_literal_dispatch_sequence<Subject,
+                                                        CasesTuple,
+                                                        I + 1,
+                                                        N>::value);
+    };
+
+    template <typename Subject, typename CasesTuple, std::size_t N>
+    struct is_static_literal_dispatch_sequence<Subject,
+                                               CasesTuple,
+                                               N,
+                                               N> : std::true_type {};
+
     template <typename Subject, typename CasesTuple>
-    struct dispatch_policy {
+    struct is_static_literal_dispatch_cases_tuple : std::false_type {};
+
+    template <typename Subject, typename... Cases>
+    struct is_static_literal_dispatch_cases_tuple<Subject, std::tuple<Cases...>>
+        : std::bool_constant<is_static_literal_dispatch_sequence<
+              Subject,
+              std::tuple<Cases...>>::value> {};
+
+    template <typename Subject, typename CasesTuple>
+    constexpr bool is_static_literal_dispatch_cases_tuple_v =
+        is_static_literal_dispatch_cases_tuple<
+            Subject,
+            std::remove_reference_t<CasesTuple>>::value;
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t I = 0,
+              std::size_t N =
+                  std::tuple_size_v<std::remove_reference_t<CasesTuple>>>
+    struct static_literal_case_count {
+      using tuple_t   = std::remove_reference_t<CasesTuple>;
+      using case_t    = std::tuple_element_t<I, tuple_t>;
+      using pattern_t = traits::case_pattern_t<case_t>;
+
+      static constexpr std::size_t value =
+          (is_static_literal_pattern_v<pattern_t> ? std::size_t{1}
+                                                  : std::size_t{0})
+          + static_literal_case_count<Subject, CasesTuple, I + 1, N>::value;
+    };
+
+    template <typename Subject, typename CasesTuple, std::size_t N>
+    struct static_literal_case_count<Subject, CasesTuple, N, N>
+        : std::integral_constant<std::size_t, 0> {};
+
+    template <typename Key>
+    constexpr std::size_t static_literal_range_width(Key min_value,
+                                                     Key max_value) {
+      if constexpr (std::is_signed_v<Key>) {
+        return static_cast<std::size_t>(
+                   static_cast<std::intmax_t>(max_value)
+                   - static_cast<std::intmax_t>(min_value))
+               + 1u;
+      }
+      else {
+        return static_cast<std::size_t>(
+                   static_cast<std::uintmax_t>(max_value)
+                   - static_cast<std::uintmax_t>(min_value))
+               + 1u;
+      }
+    }
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t I = 0,
+              std::size_t N =
+                  std::tuple_size_v<std::remove_reference_t<CasesTuple>>>
+    struct static_literal_value_range;
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t I,
+              std::size_t N,
+              bool IsLiteral>
+    struct static_literal_value_range_case;
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t I,
+              std::size_t N>
+    struct static_literal_value_range_case<Subject,
+                                           CasesTuple,
+                                           I,
+                                           N,
+                                           true> {
+      using tuple_t   = std::remove_reference_t<CasesTuple>;
+      using subject_t = std::remove_cv_t<std::remove_reference_t<Subject>>;
+      using key_t     = literal_subject_key_t<subject_t>;
+      using case_t    = std::tuple_element_t<I, tuple_t>;
+      using pattern_t = traits::case_pattern_t<case_t>;
+      using tail_t = static_literal_value_range<Subject,
+                                                CasesTuple,
+                                                I + 1,
+                                                N>;
+
+      static constexpr key_t current_value =
+          static_literal_case_value<pattern_t, Subject>::value;
+      static constexpr bool has_any = true;
+
+      static constexpr key_t min =
+          tail_t::has_any
+              ? (current_value < tail_t::min ? current_value : tail_t::min)
+              : current_value;
+
+      static constexpr key_t max =
+          tail_t::has_any
+              ? (current_value > tail_t::max ? current_value : tail_t::max)
+              : current_value;
+    };
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t I,
+              std::size_t N>
+    struct static_literal_value_range_case<Subject,
+                                           CasesTuple,
+                                           I,
+                                           N,
+                                           false> {
+      using tail_t = static_literal_value_range<Subject,
+                                                CasesTuple,
+                                                I + 1,
+                                                N>;
+      using key_t = typename tail_t::key_t;
+
+      static constexpr bool has_any = tail_t::has_any;
+      static constexpr key_t min    = tail_t::min;
+      static constexpr key_t max    = tail_t::max;
+    };
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t I,
+              std::size_t N>
+    struct static_literal_value_range
+        : static_literal_value_range_case<
+              Subject,
+              CasesTuple,
+              I,
+              N,
+              is_static_literal_pattern_v<traits::case_pattern_t<
+                  std::tuple_element_t<I,
+                                       std::remove_reference_t<CasesTuple>>>>> {
+    };
+
+    template <typename Subject, typename CasesTuple, std::size_t N>
+    struct static_literal_value_range<Subject, CasesTuple, N, N> {
+      using subject_t = std::remove_cv_t<std::remove_reference_t<Subject>>;
+      using key_t     = literal_subject_key_t<subject_t>;
+
+      static constexpr bool has_any = false;
+      static constexpr key_t min    = key_t{};
+      static constexpr key_t max    = key_t{};
+    };
+
+    template <typename Tuple, std::size_t N>
+    struct tuple_last_case_is_wildcard
+        : std::bool_constant<is_wildcard_pattern_v<traits::case_pattern_t<
+              std::tuple_element_t<N - 1, Tuple>>>> {};
+
+    template <typename Tuple>
+    struct tuple_last_case_is_wildcard<Tuple, 0> : std::false_type {};
+
+    template <typename Subject,
+              typename CasesTuple,
+              typename SubjectValue =
+                  std::remove_cv_t<std::remove_reference_t<Subject>>>
+    struct static_literal_dispatch_metadata {
+      using tuple_t = std::remove_reference_t<CasesTuple>;
+      using key_t   = literal_subject_key_t<SubjectValue>;
+
+      static constexpr std::size_t case_count =
+          std::tuple_size_v<tuple_t>;
+      static constexpr std::size_t literal_case_count =
+          static_literal_case_count<Subject, CasesTuple>::value;
+      using case_index_t = variant_case_index_t<case_count>;
+
+      using value_range_t =
+          static_literal_value_range<Subject, CasesTuple>;
+
+      static constexpr bool has_literal_cases = value_range_t::has_any;
+      static constexpr key_t min_value        = value_range_t::min;
+      static constexpr key_t max_value        = value_range_t::max;
+      static constexpr std::size_t range_size =
+          has_literal_cases
+              ? static_literal_range_width(min_value, max_value)
+              : 0u;
+
+      static constexpr case_index_t k_invalid_case_index =
+          std::numeric_limits<case_index_t>::max();
+
+      static constexpr bool has_default_case =
+          tuple_last_case_is_wildcard<tuple_t, case_count>::value;
+
+      static constexpr case_index_t default_case_index =
+          has_default_case ? static_cast<case_index_t>(case_count - 1)
+                           : k_invalid_case_index;
+
+      static constexpr bool use_dense_table =
+          has_literal_cases
+          && literal_case_count > 0
+          && case_count <= k_static_literal_dense_dispatch_max_cases
+          && range_size <= k_static_literal_dense_dispatch_max_span
+          && range_size
+                 <= literal_case_count
+                        * k_static_literal_dense_dispatch_max_density;
+    };
+
+    template <typename Subject, typename CasesTuple, bool Eligible>
+    struct is_static_literal_dense_dispatch_enabled : std::false_type {};
+
+    template <typename Subject, typename CasesTuple>
+    struct is_static_literal_dense_dispatch_enabled<Subject, CasesTuple, true>
+        : std::bool_constant<
+              static_literal_dispatch_metadata<Subject, CasesTuple>::
+                  use_dense_table> {};
+
+    // Semantic lowering grade selected by the planner.
+    enum class lowering_legality {
+      none,
+      bucketed,
+      full
+    };
+
+    // Concrete dispatch shape executed by the evaluator.
+    enum class dispatch_plan_kind {
+      sequential,
+      literal_linear,
+      static_literal_dense,
+      variant_simple,
+      variant_alt_bucketed
+    };
+
+    // Analysis phase for case-sequence lowering.
+    // This stays purely declarative so future planners can reuse the same
+    // legality checks without depending on evaluator internals.
+    template <typename Subject, typename CasesTuple>
+    struct lowering_analysis {
       using subject_t = std::remove_cv_t<std::remove_reference_t<Subject>>;
 
-      static constexpr bool use_simple_literal_dispatch =
+      static constexpr bool can_use_static_literal_dispatch =
+          (std::is_integral_v<subject_t> || std::is_enum_v<subject_t>)
+          && is_static_literal_dense_dispatch_enabled<
+              subject_t,
+              CasesTuple,
+              is_static_literal_dispatch_cases_tuple_v<subject_t,
+                                                       CasesTuple>>::value;
+
+      static constexpr bool can_use_simple_literal_dispatch =
           (std::is_integral_v<subject_t> || std::is_enum_v<subject_t>)
           && is_simple_literal_dispatch_cases_tuple_v<subject_t, CasesTuple>;
 
-      static constexpr bool use_simple_variant_dispatch =
+      static constexpr bool can_use_simple_variant_dispatch =
           is_variant_subject_v<subject_t>
           && is_simple_variant_dispatch_cases_tuple_v<subject_t, CasesTuple>;
 
-      static constexpr bool use_variant_alt_dispatch =
+      static constexpr bool can_use_variant_alt_dispatch =
           is_variant_subject_v<subject_t>;
+
+      static constexpr lowering_legality legality =
+          can_use_static_literal_dispatch || can_use_simple_variant_dispatch
+              ? lowering_legality::full
+              : (can_use_variant_alt_dispatch ? lowering_legality::bucketed
+                                              : lowering_legality::none);
     };
 
-    // Primary template for case-sequence optimization.
+    // Planned dispatch shape for a case sequence.
+    // Evaluators should consume this instead of re-deriving dispatch choices.
     template <typename Subject, typename CasesTuple>
-    struct optimize_case_sequence {
-      using type = CasesTuple;
+    struct dispatch_plan {
+      using analysis_t = lowering_analysis<Subject, CasesTuple>;
+
+      static constexpr dispatch_plan_kind kind =
+          analysis_t::can_use_static_literal_dispatch
+              ? dispatch_plan_kind::static_literal_dense
+              : (analysis_t::can_use_simple_literal_dispatch
+                     ? dispatch_plan_kind::literal_linear
+                     : (analysis_t::can_use_simple_variant_dispatch
+                            ? dispatch_plan_kind::variant_simple
+                            : (analysis_t::can_use_variant_alt_dispatch
+                                   ? dispatch_plan_kind::variant_alt_bucketed
+                                   : dispatch_plan_kind::sequential)));
+
+      static constexpr lowering_legality legality =
+          analysis_t::legality;
     };
+
   } // namespace detail
 
-  // Convenience alias for optimized case-sequence type.
-  // Applies optimization transformations to a case sequence.
   template <typename Subject, typename CasesTuple>
-  using optimize_case_sequence_t =
-      typename detail::optimize_case_sequence<Subject, CasesTuple>::type;
+  using dispatch_plan_t = detail::dispatch_plan<Subject, CasesTuple>;
 
 } // namespace ptn::core::common

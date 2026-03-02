@@ -26,7 +26,7 @@
 
 // --- All Pattern Modules ---
 // Includes all public pattern factories.
-#include "ptn/pattern/lit.hpp"             // lit, lit_ci
+#include "ptn/pattern/lit.hpp"             // lit, lit_v, lit_ci
 #include "ptn/pattern/bind.hpp"            // bind
 #include "ptn/pattern/wildcard.hpp"        // wildcard
 #include "ptn/pattern/modifiers/guard.hpp" // guard
@@ -39,6 +39,7 @@ namespace ptn {
   using ptn::core::dsl::detail::on;
 
   using ptn::pat::lit;
+  using ptn::pat::lit_v;
   using ptn::pat::lit_ci;
 
   using ptn::pat::bind;
