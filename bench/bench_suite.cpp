@@ -910,6 +910,23 @@ namespace {
     return match(x) | cases;
   }
 
+  static int patternia_pipe_literal_match_128_lit_v_inline_on_route(int x) {
+    using namespace ptn;
+
+    return match(x)
+           | on{
+               PTN_LIT_V_BLOCK_16(1),
+               PTN_LIT_V_BLOCK_16(17),
+               PTN_LIT_V_BLOCK_16(33),
+               PTN_LIT_V_BLOCK_16(49),
+               PTN_LIT_V_BLOCK_16(65),
+               PTN_LIT_V_BLOCK_16(81),
+               PTN_LIT_V_BLOCK_16(97),
+               PTN_LIT_V_BLOCK_16(113),
+               __ >> 0,
+           };
+  }
+
   static int switch_literal_match_128_route(int x) {
     switch (x) {
       PTN_SWITCH_BLOCK_16(1);
@@ -1694,6 +1711,13 @@ namespace {
                  patternia_pipe_literal_match_128_lit_v_route);
   }
 
+  static void BM_PatterniaPipe_LiteralMatch128LitVInlineOn(
+      benchmark::State &state) {
+    run_workload(state,
+                 literal_128_workload(),
+                 patternia_pipe_literal_match_128_lit_v_inline_on_route);
+  }
+
   static void BM_Switch_LiteralMatch128(benchmark::State &state) {
     run_workload(state,
                  literal_128_workload(),
@@ -1770,6 +1794,7 @@ PTN_REGISTER_STABLE_BENCH(BM_Switch_LiteralMatch);
 #if PTN_BENCH_ENABLE_SUITE_LITERAL_MATCH_128
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_LiteralMatch128);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_LiteralMatch128LitV);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_LiteralMatch128LitVInlineOn);
 PTN_REGISTER_STABLE_BENCH(BM_Switch_LiteralMatch128);
 #endif
 
