@@ -28,6 +28,28 @@ namespace ptn::core::common {
 #define PTN_DETAIL_NOINLINE
 #endif
 
+#define PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE(n)                    \
+  case n:                                                           \
+    return invoke_static_literal_case_entry<n, Result>(cases)
+
+#define PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(base)             \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 0);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 1);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 2);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 3);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 4);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 5);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 6);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 7);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 8);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 9);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 10);               \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 11);               \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 12);               \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 13);               \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 14);               \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 15)
+
   // SFINAE Helper for C++17
   namespace detail {
     // Helper type to provide void type for SFINAE expressions
@@ -223,8 +245,7 @@ namespace ptn::core::common {
     constexpr Result
     invoke_otherwise_typed(Subject    &subject,
                            Otherwise &&otherwise_handler) {
-      // Shared typed otherwise flow for both generic and fast-path
-      // evaluators.
+      // Shared typed otherwise flow for both generic and lowered evaluators.
       using otherwise_result = traits::otherwise_result_t<Otherwise,
                                                           Subject>;
 
@@ -528,6 +549,159 @@ namespace ptn::core::common {
           &invoke_variant_simple_case_entry<CaseIndex,
                                             Result,
                                             CasesTuple>...};
+    }
+
+    template <typename Metadata,
+              typename Subject,
+              typename CasesTuple,
+              std::size_t I = 0,
+              std::size_t N = std::tuple_size_v<
+                  std::remove_reference_t<CasesTuple>>>
+    constexpr void fill_static_literal_case_index_table(
+        std::array<typename Metadata::case_index_t,
+                   Metadata::range_size> &table) {
+      if constexpr (I < N) {
+        using tuple_t   = std::remove_reference_t<CasesTuple>;
+        using case_t    = std::tuple_element_t<I, tuple_t>;
+        using pattern_t = traits::case_pattern_t<case_t>;
+
+        if constexpr (is_static_literal_pattern_v<pattern_t>) {
+          constexpr typename Metadata::key_t value =
+              static_literal_case_value<pattern_t, Subject>::value;
+          constexpr std::size_t offset = static_cast<std::size_t>(
+              value - Metadata::min_value);
+
+          if (table[offset] == Metadata::k_invalid_case_index) {
+            table[offset] = static_cast<typename Metadata::case_index_t>(I);
+          }
+        }
+
+        fill_static_literal_case_index_table<Metadata,
+                                             Subject,
+                                             CasesTuple,
+                                             I + 1,
+                                             N>(table);
+      }
+    }
+
+    template <typename Metadata, typename Subject, typename CasesTuple>
+    constexpr auto make_static_literal_case_index_table() {
+      std::array<typename Metadata::case_index_t, Metadata::range_size> table{};
+
+      for (auto &entry : table) {
+        entry = Metadata::k_invalid_case_index;
+      }
+
+      fill_static_literal_case_index_table<Metadata,
+                                           Subject,
+                                           CasesTuple>(table);
+      return table;
+    }
+
+    template <typename Subject,
+              typename CasesTuple,
+              typename SubjectValue =
+                  std::remove_cv_t<std::remove_reference_t<Subject>>,
+              bool Enabled = static_literal_dispatch_metadata<
+                  Subject,
+                  CasesTuple,
+                  SubjectValue>::use_dense_table>
+    struct static_literal_dispatch_cache;
+
+    template <typename Subject, typename CasesTuple, typename SubjectValue>
+    struct static_literal_dispatch_cache<Subject,
+                                         CasesTuple,
+                                         SubjectValue,
+                                         true> {
+      using metadata_t = static_literal_dispatch_metadata<Subject,
+                                                          CasesTuple,
+                                                          SubjectValue>;
+
+      static constexpr auto case_index_table =
+          make_static_literal_case_index_table<metadata_t,
+                                               Subject,
+                                               CasesTuple>();
+    };
+
+    template <std::size_t CaseIndex,
+              typename Result,
+              typename CasesTuple>
+    constexpr Result
+    invoke_static_literal_case_entry(CasesTuple &cases) {
+      constexpr std::size_t case_count = std::tuple_size_v<
+          std::remove_reference_t<CasesTuple>>;
+
+      if constexpr (CaseIndex < case_count) {
+        auto &current_case = std::get<CaseIndex>(cases);
+        return static_cast<Result>(current_case.handler());
+      }
+      else {
+        return unreachable_result<Result>();
+      }
+    }
+
+    template <typename Result, typename CasesTuple>
+    inline Result dispatch_static_literal_case_index(std::size_t case_index,
+                                                     CasesTuple &cases) {
+      switch (case_index) {
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(0);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(16);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(32);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(48);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(64);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(80);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(96);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(112);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(128);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(144);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(160);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(176);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(192);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(208);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(224);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(240);
+      default:
+        return unreachable_result<Result>();
+      }
+    }
+
+    template <typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise,
+              typename SubjectValue =
+                  std::remove_cv_t<std::remove_reference_t<Subject>>>
+    inline Result eval_cases_impl_static_literal_dispatch(
+        Subject    &subject,
+        CasesTuple &cases,
+        Otherwise &&otherwise_handler) {
+      using metadata_t = static_literal_dispatch_metadata<Subject,
+                                                          CasesTuple,
+                                                          SubjectValue>;
+      using cache_t = static_literal_dispatch_cache<Subject,
+                                                    CasesTuple,
+                                                    SubjectValue>;
+      using key_t = typename metadata_t::key_t;
+
+      const key_t value = static_cast<key_t>(subject);
+      if (value >= metadata_t::min_value && value <= metadata_t::max_value) {
+        const auto case_index = cache_t::case_index_table
+            [static_cast<std::size_t>(value - metadata_t::min_value)];
+        if (case_index != metadata_t::k_invalid_case_index) {
+          return dispatch_static_literal_case_index<Result>(case_index,
+                                                            cases);
+        }
+      }
+
+      if constexpr (metadata_t::has_default_case) {
+        return invoke_static_literal_case_entry<
+            static_cast<std::size_t>(metadata_t::default_case_index),
+            Result>(cases);
+      }
+      else {
+        return invoke_otherwise_typed<Result>(
+            subject, std::forward<Otherwise>(otherwise_handler));
+      }
     }
 
     template <typename Result,
@@ -1390,6 +1564,55 @@ namespace ptn::core::common {
                     std::forward<Otherwise>(otherwise_handler));
       }
     }
+
+    // Executes a precomputed dispatch plan.
+    // The planner owns dispatch selection; evaluator code here only maps the
+    // selected shape to its runtime entry point.
+    template <dispatch_plan_kind PlanKind,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise>
+    constexpr Result eval_cases_with_dispatch_plan(
+        Subject    &subject,
+        CasesTuple &cases,
+        Otherwise &&otherwise_handler) {
+      if constexpr (PlanKind == dispatch_plan_kind::static_literal_dense) {
+        return eval_cases_impl_static_literal_dispatch<Result>(
+            subject,
+            cases,
+            std::forward<Otherwise>(otherwise_handler));
+      }
+      else if constexpr (PlanKind == dispatch_plan_kind::literal_linear) {
+        return eval_cases_impl_literal_simple_dispatch<0, Result>(
+            subject,
+            cases,
+            std::forward<Otherwise>(otherwise_handler));
+      }
+      else if constexpr (PlanKind == dispatch_plan_kind::variant_simple) {
+        const std::size_t active_index = subject.index();
+        return eval_cases_impl_variant_simple_dispatch_by_alt_table<
+            Result>(active_index,
+                    subject,
+                    cases,
+                    std::forward<Otherwise>(otherwise_handler));
+      }
+      else if constexpr (PlanKind
+                         == dispatch_plan_kind::variant_alt_bucketed) {
+        const std::size_t active_index = subject.index();
+        return eval_cases_impl_typed_variant_dispatch_by_alt_table<
+            Result>(active_index,
+                    subject,
+                    cases,
+                    std::forward<Otherwise>(otherwise_handler));
+      }
+      else {
+        return eval_cases_impl_typed<0, Result>(
+            subject,
+            cases,
+            std::forward<Otherwise>(otherwise_handler));
+      }
+    }
   } // namespace detail
 
   template <typename Result,
@@ -1399,50 +1622,18 @@ namespace ptn::core::common {
   constexpr Result eval_cases_typed(Subject    &subject,
                                     CasesTuple &cases,
                                     Otherwise &&otherwise_handler) {
-    using dispatch_policy_t = detail::dispatch_policy<Subject,
-                                                      CasesTuple>;
+    using dispatch_plan_t = detail::dispatch_plan<Subject,
+                                                  CasesTuple>;
 
-    if constexpr (dispatch_policy_t::use_simple_literal_dispatch) {
-      // Literal simple-dispatch fast path:
-      // direct value checks for lit(...) + wildcard chains.
-      return detail::eval_cases_impl_literal_simple_dispatch<0,
-                                                             Result>(
-          subject,
-          cases,
-          std::forward<Otherwise>(otherwise_handler));
-    }
-    else if constexpr (dispatch_policy_t::
-                           use_simple_variant_dispatch) {
-      // Variant simple-dispatch fast path:
-      // read index once, then jump directly to selected case
-      // handler.
-      const std::size_t active_index = subject.index();
-      return detail::
-          eval_cases_impl_variant_simple_dispatch_by_alt_table<
-              Result>(active_index,
-                      subject,
-                      cases,
-                      std::forward<Otherwise>(otherwise_handler));
-    }
-    else if constexpr (dispatch_policy_t::use_variant_alt_dispatch) {
-      // Mixed variant keyed path:
-      // jump to active alternative, then evaluate only relevant
-      // cases.
-      const std::size_t active_index = subject.index();
-      return detail::
-          eval_cases_impl_typed_variant_dispatch_by_alt_table<
-              Result>(active_index,
-                      subject,
-                      cases,
-                      std::forward<Otherwise>(otherwise_handler));
-    }
-    else {
-      return detail::eval_cases_impl_typed<0, Result>(
-          subject,
-          cases,
-          std::forward<Otherwise>(otherwise_handler));
-    }
+    return detail::eval_cases_with_dispatch_plan<
+        dispatch_plan_t::kind,
+        Result>(
+        subject,
+        cases,
+        std::forward<Otherwise>(otherwise_handler));
   }
 } // namespace ptn::core::common
 
 #undef PTN_DETAIL_NOINLINE
+#undef PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16
+#undef PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE

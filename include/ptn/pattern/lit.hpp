@@ -1,7 +1,7 @@
 #pragma once
 
-// Public API and implementation for literal value patterns (`lit()` and
-// `lit_ci()`).
+// Public API and implementation for literal value patterns (`lit()`,
+// `lit_v()`, and `lit_ci()`).
 //
 // This file provides factory functions to create patterns that match against
 // specific literal values. It includes both public API and internal
@@ -104,6 +104,36 @@ namespace ptn::pat {
       }
     };
 
+    // A literal pattern whose matched value is encoded in the type.
+    template <auto V, typename Cmp = std::equal_to<>>
+    struct static_literal_pattern
+        : base::pattern_base<static_literal_pattern<V, Cmp>> {
+      using store_t = std::decay_t<decltype(V)>;
+
+      inline static constexpr store_t value = V;
+
+#if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
+      [[no_unique_address]] Cmp cmp{};
+#else
+      Cmp cmp{};
+#endif
+
+      constexpr explicit static_literal_pattern(Cmp c = {})
+          : cmp(std::move(c)) {
+      }
+
+      template <typename X>
+      constexpr bool match(X const &x) const noexcept(
+          noexcept(cmp(x, value))) {
+        return cmp(x, value);
+      }
+
+      template <typename X>
+      constexpr auto bind(const X & /*subj*/) const {
+        return std::tuple<>{};
+      }
+    };
+
   } // namespace detail
 
   // --- Public API ---
@@ -115,6 +145,15 @@ namespace ptn::pat {
     ptn::core::common::static_assert_literal_store_type<store_t>();
 
     return detail::literal_pattern<store_t>(store_t(std::forward<V>(v)));
+  }
+
+  // Factory for compile-time literal_pattern.
+  template <auto V>
+  constexpr auto lit_v() {
+    using store_t = std::decay_t<decltype(V)>;
+    ptn::core::common::static_assert_literal_store_type<store_t>();
+
+    return detail::static_literal_pattern<V>{};
   }
 
   // Case-insensitive value-pattern factory.
@@ -139,6 +178,12 @@ namespace ptn::pat::base {
   // consistent with the return type of `detail::literal_pattern::bind()`.
   template <typename V, typename Cmp, typename Subject>
   struct binding_args<ptn::pat::detail::literal_pattern<V, Cmp>, Subject> {
+    using type = std::tuple<>;
+  };
+
+  template <auto V, typename Cmp, typename Subject>
+  struct binding_args<ptn::pat::detail::static_literal_pattern<V, Cmp>,
+                      Subject> {
     using type = std::tuple<>;
   };
 
