@@ -571,6 +571,39 @@ namespace ptn::core::common {
       static constexpr bool has_any = begin < end && begin < CaseCount;
     };
 
+    // Precomputed residual case range for one variant alternative.
+    struct variant_typed_case_bucket {
+      std::size_t begin;
+      std::size_t end;
+      bool        has_any;
+    };
+
+    template <typename Subject,
+              typename CasesTuple,
+              std::size_t CaseCount,
+              std::size_t... AltIndex>
+    constexpr auto make_typed_variant_case_bucket_table(
+        std::index_sequence<AltIndex...>) {
+      using bucket_t = variant_typed_case_bucket;
+
+      // Materializes per-alt residual ranges once so the dispatch plan can
+      // reuse them without re-running the analysis traits.
+      return std::array<bucket_t, sizeof...(AltIndex)>{
+          bucket_t{
+              variant_typed_case_range_for_alt<Subject,
+                                               CasesTuple,
+                                               AltIndex,
+                                               CaseCount>::begin,
+              variant_typed_case_range_for_alt<Subject,
+                                               CasesTuple,
+                                               AltIndex,
+                                               CaseCount>::end,
+              variant_typed_case_range_for_alt<Subject,
+                                               CasesTuple,
+                                               AltIndex,
+                                               CaseCount>::has_any}...};
+    }
+
     template <std::size_t UsedAltCount>
     using variant_compact_alt_index_t = std::conditional_t<
         (UsedAltCount <= std::numeric_limits<std::uint8_t>::max()),
@@ -580,29 +613,23 @@ namespace ptn::core::common {
             std::uint16_t,
             std::uint32_t>>;
 
-    template <typename Subject,
-              typename CasesTuple,
-              std::size_t CaseCount,
-              std::size_t... AltIndex>
+    template <typename BucketTable, std::size_t... AltIndex>
     constexpr std::size_t count_typed_variant_compact_dispatch_alts(
+        const BucketTable &bucket_table,
         std::index_sequence<AltIndex...>) {
+      // Counts only alternatives that keep at least one residual case bucket.
       return (std::size_t{0}
-              + ... +
-              (variant_typed_case_range_for_alt<Subject,
-                                                CasesTuple,
-                                                AltIndex,
-                                                CaseCount>::has_any
-                   ? std::size_t{1}
-                   : std::size_t{0}));
+              + ...
+              + (bucket_table[AltIndex].has_any ? std::size_t{1}
+                                                 : std::size_t{0}));
     }
 
     template <typename CompactIndex,
-              typename Subject,
-              typename CasesTuple,
               std::size_t AltCount,
-              std::size_t CaseCount,
+              typename BucketTable,
               std::size_t... AltIndex>
     constexpr auto make_typed_variant_compact_alt_index_map(
+        const BucketTable &bucket_table,
         std::index_sequence<AltIndex...>) {
       std::array<CompactIndex, AltCount> map{};
       constexpr CompactIndex invalid = std::numeric_limits<CompactIndex>::max();
@@ -612,15 +639,20 @@ namespace ptn::core::common {
       }
 
       CompactIndex next = 0;
+      // Keeps only used alternatives in the compact cold-path dispatch table.
       (void) std::initializer_list<int>{
-          (variant_typed_case_range_for_alt<Subject,
-                                            CasesTuple,
-                                            AltIndex,
-                                            CaseCount>::has_any
+          (bucket_table[AltIndex].has_any
                ? (map[AltIndex] = next++, 0)
                : 0)...};
 
       return map;
+    }
+
+    template <typename CompactIndex, std::size_t AltCount, std::size_t... I>
+    constexpr auto make_identity_variant_compact_alt_index_map(
+        std::index_sequence<I...>) {
+      return std::array<CompactIndex, AltCount>{
+          static_cast<CompactIndex>(I)...};
     }
 
     template <
@@ -632,24 +664,29 @@ namespace ptn::core::common {
     struct typed_variant_dispatch_metadata {
       static constexpr std::size_t case_count =
           std::tuple_size_v<std::remove_reference_t<CasesTuple>>;
+      using case_bucket_t = variant_typed_case_bucket;
+
+      // Full variant index -> residual case bucket table.
+      static constexpr auto case_bucket_table =
+          make_typed_variant_case_bucket_table<Subject,
+                                               CasesTuple,
+                                               case_count>(
+              std::make_index_sequence<AltCount>{});
 
       static constexpr std::size_t used_alt_count =
-          count_typed_variant_compact_dispatch_alts<Subject,
-                                                    CasesTuple,
-                                                    case_count>(
+          count_typed_variant_compact_dispatch_alts(
+              case_bucket_table,
               std::make_index_sequence<AltCount>{});
 
       using compact_index_t = variant_compact_alt_index_t<used_alt_count>;
       static constexpr compact_index_t k_invalid_compact_index =
           std::numeric_limits<compact_index_t>::max();
 
-      // Flattened index map: variant index -> compact dispatch slot.
+      // Variant index -> compact cold-path slot.
       static constexpr auto compact_alt_index_map =
           make_typed_variant_compact_alt_index_map<compact_index_t,
-                                                   Subject,
-                                                   CasesTuple,
-                                                   AltCount,
-                                                   case_count>(
+                                                   AltCount>(
+              case_bucket_table,
               std::make_index_sequence<AltCount>{});
     };
 
@@ -1088,16 +1125,35 @@ namespace ptn::core::common {
                                                           SubjectValue,
                                                           AltCount>;
       using case_index_t = typename metadata_t::case_index_t;
+      using compact_index_t = variant_compact_alt_index_t<AltCount>;
 
       static constexpr dispatch_plan_kind kind =
           dispatch_plan_kind::variant_simple;
       static constexpr lowering_legality legality =
           lowering_legality::full;
 
-      static constexpr std::size_t alt_count  = AltCount;
-      static constexpr std::size_t case_count = metadata_t::case_count;
+      static constexpr std::size_t alt_count      = AltCount;
+      static constexpr std::size_t case_count     = metadata_t::case_count;
+      static constexpr std::size_t used_alt_count = AltCount;
       static constexpr variant_dispatch_tier tier =
           variant_dispatch_tier_for_alt_count<AltCount>();
+      static constexpr auto case_index_table =
+          metadata_t::case_index_table;
+      static constexpr auto compact_alt_index_map =
+          make_identity_variant_compact_alt_index_map<compact_index_t,
+                                                      AltCount>(
+              std::make_index_sequence<AltCount>{});
+      static constexpr compact_index_t k_invalid_compact_index =
+          std::numeric_limits<compact_index_t>::max();
+
+      template <std::size_t AltIndex>
+      struct case_entry {
+        static_assert(AltIndex < AltCount, "variant alt index out of range");
+
+        static constexpr case_index_t case_index =
+            case_index_table[AltIndex];
+        static constexpr bool has_any = case_index < case_count;
+      };
     };
 
     template <typename Subject,
@@ -1124,12 +1180,25 @@ namespace ptn::core::common {
       static constexpr std::size_t used_alt_count = metadata_t::used_alt_count;
       static constexpr variant_dispatch_tier tier =
           variant_dispatch_tier_for_alt_count<AltCount>();
+      static constexpr auto compact_alt_index_map =
+          metadata_t::compact_alt_index_map;
+      static constexpr auto case_bucket_table =
+          metadata_t::case_bucket_table;
       static constexpr compact_index_t k_invalid_compact_index =
           metadata_t::k_invalid_compact_index;
 
       template <std::size_t AltIndex>
-      using case_range_t =
-          variant_typed_case_range_for_alt<Subject, CasesTuple, AltIndex>;
+      struct case_bucket {
+        static_assert(AltIndex < AltCount, "variant alt index out of range");
+
+        // Type-level view for a single precomputed residual case bucket.
+        static constexpr std::size_t begin =
+            case_bucket_table[AltIndex].begin;
+        static constexpr std::size_t end =
+            case_bucket_table[AltIndex].end;
+        static constexpr bool has_any =
+            case_bucket_table[AltIndex].has_any;
+      };
     };
 
     template <typename Subject,
