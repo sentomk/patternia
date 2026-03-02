@@ -32,6 +32,16 @@ namespace ptn::core::dsl::detail {
     Handler handler; // The handler to execute if the pattern matches.
   };
 
+  template <typename T>
+  struct value_handler {
+    T value;
+
+    template <typename... Args>
+    constexpr T operator()(Args &&...) const {
+      return value;
+    }
+  };
+
   // Compact case pack used by `match(x) | on{ ... }`.
   template <typename... Cases>
   struct on {

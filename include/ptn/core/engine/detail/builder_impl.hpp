@@ -12,6 +12,7 @@
 
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/common/diagnostics.hpp"
+#include "ptn/core/dsl/detail/case_expr_impl.hpp"
 #include "ptn/core/engine/detail/match_impl.hpp"
 
 namespace ptn::core::dsl::detail {
@@ -196,8 +197,8 @@ namespace ptn::core::engine::detail {
         if constexpr (ptn::core::traits::detail::is_value_like_v<
                           OtherwiseDecayed>) {
           // Case 1: Value - create a handler that returns this value
-          return [val = std::forward<Otherwise>(otherwise_handler)](
-                     auto &&...) -> OtherwiseDecayed { return val; };
+          return core::dsl::detail::value_handler<OtherwiseDecayed>{
+              std::forward<Otherwise>(otherwise_handler)};
         }
         else {
           // Case 2: Callable - normalize to an object (wrap function

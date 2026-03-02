@@ -38,11 +38,11 @@ namespace ptn::core::dsl::ops {
 
     if constexpr (ptn::core::traits::detail::is_value_like_v<H>) {
       // Value Mode: Pattern >> Value syntax sugar
-      auto value_handler = [val = std::forward<Handler>(handler)](
-                               auto &&...) -> H { return val; };
+      using value_handler_t = core::dsl::detail::value_handler<H>;
 
-      return core::dsl::detail::case_expr<P, decltype(value_handler)>{
-          std::forward<Pattern>(pattern), std::move(value_handler)};
+      return core::dsl::detail::case_expr<P, value_handler_t>{
+          std::forward<Pattern>(pattern),
+          value_handler_t{std::forward<Handler>(handler)}};
     }
     else {
       // Handler Mode: Pattern >> Handler

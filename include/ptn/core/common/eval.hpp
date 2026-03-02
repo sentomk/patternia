@@ -27,26 +27,32 @@ namespace ptn::core::common {
 #define PTN_DETAIL_NOINLINE
 #endif
 
-#define PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE(n)                    \
-  case n:                                                           \
-    return invoke_static_literal_case_entry<n, Result>(cases)
+#define PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE(n)                           \
+  case n:                                                                  \
+    return dispatch_static_literal_offset_case<Plan,                       \
+                                               static_cast<std::size_t>(n), \
+                                               Result>(subject,             \
+                                                       cases,               \
+                                                       std::forward<        \
+                                                           Otherwise>(      \
+                                                           otherwise_handler))
 
-#define PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(base)             \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 0);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 1);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 2);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 3);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 4);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 5);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 6);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 7);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 8);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 9);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 10);               \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 11);               \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 12);               \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 13);               \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 14);               \
+#define PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(base)                    \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 0);                       \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 1);                       \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 2);                       \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 3);                       \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 4);                       \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 5);                       \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 6);                       \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 7);                       \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 8);                       \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 9);                       \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 10);                      \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 11);                      \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 12);                      \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 13);                      \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 14);                      \
   PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 15)
 
   // SFINAE Helper for C++17
@@ -588,10 +594,55 @@ namespace ptn::core::common {
       }
     }
 
-    template <typename Result, typename CasesTuple>
-    inline Result dispatch_static_literal_case_index(std::size_t case_index,
-                                                     CasesTuple &cases) {
-      switch (case_index) {
+    template <typename Plan,
+              std::size_t Offset,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise>
+    inline Result dispatch_static_literal_offset_case(
+        Subject    &subject,
+        CasesTuple &cases,
+        Otherwise &&otherwise_handler) {
+      if constexpr (Offset < Plan::range_size) {
+        using cache_t = static_literal_dispatch_cache<Plan,
+                                                      Subject,
+                                                      CasesTuple>;
+        constexpr auto case_index = cache_t::case_index_table[Offset];
+
+        if constexpr (case_index != Plan::k_invalid_case_index) {
+          return invoke_static_literal_case_entry<
+              static_cast<std::size_t>(case_index),
+              Result>(cases);
+        }
+      }
+
+      if constexpr (Plan::has_default_case) {
+        return invoke_static_literal_case_entry<
+            static_cast<std::size_t>(Plan::default_case_index),
+            Result>(cases);
+      }
+      else {
+        return invoke_otherwise_typed<Result>(
+            subject, std::forward<Otherwise>(otherwise_handler));
+      }
+    }
+
+    template <typename Plan,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise>
+    inline Result dispatch_static_literal_offset(
+        std::size_t offset,
+        Subject    &subject,
+        CasesTuple &cases,
+        Otherwise &&otherwise_handler) {
+      static_assert(
+          Plan::range_size <= k_static_literal_dense_dispatch_max_span,
+          "static literal dense dispatch span exceeds configured limit");
+
+      switch (offset) {
         PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(0);
         PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(16);
         PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(32);
@@ -608,8 +659,32 @@ namespace ptn::core::common {
         PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(208);
         PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(224);
         PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(240);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(256);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(272);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(288);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(304);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(320);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(336);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(352);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(368);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(384);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(400);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(416);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(432);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(448);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(464);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(480);
+        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(496);
       default:
-        return unreachable_result<Result>();
+        if constexpr (Plan::has_default_case) {
+          return invoke_static_literal_case_entry<
+              static_cast<std::size_t>(Plan::default_case_index),
+              Result>(cases);
+        }
+        else {
+          return invoke_otherwise_typed<Result>(
+              subject, std::forward<Otherwise>(otherwise_handler));
+        }
       }
     }
 
@@ -622,20 +697,16 @@ namespace ptn::core::common {
         Subject    &subject,
         CasesTuple &cases,
         Otherwise &&otherwise_handler) {
-      using metadata_t = typename Plan::metadata_t;
-      using cache_t    = static_literal_dispatch_cache<Plan,
-                                                    Subject,
-                                                    CasesTuple>;
-      using key_t      = typename Plan::key_t;
+      using key_t = typename Plan::key_t;
 
       const key_t value = static_cast<key_t>(subject);
       if (value >= Plan::min_value && value <= Plan::max_value) {
-        const auto case_index = cache_t::case_index_table
-            [static_cast<std::size_t>(value - Plan::min_value)];
-        if (case_index != Plan::k_invalid_case_index) {
-          return dispatch_static_literal_case_index<Result>(case_index,
-                                                            cases);
-        }
+        const auto offset = static_cast<std::size_t>(value - Plan::min_value);
+        return dispatch_static_literal_offset<Plan, Result>(
+            offset,
+            subject,
+            cases,
+            std::forward<Otherwise>(otherwise_handler));
       }
 
       if constexpr (Plan::has_default_case) {
