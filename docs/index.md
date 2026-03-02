@@ -2,7 +2,7 @@
 
 **A modern C++ pattern matching DSL**
 
-Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic clear, expressive, and type-safe â€?without sacrificing performance or compilation efficiency.
+Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic clear, expressive, and type-safe - without sacrificing performance or compilation efficiency.
 
 
 Literal matching is split intentionally:
@@ -39,7 +39,7 @@ Literal matching is split intentionally:
 ## System Requirements
 
 - **C++ Standard**: C++17 or later
-- **Compilers**: GCC â‰?1, Clang â‰?2, MSVC â‰?019
+- **Compilers**: GCC >= 11, Clang >= 12, MSVC >= 2019
 - **Platforms**: Linux, Windows, macOS
 
 ---

@@ -61,7 +61,7 @@ Then, include Patternia headers in your code:
 **Notes:**
 
 * `GIT_TAG main` tracks the latest development version
-* Patternia is header-only â€?no targets need to be linked
+* Patternia is header-only - no targets need to be linked
 * Requires **C++17 or later**
 
 
@@ -324,7 +324,7 @@ match(data)
 Choose the right fallback strategy based on your data type:
 
 ```cpp
-// âœ?For exhaustive types - use __ + end()
+// For exhaustive types - use __ + end()
 enum class Color { Red, Green, Blue };
 match(color)
   .when(lit(Color::Red) >> [] { /* ... */ })
@@ -332,12 +332,12 @@ match(color)
   .when(__ >> [] { /* handles Color::Blue */ })
   .end();
 
-// âœ?For non-exhaustive types - use otherwise()
+// For non-exhaustive types - use otherwise()
 match(variant_value)
   .when(some_pattern >> handler)
   .otherwise(fallback_handler);
 
-// â?WRONG - cannot mix both
+// WRONG - cannot mix both
 match(value)
   .when(pattern >> handler)
   .when(__ >> [] { /* ... */ })
