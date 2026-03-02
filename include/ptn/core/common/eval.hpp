@@ -795,6 +795,9 @@ namespace ptn::core::common {
         using bucket_t = typename Plan::template case_bucket<AltIndex>;
 
         if constexpr (bucket_t::has_any) {
+          // Replays only the residual case slice selected by the planner for
+          // this active alternative. This preserves first-match semantics
+          // without scanning unrelated cases.
           return eval_cases_impl_typed_variant_for_alt_case_range<
               AltIndex,
               bucket_t::begin,
@@ -867,7 +870,8 @@ namespace ptn::core::common {
       }
     };
 
-    // Dense trampoline table for only the active alternatives kept by the plan.
+    // Builds a dense cold-path trampoline table from the plan's compact map.
+    // Only alternatives that survive planning receive a slot.
     template <typename Plan,
               typename Result,
               typename Subject,
@@ -899,7 +903,8 @@ namespace ptn::core::common {
       return table;
     }
 
-    // Cache backing the compact cold dispatch path for variant plans.
+    // Caches the cold-path tables derived from the selected variant plan.
+    // Hot and warm tiers bypass this structure entirely.
     template <typename Plan,
               typename Result,
               typename Subject,
@@ -940,8 +945,8 @@ namespace ptn::core::common {
                       CasesTuple,
                       otherwise_handler_t>;
 
-      const auto compact_index = cache_t::compact_alt_index_map
-          [active_index];
+      // First maps the full variant index to the compact trampoline slot.
+      const auto compact_index = cache_t::compact_alt_index_map[active_index];
       if (compact_index == cache_t::k_invalid_compact_index) {
         return invoke_otherwise_typed<Result>(
             subject, std::forward<Otherwise>(otherwise_handler));
@@ -968,6 +973,9 @@ namespace ptn::core::common {
             subject, std::forward<Otherwise>(otherwise_handler));
       }
 
+      // Executes the same plan through different runtime shapes chosen by the
+      // plan tier. The semantics are identical; only code size and branch
+      // structure differ.
       if constexpr (Plan::tier == variant_dispatch_tier::hot_inline) {
         return eval_cases_impl_variant_dispatch_by_alt_inline<
             Plan,

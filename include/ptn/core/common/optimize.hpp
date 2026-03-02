@@ -571,7 +571,9 @@ namespace ptn::core::common {
       static constexpr bool has_any = begin < end && begin < CaseCount;
     };
 
-    // Precomputed residual case range for one variant alternative.
+    // Stores the residual case slice for one variant alternative.
+    // A bucketed variant plan first routes by `variant.index()`, then replays
+    // only this `[begin, end)` slice to preserve first-match semantics.
     struct variant_typed_case_bucket {
       std::size_t begin;
       std::size_t end;
@@ -586,8 +588,9 @@ namespace ptn::core::common {
         std::index_sequence<AltIndex...>) {
       using bucket_t = variant_typed_case_bucket;
 
-      // Materializes per-alt residual ranges once so the dispatch plan can
-      // reuse them without re-running the analysis traits.
+      // Materializes every per-alt residual slice once.
+      // The dispatch plan reuses this table instead of recomputing the same
+      // range traits at each dispatch site.
       return std::array<bucket_t, sizeof...(AltIndex)>{
           bucket_t{
               variant_typed_case_range_for_alt<Subject,
@@ -617,7 +620,8 @@ namespace ptn::core::common {
     constexpr std::size_t count_typed_variant_compact_dispatch_alts(
         const BucketTable &bucket_table,
         std::index_sequence<AltIndex...>) {
-      // Counts only alternatives that keep at least one residual case bucket.
+      // Counts only alternatives that keep a non-empty residual slice.
+      // Empty alternatives fall straight to the default path.
       return (std::size_t{0}
               + ...
               + (bucket_table[AltIndex].has_any ? std::size_t{1}
@@ -639,7 +643,8 @@ namespace ptn::core::common {
       }
 
       CompactIndex next = 0;
-      // Keeps only used alternatives in the compact cold-path dispatch table.
+      // Assigns dense cold-path slots only to alternatives that still own a
+      // residual slice after planning.
       (void) std::initializer_list<int>{
           (bucket_table[AltIndex].has_any
                ? (map[AltIndex] = next++, 0)
@@ -666,7 +671,8 @@ namespace ptn::core::common {
           std::tuple_size_v<std::remove_reference_t<CasesTuple>>;
       using case_bucket_t = variant_typed_case_bucket;
 
-      // Full variant index -> residual case bucket table.
+      // Maps each full variant index to the residual case slice that must be
+      // replayed after that alternative wins the primary dispatch.
       static constexpr auto case_bucket_table =
           make_typed_variant_case_bucket_table<Subject,
                                                CasesTuple,
@@ -682,7 +688,8 @@ namespace ptn::core::common {
       static constexpr compact_index_t k_invalid_compact_index =
           std::numeric_limits<compact_index_t>::max();
 
-      // Variant index -> compact cold-path slot.
+      // Maps a full variant index to the compact cold-path trampoline table.
+      // Alternatives with no residual slice keep the invalid sentinel.
       static constexpr auto compact_alt_index_map =
           make_typed_variant_compact_alt_index_map<compact_index_t,
                                                    AltCount>(
@@ -741,6 +748,126 @@ namespace ptn::core::common {
           && std::is_invocable_v<handler_t>;
     };
 
+    // Describes the primary discriminator a single case contributes to the IR.
+    // This is the key the planner may use before any residual checking.
+    enum class case_discriminator_kind {
+      opaque,
+      wildcard,
+      runtime_literal,
+      static_literal,
+      variant_alt
+    };
+
+    // Describes the work that still remains after primary-key routing.
+    // `guard` means the key is usable, but the bucket must still evaluate a
+    // guard. `structural` means the bucket must re-enter general matching.
+    enum class case_residual_kind {
+      none,
+      guard,
+      structural
+    };
+
+    // Describes how much the case's binding behavior constrains lowering.
+    // `general` means the planner must assume full matcher replay semantics.
+    enum class case_binding_kind {
+      none,
+      direct_ref,
+      general
+    };
+
+    template <typename Pattern,
+              bool = is_guarded_pattern_v<std::decay_t<Pattern>>>
+    struct unguarded_pattern {
+      using type = std::decay_t<Pattern>;
+    };
+
+    template <typename Pattern>
+    struct unguarded_pattern<Pattern, true> {
+      using type = typename guarded_inner_pattern<
+          std::decay_t<Pattern>>::type;
+    };
+
+    template <typename Pattern>
+    using unguarded_pattern_t = typename unguarded_pattern<Pattern>::type;
+
+    // Analyzes one case into lowering-friendly IR.
+    // This is the seam between the pattern DSL and the planner: new pattern
+    // kinds should first describe their discriminator, residual work, and
+    // binding shape here before any concrete dispatch plan is chosen.
+    template <typename Case, typename Subject>
+    struct case_analysis {
+      using case_t          = std::remove_reference_t<Case>;
+      using pattern_t       = traits::case_pattern_t<case_t>;
+      // Strips a guard wrapper so discriminator analysis sees the underlying
+      // pattern shape rather than the guard adapter itself.
+      using core_pattern_t  = unguarded_pattern_t<pattern_t>;
+      using handler_t       = traits::case_handler_t<case_t>;
+      // Captures the values this case would bind into the handler.
+      using bound_args_t    = pat::base::binding_args_t<pattern_t, Subject>;
+      using subject_t       = std::remove_cv_t<std::remove_reference_t<Subject>>;
+
+      // Guards never block key extraction by themselves, but they always force
+      // residual work after the primary dispatch key hits.
+      static constexpr bool is_guarded = is_guarded_pattern_v<pattern_t>;
+      // Any non-empty binding tuple means this case changes handler inputs.
+      static constexpr bool has_bindings =
+          std::tuple_size_v<bound_args_t> != 0;
+      static constexpr bool is_wildcard =
+          is_wildcard_pattern_v<pattern_t>;
+
+      // Selects the primary key this case exposes to the planner.
+      // The order matters: wildcard takes precedence over any inner shape,
+      // then static literals, then runtime literals, then variant alt keys.
+      // Anything else is opaque to the current planner.
+      static constexpr case_discriminator_kind discriminator_kind =
+          is_wildcard
+              ? case_discriminator_kind::wildcard
+              : (is_static_literal_pattern_v<core_pattern_t>
+                     ? case_discriminator_kind::static_literal
+                     : (is_simple_literal_pattern_v<core_pattern_t>
+                            ? case_discriminator_kind::runtime_literal
+                            : ((is_variant_type_is_pattern_v<core_pattern_t>
+                                || is_variant_type_alt_pattern_v<core_pattern_t>)
+                                   ? case_discriminator_kind::variant_alt
+                                   : case_discriminator_kind::opaque)));
+
+      // Records whether binding can stay on a direct-ref fast path.
+      // `direct_ref` is the only binding form the current variant lowering can
+      // keep without replaying the full matcher.
+      static constexpr case_binding_kind binding_kind =
+          !has_bindings
+              ? case_binding_kind::none
+              : (is_variant_direct_ref_bind_pattern_v<core_pattern_t>
+                     ? case_binding_kind::direct_ref
+                     : case_binding_kind::general);
+
+      // Records what must still happen after primary-key routing.
+      // The residual ordering is also intentional:
+      // - A guard always becomes a residual guard check.
+      // - A non-simple variant case still has a usable variant-alt key, but
+      //   must replay structural matching inside that alt bucket.
+      // - Opaque discriminators and general bindings force structural replay.
+      // - Everything else is fully handled by primary dispatch alone.
+      static constexpr case_residual_kind residual_kind =
+          is_guarded
+              ? case_residual_kind::guard
+              : ((discriminator_kind == case_discriminator_kind::variant_alt
+                  && !is_simple_variant_dispatch_case<case_t, Subject>::value)
+                     || discriminator_kind == case_discriminator_kind::opaque
+                     || binding_kind == case_binding_kind::general
+                     ? case_residual_kind::structural
+                     : case_residual_kind::none);
+
+      // These flags answer a narrower question than `discriminator_kind`:
+      // they say whether the whole case satisfies one concrete plan family.
+      static constexpr bool supports_simple_literal_dispatch =
+          is_simple_literal_dispatch_case<case_t, Subject>::value;
+      static constexpr bool supports_static_literal_dispatch =
+          is_static_literal_dispatch_case<case_t, Subject>::value;
+      static constexpr bool supports_variant_direct_dispatch =
+          is_simple_variant_dispatch_case<case_t, Subject>::value;
+    };
+
     // Lowered dispatch is enabled only when every case qualifies.
     template <typename Subject, typename CasesTuple>
     struct is_simple_variant_dispatch_cases_tuple : std::false_type {};
@@ -782,9 +909,11 @@ namespace ptn::core::common {
       using case_t    = std::tuple_element_t<I, tuple_t>;
       using pattern_t = traits::case_pattern_t<case_t>;
 
+      // Every case in the sequence must satisfy the static-literal case rules.
       static constexpr bool current_case_ok =
           is_static_literal_dispatch_case<case_t, Subject>::value;
 
+      // A wildcard is accepted only as the final default case.
       static constexpr bool value =
           current_case_ok
           && (is_wildcard_pattern_v<pattern_t>
@@ -826,6 +955,8 @@ namespace ptn::core::common {
       using case_t    = std::tuple_element_t<I, tuple_t>;
       using pattern_t = traits::case_pattern_t<case_t>;
 
+      // Counts only actual static-literal cases. Wildcards contribute to the
+      // default slot, but not to the dense literal table density.
       static constexpr std::size_t value =
           (is_static_literal_pattern_v<pattern_t> ? std::size_t{1}
                                                   : std::size_t{0})
@@ -839,6 +970,7 @@ namespace ptn::core::common {
     template <typename Key>
     constexpr std::size_t static_literal_range_width(Key min_value,
                                                      Key max_value) {
+      // Computes the closed interval width `[min_value, max_value]`.
       if constexpr (std::is_signed_v<Key>) {
         return static_cast<std::size_t>(
                    static_cast<std::intmax_t>(max_value)
@@ -886,6 +1018,7 @@ namespace ptn::core::common {
                                                 I + 1,
                                                 N>;
 
+      // Folds the current static literal into the tail min/max summary.
       static constexpr key_t current_value =
           static_literal_case_value<pattern_t, Subject>::value;
       static constexpr bool has_any = true;
@@ -916,6 +1049,7 @@ namespace ptn::core::common {
                                                 N>;
       using key_t = typename tail_t::key_t;
 
+      // Non-literal cases do not affect the dense-table key range.
       static constexpr bool has_any = tail_t::has_any;
       static constexpr key_t min    = tail_t::min;
       static constexpr key_t max    = tail_t::max;
@@ -962,8 +1096,10 @@ namespace ptn::core::common {
       using tuple_t = std::remove_reference_t<CasesTuple>;
       using key_t   = literal_subject_key_t<SubjectValue>;
 
+      // `case_count` includes the trailing wildcard default if present.
       static constexpr std::size_t case_count =
           std::tuple_size_v<tuple_t>;
+      // `literal_case_count` counts only keyed literal entries.
       static constexpr std::size_t literal_case_count =
           static_literal_case_count<Subject, CasesTuple>::value;
       using case_index_t = variant_case_index_t<case_count>;
@@ -971,6 +1107,7 @@ namespace ptn::core::common {
       using value_range_t =
           static_literal_value_range<Subject, CasesTuple>;
 
+      // These values describe the dense candidate key span.
       static constexpr bool has_literal_cases = value_range_t::has_any;
       static constexpr key_t min_value        = value_range_t::min;
       static constexpr key_t max_value        = value_range_t::max;
@@ -982,6 +1119,8 @@ namespace ptn::core::common {
       static constexpr case_index_t k_invalid_case_index =
           std::numeric_limits<case_index_t>::max();
 
+      // The final wildcard, when present, is reused as the dense dispatch
+      // default slot.
       static constexpr bool has_default_case =
           tuple_last_case_is_wildcard<tuple_t, case_count>::value;
 
@@ -989,6 +1128,8 @@ namespace ptn::core::common {
           has_default_case ? static_cast<case_index_t>(case_count - 1)
                            : k_invalid_case_index;
 
+      // Dense dispatch is worthwhile only when the key span stays small enough
+      // and dense enough relative to the number of literal cases.
       static constexpr bool use_dense_table =
           has_literal_cases
           && literal_case_count > 0
@@ -1008,14 +1149,18 @@ namespace ptn::core::common {
               static_literal_dispatch_metadata<Subject, CasesTuple>::
                   use_dense_table> {};
 
-    // Semantic lowering grade selected by the planner.
+    // Summarizes the three lowering rules discussed for the engine.
+    // `full` means direct keyed dispatch is legal, `bucketed` means keyed
+    // dispatch may narrow the search before replay, and `none` means the
+    // planner must fall back to sequential evaluation.
     enum class lowering_legality {
       none,
       bucketed,
       full
     };
 
-    // Concrete dispatch shape executed by the evaluator.
+    // Names the concrete runtime shape selected after legality analysis.
+    // Multiple plan kinds may share the same legality grade.
     enum class dispatch_plan_kind {
       sequential,
       literal_linear,
@@ -1024,37 +1169,101 @@ namespace ptn::core::common {
       variant_alt_bucketed
     };
 
-    // Analysis phase for case-sequence lowering.
-    // This stays purely declarative so future planners can reuse the same
-    // legality checks without depending on evaluator internals.
     template <typename Subject, typename CasesTuple>
-    struct lowering_analysis {
-      using subject_t = std::remove_cv_t<std::remove_reference_t<Subject>>;
+    struct case_sequence_ir;
 
+    template <typename Subject, typename... Cases>
+    struct case_sequence_ir<Subject, std::tuple<Cases...>> {
+      using subject_t  = std::remove_cv_t<std::remove_reference_t<Subject>>;
+      // Retains per-case IR so future planners can inspect the whole sequence
+      // without re-running case-level trait analysis.
+      using analyses_t = std::tuple<case_analysis<Cases, Subject>...>;
+
+      static constexpr std::size_t case_count = sizeof...(Cases);
+
+      // `true` if any case still needs work after primary-key routing.
+      static constexpr bool has_residual_cases =
+          ((case_analysis<Cases, Subject>::residual_kind
+            != case_residual_kind::none)
+           || ... || false);
+
+      // `true` if any case binds in a way that blocks the most aggressive
+      // lowering shapes.
+      static constexpr bool has_binding_constraints =
+          ((case_analysis<Cases, Subject>::binding_kind
+            != case_binding_kind::none)
+           || ... || false);
+
+      // `true` if at least one case exposes no planner-visible discriminator.
+      static constexpr bool has_opaque_discriminator =
+          ((case_analysis<Cases, Subject>::discriminator_kind
+            == case_discriminator_kind::opaque)
+           || ... || false);
+
+      // Rule 1: every case participates in dense static-literal dispatch.
+      // This is stronger than "all cases are static literals": the resulting
+      // literal span must also satisfy the dense-table heuristics.
       static constexpr bool can_use_static_literal_dispatch =
           (std::is_integral_v<subject_t> || std::is_enum_v<subject_t>)
           && is_static_literal_dense_dispatch_enabled<
               subject_t,
-              CasesTuple,
-              is_static_literal_dispatch_cases_tuple_v<subject_t,
-                                                       CasesTuple>>::value;
+              std::tuple<Cases...>,
+              (case_analysis<Cases, Subject>::supports_static_literal_dispatch
+               && ...)>::value;
 
+      // Rule 1: every case participates in direct runtime literal dispatch.
+      // This is the older linear literal lowering. It stays available when
+      // dense static-literal dispatch is not legal or not profitable.
       static constexpr bool can_use_simple_literal_dispatch =
           (std::is_integral_v<subject_t> || std::is_enum_v<subject_t>)
-          && is_simple_literal_dispatch_cases_tuple_v<subject_t, CasesTuple>;
+          && (case_analysis<Cases, Subject>::supports_simple_literal_dispatch
+              && ...);
 
+      // Rule 1: every case can dispatch directly from the active variant alt.
+      // No residual replay is needed once the active alt is known.
       static constexpr bool can_use_simple_variant_dispatch =
           is_variant_subject_v<subject_t>
-          && is_simple_variant_dispatch_cases_tuple_v<subject_t, CasesTuple>;
+          && (case_analysis<Cases, Subject>::supports_variant_direct_dispatch
+              && ...);
 
+      // Rule 2: the variant alt is still a usable primary key even if some
+      // cases need residual replay within the selected bucket.
+      // Today this is the only bucketed lowering family. The planner will
+      // still reject non-variant subjects here.
       static constexpr bool can_use_variant_alt_dispatch =
           is_variant_subject_v<subject_t>;
 
+      // Collapses the aggregate IR back to the three lowering rules.
+      // Precedence matters:
+      // - `full` wins whenever a direct literal or direct variant plan exists.
+      // - Otherwise a variant subject may still use `bucketed`.
+      // - Everything else falls back to sequential evaluation.
       static constexpr lowering_legality legality =
-          can_use_static_literal_dispatch || can_use_simple_variant_dispatch
+          can_use_static_literal_dispatch || can_use_simple_literal_dispatch
+                  || can_use_simple_variant_dispatch
               ? lowering_legality::full
               : (can_use_variant_alt_dispatch ? lowering_legality::bucketed
                                               : lowering_legality::none);
+    };
+
+    // Wraps the sequence IR in the planner-facing analysis API.
+    // This stays declarative so future planners can reuse the same legality
+    // checks without depending on evaluator internals.
+    template <typename Subject, typename CasesTuple>
+    struct lowering_analysis {
+      using ir_t = case_sequence_ir<Subject,
+                                    std::remove_reference_t<CasesTuple>>;
+
+      // Re-exports the sequence IR in the shape expected by plan selection.
+      static constexpr bool can_use_static_literal_dispatch =
+          ir_t::can_use_static_literal_dispatch;
+      static constexpr bool can_use_simple_literal_dispatch =
+          ir_t::can_use_simple_literal_dispatch;
+      static constexpr bool can_use_simple_variant_dispatch =
+          ir_t::can_use_simple_variant_dispatch;
+      static constexpr bool can_use_variant_alt_dispatch =
+          ir_t::can_use_variant_alt_dispatch;
+      static constexpr lowering_legality legality = ir_t::legality;
     };
 
     template <typename Subject, typename CasesTuple>
@@ -1064,6 +1273,7 @@ namespace ptn::core::common {
 
       static constexpr dispatch_plan_kind kind =
           dispatch_plan_kind::sequential;
+      // Rule 3: no keyed lowering is legal, so evaluator replays all cases.
       static constexpr lowering_legality legality =
           lowering_legality::none;
     };
@@ -1075,6 +1285,7 @@ namespace ptn::core::common {
 
       static constexpr dispatch_plan_kind kind =
           dispatch_plan_kind::literal_linear;
+      // Rule 1: each case is already a direct literal dispatch case.
       static constexpr lowering_legality legality =
           lowering_legality::full;
     };
@@ -1096,6 +1307,7 @@ namespace ptn::core::common {
       static constexpr lowering_legality legality =
           lowering_legality::full;
 
+      // Re-exports the dense-table metadata the evaluator needs at runtime.
       static constexpr std::size_t case_count =
           metadata_t::case_count;
       static constexpr std::size_t literal_case_count =
@@ -1132,13 +1344,17 @@ namespace ptn::core::common {
       static constexpr lowering_legality legality =
           lowering_legality::full;
 
+      // All variant alternatives stay addressable in the simple plan.
       static constexpr std::size_t alt_count      = AltCount;
       static constexpr std::size_t case_count     = metadata_t::case_count;
       static constexpr std::size_t used_alt_count = AltCount;
       static constexpr variant_dispatch_tier tier =
           variant_dispatch_tier_for_alt_count<AltCount>();
+      // Maps each alternative directly to the terminal case chosen for it.
       static constexpr auto case_index_table =
           metadata_t::case_index_table;
+      // The simple plan keeps every alternative, so the compact map is the
+      // identity function.
       static constexpr auto compact_alt_index_map =
           make_identity_variant_compact_alt_index_map<compact_index_t,
                                                       AltCount>(
@@ -1150,8 +1366,10 @@ namespace ptn::core::common {
       struct case_entry {
         static_assert(AltIndex < AltCount, "variant alt index out of range");
 
+        // `case_index` names the terminal case that handles this alternative.
         static constexpr case_index_t case_index =
             case_index_table[AltIndex];
+        // `false` means this alternative falls through to `otherwise`.
         static constexpr bool has_any = case_index < case_count;
       };
     };
@@ -1175,13 +1393,18 @@ namespace ptn::core::common {
       static constexpr lowering_legality legality =
           lowering_legality::bucketed;
 
+      // Only alternatives with a non-empty residual slice stay in the compact
+      // cold-path table.
       static constexpr std::size_t alt_count      = AltCount;
       static constexpr std::size_t case_count     = metadata_t::case_count;
       static constexpr std::size_t used_alt_count = metadata_t::used_alt_count;
       static constexpr variant_dispatch_tier tier =
           variant_dispatch_tier_for_alt_count<AltCount>();
+      // The evaluator uses this map only on the cold path.
       static constexpr auto compact_alt_index_map =
           metadata_t::compact_alt_index_map;
+      // This table is the real payload of bucketed lowering: each alternative
+      // maps to the `[begin, end)` slice that must be replayed.
       static constexpr auto case_bucket_table =
           metadata_t::case_bucket_table;
       static constexpr compact_index_t k_invalid_compact_index =
@@ -1192,6 +1415,7 @@ namespace ptn::core::common {
         static_assert(AltIndex < AltCount, "variant alt index out of range");
 
         // Type-level view for a single precomputed residual case bucket.
+        // The evaluator replays exactly this half-open interval on a hit.
         static constexpr std::size_t begin =
             case_bucket_table[AltIndex].begin;
         static constexpr std::size_t end =
