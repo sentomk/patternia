@@ -53,6 +53,105 @@ TEST(LiteralPattern, LitVSelectsSparseDenseCases) {
   EXPECT_EQ(ptn::match(other) | cases, 0);
 }
 
+TEST(LiteralPattern, LitVInlineOnSelectsDenseCases) {
+  int one   = 1;
+  int ten   = 10;
+  int other = 7;
+
+  int one_result = ptn::match(one)
+                   | on{
+                       ptn::lit_v<1>() >> 1,
+                       ptn::lit_v<2>() >> 2,
+                       ptn::lit_v<10>() >> 10,
+                       __ >> 0,
+                   };
+  int ten_result = ptn::match(ten)
+                   | on{
+                       ptn::lit_v<1>() >> 1,
+                       ptn::lit_v<2>() >> 2,
+                       ptn::lit_v<10>() >> 10,
+                       __ >> 0,
+                   };
+  int other_result = ptn::match(other)
+                     | on{
+                         ptn::lit_v<1>() >> 1,
+                         ptn::lit_v<2>() >> 2,
+                         ptn::lit_v<10>() >> 10,
+                         __ >> 0,
+                     };
+
+  EXPECT_EQ(one_result, 1);
+  EXPECT_EQ(ten_result, 10);
+  EXPECT_EQ(other_result, 0);
+}
+
+TEST(LiteralPattern, LitVStaticOnFactorySelectsDenseCases) {
+  int one   = 1;
+  int ten   = 10;
+  int other = 7;
+
+  int one_result = ptn::match(one)
+                   | ptn::static_on([] {
+                       return on{
+                           ptn::lit_v<1>() >> 1,
+                           ptn::lit_v<2>() >> 2,
+                           ptn::lit_v<10>() >> 10,
+                           __ >> 0,
+                       };
+                     });
+  int ten_result = ptn::match(ten)
+                   | ptn::static_on([] {
+                       return on{
+                           ptn::lit_v<1>() >> 1,
+                           ptn::lit_v<2>() >> 2,
+                           ptn::lit_v<10>() >> 10,
+                           __ >> 0,
+                       };
+                     });
+  int other_result = ptn::match(other)
+                     | ptn::static_on([] {
+                         return on{
+                             ptn::lit_v<1>() >> 1,
+                             ptn::lit_v<2>() >> 2,
+                             ptn::lit_v<10>() >> 10,
+                             __ >> 0,
+                         };
+                       });
+
+  EXPECT_EQ(one_result, 1);
+  EXPECT_EQ(ten_result, 10);
+  EXPECT_EQ(other_result, 0);
+}
+
+TEST(LiteralPattern, LitVPtnOnMacroSelectsDenseCases) {
+  int one   = 1;
+  int ten   = 10;
+  int other = 7;
+
+  int one_result = ptn::match(one)
+                   | PTN_ON(
+                       ptn::lit_v<1>() >> 1,
+                       ptn::lit_v<2>() >> 2,
+                       ptn::lit_v<10>() >> 10,
+                       __ >> 0);
+  int ten_result = ptn::match(ten)
+                   | PTN_ON(
+                       ptn::lit_v<1>() >> 1,
+                       ptn::lit_v<2>() >> 2,
+                       ptn::lit_v<10>() >> 10,
+                       __ >> 0);
+  int other_result = ptn::match(other)
+                     | PTN_ON(
+                         ptn::lit_v<1>() >> 1,
+                         ptn::lit_v<2>() >> 2,
+                         ptn::lit_v<10>() >> 10,
+                         __ >> 0);
+
+  EXPECT_EQ(one_result, 1);
+  EXPECT_EQ(ten_result, 10);
+  EXPECT_EQ(other_result, 0);
+}
+
 TEST(LiteralPattern, LitCiMatchesAsciiCaseInsensitive) {
   std::string s = "HeLLo";
   int result    = ptn::match(s).when(ptn::lit_ci("hello") >> 1).otherwise(0);

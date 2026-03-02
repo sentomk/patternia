@@ -12,6 +12,9 @@
 
 namespace ptn::core::dsl::detail {
 
+  template <typename... Cases>
+  struct on;
+
   // Internal representation of a pattern-handler pair (case).
   //
   // This struct is created implicitly when using the >> operator:
@@ -28,8 +31,13 @@ namespace ptn::core::dsl::detail {
     using pattern_type = Pattern;
     using handler_type = Handler;
 
+#if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
+    [[no_unique_address]] Pattern pattern; // The pattern to match against.
+    [[no_unique_address]] Handler handler; // The handler to execute if matched.
+#else
     Pattern pattern; // The pattern to match against.
-    Handler handler; // The handler to execute if the pattern matches.
+    Handler handler; // The handler to execute if matched.
+#endif
   };
 
   template <typename T>
@@ -42,6 +50,27 @@ namespace ptn::core::dsl::detail {
     }
   };
 
+  template <typename Handler>
+  struct is_value_handler : std::false_type {};
+
+  template <typename T>
+  struct is_value_handler<value_handler<T>> : std::true_type {};
+
+  template <typename Handler>
+  inline constexpr bool
+      is_value_handler_v = is_value_handler<std::remove_cv_t<
+          std::remove_reference_t<Handler>>>::value;
+
+  template <typename T>
+  struct is_on : std::false_type {};
+
+  template <typename... Cases>
+  struct is_on<on<Cases...>> : std::true_type {};
+
+  template <typename T>
+  inline constexpr bool
+      is_on_v = is_on<std::remove_cv_t<std::remove_reference_t<T>>>::value;
+
   // Compact case pack used by `match(x) | on{ ... }`.
   template <typename... Cases>
   struct on {
@@ -49,12 +78,14 @@ namespace ptn::core::dsl::detail {
 
     tuple_type cases;
 
-    constexpr explicit on(Cases... exprs)
-        : cases(std::forward<Cases>(exprs)...) {
+    template <typename... Exprs,
+              typename = std::enable_if_t<sizeof...(Exprs) == sizeof...(Cases)>>
+    constexpr explicit on(Exprs &&...exprs)
+        : cases(std::forward<Exprs>(exprs)...) {
     }
   };
 
   template <typename... Cases>
-  on(Cases...) -> on<std::decay_t<Cases>...>;
+  on(Cases &&...) -> on<std::decay_t<Cases>...>;
 
 } // namespace ptn::core::dsl::detail
