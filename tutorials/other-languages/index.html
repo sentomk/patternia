@@ -1167,7 +1167,7 @@
 <span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
 </code></pre></div>
 <p>This separation is not accidental. In a library-based system, allowing arbitrary predicates everywhere would quickly blur the distinction between pattern matching and ad-hoc filtering. By requiring <code>bind()</code> before a guard can exist, Patternia enforces a clear rule: guards refine bound data; they do not replace matching itself.</p>
-<p>For readers familiar with other languages, it is useful to think of this as making the “guarded arm” concept structurally explicit rather than syntactically implicit.</p>
+<p>For readers familiar with other languages, it is useful to think of this as making the "guarded arm" concept structurally explicit rather than syntactically implicit.</p>
 <hr />
 <h2 id="binding-as-a-visible-contract">Binding as a Visible Contract<a class="headerlink" href="#binding-as-a-visible-contract" title="Permanent link">&para;</a></h2>
 <p>One of the most striking differences for experienced users is how binding works. In many pattern-matching languages, variables introduced in patterns appear implicitly:</p>
@@ -1205,7 +1205,7 @@
 <h2 id="exhaustiveness-and-fallbacks">Exhaustiveness and Fallbacks<a class="headerlink" href="#exhaustiveness-and-fallbacks" title="Permanent link">&para;</a></h2>
 <p>Many pattern-matching languages emphasize exhaustiveness, often enforced by the compiler. While a library cannot replicate this fully, Patternia still encourages explicit design choices around fallbacks.</p>
 <p>A wildcard pattern represents an intentional catch-all case, participating in ordering like any other case. A match-level fallback represents the absence of a match entirely. This distinction mirrors the conceptual difference, in other languages, between an explicit wildcard arm and an implicit runtime failure due to a non-exhaustive match.</p>
-<p>The important point for experienced readers is that fallback behavior is never implicit. If something happens “by default,” it is written as a case or as an explicit fallback.</p>
+<p>The important point for experienced readers is that fallback behavior is never implicit. If something happens "by default," it is written as a case or as an explicit fallback.</p>
 <hr />
 <h2 id="translating-ideas-not-syntax">Translating Ideas, Not Syntax<a class="headerlink" href="#translating-ideas-not-syntax" title="Permanent link">&para;</a></h2>
 <p>Patternia is not an attempt to recreate Rust, Scala, or Haskell syntax inside C++. It is an attempt to translate the <em>ideas</em> behind pattern matching into a form that remains idiomatic, predictable, and maintainable in a library setting.</p>

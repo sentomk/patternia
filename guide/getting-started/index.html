@@ -1307,7 +1307,7 @@ Once installed or fetched into your project, you can start using pattern matchin
 <p><strong>Notes:</strong></p>
 <ul>
 <li><code>GIT_TAG main</code> tracks the latest development version</li>
-<li>Patternia is header-only — no targets need to be linked</li>
+<li>Patternia is header-only - no targets need to be linked</li>
 <li>Requires <strong>C++17 or later</strong></li>
 </ul>
 <h3 id="by-vcpkg">By vcpkg<a class="headerlink" href="#by-vcpkg" title="Permanent link">&para;</a></h3>
@@ -1502,7 +1502,7 @@ value, use <code>as&lt;T&gt;()</code>, which is explicit binding sugar for <code
 </ul>
 <h2 id="10-when-to-use-pattern-fallback-vs-match-fallback">10. When to Use Pattern Fallback vs Match Fallback<a class="headerlink" href="#10-when-to-use-pattern-fallback-vs-match-fallback" title="Permanent link">&para;</a></h2>
 <p>Choose the right fallback strategy based on your data type:</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// ✅ For exhaustive types - use __ + end()</span>
+<div class="highlight"><pre><span></span><code><span class="c1">// For exhaustive types - use __ + end()</span>
 <span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Color</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Red</span><span class="p">,</span><span class="w"> </span><span class="n">Green</span><span class="p">,</span><span class="w"> </span><span class="n">Blue</span><span class="w"> </span><span class="p">};</span>
 <span class="n">match</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Color</span><span class="o">::</span><span class="n">Red</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">})</span>
@@ -1510,12 +1510,12 @@ value, use <code>as&lt;T&gt;()</code>, which is explicit binding sugar for <code
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* handles Color::Blue */</span><span class="w"> </span><span class="p">})</span>
 <span class="w">  </span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
 
-<span class="c1">// ✅ For non-exhaustive types - use otherwise()</span>
+<span class="c1">// For non-exhaustive types - use otherwise()</span>
 <span class="n">match</span><span class="p">(</span><span class="n">variant_value</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">some_pattern</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">fallback_handler</span><span class="p">);</span>
 
-<span class="c1">// ❌ WRONG - cannot mix both</span>
+<span class="c1">// WRONG - cannot mix both</span>
 <span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">})</span>

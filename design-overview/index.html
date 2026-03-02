@@ -1127,7 +1127,7 @@
 </ul>
 <hr />
 <h2 id="3-end-vs-otherwise-two-modes">3. <code>.end()</code> vs <code>.otherwise()</code>: Two Modes<a class="headerlink" href="#3-end-vs-otherwise-two-modes" title="Permanent link">&para;</a></h2>
-<h3 id="31-end-__-finalized-matching">3.1 <code>.end()</code> — <code>__</code>-Finalized Matching<a class="headerlink" href="#31-end-__-finalized-matching" title="Permanent link">&para;</a></h3>
+<h3 id="31-end-__-finalized-matching">3.1 <code>.end()</code> - <code>__</code>-Finalized Matching<a class="headerlink" href="#31-end-__-finalized-matching" title="Permanent link">&para;</a></h3>
 <p><strong>Use Cases:</strong></p>
 <ul>
 <li>Want to use <code>__</code> as a regular case.</li>
@@ -1155,7 +1155,7 @@
 <span class="w">    </span><span class="n">_</span><span class="w">               </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Other&quot;</span><span class="p">),</span>
 <span class="p">};</span>
 </code></pre></div>
-<h3 id="32-otherwise-expression-style-matching">3.2 <code>.otherwise(...)</code> — Expression-style Matching<a class="headerlink" href="#32-otherwise-expression-style-matching" title="Permanent link">&para;</a></h3>
+<h3 id="32-otherwise-expression-style-matching">3.2 <code>.otherwise(...)</code> - Expression-style Matching<a class="headerlink" href="#32-otherwise-expression-style-matching" title="Permanent link">&para;</a></h3>
 <p><strong>Use Cases:</strong></p>
 <ul>
 <li>Need to <strong>compute a value</strong> from match:</li>
@@ -1246,7 +1246,7 @@ Patternia rejects <code>.otherwise()</code> if a wildcard case is present. Use e
 <li><code>.otherwise(...)</code> without <code>__</code> for match-level fallback.</li>
 </ul>
 <hr />
-<h2 id="6-when-to-use-end-when-to-use-otherwise">6. When to Use <code>.end()</code>, When to Use <code>.otherwise()</code>?<a class="headerlink" href="#6-when-to-use-end-when-to-use-otherwise" title="Permanent link">&para;</a></h2>
+<h2 id="6-when-to-use-end-and-otherwise">6. When to Use <code>.end()</code> and <code>.otherwise()</code><a class="headerlink" href="#6-when-to-use-end-and-otherwise" title="Permanent link">&para;</a></h2>
 <p>Use this decision table to directly guide user usage.</p>
 <h3 id="61-decision-table">6.1 Decision Table<a class="headerlink" href="#61-decision-table" title="Permanent link">&para;</a></h3>
 <table>
@@ -1363,9 +1363,9 @@ Patternia rejects <code>.otherwise()</code> if a wildcard case is present. Use e
 <li>
 <p><strong>Improved Error Messages</strong>:</p>
 </li>
-<li>Incompatible handler return types under <code>.end()</code> → Clear error.</li>
-<li>Handler return type inconsistency under <code>.otherwise()</code> → Clear type diagnostics.</li>
-<li>Wildcard + <code>.otherwise()</code> redundancy → Hint "potentially redundant patterns".</li>
+<li>Incompatible handler return types under <code>.end()</code> - clear error.</li>
+<li>Handler return type inconsistency under <code>.otherwise()</code> - clear type diagnostics.</li>
+<li>Wildcard + <code>.otherwise()</code> redundancy - hint "potentially redundant patterns".</li>
 </ol>
 <hr />
 <p>This comprehensive design ensures that Patternia provides clear, predictable, and user-friendly pattern matching semantics while maintaining type safety and performance guarantees.</p>
