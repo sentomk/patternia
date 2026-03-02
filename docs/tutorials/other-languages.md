@@ -57,7 +57,7 @@ auto label = match(x)
 
 This separation is not accidental. In a library-based system, allowing arbitrary predicates everywhere would quickly blur the distinction between pattern matching and ad-hoc filtering. By requiring `bind()` before a guard can exist, Patternia enforces a clear rule: guards refine bound data; they do not replace matching itself.
 
-For readers familiar with other languages, it is useful to think of this as making the “guarded arm” concept structurally explicit rather than syntactically implicit.
+For readers familiar with other languages, it is useful to think of this as making the “guarded arm�?concept structurally explicit rather than syntactically implicit.
 
 ---
 
@@ -119,7 +119,7 @@ Many pattern-matching languages emphasize exhaustiveness, often enforced by the 
 
 A wildcard pattern represents an intentional catch-all case, participating in ordering like any other case. A match-level fallback represents the absence of a match entirely. This distinction mirrors the conceptual difference, in other languages, between an explicit wildcard arm and an implicit runtime failure due to a non-exhaustive match.
 
-The important point for experienced readers is that fallback behavior is never implicit. If something happens “by default,” it is written as a case or as an explicit fallback.
+The important point for experienced readers is that fallback behavior is never implicit. If something happens “by default,�?it is written as a case or as an explicit fallback.
 
 ---
 
@@ -130,3 +130,6 @@ Patternia is not an attempt to recreate Rust, Scala, or Haskell syntax inside C+
 If you already understand pattern matching elsewhere, learning Patternia is primarily about learning where boundaries are drawn. Simple matches stay simple. Binding is explicit. Guards refine rather than replace matching. Structure is described, not implicitly unpacked.
 
 Once those boundaries are clear, the system should feel less like a foreign abstraction and more like a familiar concept expressed with C++’s own constraints in mind.
+
+
+

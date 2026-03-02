@@ -96,7 +96,7 @@ Therefore:
 
 ## 3. `.end()` vs `.otherwise()`: Two Modes
 
-### 3.1 `.end()` â€” `__`-Finalized Matching
+### 3.1 `.end()` â€?`__`-Finalized Matching
 
 **Use Cases:**
 
@@ -131,7 +131,7 @@ match status {
 };
 ```
 
-### 3.2 `.otherwise(...)` â€” Expression-style Matching
+### 3.2 `.otherwise(...)` â€?Expression-style Matching
 
 **Use Cases:**
 
@@ -356,10 +356,13 @@ To make these semantics truly user-friendly, Patternia's future plans include:
    * Support guard/bind/nested patterns.
 
 3. **Improved Error Messages**:
-   * Incompatible handler return types under `.end()` â†’ Clear error.
-   * Handler return type inconsistency under `.otherwise()` â†’ Clear type diagnostics.
-   * Wildcard + `.otherwise()` redundancy â†’ Hint "potentially redundant patterns".
+   * Incompatible handler return types under `.end()` â†?Clear error.
+   * Handler return type inconsistency under `.otherwise()` â†?Clear type diagnostics.
+   * Wildcard + `.otherwise()` redundancy â†?Hint "potentially redundant patterns".
 
 ---
 
 This comprehensive design ensures that Patternia provides clear, predictable, and user-friendly pattern matching semantics while maintaining type safety and performance guarantees.
+
+
+

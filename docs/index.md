@@ -2,8 +2,12 @@
 
 **A modern C++ pattern matching DSL**
 
-Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic clear, expressive, and type-safe â€” without sacrificing performance or compilation efficiency.
+Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic clear, expressive, and type-safe â€?without sacrificing performance or compilation efficiency.
 
+
+Literal matching is split intentionally:
+- `lit(value)` and `lit_ci(value)` are the runtime forms for general values and strings.
+- `lit<value>()` is the compile-time form for static integral/enum literals that can feed the lowering engine.
 ---
 
 ## Navigation
@@ -35,7 +39,7 @@ Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic c
 ## System Requirements
 
 - **C++ Standard**: C++17 or later
-- **Compilers**: GCC â‰¥11, Clang â‰¥12, MSVC â‰¥2019
+- **Compilers**: GCC â‰?1, Clang â‰?2, MSVC â‰?019
 - **Platforms**: Linux, Windows, macOS
 
 ---
@@ -61,3 +65,6 @@ py -3 scripts/bench_single_report.py --input build/variant_all.json --include "V
 <b>Make logical structure explicit, make C++ code more elegant</b>
 
 </div>
+
+
+

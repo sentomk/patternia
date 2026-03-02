@@ -314,3 +314,4 @@ TEST(MatchFlow, PipeOnVariantGuardedThenSameAltPlainDifferentAltUnaffected) {
 
   EXPECT_EQ(result, 2);
 }
+
