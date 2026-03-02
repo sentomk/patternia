@@ -232,7 +232,7 @@ namespace ptn::core::common {
         || is_simple_variant_type_alt_pattern_v<Pattern>
         || is_wildcard_pattern_v<Pattern>;
 
-    // Matches `lit(...)` patterns with default equality comparator.
+    // Matches runtime literal_pattern with default equality comparator.
     template <typename Pattern>
     struct is_simple_literal_pattern : std::false_type {};
 
@@ -1204,12 +1204,13 @@ namespace ptn::core::common {
       // This is stronger than "all cases are static literals": the resulting
       // literal span must also satisfy the dense-table heuristics.
       static constexpr bool can_use_static_literal_dispatch =
-          (std::is_integral_v<subject_t> || std::is_enum_v<subject_t>)
-          && is_static_literal_dense_dispatch_enabled<
+          is_static_literal_dense_dispatch_enabled<
               subject_t,
               std::tuple<Cases...>,
-              (case_analysis<Cases, Subject>::supports_static_literal_dispatch
-               && ...)>::value;
+              ((std::is_integral_v<subject_t> || std::is_enum_v<subject_t>)
+               && (case_analysis<Cases, Subject>::
+                       supports_static_literal_dispatch
+                   && ...))>::value;
 
       // Rule 1: every case participates in direct runtime literal dispatch.
       // This is the older linear literal lowering. It stays available when

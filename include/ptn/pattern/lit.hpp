@@ -1,7 +1,7 @@
 #pragma once
 
 // Public API and implementation for literal value patterns (`lit()`,
-// `lit_v()`, and `lit_ci()`).
+// `lit<>()`, and `lit_ci()`).
 //
 // This file provides factory functions to create patterns that match against
 // specific literal values. It includes both public API and internal
@@ -12,8 +12,8 @@
 #include <type_traits>
 #include <utility>
 
-#include "ptn/pattern/base/fwd.h"
 #include "ptn/core/common/diagnostics.hpp"
+#include "ptn/pattern/base/fwd.h"
 
 namespace ptn::pat {
 
@@ -21,13 +21,7 @@ namespace ptn::pat {
 
   namespace detail {
 
-    // Selects internal storage type for value-like patterns.
-    //
-    // C-style strings and string literals are stored as `std::string_view`.
-    // All other types use `std::decay_t<V>`.
-    //
-    // Template parameter:
-    //   V: Input value type.
+    // Selects internal storage type for value-like runtime patterns.
     template <typename V>
     using literal_store_t = std::conditional_t<
         std::is_array_v<std::remove_reference_t<V>> ||
@@ -35,30 +29,35 @@ namespace ptn::pat {
         std::string_view,
         std::decay_t<V>>;
 
+    template <auto V>
+    struct static_literal_value_traits {
+      using store_t = std::decay_t<decltype(V)>;
+
+      inline static constexpr store_t value = V;
+    };
+
     // Case-insensitive ASCII comparator for string-like values.
     //
-    // Performs ASCII-only case folding (`A-Z` → `a-z`) and compares characters
-    // one-by-one.
-    //
+    // Performs ASCII-only case folding (`A-Z` -> `a-z`) and compares
+    // characters one-by-one.
     struct iequal_ascii {
-      // ASCII-only lowercase conversion.
       static constexpr char tolower_ascii(char c) {
         return (c >= 'A' && c <= 'Z') ? char(c - 'A' + 'a') : c;
       }
 
-      // Case-insensitive comparison of two string_view values.
       constexpr bool
       operator()(std::string_view a, std::string_view b) const noexcept {
-        if (a.size() != b.size())
+        if (a.size() != b.size()) {
           return false;
-        for (size_t i = 0; i < a.size(); ++i) {
-          if (tolower_ascii(a[i]) != tolower_ascii(b[i]))
+        }
+        for (std::size_t i = 0; i < a.size(); ++i) {
+          if (tolower_ascii(a[i]) != tolower_ascii(b[i])) {
             return false;
+          }
         }
         return true;
       }
 
-      // Transparent heterogeneous case-insensitive comparison (C++17).
       template <
           typename A,
           typename B,
@@ -75,7 +74,6 @@ namespace ptn::pat {
     struct literal_pattern : base::pattern_base<literal_pattern<V, Cmp>> {
       using store_t = detail::literal_store_t<V>;
 
-      // Stored value for matching.
       store_t v;
 
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
@@ -84,20 +82,15 @@ namespace ptn::pat {
       Cmp cmp{};
 #endif
 
-      // Constructs a literal_pattern with a stored value and comparator.
       constexpr literal_pattern(store_t val, Cmp c = {})
           : v(std::move(val)), cmp(std::move(c)) {
       }
 
-      // Performs the actual comparison.
       template <typename X>
       constexpr bool match(X const &x) const noexcept(noexcept(cmp(x, v))) {
         return cmp(x, v);
       }
 
-      // Binding result for literal patterns.
-      //
-      // Literal patterns do not bind any values, returning an empty tuple.
       template <typename X>
       constexpr auto bind(const X & /*subj*/) const {
         return std::tuple<>{};
@@ -108,9 +101,10 @@ namespace ptn::pat {
     template <auto V, typename Cmp = std::equal_to<>>
     struct static_literal_pattern
         : base::pattern_base<static_literal_pattern<V, Cmp>> {
-      using store_t = std::decay_t<decltype(V)>;
+      using value_traits = static_literal_value_traits<V>;
+      using store_t      = typename value_traits::store_t;
 
-      inline static constexpr store_t value = V;
+      inline static constexpr store_t value = value_traits::value;
 
 #if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
       [[no_unique_address]] Cmp cmp{};
@@ -138,7 +132,6 @@ namespace ptn::pat {
 
   // --- Public API ---
 
-  // Factory for literal_pattern.
   template <typename V>
   constexpr auto lit(V &&v) {
     using store_t = detail::literal_store_t<V>;
@@ -147,19 +140,20 @@ namespace ptn::pat {
     return detail::literal_pattern<store_t>(store_t(std::forward<V>(v)));
   }
 
-  // Factory for compile-time literal_pattern.
   template <auto V>
-  constexpr auto lit_v() {
-    using store_t = std::decay_t<decltype(V)>;
+  constexpr auto lit() {
+    using store_t =
+        typename detail::static_literal_value_traits<V>::store_t;
     ptn::core::common::static_assert_literal_store_type<store_t>();
 
     return detail::static_literal_pattern<V>{};
   }
 
-  // Case-insensitive value-pattern factory.
   template <typename V>
   constexpr auto lit_ci(V &&v) {
     using store_t = detail::literal_store_t<V>;
+    ptn::core::common::static_assert_literal_store_type<store_t>();
+
     return detail::literal_pattern<store_t, detail::iequal_ascii>(
         store_t(std::forward<V>(v)), detail::iequal_ascii{});
   }
@@ -170,12 +164,6 @@ namespace ptn::pat {
 
 namespace ptn::pat::base {
 
-  // Specialization of the binding contract for
-  // `detail::literal_pattern`.
-  //
-  // This specialization declares that a literal_pattern binds no arguments,
-  // which corresponds to an empty `std::tuple<>`. This declaration must be
-  // consistent with the return type of `detail::literal_pattern::bind()`.
   template <typename V, typename Cmp, typename Subject>
   struct binding_args<ptn::pat::detail::literal_pattern<V, Cmp>, Subject> {
     using type = std::tuple<>;

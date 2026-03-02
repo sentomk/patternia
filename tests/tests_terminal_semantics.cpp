@@ -44,3 +44,4 @@ TEST(TerminalSemantics, FirstMatchingCaseWins) {
 
   EXPECT_EQ(result, 1);
 }
+

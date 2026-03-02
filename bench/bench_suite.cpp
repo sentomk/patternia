@@ -831,27 +831,27 @@ namespace {
     }
   }
 
-#define PTN_LIT_V_CASE_128(n) ptn::lit_v<n>() >> (n)
+#define PTN_LIT_CASE_128(n) ptn::lit<n>() >> (n)
 #define PTN_SWITCH_CASE_128(n)                                      \
   case (n):                                                         \
     return (n)
 
-#define PTN_LIT_V_BLOCK_16(base)                                    \
-  PTN_LIT_V_CASE_128((base) + 0), PTN_LIT_V_CASE_128((base) + 1),   \
-      PTN_LIT_V_CASE_128((base) + 2),                               \
-      PTN_LIT_V_CASE_128((base) + 3),                               \
-      PTN_LIT_V_CASE_128((base) + 4),                               \
-      PTN_LIT_V_CASE_128((base) + 5),                               \
-      PTN_LIT_V_CASE_128((base) + 6),                               \
-      PTN_LIT_V_CASE_128((base) + 7),                               \
-      PTN_LIT_V_CASE_128((base) + 8),                               \
-      PTN_LIT_V_CASE_128((base) + 9),                               \
-      PTN_LIT_V_CASE_128((base) + 10),                              \
-      PTN_LIT_V_CASE_128((base) + 11),                              \
-      PTN_LIT_V_CASE_128((base) + 12),                              \
-      PTN_LIT_V_CASE_128((base) + 13),                              \
-      PTN_LIT_V_CASE_128((base) + 14),                              \
-      PTN_LIT_V_CASE_128((base) + 15)
+#define PTN_LIT_BLOCK_16(base)                                    \
+  PTN_LIT_CASE_128((base) + 0), PTN_LIT_CASE_128((base) + 1),   \
+      PTN_LIT_CASE_128((base) + 2),                               \
+      PTN_LIT_CASE_128((base) + 3),                               \
+      PTN_LIT_CASE_128((base) + 4),                               \
+      PTN_LIT_CASE_128((base) + 5),                               \
+      PTN_LIT_CASE_128((base) + 6),                               \
+      PTN_LIT_CASE_128((base) + 7),                               \
+      PTN_LIT_CASE_128((base) + 8),                               \
+      PTN_LIT_CASE_128((base) + 9),                               \
+      PTN_LIT_CASE_128((base) + 10),                              \
+      PTN_LIT_CASE_128((base) + 11),                              \
+      PTN_LIT_CASE_128((base) + 12),                              \
+      PTN_LIT_CASE_128((base) + 13),                              \
+      PTN_LIT_CASE_128((base) + 14),                              \
+      PTN_LIT_CASE_128((base) + 15)
 
 #define PTN_SWITCH_BLOCK_16(base)                                   \
   PTN_SWITCH_CASE_128((base) + 0);                                  \
@@ -875,14 +875,14 @@ namespace {
     using namespace ptn;
 
     static auto cases = on{
-        PTN_LIT_V_BLOCK_16(1),
-        PTN_LIT_V_BLOCK_16(17),
-        PTN_LIT_V_BLOCK_16(33),
-        PTN_LIT_V_BLOCK_16(49),
-        PTN_LIT_V_BLOCK_16(65),
-        PTN_LIT_V_BLOCK_16(81),
-        PTN_LIT_V_BLOCK_16(97),
-        PTN_LIT_V_BLOCK_16(113),
+        PTN_LIT_BLOCK_16(1),
+        PTN_LIT_BLOCK_16(17),
+        PTN_LIT_BLOCK_16(33),
+        PTN_LIT_BLOCK_16(49),
+        PTN_LIT_BLOCK_16(65),
+        PTN_LIT_BLOCK_16(81),
+        PTN_LIT_BLOCK_16(97),
+        PTN_LIT_BLOCK_16(113),
         __ >> 0,
     };
 
@@ -895,14 +895,14 @@ namespace {
 
     return match(x)
            | on{
-               PTN_LIT_V_BLOCK_16(1),
-               PTN_LIT_V_BLOCK_16(17),
-               PTN_LIT_V_BLOCK_16(33),
-               PTN_LIT_V_BLOCK_16(49),
-               PTN_LIT_V_BLOCK_16(65),
-               PTN_LIT_V_BLOCK_16(81),
-               PTN_LIT_V_BLOCK_16(97),
-               PTN_LIT_V_BLOCK_16(113),
+               PTN_LIT_BLOCK_16(1),
+               PTN_LIT_BLOCK_16(17),
+               PTN_LIT_BLOCK_16(33),
+               PTN_LIT_BLOCK_16(49),
+               PTN_LIT_BLOCK_16(65),
+               PTN_LIT_BLOCK_16(81),
+               PTN_LIT_BLOCK_16(97),
+               PTN_LIT_BLOCK_16(113),
                __ >> 0,
            };
   }
@@ -912,14 +912,14 @@ namespace {
     using namespace ptn;
 
     return match(x)
-           | PTN_ON(PTN_LIT_V_BLOCK_16(1),
-                    PTN_LIT_V_BLOCK_16(17),
-                    PTN_LIT_V_BLOCK_16(33),
-                    PTN_LIT_V_BLOCK_16(49),
-                    PTN_LIT_V_BLOCK_16(65),
-                    PTN_LIT_V_BLOCK_16(81),
-                    PTN_LIT_V_BLOCK_16(97),
-                    PTN_LIT_V_BLOCK_16(113),
+           | PTN_ON(PTN_LIT_BLOCK_16(1),
+                    PTN_LIT_BLOCK_16(17),
+                    PTN_LIT_BLOCK_16(33),
+                    PTN_LIT_BLOCK_16(49),
+                    PTN_LIT_BLOCK_16(65),
+                    PTN_LIT_BLOCK_16(81),
+                    PTN_LIT_BLOCK_16(97),
+                    PTN_LIT_BLOCK_16(113),
                     __ >> 0);
   }
 
@@ -1865,6 +1865,7 @@ PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_PacketMixedHeavyBind);
 
 #undef PTN_REGISTER_STABLE_BENCH
 #undef PTN_SWITCH_BLOCK_16
-#undef PTN_LIT_V_BLOCK_16
+#undef PTN_LIT_BLOCK_16
 #undef PTN_SWITCH_CASE_128
-#undef PTN_LIT_V_CASE_128
+#undef PTN_LIT_CASE_128
+

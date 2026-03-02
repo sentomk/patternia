@@ -2,7 +2,7 @@
 
 ## Control Flow as It Grows in Practice
 
-Control flow in C++ is usually learned as a sequence of decisions. You test a condition, you take a branch, and you continue. Over time, this approach becomes second nature: whenever a function needs to “decide,” an `if` or a `switch` appears. The problem is not that these constructs are wrong, but that they silently take on too many responsibilities as code evolves.
+Control flow in C++ is usually learned as a sequence of decisions. You test a condition, you take a branch, and you continue. Over time, this approach becomes second nature: whenever a function needs to “decide,�?an `if` or a `switch` appears. The problem is not that these constructs are wrong, but that they silently take on too many responsibilities as code evolves.
 
 A simple decision today often becomes a policy tomorrow. Conditions start to overlap. Temporary variables appear only to shuttle values between checks. Eventually, the structure of the logic is no longer visible from the code itself. Pattern matching in Patternia is designed to address this drift by changing how decisions are expressed, without requiring a different language or runtime model.
 
@@ -105,7 +105,7 @@ A wildcard pattern (`__`) is an explicit, ordered case. A match-level fallback (
 
 ## Binding and Guards as a Discipline, Not a Convenience
 
-Throughout this progression, one rule remains consistent: **binding is always explicit, and guards only exist after binding**. Whether the binding is introduced via `bind()` or via a named binding shorthand such as `as<T>()`, you never “half-bind” a value, and you never attach a guard to a case that does not declare what data it operates on. This makes the relationship between a case and its handler mechanically obvious. The handler’s parameters are not inferred from context; they are earned by binding.
+Throughout this progression, one rule remains consistent: **binding is always explicit, and guards only exist after binding**. Whether the binding is introduced via `bind()` or via a named binding shorthand such as `as<T>()`, you never “half-bind�?a value, and you never attach a guard to a case that does not declare what data it operates on. This makes the relationship between a case and its handler mechanically obvious. The handler’s parameters are not inferred from context; they are earned by binding.
 
 This discipline is what allows Patternia code to remain readable even as it grows. Each increase in expressiveness is accompanied by a visible structural change in the code.
 
@@ -115,4 +115,7 @@ This discipline is what allows Patternia code to remain readable even as it grow
 
 Seen as a whole, Patternia does not replace `if` or `switch`. It reframes them. Simple decisions stay simple through `match(x, cases())`. Rich decisions become structured through `.when(...)`, `bind()`, and guards. Instead of growing a single control-flow construct until it collapses under its own weight, you move to a different form when the problem itself changes shape.
 
-That shift—from procedural branching to declarative case description—is what “getting into pattern matching” ultimately means in Patternia. It is not about learning new syntax. It is about learning when to stop asking *“how do I check this?”* and start stating *“these are the cases that exist.”*
+That shift—from procedural branching to declarative case description—is what “getting into pattern matching�?ultimately means in Patternia. It is not about learning new syntax. It is about learning when to stop asking *“how do I check this?�? and start stating *“these are the cases that exist.�?
+
+
+

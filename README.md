@@ -28,9 +28,9 @@
 
 ## *Update*
 
-- **Release update (v0.8.0)** — removes `match(x, cases(...)).end()` and focuses public usage on `match(x) | on{...}`.
-- **Performance update (v0.8.0)** — adds tiered variant dispatch (`hot_inline` / `warm_segmented` / `cold_compact`) and large-branch cold-path separation.
-- **Variant matching support (v0.7.x+)** — includes `type::is`, `type::as`, and `type::alt`.
+- **Release update (v0.8.0)** removes `match(x, cases(...)).end()` and focuses public usage on `match(x) | on{...}`.
+- **Performance update (v0.8.0)** adds tiered variant dispatch (`hot_inline` / `warm_segmented` / `cold_compact`) and large-branch cold-path separation.
+- **Variant matching support (v0.7.x+)** includes `type::is`, `type::as`, and `type::alt`.
 
 ## *Performance Snapshot*
 
@@ -341,6 +341,14 @@ At the same time, it adheres strictly to C++’s zero-overhead principle:
 
 All matching logic is resolved through templates and inlined calls, allowing the compiler to optimize aggressively.
 
+For literal patterns, Patternia keeps two distinct entry points:
+
+* lit(value) and lit_ci(value) store a runtime value and are the default
+  choice for general matching, dynamic values, and strings.
+* lit<value>() encodes the literal in the type and is intended for
+  compile-time-known integral and enum cases where the lowering engine can
+  consider switch-like optimizations.
+
 ---
 
 ### 6. Making Data Shape a First-Class Concept
@@ -570,3 +578,10 @@ This project is governed by a [Code of Conduct](CODE_OF_CONDUCT.md).
 <div align="center">
   <sub>Built for modern C++ development</sub>
 </div>
+
+
+
+
+
+
+
