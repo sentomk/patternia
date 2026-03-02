@@ -96,7 +96,7 @@ Therefore:
 
 ## 3. `.end()` vs `.otherwise()`: Two Modes
 
-### 3.1 `.end()` â€?`__`-Finalized Matching
+### 3.1 `.end()` - `__`-Finalized Matching
 
 **Use Cases:**
 
@@ -131,7 +131,7 @@ match status {
 };
 ```
 
-### 3.2 `.otherwise(...)` â€?Expression-style Matching
+### 3.2 `.otherwise(...)` - Expression-style Matching
 
 **Use Cases:**
 
@@ -251,7 +251,7 @@ Patternia rejects `.otherwise()` if a wildcard case is present. Use either:
 
 ---
 
-## 6. When to Use `.end()`, When to Use `.otherwise()`?
+## 6. When to Use `.end()` and `.otherwise()`
 
 Use this decision table to directly guide user usage.
 
@@ -356,9 +356,9 @@ To make these semantics truly user-friendly, Patternia's future plans include:
    * Support guard/bind/nested patterns.
 
 3. **Improved Error Messages**:
-   * Incompatible handler return types under `.end()` â†?Clear error.
-   * Handler return type inconsistency under `.otherwise()` â†?Clear type diagnostics.
-   * Wildcard + `.otherwise()` redundancy â†?Hint "potentially redundant patterns".
+   * Incompatible handler return types under `.end()` - clear error.
+   * Handler return type inconsistency under `.otherwise()` - clear type diagnostics.
+   * Wildcard + `.otherwise()` redundancy - hint "potentially redundant patterns".
 
 ---
 

@@ -115,10 +115,10 @@ auto r = match(x) | on{
 
 **Handler Forms**:
 
-* **Value Handler** �?`pattern >> value`
+* **Value Handler** - `pattern >> value`
   Returns a fixed value. Semantically equivalent to a zero-argument function returning a constant.
 
-* **Function Handler** �?`pattern >> callable`
+* **Function Handler** - `pattern >> callable`
   Receives the values produced by the pattern’s bindings.
 
 ---
@@ -296,8 +296,8 @@ match(value)
 
 **Key Distinction**:
 
-* `__` �?a pattern that participates in matching and ordering
-* `.otherwise()` �?a match-level fallback executed only if no pattern matches
+* `__` - a pattern that participates in matching and ordering
+* `.otherwise()` - a match-level fallback executed only if no pattern matches
 * `__` and `.otherwise()` cannot be combined in the same match
 
 ---
@@ -457,8 +457,8 @@ bind(has<&A::x, &A::y>())     -> (x, y) // because has() is used under bind(), e
 **Design Rationale**:
 
 Patternia deliberately separates *matching* from *binding*.
-A pattern answers **“does this value match?�?*
-A binding answers **“what values become available to the handler?�?*
+A pattern answers **"does this value match?"**
+A binding answers **"what values become available to the handler?"**
 
 This separation keeps control flow declarative and data flow explicit.
 
@@ -487,9 +487,9 @@ pattern[guard]
 **Evaluation Order**:
 
 1. `pattern.match(subject)`
-2. `pattern.bind(subject)` �?produces bound values (the handler inputs)
+2. `pattern.bind(subject)` -> produces bound values (the handler inputs)
 3. evaluate `guard` (against the bound values)
-4. if guard passes �?invoke handler; otherwise try next case
+4. if guard passes -> invoke handler; otherwise try next case
 
 **Example**:
 
@@ -617,19 +617,19 @@ Using an out-of-range `arg<N>` is **ill-formed** and diagnosed at compile time (
 
 ```cpp
 bind(has<&Point::x>())[arg<1> > 0]
-// �?ill-formed: arg<1> out of range (only one bound value)
+// ill-formed: arg<1> out of range (only one bound value)
 ```
 
 ---
 
-### Custom Predicates (Recommended for “Domain Logic�?
+### Custom Predicates (Recommended for "Domain Logic")
 
-A critical constraint of Patternia’s guard DSL is that `arg<N>` is an **expression-template placeholder**, not “the real field type�?in a way that enables arbitrary member access in the DSL.
+A critical constraint of Patternia's guard DSL is that `arg<N>` is an **expression-template placeholder**, not "the real field type" in a way that enables arbitrary member access in the DSL.
 
 So this is **not supported** as a guard DSL expression:
 
 ```cpp
-bind(has<&Message::payload>())[arg<0>.size() > 0] // �?do not do this
+bind(has<&Message::payload>())[arg<0>.size() > 0] // do not do this
 ```
 
 When you need container queries, method calls, non-trivial computations, or any domain-specific logic, write a **lambda predicate** and pass it to `[]`.
@@ -781,7 +781,7 @@ Unlisted members are simply ignored.
 
 Patternia intentionally avoids positional or placeholder-based structural patterns.
 
-* There is no notion of “ignored slots�?
+* There is no notion of "ignored slots"
 * There is no dependency on member order
 * There is no implicit reflection
 
@@ -838,17 +838,17 @@ Patternia employs a layered namespace architecture:
 ```
 ptn/                                    // Root namespace
 ├── core/                              // Core matching engine
-�?  ├── engine/                        // Matching engine implementation
-�?  ├── dsl/                          // DSL operators
-�?  └── common/                       // Common utilities and traits
+│   ├── engine/                        // Matching engine implementation
+│   ├── dsl/                           // DSL operators
+│   └── common/                        // Common utilities and traits
 ├── pat/                              // Pattern definitions
-�?  ├── base/                         // Pattern base classes
-�?  ├── lit.hpp                        // Literal pattern implementation
-�?  ├── bind.hpp                       // Binding pattern implementation
-�?  ├── wildcard.hpp                   // Wildcard pattern
-�?  ├── structural.hpp                 // Structural pattern
-�?  └── modifiers/                     // Pattern modifiers
-�?      └── guard.hpp                  // Guard system
+│   ├── base/                          // Pattern base classes
+│   ├── lit.hpp                        // Literal pattern implementation
+│   ├── bind.hpp                       // Binding pattern implementation
+│   ├── wildcard.hpp                   // Wildcard pattern
+│   ├── structural.hpp                 // Structural pattern
+│   └── modifiers/                     // Pattern modifiers
+│       └── guard.hpp                  // Guard system
 └── meta/                             // Metaprogramming tools
     ├── base/                         // Base traits
     ├── dsa/                          // Data structures and algorithms
