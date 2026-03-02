@@ -1020,10 +1020,163 @@ namespace ptn::core::common {
                                               : lowering_legality::none);
     };
 
-    // Planned dispatch shape for a case sequence.
-    // Evaluators should consume this instead of re-deriving dispatch choices.
     template <typename Subject, typename CasesTuple>
-    struct dispatch_plan {
+    struct sequential_dispatch_plan {
+      using subject_t     = std::remove_cv_t<std::remove_reference_t<Subject>>;
+      using cases_tuple_t = std::remove_reference_t<CasesTuple>;
+
+      static constexpr dispatch_plan_kind kind =
+          dispatch_plan_kind::sequential;
+      static constexpr lowering_legality legality =
+          lowering_legality::none;
+    };
+
+    template <typename Subject, typename CasesTuple>
+    struct literal_linear_dispatch_plan {
+      using subject_t     = std::remove_cv_t<std::remove_reference_t<Subject>>;
+      using cases_tuple_t = std::remove_reference_t<CasesTuple>;
+
+      static constexpr dispatch_plan_kind kind =
+          dispatch_plan_kind::literal_linear;
+      static constexpr lowering_legality legality =
+          lowering_legality::full;
+    };
+
+    template <typename Subject,
+              typename CasesTuple,
+              typename SubjectValue =
+                  std::remove_cv_t<std::remove_reference_t<Subject>>>
+    struct static_literal_dense_dispatch_plan {
+      using subject_t     = SubjectValue;
+      using cases_tuple_t = std::remove_reference_t<CasesTuple>;
+      using metadata_t =
+          static_literal_dispatch_metadata<Subject, CasesTuple, SubjectValue>;
+      using key_t        = typename metadata_t::key_t;
+      using case_index_t = typename metadata_t::case_index_t;
+
+      static constexpr dispatch_plan_kind kind =
+          dispatch_plan_kind::static_literal_dense;
+      static constexpr lowering_legality legality =
+          lowering_legality::full;
+
+      static constexpr std::size_t case_count =
+          metadata_t::case_count;
+      static constexpr std::size_t literal_case_count =
+          metadata_t::literal_case_count;
+      static constexpr std::size_t range_size =
+          metadata_t::range_size;
+      static constexpr bool has_default_case =
+          metadata_t::has_default_case;
+      static constexpr key_t min_value = metadata_t::min_value;
+      static constexpr key_t max_value = metadata_t::max_value;
+      static constexpr case_index_t default_case_index =
+          metadata_t::default_case_index;
+      static constexpr case_index_t k_invalid_case_index =
+          metadata_t::k_invalid_case_index;
+    };
+
+    template <typename Subject,
+              typename CasesTuple,
+              typename SubjectValue =
+                  std::remove_cv_t<std::remove_reference_t<Subject>>,
+              std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    struct variant_simple_dispatch_plan {
+      using subject_t     = SubjectValue;
+      using cases_tuple_t = std::remove_reference_t<CasesTuple>;
+      using metadata_t = variant_simple_dispatch_metadata<Subject,
+                                                          CasesTuple,
+                                                          SubjectValue,
+                                                          AltCount>;
+      using case_index_t = typename metadata_t::case_index_t;
+
+      static constexpr dispatch_plan_kind kind =
+          dispatch_plan_kind::variant_simple;
+      static constexpr lowering_legality legality =
+          lowering_legality::full;
+
+      static constexpr std::size_t alt_count  = AltCount;
+      static constexpr std::size_t case_count = metadata_t::case_count;
+      static constexpr variant_dispatch_tier tier =
+          variant_dispatch_tier_for_alt_count<AltCount>();
+    };
+
+    template <typename Subject,
+              typename CasesTuple,
+              typename SubjectValue =
+                  std::remove_cv_t<std::remove_reference_t<Subject>>,
+              std::size_t AltCount = std::variant_size_v<SubjectValue>>
+    struct variant_alt_bucketed_dispatch_plan {
+      using subject_t     = SubjectValue;
+      using cases_tuple_t = std::remove_reference_t<CasesTuple>;
+      using metadata_t = typed_variant_dispatch_metadata<Subject,
+                                                         CasesTuple,
+                                                         SubjectValue,
+                                                         AltCount>;
+      using compact_index_t = typename metadata_t::compact_index_t;
+
+      static constexpr dispatch_plan_kind kind =
+          dispatch_plan_kind::variant_alt_bucketed;
+      static constexpr lowering_legality legality =
+          lowering_legality::bucketed;
+
+      static constexpr std::size_t alt_count      = AltCount;
+      static constexpr std::size_t case_count     = metadata_t::case_count;
+      static constexpr std::size_t used_alt_count = metadata_t::used_alt_count;
+      static constexpr variant_dispatch_tier tier =
+          variant_dispatch_tier_for_alt_count<AltCount>();
+      static constexpr compact_index_t k_invalid_compact_index =
+          metadata_t::k_invalid_compact_index;
+
+      template <std::size_t AltIndex>
+      using case_range_t =
+          variant_typed_case_range_for_alt<Subject, CasesTuple, AltIndex>;
+    };
+
+    template <typename Subject,
+              typename CasesTuple,
+              dispatch_plan_kind Kind>
+    struct dispatch_plan_for_kind;
+
+    template <typename Subject, typename CasesTuple>
+    struct dispatch_plan_for_kind<Subject,
+                                  CasesTuple,
+                                  dispatch_plan_kind::sequential> {
+      using type = sequential_dispatch_plan<Subject, CasesTuple>;
+    };
+
+    template <typename Subject, typename CasesTuple>
+    struct dispatch_plan_for_kind<Subject,
+                                  CasesTuple,
+                                  dispatch_plan_kind::literal_linear> {
+      using type = literal_linear_dispatch_plan<Subject, CasesTuple>;
+    };
+
+    template <typename Subject, typename CasesTuple>
+    struct dispatch_plan_for_kind<Subject,
+                                  CasesTuple,
+                                  dispatch_plan_kind::static_literal_dense> {
+      using type = static_literal_dense_dispatch_plan<Subject, CasesTuple>;
+    };
+
+    template <typename Subject, typename CasesTuple>
+    struct dispatch_plan_for_kind<Subject,
+                                  CasesTuple,
+                                  dispatch_plan_kind::variant_simple> {
+      using type = variant_simple_dispatch_plan<Subject, CasesTuple>;
+    };
+
+    template <typename Subject, typename CasesTuple>
+    struct dispatch_plan_for_kind<Subject,
+                                  CasesTuple,
+                                  dispatch_plan_kind::variant_alt_bucketed> {
+      using type =
+          variant_alt_bucketed_dispatch_plan<Subject, CasesTuple>;
+    };
+
+    // Planned dispatch shape for a case sequence.
+    // Evaluators consume the selected plan and its metadata.
+    template <typename Subject, typename CasesTuple>
+    struct dispatch_plan_selector {
       using analysis_t = lowering_analysis<Subject, CasesTuple>;
 
       static constexpr dispatch_plan_kind kind =
@@ -1037,9 +1190,14 @@ namespace ptn::core::common {
                                    ? dispatch_plan_kind::variant_alt_bucketed
                                    : dispatch_plan_kind::sequential)));
 
-      static constexpr lowering_legality legality =
-          analysis_t::legality;
+      using type = typename dispatch_plan_for_kind<Subject,
+                                                   CasesTuple,
+                                                   kind>::type;
     };
+
+    template <typename Subject, typename CasesTuple>
+    using dispatch_plan =
+        typename dispatch_plan_selector<Subject, CasesTuple>::type;
 
   } // namespace detail
 
