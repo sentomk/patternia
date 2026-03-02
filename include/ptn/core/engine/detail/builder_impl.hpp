@@ -45,6 +45,64 @@ namespace ptn::core::engine::detail {
     subject_type subject_; // The value being matched against patterns
     cases_type   cases_;   // Tuple of case expressions
 
+    template <typename... NewCases, typename CasesStorage>
+    constexpr decltype(auto) eval_pipeline_on_cases(
+        CasesStorage &&pipeline_cases) && {
+      constexpr bool is_fresh_pipeline = (sizeof...(Cases) == 0);
+      static_assert(
+          is_fresh_pipeline,
+          "[Patternia.on]: pipeline form only supports a fresh match(subject). "
+          "Use either match(subject) | on{...} or the chained .when(...) API.");
+
+      (ptn::core::common::static_assert_valid_case<NewCases, subject_type>(),
+       ...);
+
+      ptn::core::common::static_assert_no_unreachable_alt_after_plain_alt<
+          NewCases...>();
+
+      constexpr bool no_unreachable_cases =
+          !ptn::core::common::has_unreachable_case_v<NewCases...>;
+      static_assert(
+          no_unreachable_cases,
+          "[Patternia.on]: case sequence contains unreachable cases. "
+          "Tip: ensure wildcard '__' is last and remove shadowed cases.");
+
+      constexpr bool has_pattern_fallback_in_on =
+          (traits::is_pattern_fallback_v<traits::case_pattern_t<NewCases>> ||
+           ...);
+      static_assert(
+          has_pattern_fallback_in_on,
+          "[Patternia.on]: missing wildcard '__' fallback. "
+          "Tip: add '__ >> handler' as the last case.");
+
+      auto dummy_fallback =
+          [](auto &&...) -> ptn::core::traits::detail::unreachable_t {
+        return {};
+      };
+      using dummy_handler_t = decltype(dummy_fallback);
+
+      ptn::core::common::
+          static_assert_valid_match<subject_type, dummy_handler_t, NewCases...>();
+
+      using result_type = core::traits::match_result_t<
+          subject_type,
+          dummy_handler_t,
+          NewCases...>;
+
+      if constexpr (traits::is_void_like_v<result_type>) {
+        match_impl::eval<result_type>(
+            std::forward<subject_type>(subject_),
+            std::forward<CasesStorage>(pipeline_cases),
+            std::move(dummy_fallback));
+      }
+      else {
+        return match_impl::eval<result_type>(
+            std::forward<subject_type>(subject_),
+            std::forward<CasesStorage>(pipeline_cases),
+            std::move(dummy_fallback));
+      }
+    }
+
   public:
     // Static factory with an empty case list.
     static constexpr auto create(subject_type subject) {
@@ -113,57 +171,15 @@ namespace ptn::core::engine::detail {
     template <typename... NewCases>
     constexpr decltype(auto)
     eval_pipeline_on(core::dsl::detail::on<NewCases...> &on_cases) && {
-      constexpr bool is_fresh_pipeline = (sizeof...(Cases) == 0);
-      static_assert(
-          is_fresh_pipeline,
-          "[Patternia.on]: pipeline form only supports a fresh match(subject). "
-          "Use either match(subject) | on{...} or the chained .when(...) API.");
+      return std::move(*this).template eval_pipeline_on_cases<NewCases...>(
+          on_cases.cases);
+    }
 
-      (ptn::core::common::static_assert_valid_case<NewCases, subject_type>(),
-       ...);
-
-      ptn::core::common::static_assert_no_unreachable_alt_after_plain_alt<
-          NewCases...>();
-
-      constexpr bool no_unreachable_cases =
-          !ptn::core::common::has_unreachable_case_v<NewCases...>;
-      static_assert(
-          no_unreachable_cases,
-          "[Patternia.on]: case sequence contains unreachable cases. "
-          "Tip: ensure wildcard '__' is last and remove shadowed cases.");
-
-      constexpr bool has_pattern_fallback_in_on =
-          (traits::is_pattern_fallback_v<traits::case_pattern_t<NewCases>> ||
-           ...);
-      static_assert(
-          has_pattern_fallback_in_on,
-          "[Patternia.on]: missing wildcard '__' fallback. "
-          "Tip: add '__ >> handler' as the last case.");
-
-      auto dummy_fallback =
-          [](auto &&...) -> ptn::core::traits::detail::unreachable_t {
-        return {};
-      };
-      using dummy_handler_t = decltype(dummy_fallback);
-
-      ptn::core::common::
-          static_assert_valid_match<subject_type, dummy_handler_t, NewCases...>();
-
-      using result_type = core::traits::
-          match_result_t<subject_type, dummy_handler_t, NewCases...>;
-
-      if constexpr (traits::is_void_like_v<result_type>) {
-        match_impl::eval<result_type>(
-            std::forward<subject_type>(subject_),
-            on_cases.cases,
-            std::move(dummy_fallback));
-      }
-      else {
-        return match_impl::eval<result_type>(
-            std::forward<subject_type>(subject_),
-            on_cases.cases,
-            std::move(dummy_fallback));
-      }
+    template <typename... NewCases>
+    constexpr decltype(auto)
+    eval_pipeline_on(core::dsl::detail::on<NewCases...> &&on_cases) && {
+      return std::move(*this).template eval_pipeline_on_cases<NewCases...>(
+          std::move(on_cases.cases));
     }
 
     // Pipeline API: match(x) | on{ case1, case2, ... }
@@ -176,7 +192,8 @@ namespace ptn::core::engine::detail {
     template <typename... NewCases>
     constexpr decltype(auto)
     operator|(core::dsl::detail::on<NewCases...> &&on_cases) && {
-      return std::move(*this).template eval_pipeline_on<NewCases...>(on_cases);
+      return std::move(*this).template eval_pipeline_on<NewCases...>(
+          std::move(on_cases));
     }
 
     // Terminal API: .otherwise(...)

@@ -65,4 +65,9 @@ namespace ptn {
 
 } // namespace ptn
 
+// Optional sugar for the statically cached `on{...}` factory form.
+#ifndef PTN_ON
+#define PTN_ON(...) (::ptn::static_on([] { return ::ptn::on{__VA_ARGS__}; }))
+#endif
+
 // IWYU pragma: end_exports
