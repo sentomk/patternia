@@ -1,0 +1,1922 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Patternia — expressive pattern matching for modern C++.">
+      
+      
+        <meta name="author" content="Y.F. Guo">
+      
+      
+        <link rel="canonical" href="https://sentomk.github.io/patternia/performance/v0.8.2/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../v0.8.0/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>v0.8.2 - Patternia</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../overrides/styles.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#patternia-performance-v082" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Patternia" class="md-header__button md-logo" aria-label="Patternia" data-md-component="logo">
+      
+  <img src="../../assets/favicon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Patternia
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              v0.8.2
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sentomk/patternia" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sentomk/patternia
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/from-control-flow/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guide/getting-started/" class="md-tabs__link">
+          
+  
+  
+  Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+  Performance
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../changelog/releases/" class="md-tabs__link">
+          
+  
+  
+  Changelog
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Patternia" class="md-nav__button md-logo" aria-label="Patternia" data-md-component="logo">
+      
+  <img src="../../assets/favicon.svg" alt="logo">
+
+    </a>
+    Patternia
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sentomk/patternia" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sentomk/patternia
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/from-control-flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From Control Flow to Pattern Matching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/other-languages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pattern Matching in Other Languages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/predicate-guards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Predicate Guards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/policy-constraint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Example - Policy Constraint Matching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/sphere-constraint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Example - Geometric Constraint Matching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patternia API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Performance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benchmark-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Benchmark Snapshot
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Benchmark Snapshot">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#raw-pipeline-form-vs-switch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raw pipeline form vs switch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cached-matcher-forms-vs-switch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cached matcher forms vs switch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problems-we-needed-to-solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problems We Needed To Solve
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Problems We Needed To Solve">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#problem-1-runtime-literal-factories-hide-the-dispatch-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem 1: Runtime literal factories hide the dispatch key
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#problem-2-matchx-on-pays-matcher-construction-cost-every-call" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem 2: match(x) | on(...) pays matcher construction cost every call
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#problem-3-optimization-logic-did-not-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem 3: Optimization logic did not scale
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#initial-solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initial Solution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lowering-engine-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lowering Engine Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#algorithms-and-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Algorithms and Principles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Algorithms and Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-dense-static-literal-lowering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Dense static-literal lowering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-sparse-values-inside-a-small-span" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: sparse values inside a small span
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-variant-keyed-dispatch-with-bucket-replay" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Variant keyed dispatch with bucket replay
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-matcher-reuse-for-pipeline-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Matcher reuse for pipeline syntax
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#worked-example-why-raw-on-is-still-slow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worked Example: Why Raw on(...) Is Still Slow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Worked Example: Why Raw on(...) Is Still Slow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inline-matcher" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inline matcher
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manually-cached-matcher" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manually cached matcher
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cached-pipeline-matcher" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cached pipeline matcher
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#final-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Final Results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Final Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-these-numbers-mean" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What these numbers mean
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#outcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Outcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Changelog
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Releases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.8.2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="patternia-performance-v082">Patternia Performance - v0.8.2<a class="headerlink" href="#patternia-performance-v082" title="Permanent link">&para;</a></h1>
+<p><strong>Published</strong>: 2026-03-03</p>
+<p><strong>Focus</strong>:</p>
+<ul>
+<li>establish the lowering engine as the main optimization architecture</li>
+<li>push static literal dispatch closer to the <code>switch</code> baseline</li>
+<li>separate dispatch quality from matcher-construction overhead</li>
+</ul>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>v0.8.2 moves Patternia's performance work from isolated fast paths to a
+general lowering engine.</p>
+<p>This version focuses on one practical target:</p>
+<ul>
+<li>make keyed pattern chains behave as closely as possible to hand-written
+  <code>switch</code> code</li>
+<li>keep the optimization scalable beyond one special-case pattern family</li>
+<li>reduce the matcher-construction overhead that appears in
+  <code>match(x) | on(...)</code></li>
+</ul>
+<p>The result is a two-part improvement:</p>
+<ul>
+<li>the compiler-visible static literal path is now close to the <code>switch</code>
+  baseline</li>
+<li>the pipeline syntax can reuse a cached matcher through <code>static_on(...)</code> or
+  <code>PTN_ON(...)</code></li>
+</ul>
+<p>The benchmark discussion in this note uses the 128-way literal scenario
+because it is large enough to expose both sides of the problem:</p>
+<ul>
+<li>how close lowering gets to hand-written control flow</li>
+<li>how expensive raw inline matcher construction still is</li>
+</ul>
+<hr />
+<h2 id="benchmark-snapshot">Benchmark Snapshot<a class="headerlink" href="#benchmark-snapshot" title="Permanent link">&para;</a></h2>
+<h3 id="raw-pipeline-form-vs-switch">Raw pipeline form vs <code>switch</code><a class="headerlink" href="#raw-pipeline-form-vs-switch" title="Permanent link">&para;</a></h3>
+<p>This chart answers the simple question: what happens if you write the direct
+pipeline form and call it in a hot loop?</p>
+<p><img alt="LiteralMatch128 raw on vs switch" src="../../assets/bench/v0.8.2-literal-on-vs-switch.png" /></p>
+<h3 id="cached-matcher-forms-vs-switch">Cached matcher forms vs <code>switch</code><a class="headerlink" href="#cached-matcher-forms-vs-switch" title="Permanent link">&para;</a></h3>
+<p>This chart isolates the same 128-way static-literal workload after matcher
+construction is moved out of the hot path.</p>
+<p><img alt="LiteralMatch128 cached matcher vs switch" src="../../assets/bench/v0.8.2-literal-cached-vs-switch.png" /></p>
+<hr />
+<h2 id="problems-we-needed-to-solve">Problems We Needed To Solve<a class="headerlink" href="#problems-we-needed-to-solve" title="Permanent link">&para;</a></h2>
+<h3 id="problem-1-runtime-literal-factories-hide-the-dispatch-key">Problem 1: Runtime literal factories hide the dispatch key<a class="headerlink" href="#problem-1-runtime-literal-factories-hide-the-dispatch-key" title="Permanent link">&para;</a></h3>
+<p><code>lit(value)</code> is a general runtime factory.</p>
+<p>That is the right API for dynamic values and strings, but it means the
+lowering stage cannot see the literal as a compile-time key:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>For this shape, Patternia can still build a specialized linear literal path,
+but it cannot reliably target switch-like lowering.</p>
+<h3 id="problem-2-matchx-on-pays-matcher-construction-cost-every-call">Problem 2: <code>match(x) | on(...)</code> pays matcher construction cost every call<a class="headerlink" href="#problem-2-matchx-on-pays-matcher-construction-cost-every-call" title="Permanent link">&para;</a></h3>
+<p>Even when the match logic itself lowers well, the inline pipeline form still
+constructs the whole matcher object on every evaluation:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>For large case sets, this construction cost dominates the dispatch cost.</p>
+<h3 id="problem-3-optimization-logic-did-not-scale">Problem 3: Optimization logic did not scale<a class="headerlink" href="#problem-3-optimization-logic-did-not-scale" title="Permanent link">&para;</a></h3>
+<p>Before v0.8.2, performance logic was drifting toward isolated special cases in
+<code>optimize.hpp</code> and <code>eval.hpp</code>.</p>
+<p>That approach does not scale for future keyed scenarios such as:</p>
+<ul>
+<li>static literals</li>
+<li>simple variant alternative dispatch</li>
+<li>guarded variant cases that still expose a primary key</li>
+</ul>
+<p>Patternia needed a shared lowering model, not one more fast path.</p>
+<hr />
+<h2 id="initial-solution">Initial Solution<a class="headerlink" href="#initial-solution" title="Permanent link">&para;</a></h2>
+<p>The first step was to expose a compile-time literal form:</p>
+<div class="highlight"><pre><span></span><code><span class="n">lit</span><span class="o">&lt;</span><span class="mi">42</span><span class="o">&gt;</span><span class="p">()</span>
+</code></pre></div>
+<p>This gives the lowering stage a stable key that can move into type-level
+metadata and plan selection.</p>
+<p>The second step was to validate the idea with a narrow benchmark:</p>
+<ul>
+<li>128 static literal cases</li>
+<li>one trailing wildcard default</li>
+<li>direct comparison against a hand-written <code>switch</code></li>
+</ul>
+<p>That experiment confirmed two separate facts:</p>
+<ul>
+<li>static keyed lowering works</li>
+<li>raw <code>match(x) | on(...)</code> still loses badly if matcher construction remains in
+  the hot path</li>
+</ul>
+<p>That is why v0.8.2 treats lowering and matcher reuse as separate concerns.</p>
+<hr />
+<h2 id="lowering-engine-architecture">Lowering Engine Architecture<a class="headerlink" href="#lowering-engine-architecture" title="Permanent link">&para;</a></h2>
+<p>v0.8.2 organizes the optimizer around a small internal pipeline:</p>
+<div class="highlight"><pre><span></span><code>case DSL
+  -&gt; case_analysis
+  -&gt; case_sequence_ir
+  -&gt; lowering_analysis
+  -&gt; dispatch_plan
+  -&gt; eval_cases_with_dispatch_plan(...)
+</code></pre></div>
+<p>The main pieces are:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>case_analysis</code></td>
+<td>Analyze one case into discriminator, residual work, and binding shape</td>
+</tr>
+<tr>
+<td><code>case_sequence_ir</code></td>
+<td>Aggregate the full case chain and decide whether lowering is legal</td>
+</tr>
+<tr>
+<td><code>lowering_analysis</code></td>
+<td>Expose legality and plan-family signals to the planner</td>
+</tr>
+<tr>
+<td><code>dispatch_plan</code></td>
+<td>Carry the concrete execution shape selected for the evaluator</td>
+</tr>
+<tr>
+<td><code>eval_cases_with_dispatch_plan(...)</code></td>
+<td>Execute the chosen plan without re-running planner logic</td>
+</tr>
+</tbody>
+</table>
+<p>The design is built around three legality grades:</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Meaning</th>
+<th>Current result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>full</code></td>
+<td>The key alone can drive the dispatch path</td>
+<td>direct lowering</td>
+</tr>
+<tr>
+<td><code>bucketed</code></td>
+<td>The key narrows the search, but some residual replay remains</td>
+<td>per-key bucket replay</td>
+</tr>
+<tr>
+<td><code>none</code></td>
+<td>The planner cannot prove a safe keyed path</td>
+<td>sequential evaluation</td>
+</tr>
+</tbody>
+</table>
+<p>In code, this lives in:</p>
+<ul>
+<li><a href="C:/Users/SentoMK/code/patternia/include/ptn/core/common/optimize.hpp">optimize.hpp</a></li>
+<li><a href="C:/Users/SentoMK/code/patternia/include/ptn/core/common/eval.hpp">eval.hpp</a></li>
+</ul>
+<hr />
+<h2 id="algorithms-and-principles">Algorithms and Principles<a class="headerlink" href="#algorithms-and-principles" title="Permanent link">&para;</a></h2>
+<h3 id="1-dense-static-literal-lowering">1. Dense static-literal lowering<a class="headerlink" href="#1-dense-static-literal-lowering" title="Permanent link">&para;</a></h3>
+<p>This is the main new <code>full</code> path in v0.8.2.</p>
+<p>Patternia first checks whether the case chain is a good dense-key candidate.
+The current heuristics are:</p>
+<ul>
+<li>subject type is integral or enum</li>
+<li>every case is a zero-bind static literal or the trailing wildcard default</li>
+<li>case count is at most <code>256</code></li>
+<li>key span is at most <code>512</code></li>
+<li>key span is dense enough relative to case count</li>
+</ul>
+<p>If those checks pass, the planner selects:</p>
+<ul>
+<li><code>dispatch_plan_kind::static_literal_dense</code></li>
+</ul>
+<p>The metadata computes:</p>
+<ul>
+<li><code>min_value</code></li>
+<li><code>max_value</code></li>
+<li><code>range_size</code></li>
+<li><code>default_case_index</code></li>
+<li>compile-time <code>case_index_table</code></li>
+</ul>
+<p>At runtime, the hot path becomes:</p>
+<div class="highlight"><pre><span></span><code>value
+  -&gt; range check
+  -&gt; offset = value - min_value
+  -&gt; switch(offset)
+  -&gt; selected case entry or default
+</code></pre></div>
+<h3 id="example-sparse-values-inside-a-small-span">Example: sparse values inside a small span<a class="headerlink" href="#example-sparse-values-inside-a-small-span" title="Permanent link">&para;</a></h3>
+<p>For:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w">  </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">()</span><span class="w">  </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">10</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">  </span><span class="n">__</span><span class="w">        </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>Patternia computes:</p>
+<ul>
+<li><code>min_value = 1</code></li>
+<li><code>max_value = 10</code></li>
+<li><code>range_size = 10</code></li>
+</ul>
+<p>The dense metadata conceptually maps offsets like this:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Offset</th>
+<th>Selected branch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>1</code></td>
+<td><code>0</code></td>
+<td>case <code>lit&lt;1&gt;()</code></td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td><code>1</code></td>
+<td>case <code>lit&lt;2&gt;()</code></td>
+</tr>
+<tr>
+<td><code>3..9</code></td>
+<td><code>2..8</code></td>
+<td>default</td>
+</tr>
+<tr>
+<td><code>10</code></td>
+<td><code>9</code></td>
+<td>case <code>lit&lt;10&gt;()</code></td>
+</tr>
+</tbody>
+</table>
+<p>This is why the generated path is much closer to <code>switch</code> than a generic
+pattern replay loop.</p>
+<h3 id="2-variant-keyed-dispatch-with-bucket-replay">2. Variant keyed dispatch with bucket replay<a class="headerlink" href="#2-variant-keyed-dispatch-with-bucket-replay" title="Permanent link">&para;</a></h3>
+<p>The lowering engine is not literal-only.</p>
+<p>Variant dispatch is now expressed through the same planner structure:</p>
+<ul>
+<li><code>variant_simple</code></li>
+<li><code>variant_alt_bucketed</code></li>
+</ul>
+<p>The <code>full</code> case is straightforward:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">type</span><span class="o">::</span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">type</span><span class="o">::</span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>The active alternative is already the dispatch key, so no residual work is
+needed.</p>
+<p>The <code>bucketed</code> case appears when the alternative is still useful, but one key
+maps to multiple residual checks:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">  </span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span><span class="w">          </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w">  </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">__</span><span class="w">                       </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>Here, the active <code>variant</code> alternative narrows the search immediately:</p>
+<ul>
+<li><code>int</code> -&gt; replay only the <code>int</code> bucket</li>
+<li><code>std::string</code> -&gt; replay only the string bucket</li>
+</ul>
+<p>This preserves first-match semantics while avoiding a full-chain scan.</p>
+<h3 id="3-matcher-reuse-for-pipeline-syntax">3. Matcher reuse for pipeline syntax<a class="headerlink" href="#3-matcher-reuse-for-pipeline-syntax" title="Permanent link">&para;</a></h3>
+<p>Lowering alone is not enough if the matcher object is rebuilt every time.</p>
+<p>That is why v0.8.2 also adds a reusable pipeline form:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PTN_ON</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<p><code>PTN_ON(...)</code> is a convenience wrapper around:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">static_on</span><span class="p">([]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>This keeps the pipeline syntax while moving matcher construction out of the
+hot path.</p>
+<hr />
+<h2 id="worked-example-why-raw-on-is-still-slow">Worked Example: Why Raw <code>on(...)</code> Is Still Slow<a class="headerlink" href="#worked-example-why-raw-on-is-still-slow" title="Permanent link">&para;</a></h2>
+<p>Consider the three 128-way forms used by the benchmark:</p>
+<h3 id="inline-matcher">Inline matcher<a class="headerlink" href="#inline-matcher" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="c1">// ...</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">128</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">128</span><span class="p">,</span>
+<span class="w">  </span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>This form pays for:</p>
+<ul>
+<li>case object construction</li>
+<li>value-handler object construction</li>
+<li><code>on(...)</code> tuple construction</li>
+</ul>
+<p>on every call.</p>
+<h3 id="manually-cached-matcher">Manually cached matcher<a class="headerlink" href="#manually-cached-matcher" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">static</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">cases</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="c1">// ...</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">128</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">128</span><span class="p">,</span>
+<span class="w">  </span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+
+<span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">cases</span><span class="p">;</span>
+</code></pre></div>
+<p>This keeps the lowering path identical, but it removes repeated matcher
+construction.</p>
+<h3 id="cached-pipeline-matcher">Cached pipeline matcher<a class="headerlink" href="#cached-pipeline-matcher" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PTN_ON</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="c1">// ...</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">128</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">128</span><span class="p">,</span>
+<span class="w">  </span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>This is the same reuse idea packaged for pipeline syntax.</p>
+<hr />
+<h2 id="final-results">Final Results<a class="headerlink" href="#final-results" title="Permanent link">&para;</a></h2>
+<p>The following numbers come from the current local run of:</p>
+<div class="highlight"><pre><span></span><code><span class="p">.\</span><span class="n">build</span><span class="p">\</span><span class="n">bench</span><span class="p">\</span><span class="n">ptn_bench_lit</span><span class="p">.</span><span class="n">exe</span> <span class="p">-</span><span class="n">-benchmark_filter</span><span class="p">=</span><span class="s2">&quot;LiteralMatch128&quot;</span> <span class="p">-</span><span class="n">-benchmark_min_time</span><span class="p">=</span><span class="n">0</span><span class="p">.</span><span class="n">5s</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>Meaning</th>
+<th>CPU time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BM_PatterniaPipe_LiteralMatch128StaticCases</code></td>
+<td>prebuilt matcher object</td>
+<td><code>1.74 ns</code></td>
+</tr>
+<tr>
+<td><code>BM_PatterniaPipe_LiteralMatch128On</code></td>
+<td>raw inline <code>on(...)</code></td>
+<td><code>17.9 ns</code></td>
+</tr>
+<tr>
+<td><code>BM_PatterniaPipe_LiteralMatch128OnMacro</code></td>
+<td>cached pipeline matcher via <code>PTN_ON(...)</code></td>
+<td><code>2.09 ns</code></td>
+</tr>
+<tr>
+<td><code>BM_Switch_LiteralMatch128</code></td>
+<td>hand-written <code>switch</code> baseline</td>
+<td><code>1.52 ns</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="what-these-numbers-mean">What these numbers mean<a class="headerlink" href="#what-these-numbers-mean" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The static literal lowering itself is close to the <code>switch</code> baseline.</li>
+<li>The dominant remaining gap in the raw pipeline form is matcher construction,
+  not keyed dispatch.</li>
+<li><code>PTN_ON(...)</code> recovers most of the lost performance while keeping the
+  pipeline syntax.</li>
+</ul>
+<p>In practice, the current result is:</p>
+<ul>
+<li><code>StaticCases</code> is about <code>1.14x</code> the <code>switch</code> baseline</li>
+<li><code>PTN_ON(...)</code> is about <code>1.37x</code> the <code>switch</code> baseline</li>
+<li>raw <code>on(...)</code> is roughly <code>11.8x</code> slower than the <code>switch</code> baseline in this
+  benchmark because it rebuilds the matcher every call</li>
+</ul>
+<hr />
+<h2 id="outcome">Outcome<a class="headerlink" href="#outcome" title="Permanent link">&para;</a></h2>
+<p>v0.8.2 establishes the lowering engine as an internal architecture, not just a
+collection of local optimizations.</p>
+<p>It delivers five concrete outcomes:</p>
+<ol>
+<li><code>lit&lt;value&gt;()</code> now has a real switch-oriented lowering path.</li>
+<li>The engine has a shared legality model: <code>full</code>, <code>bucketed</code>, and <code>none</code>.</li>
+<li>Variant dispatch and static literal dispatch now live under the same plan
+   model.</li>
+<li><code>PTN_ON(...)</code> provides a practical pipeline form that avoids repeated
+   matcher construction.</li>
+<li>The performance gap to hand-written <code>switch</code> is now small enough that
+   future work can focus on fewer, more specific remaining costs.</li>
+</ol>
+<p>For API-level release notes, see <a href="../../changelog/v0.8.2/">v0.8.2</a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Overview
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../v0.8.0/" class="md-footer__link md-footer__link--next" aria-label="Next: v0.8.0">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                v0.8.0
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "search.share", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
