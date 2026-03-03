@@ -92,6 +92,7 @@ nav:
 
   - Performance:
       - Overview: performance/index.md
+      - v0.8.2: performance/v0.8.2.md
       - v0.8.0: performance/v0.8.0.md
 
   - Changelog:

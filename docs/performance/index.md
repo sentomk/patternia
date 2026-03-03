@@ -4,21 +4,19 @@ This section tracks performance-oriented algorithm evolution by version.
 
 ---
 
-## Current Standalone Algorithm Note
+## Current Version
 
-**v0.8.0** is the current standalone algorithm note.
+**v0.8.2** is the current performance baseline.
 
-- [Open v0.8.0 details](v0.8.0.md)
-
-## Latest Release Note
-
-- [v0.8.2 release note](../changelog/v0.8.2.md)
+- [Open v0.8.2 performance note](v0.8.2.md)
+- [Open v0.8.2 release note](../changelog/v0.8.2.md)
 
 ---
 
 ## Version Index
 
-- [v0.8.0](v0.8.0.md) (standalone algorithm note)
+- [v0.8.2](v0.8.2.md) (current)
+- [v0.8.0](v0.8.0.md) (baseline)
 
 ---
 
