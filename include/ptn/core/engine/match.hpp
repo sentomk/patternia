@@ -16,7 +16,7 @@ namespace ptn {
   // Subject type is automatically deduced as std::decay_t<T>.
   // Usage:
   //   - match(value).when(case1).when(case2).otherwise(handler)
-  //   - match(value) | on{case1, case2, ..., __ >> fallback}
+  //   - match(value) | on(case1, case2, ..., __ >> fallback)
   template <typename T>
   constexpr auto match(T &value) {
     using V = T &;
@@ -30,13 +30,13 @@ namespace ptn {
         >::create(V(value));
   }
 
-  // Caches an `on{...}` matcher behind a stateless factory.
+  // Caches an `on(...)` matcher behind a stateless factory.
   //
   // This is an explicit wrapper around the common handwritten pattern:
-  // `static auto cases = on{...};`.
+  // `static auto cases = on(...);`.
   //
   // Usage:
-  //   - match(value) | static_on([] { return on{..., __ >> fallback}; })
+  //   - match(value) | static_on([] { return on(..., __ >> fallback); })
   //
   // The factory must be stateless so caching does not silently freeze runtime
   // captures on the first call.
@@ -46,7 +46,7 @@ namespace ptn {
     static_assert(
         std::is_empty_v<factory_t>,
         "[Patternia.static_on]: factory must be stateless. "
-        "Tip: pass [] { return on{...}; }.");
+        "Tip: pass [] { return on(...); }.");
     static_assert(
         std::is_invocable_v<factory_t &>,
         "[Patternia.static_on]: factory must be invocable with no "
@@ -55,7 +55,7 @@ namespace ptn {
     using cases_t = std::decay_t<std::invoke_result_t<factory_t &>>;
     static_assert(
         core::dsl::detail::is_on_v<cases_t>,
-        "[Patternia.static_on]: factory must return on{...}.");
+        "[Patternia.static_on]: factory must return on(...).");
 
     static cases_t cases = std::forward<Factory>(factory)();
     return (cases);

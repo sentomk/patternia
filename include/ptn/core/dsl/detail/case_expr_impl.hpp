@@ -71,7 +71,7 @@ namespace ptn::core::dsl::detail {
   inline constexpr bool
       is_on_v = is_on<std::remove_cv_t<std::remove_reference_t<T>>>::value;
 
-  // Compact case pack used by `match(x) | on{ ... }`.
+  // Compact case pack used by `match(x) | on(...)`.
   template <typename... Cases>
   struct on {
     using tuple_type = std::tuple<Cases...>;

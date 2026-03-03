@@ -189,32 +189,32 @@ namespace {
     using ptn::pat::type::is;
 
     return match(v)
-           | on{
-               is<int>() >> 1,
-               is<std::string>() >> 2,
-               __ >> 0,
-           };
+           | on(
+                is<int>() >> 1,
+                is<std::string>() >> 2,
+                __ >> 0
+            );
   }
 
   static int patternia_pipe_variant_alt_route(const V &v) {
     using namespace ptn;
 
     return match(v)
-           | on{
-               type::alt<0>() >> 1,
-               type::alt<1>() >> 2,
-               __ >> 0,
-           };
+           | on(
+                type::alt<0>() >> 1,
+                type::alt<1>() >> 2,
+                __ >> 0
+            );
   }
 
   static int patternia_pipe_variant_alt_32_route(const VAlt32 &v) {
     using namespace ptn;
 
     return match(v)
-           | on{
-               type::alt<0>() >> 1,
-               type::alt<1>() >> 2,
-               type::alt<2>() >> 3,
+           | on(
+                type::alt<0>() >> 1,
+                type::alt<1>() >> 2,
+                type::alt<2>() >> 3,
                type::alt<3>() >> 4,
                type::alt<4>() >> 5,
                type::alt<5>() >> 6,
@@ -242,17 +242,17 @@ namespace {
                type::alt<27>() >> 28,
                type::alt<28>() >> 29,
                type::alt<29>() >> 30,
-               type::alt<30>() >> 31,
-               type::alt<31>() >> 32,
-               __ >> 0,
-           };
+                type::alt<30>() >> 31,
+                type::alt<31>() >> 32,
+                __ >> 0
+            );
   }
 
   static int
   patternia_pipe_variant_alt_32_route_static_cases(const VAlt32 &v) {
     using namespace ptn;
 
-    static auto cases = on{
+    static auto cases = on(
         type::alt<0>() >> 1,
         type::alt<1>() >> 2,
         type::alt<2>() >> 3,
@@ -285,8 +285,8 @@ namespace {
         type::alt<29>() >> 30,
         type::alt<30>() >> 31,
         type::alt<31>() >> 32,
-        __ >> 0,
-    };
+        __ >> 0
+    );
 
     return match(v) | cases;
   }
@@ -422,13 +422,13 @@ namespace {
     };
 
     return match(v)
-           | on{
-               type::as<int>()[_ > 100] >> 10,
-               type::is<int>() >> 1,
-               type::as<std::string>()[long_string] >> 20,
-               type::is<std::string>() >> 2,
-               __ >> 0,
-           };
+           | on(
+                type::as<int>()[_ > 100] >> 10,
+                type::is<int>() >> 1,
+                type::as<std::string>()[long_string] >> 20,
+                type::is<std::string>() >> 2,
+                __ >> 0
+            );
   }
 
   static int std_visit_variant_guarded_route(const V &v) {
@@ -529,17 +529,17 @@ namespace {
     };
 
     return match(msg)
-           | on{
-               type::as<ProtoPing>()[urgent_ping] >> 11,
-               type::is<ProtoPing>() >> 1,
-               type::as<ProtoData>()[heavy_data] >> 22,
+           | on(
+                type::as<ProtoPing>()[urgent_ping] >> 11,
+                type::is<ProtoPing>() >> 1,
+                type::as<ProtoData>()[heavy_data] >> 22,
                type::is<ProtoData>() >> 2,
                type::as<ProtoError>()[fatal_error] >> 33,
                type::is<ProtoError>() >> 3,
-               type::as<ProtoControl>()[control_ack] >> 44,
-               type::is<ProtoControl>() >> 4,
-               __ >> 0,
-           };
+                type::as<ProtoControl>()[control_ack] >> 44,
+                type::is<ProtoControl>() >> 4,
+                __ >> 0
+            );
   }
 
   static int if_else_protocol_router(const ProtocolMsg &msg) {
@@ -656,17 +656,17 @@ namespace {
     auto wide_scan = [](const CmdScan &c) { return c.limit >= 128; };
 
     return match(msg)
-           | on{
-               type::as<CmdSet>()[persistent_set] >> 101,
-               type::is<CmdSet>() >> 100,
-               type::as<CmdGet>()[hot_get] >> 201,
+           | on(
+                type::as<CmdSet>()[persistent_set] >> 101,
+                type::is<CmdSet>() >> 100,
+                type::as<CmdGet>()[hot_get] >> 201,
                type::is<CmdGet>() >> 200,
                type::as<CmdDel>()[deep_del] >> 301,
                type::is<CmdDel>() >> 300,
-               type::as<CmdScan>()[wide_scan] >> 401,
-               type::is<CmdScan>() >> 400,
-               __ >> 0,
-           };
+                type::as<CmdScan>()[wide_scan] >> 401,
+                type::is<CmdScan>() >> 400,
+                __ >> 0
+            );
   }
 
   static int if_else_command_parser(const CommandMsg &msg) {
@@ -751,17 +751,17 @@ namespace {
     using namespace ptn;
 
     return match(x)
-           | on{
-               lit(1) >> 1,
-               lit(2) >> 2,
-               lit(3) >> 3,
+           | on(
+                lit(1) >> 1,
+                lit(2) >> 2,
+                lit(3) >> 3,
                lit(4) >> 4,
                lit(5) >> 5,
                lit(6) >> 6,
-               lit(7) >> 7,
-               lit(8) >> 8,
-               __ >> 0,
-           };
+                lit(7) >> 7,
+                lit(8) >> 8,
+                __ >> 0
+            );
   }
 
   static int patternia_literal_match_route(int x) {
@@ -874,7 +874,7 @@ namespace {
   static int patternia_pipe_literal_match_128_static_cases_route(int x) {
     using namespace ptn;
 
-    static auto cases = on{
+    static auto cases = on(
         PTN_LIT_BLOCK_16(1),
         PTN_LIT_BLOCK_16(17),
         PTN_LIT_BLOCK_16(33),
@@ -883,8 +883,8 @@ namespace {
         PTN_LIT_BLOCK_16(81),
         PTN_LIT_BLOCK_16(97),
         PTN_LIT_BLOCK_16(113),
-        __ >> 0,
-    };
+        __ >> 0
+    );
 
     return match(x) | cases;
   }
@@ -894,7 +894,7 @@ namespace {
     using namespace ptn;
 
     return match(x)
-           | on{
+           | on(
                PTN_LIT_BLOCK_16(1),
                PTN_LIT_BLOCK_16(17),
                PTN_LIT_BLOCK_16(33),
@@ -903,8 +903,8 @@ namespace {
                PTN_LIT_BLOCK_16(81),
                PTN_LIT_BLOCK_16(97),
                PTN_LIT_BLOCK_16(113),
-               __ >> 0,
-           };
+               __ >> 0
+           );
   }
 
   static int
@@ -1064,17 +1064,17 @@ namespace {
     };
 
     return match(pkt)
-           | on{
-               bind(has<&Packet::type,
-                        &Packet::length>())[is_ping_packet]
-                   >> 1,
+           | on(
+                bind(has<&Packet::type,
+                         &Packet::length>())[is_ping_packet]
+                    >> 1,
                bind(has<&Packet::type,
                         &Packet::length,
                         &Packet::flags>())[is_valid_data_packet]
                    >> 2,
-               bind(has<&Packet::type>())[is_error_packet] >> 3,
-               __ >> 0,
-           };
+                bind(has<&Packet::type>())[is_error_packet] >> 3,
+                __ >> 0
+            );
   }
 
   static int switch_packet_route(const Packet &pkt) {
@@ -1166,20 +1166,20 @@ namespace {
         };
 
     return match(pkt)
-           | on{
-               bind(has<&Packet::type,
-                        &Packet::length>())[is_ping_packet]
-                   >> 1,
+           | on(
+                bind(has<&Packet::type,
+                         &Packet::length>())[is_ping_packet]
+                    >> 1,
                bind(has<&Packet::type,
                         &Packet::length,
                         &Packet::flags,
                         &Packet::payload>())[is_valid_data_packet]
                    >> 2,
-               bind(has<&Packet::type,
-                        &Packet::payload>())[is_error_packet]
-                   >> 3,
-               __ >> 0,
-           };
+                bind(has<&Packet::type,
+                         &Packet::payload>())[is_error_packet]
+                    >> 3,
+                __ >> 0
+            );
   }
 
   static int switch_packet_heavy_bind_route(const Packet &pkt) {

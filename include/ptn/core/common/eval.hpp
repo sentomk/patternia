@@ -466,7 +466,7 @@ namespace ptn::core::common {
         using case_t    = std::tuple_element_t<CaseIndex, tuple_t>;
         using handler_t = traits::case_handler_t<case_t>;
 
-        // Reuses the case object directly so temporary `on{...}` packs can
+        // Reuses the case object directly so temporary `on(...)` packs can
         // stay on the rvalue fast path when the selected plan does not need
         // general matching state.
         auto &&current_case = std::get<CaseIndex>(

@@ -52,7 +52,7 @@ namespace ptn::core::engine::detail {
       static_assert(
           is_fresh_pipeline,
           "[Patternia.on]: pipeline form only supports a fresh match(subject). "
-          "Use either match(subject) | on{...} or the chained .when(...) API.");
+          "Use either match(subject) | on(...) or the chained .when(...) API.");
 
       (ptn::core::common::static_assert_valid_case<NewCases, subject_type>(),
        ...);
@@ -182,7 +182,7 @@ namespace ptn::core::engine::detail {
           std::move(on_cases.cases));
     }
 
-    // Pipeline API: match(x) | on{ case1, case2, ... }
+    // Pipeline API: match(x) | on(case1, case2, ...)
     template <typename... NewCases>
     constexpr decltype(auto)
     operator|(core::dsl::detail::on<NewCases...> &on_cases) && {
