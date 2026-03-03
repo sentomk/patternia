@@ -882,7 +882,7 @@
   <a href="#matchsubject-on" class="md-nav__link">
     <span class="md-ellipsis">
       
-        match(subject) | on{...}
+        match(subject) | on(...)
       
     </span>
   </a>
@@ -1420,7 +1420,63 @@
   <span class="md-ellipsis">
     
   
-    Performance Notes
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/v0.8.2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
   
 
     
@@ -1521,6 +1577,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/v0.8.2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1576,29 +1660,29 @@ It defines how values are inspected, how cases are registered, and how matching 
 <p>Patternia currently matches the subject as its actual type; there is no
 <code>match&lt;AsType&gt;(subject)</code> override.</p>
 <hr />
-<h3 id="matchsubject-on"><code>match(subject) | on{...}</code><a class="headerlink" href="#matchsubject-on" title="Permanent link">&para;</a></h3>
+<h3 id="matchsubject-on"><code>match(subject) | on(...)</code><a class="headerlink" href="#matchsubject-on" title="Permanent link">&para;</a></h3>
 <p><strong>Role</strong>: Primary API for Patternia v0.8.x.</p>
 <p><strong>Syntax</strong>:
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">{</span><span class="w"> </span><span class="n">case1</span><span class="p">,</span><span class="w"> </span><span class="n">case2</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span><span class="n">case1</span><span class="p">,</span><span class="w"> </span><span class="n">case2</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span>
 </code></pre></div></p>
 <p><strong>Key Characteristics</strong>:</p>
 <ul>
 <li>Pipeline-style terminal form, evaluated immediately</li>
 <li>Cases are evaluated sequentially using <strong>first-match semantics</strong></li>
-<li>Requires a pattern fallback <code>__</code> in the <code>on{...}</code> case list</li>
+<li>Requires a pattern fallback <code>__</code> in the <code>on(...)</code> case list</li>
 <li>Supports full pattern capabilities including guards and bindings</li>
 </ul>
 <p><strong>Basic Usage</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
 <span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="n">__</span><span class="w">     </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;other&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-<span class="p">};</span>
+<span class="p">);</span>
 </code></pre></div>
 <p><strong>Compatibility Note</strong>:</p>
 <ul>
 <li><code>match(subject, cases(...)).end()</code> was removed in v0.8.0.</li>
-<li>Migrate legacy compact forms to <code>match(subject) | on{...}</code>.</li>
+<li>Migrate legacy compact forms to <code>match(subject) | on(...)</code>.</li>
 </ul>
 <hr />
 <h3 id="whenpattern-handler"><code>.when(pattern &gt;&gt; handler)</code><a class="headerlink" href="#whenpattern-handler" title="Permanent link">&para;</a></h3>
@@ -1648,7 +1732,7 @@ The key distinction between them is the use of the <code>__</code> pattern.</p>
 <blockquote>
 <p>[!WARNING]
 Chained terminal forms are still available in v0.8.x, but are deprecated and
-planned for future removal. Prefer <code>match(subject) | on{...}</code>.</p>
+planned for future removal. Prefer <code>match(subject) | on(...)</code>.</p>
 </blockquote>
 <hr />
 <h4 id="otherwise-deprecated"><code>.otherwise(...)</code> (Deprecated)<a class="headerlink" href="#otherwise-deprecated" title="Permanent link">&para;</a></h4>
@@ -2296,13 +2380,13 @@ Unlisted members are simply ignored.</p>
         
         
           
-          <a href="../performance/" class="md-footer__link md-footer__link--next" aria-label="Next: Performance Notes">
+          <a href="../performance/" class="md-footer__link md-footer__link--next" aria-label="Next: Overview">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Performance Notes
+                Overview
               </div>
             </div>
             <div class="md-footer__button md-icon">
