@@ -43,36 +43,36 @@ Patternia currently matches the subject as its actual type; there is no
 
 ---
 
-### `match(subject) | on{...}`
+### `match(subject) | on(...)` {#matchsubject-on}
 
 **Role**: Primary API for Patternia v0.8.x.
 
 **Syntax**:
 ```cpp
-match(subject) | on{ case1, case2, ... }
+match(subject) | on(case1, case2, ...)
 ```
 
 **Key Characteristics**:
 
 * Pipeline-style terminal form, evaluated immediately
 * Cases are evaluated sequentially using **first-match semantics**
-* Requires a pattern fallback `__` in the `on{...}` case list
+* Requires a pattern fallback `__` in the `on(...)` case list
 * Supports full pattern capabilities including guards and bindings
 
 **Basic Usage**:
 
 ```cpp
-auto r = match(x) | on{
+auto r = match(x) | on(
   lit(1) >> [] { return "one"; },
   lit(2) >> [] { return "two"; },
   __     >> [] { return "other"; }
-};
+);
 ```
 
 **Compatibility Note**:
 
 - `match(subject, cases(...)).end()` was removed in v0.8.0.
-- Migrate legacy compact forms to `match(subject) | on{...}`.
+- Migrate legacy compact forms to `match(subject) | on(...)`.
 
 ---
 
@@ -130,7 +130,7 @@ The key distinction between them is the use of the `__` pattern.
 
 > [!WARNING]
 > Chained terminal forms are still available in v0.8.x, but are deprecated and
-> planned for future removal. Prefer `match(subject) | on{...}`.
+> planned for future removal. Prefer `match(subject) | on(...)`.
 
 ---
 

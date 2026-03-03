@@ -249,11 +249,11 @@ TEST(MatchFlow, PipeOnSyntaxOtherwise) {
   int x = 3;
 
   int result = ptn::match(x) |
-               ptn::on{
+               ptn::on(
                    ptn::lit(1) >> 10,
                    ptn::lit(2) >> 20,
-                   ptn::__ >> -1,
-               };
+                   ptn::__ >> -1
+               );
 
   EXPECT_EQ(result, -1);
 }
@@ -262,10 +262,10 @@ TEST(MatchFlow, PipeOnSyntaxEndWithWildcard) {
   int x = 2;
 
   int result = ptn::match(x) |
-               ptn::on{
+               ptn::on(
                    ptn::lit(1) >> 10,
-                   ptn::__ >> 99,
-               };
+                   ptn::__ >> 99
+               );
 
   EXPECT_EQ(result, 99);
 }
@@ -275,12 +275,12 @@ TEST(MatchFlow, PipeOnVariantGuardedThenSameAltPlainGuardHit) {
   V v     = 123;
 
   int result = ptn::match(v) |
-               ptn::on{
+               ptn::on(
                    ptn::type::as<int>()[ptn::_ > 100] >> 10,
                    ptn::type::is<int>() >> 1,
                    ptn::type::is<std::string>() >> 2,
-                   ptn::__ >> 0,
-               };
+                   ptn::__ >> 0
+               );
 
   EXPECT_EQ(result, 10);
 }
@@ -290,12 +290,12 @@ TEST(MatchFlow, PipeOnVariantGuardedThenSameAltPlainGuardMissFallsThrough) {
   V v     = 7;
 
   int result = ptn::match(v) |
-               ptn::on{
+               ptn::on(
                    ptn::type::as<int>()[ptn::_ > 100] >> 10,
                    ptn::type::is<int>() >> 1,
                    ptn::type::is<std::string>() >> 2,
-                   ptn::__ >> 0,
-               };
+                   ptn::__ >> 0
+               );
 
   EXPECT_EQ(result, 1);
 }
@@ -305,12 +305,12 @@ TEST(MatchFlow, PipeOnVariantGuardedThenSameAltPlainDifferentAltUnaffected) {
   V v     = std::string("ok");
 
   int result = ptn::match(v) |
-               ptn::on{
+               ptn::on(
                    ptn::type::as<int>()[ptn::_ > 100] >> 10,
                    ptn::type::is<int>() >> 1,
                    ptn::type::is<std::string>() >> 2,
-                   ptn::__ >> 0,
-               };
+                   ptn::__ >> 0
+               );
 
   EXPECT_EQ(result, 2);
 }

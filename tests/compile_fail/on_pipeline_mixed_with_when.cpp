@@ -5,9 +5,9 @@ using namespace ptn;
 int main() {
   int x = 1;
   auto r = (match(x).when(lit(1) >> 1) |
-            on{
+            on(
                 __ >> 0,
-            });
+            ));
   (void)r;
   return 0;
 }

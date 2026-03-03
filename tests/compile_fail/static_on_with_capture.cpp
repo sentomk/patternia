@@ -8,10 +8,10 @@ int main() {
 
   auto r = match(x)
            | static_on([base] {
-               return on{
+               return on(
                    lit<1>() >> base,
-                   __ >> 0,
-               };
+                   __ >> 0
+               );
              });
   (void)r;
   return 0;

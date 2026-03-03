@@ -49,12 +49,12 @@ TEST(LiteralPattern, LitCompileTimeOtherwiseFallback) {
 }
 
 TEST(LiteralPattern, LitSelectsSparseDenseCases) {
-  auto cases = on{
+  auto cases = on(
       ptn::lit<1>() >> 1,
       ptn::lit<2>() >> 2,
       ptn::lit<10>() >> 10,
-      __ >> 0,
-  };
+      __ >> 0
+  );
 
   int one   = 1;
   int two   = 2;
@@ -73,26 +73,26 @@ TEST(LiteralPattern, LitInlineOnSelectsDenseCases) {
   int other = 7;
 
   int one_result = ptn::match(one)
-                   | on{
+                   | on(
                        ptn::lit<1>() >> 1,
                        ptn::lit<2>() >> 2,
                        ptn::lit<10>() >> 10,
-                       __ >> 0,
-                   };
+                       __ >> 0
+                   );
   int ten_result = ptn::match(ten)
-                   | on{
+                   | on(
                        ptn::lit<1>() >> 1,
                        ptn::lit<2>() >> 2,
                        ptn::lit<10>() >> 10,
-                       __ >> 0,
-                   };
+                       __ >> 0
+                   );
   int other_result = ptn::match(other)
-                     | on{
+                     | on(
                          ptn::lit<1>() >> 1,
                          ptn::lit<2>() >> 2,
                          ptn::lit<10>() >> 10,
-                         __ >> 0,
-                     };
+                         __ >> 0
+                     );
 
   EXPECT_EQ(one_result, 1);
   EXPECT_EQ(ten_result, 10);
@@ -106,30 +106,30 @@ TEST(LiteralPattern, LitStaticOnFactorySelectsDenseCases) {
 
   int one_result = ptn::match(one)
                    | ptn::static_on([] {
-                       return on{
+                       return on(
                            ptn::lit<1>() >> 1,
                            ptn::lit<2>() >> 2,
                            ptn::lit<10>() >> 10,
-                           __ >> 0,
-                       };
+                           __ >> 0
+                       );
                      });
   int ten_result = ptn::match(ten)
                    | ptn::static_on([] {
-                       return on{
+                       return on(
                            ptn::lit<1>() >> 1,
                            ptn::lit<2>() >> 2,
                            ptn::lit<10>() >> 10,
-                           __ >> 0,
-                       };
+                           __ >> 0
+                       );
                      });
   int other_result = ptn::match(other)
                      | ptn::static_on([] {
-                         return on{
+                         return on(
                              ptn::lit<1>() >> 1,
                              ptn::lit<2>() >> 2,
                              ptn::lit<10>() >> 10,
-                             __ >> 0,
-                         };
+                             __ >> 0
+                         );
                        });
 
   EXPECT_EQ(one_result, 1);
