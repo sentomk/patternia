@@ -28,14 +28,114 @@
 
 ## *Update*
 
-- **Release update (v0.8.0)** removes `match(x, cases(...)).end()` and focuses public usage on `match(x) | on{...}`.
-- **Performance update (v0.8.0)** adds tiered variant dispatch (`hot_inline` / `warm_segmented` / `cold_compact`) and large-branch cold-path separation.
-- **Variant matching support (v0.7.x+)** includes `type::is`, `type::as`, and `type::alt`.
+- **Release update (v0.8.2)** keeps public usage centered on `match(x) | on(...)` and adds reusable hot-path forms through `static_on(...)` and `PTN_ON(...)`.
+- **Performance update (v0.8.2)** introduces a lowering engine with `full` / `bucketed` / `none` legality and a switch-oriented static literal path for large keyed matches.
+- **Literal API update (v0.8.2)** keeps `lit(value)` and `lit_ci(value)` for general runtime matching while using `lit<value>()` for lowering-friendly compile-time literals.
 
 ## *Performance Snapshot*
 
-Current snapshot is generated from `ptn_bench_variant` JSON via
-`scripts/bench_single_report.py` (same JSON, multi-implementation comparison):
+Current snapshots are generated from benchmark JSON via
+`scripts/bench_single_report.py`.
+
+For the full algorithm discussion behind v0.8.2, see the
+[Performance Notes](https://patternia.tech/performance/).
+
+### Literal Bench Guide (`ptn_bench_lit`)
+
+#### Why the 128-way benchmark exists
+
+The 128-way literal benchmark exists because a small literal chain does not
+show the real problem.
+
+Patternia needed one benchmark large enough to answer two separate questions:
+
+- how close `lit<...>()` lowering is to a hand-written `switch`
+- how much extra cost comes from rebuilding `on(...)` on every call
+
+#### 1) Raw inline `on(...)` vs `switch`
+
+This chart isolates the total cost of the plain pipeline form:
+
+![Patternia Literal Match 128 Raw On vs Switch (v0.8.2)](docs/assets/bench/v0.8.2-literal-on-vs-switch.png)
+
+`match(x) | on(...)` is expressive, but in a hot loop it still rebuilds:
+
+- case objects
+- value handlers
+- the final `on(...)` tuple
+
+That is why this comparison does not only measure dispatch quality. It also
+measures matcher construction overhead.
+
+#### 2) Cached matcher forms vs `switch`
+
+This chart isolates the forms that avoid rebuilding the matcher:
+
+![Patternia Literal Match 128 Cached Matcher vs Switch (v0.8.2)](docs/assets/bench/v0.8.2-literal-cached-vs-switch.png)
+
+The two cached forms answer slightly different needs.
+
+##### `static auto cases = on(...);`
+
+**Advantages**:
+
+- lowest-overhead reusable form in user code
+- easy for performance-sensitive loops and routing tables
+- makes matcher lifetime explicit
+
+**Tradeoffs**:
+
+- more ceremony than the pipeline form
+- not ideal when you want the match site to stay compact
+
+**Good fit**:
+
+- hot dispatch loops
+- local routing helpers
+- benchmark baselines
+
+```cpp
+static auto cases = on(
+  lit<1>() >> 1,
+  lit<2>() >> 2,
+  __ >> 0
+);
+
+return match(x) | cases;
+```
+
+##### `PTN_ON(...)`
+
+**Advantages**:
+
+- keeps the `match(x) | ...` pipeline syntax
+- avoids repeated matcher construction
+- much easier to drop into existing call sites than manual caching
+
+**Tradeoffs**:
+
+- still a macro-based entry point
+- not as explicit as a named `static auto cases` object when you want to share
+  the matcher across multiple functions or call sites
+
+**Good fit**:
+
+- pipeline-style code paths
+- performance-sensitive matches that still want compact call-site syntax
+- cases where you want most of the cached performance without introducing a
+  named matcher object
+
+```cpp
+return match(x) | PTN_ON(
+  lit<1>() >> 1,
+  lit<2>() >> 2,
+  __ >> 0
+);
+```
+
+### Variant Snapshot
+
+Current variant snapshot is generated from `ptn_bench_variant` JSON:
 
 ![Patternia Variant Dispatch Snapshot (v0.8.0)](docs/assets/bench/v0.8.0-variant-single-report.png)
 
@@ -58,11 +158,11 @@ input distributions.
 **Code shape**:
 
 ```cpp
-match(v) | on{
+match(v) | on(
   type::is<int>() >> 1,
   type::is<std::string>() >> 2,
-  __ >> 0,
-};
+  __ >> 0
+);
 ```
 
 **Meaning**:
@@ -77,11 +177,11 @@ match(v) | on{
 **Code shape**:
 
 ```cpp
-match(v) | on{
+match(v) | on(
   type::alt<0>() >> 1,
   type::alt<1>() >> 2,
-  __ >> 0,
-};
+  __ >> 0
+);
 ```
 
 **Meaning**:
@@ -95,11 +195,11 @@ match(v) | on{
 **Code shape**:
 
 ```cpp
-match(v) | on{
+match(v) | on(
   type::alt<0>() >> 1,
   type::alt<1>() >> 2,
-  __ >> 0,
-};
+  __ >> 0
+);
 ```
 
 **Meaning**:
@@ -113,13 +213,13 @@ match(v) | on{
 **Code shape**:
 
 ```cpp
-match(v32) | on{
+match(v32) | on(
   type::alt<0>() >> 1,
   type::alt<1>() >> 2,
   // ...
   type::alt<31>() >> 32,
-  __ >> 0,
-};
+  __ >> 0
+);
 ```
 
 **Meaning**:
@@ -233,12 +333,12 @@ As a result, **structural assumptions about data are rarely explicit**, and reas
 Patternia allows control flow to be written *in terms of structure*:
 
 ```cpp
-match(p) | on{
+match(p) | on(
   bind(has<&Point::x, &Point::y>()) >> [](int x, int y) {
     // explicitly operates on {x, y}
   },
-  __ >> [] { /* fallback */ },
-};
+  __ >> [] { /* fallback */ }
+);
 ```
 
 Each branch clearly states *what shape of data it expects* and *what it binds*, making invariants explicit and local.
@@ -263,11 +363,11 @@ Patternia separates these concerns:
 * **Guards** describe *constraints over the bound values*.
 
 ```cpp
-match(p) | on{
+match(p) | on(
   bind(has<&Point::x, &Point::y>())[arg<0> + arg<1> == 0] >>
       [](int x, int y) { /* ... */ },
-  __ >> [] { /* ... */ },
-};
+  __ >> [] { /* ... */ }
+);
 ```
 
 This separation improves readability and enables richer forms of reasoning over multi-value relationships.
@@ -325,11 +425,11 @@ within one coherent, expression-oriented model.
 Patternia treats pattern matching as an **expression**, not just a control-flow statement:
 
 ```cpp
-auto result = match(n) | on{
+auto result = match(n) | on(
   lit(0) >> 0,
   lit(1) >> 1,
-  __ >> [] { return compute(); },
-};
+  __ >> [] { return compute(); }
+);
 ```
 
 At the same time, it adheres strictly to C++’s zero-overhead principle:
@@ -385,11 +485,11 @@ Patternia is a **header-only** library that brings expressive pattern matching t
 
 int classify(int x) {
   using namespace ptn;
-  return match(x) | on{
+  return match(x) | on(
     lit(0) >> 0,
     lit(1) >> 1,
-    __ >> -1,
-  };
+    __ >> -1
+  );
 }
 ```
 
@@ -516,7 +616,7 @@ py -3 scripts/bench_compare.py `
 ### I. Match DSL Core Framework
 
 * [`match(subject)`](https://sentomk.github.io/patternia/api/#matchsubject)
-* [`match(subject) | on{...}`](https://sentomk.github.io/patternia/api/#matchsubject-on)
+* [`match(subject) | on(...)`](https://sentomk.github.io/patternia/api/#matchsubject-on)
 * [`.when(pattern >> handler)` *(legacy chain; deprecating)*](https://sentomk.github.io/patternia/api/#whenpattern-handler)
 * [`.otherwise(...)` *(legacy chain; deprecating)*](https://sentomk.github.io/patternia/api/#otherwise)
 * [`.end()` *(legacy chain; deprecating)*](https://sentomk.github.io/patternia/api/#end)
