@@ -18,6 +18,7 @@ add_executable(ptn_tests
   tests_guard.cpp
   tests_literal_pattern.cpp
   tests_match_flow.cpp
+  tests_public_api.cpp
   tests_terminal_semantics.cpp
   tests_type_pattern.cpp
 )

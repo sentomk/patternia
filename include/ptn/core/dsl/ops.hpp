@@ -12,7 +12,7 @@
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/dsl/detail/case_expr_impl.hpp"
 
-namespace ptn::core::dsl::ops {
+namespace ptn::pat::base {
 
   // Operator overloads.
 
@@ -31,7 +31,17 @@ namespace ptn::core::dsl::ops {
   //
   // This distinction prevents parameterized lambdas from being misidentified
   // as values, avoiding closure type issues in std::common_type_t resolution.
-  template <typename Pattern, typename Handler>
+  // The operator lives in `ptn::pat::base` so ADL can find it for built-in
+  // patterns even when user code stays fully qualified and does not add
+  // `using namespace ptn;`.
+  template <
+      typename Pattern,
+      typename Handler,
+      std::enable_if_t<
+          std::is_base_of_v<
+              ptn::pat::base::pattern_tag,
+              std::decay_t<Pattern>>,
+          int> = 0>
   constexpr auto operator>>(Pattern &&pattern, Handler &&handler) {
     using P = std::decay_t<Pattern>;
     using H = std::decay_t<Handler>;
@@ -50,5 +60,11 @@ namespace ptn::core::dsl::ops {
           std::forward<Pattern>(pattern), std::forward<Handler>(handler)};
     }
   }
+
+} // namespace ptn::pat::base
+
+namespace ptn::core::dsl::ops {
+
+  using ptn::pat::base::operator>>;
 
 } // namespace ptn::core::dsl::ops
