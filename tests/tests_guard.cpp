@@ -76,3 +76,67 @@ TEST(Guard, MultiArgCallablePredicate) {
 
   EXPECT_EQ(result, 1);
 }
+
+// -- _N placeholder aliases --
+
+TEST(Guard, ZeroPlaceholderSingleValue) {
+  int x      = 7;
+  int result = match(
+      x, $[_0 > 5] >> [](int v) { return v; }, _ >> 0);
+
+  EXPECT_EQ(result, 7);
+}
+
+TEST(Guard, ZeroPlaceholderCompoundGuard) {
+  int x      = 6;
+  int result = match(
+      x, $[_0 > 0 && _0 < 10] >> [](int v) { return v; }, _ >> -1);
+
+  EXPECT_EQ(result, 6);
+}
+
+TEST(Guard, MultiArgWithPlaceholderAliases) {
+  Point p{3, 4};
+
+  int result = match(
+      p,
+      bind(has<&Point::x, &Point::y>())[_0 * _0 + _1 * _1 == 25]
+          >> 1,
+      _ >> 0);
+
+  EXPECT_EQ(result, 1);
+}
+
+TEST(Guard, PlaceholderAliasEquivalentToArg) {
+  Point p{2, 5};
+
+  int r1 = match(
+      p,
+      bind(has<&Point::x, &Point::y>())[_0 + _1 == 7] >> 1,
+      _ >> 0);
+
+  int r2 = match(
+      p,
+      bind(has<&Point::x, &Point::y>())[arg<0> + arg<1> == 7] >> 1,
+      _ >> 0);
+
+  EXPECT_EQ(r1, r2);
+}
+
+TEST(Guard, MixedGuardExprAndCallable) {
+  int  x      = 8;
+  auto even   = [](auto v) { return v % 2 == 0; };
+  int  result = match(
+      x, $[_0 > 5 && even] >> [](int v) { return v; }, _ >> -1);
+
+  EXPECT_EQ(result, 8);
+}
+
+TEST(Guard, MixedGuardCallableRejects) {
+  int  x      = 7;
+  auto even   = [](auto v) { return v % 2 == 0; };
+  int  result = match(
+      x, $[_0 > 5 && even] >> [](int v) { return v; }, _ >> -1);
+
+  EXPECT_EQ(result, -1);
+}
