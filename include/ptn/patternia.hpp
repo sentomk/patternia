@@ -4,9 +4,10 @@
 
 // The single-entry-point header for the Patternia library.
 //
-// Include this file to get access to all of Patternia's core pattern matching
-// capabilities, including value, type, and structural patterns, as well as
-// the DSL operators and core matching functions.
+// Include this file to get access to all of Patternia's core pattern
+// matching capabilities, including value, type, and structural
+// patterns, as well as the DSL operators and core matching
+// functions.
 //
 // This is the recommended way to use Patternia.
 
@@ -31,7 +32,7 @@
 #include "ptn/pattern/wildcard.hpp"        // wildcard
 #include "ptn/pattern/modifiers/guard.hpp" // guard
 #include "ptn/pattern/structural.hpp"      // has
-#include "ptn/pattern/type.hpp"            // type::is, type::as, type::alt
+#include "ptn/pattern/type.hpp" // type::is, type::as, type::alt
 
 namespace ptn {
   // Imports DSL operators.
@@ -43,10 +44,14 @@ namespace ptn {
 
   using ptn::pat::bind;
 
+  using ptn::pat::_;
   using ptn::pat::__;
 
   // Guard utilities.
-  using ptn::pat::mod::_;
+  using ptn::pat::mod::_0;
+  using ptn::pat::mod::_1;
+  using ptn::pat::mod::_2;
+  using ptn::pat::mod::_3;
   using ptn::pat::mod::operator&&;
   using ptn::pat::mod::operator||;
   using ptn::pat::mod::arg;
@@ -58,15 +63,16 @@ namespace ptn {
 
   // Type-pattern utilities.
   namespace type = ptn::pat::type;
-  using ptn::pat::type::is;
-  using ptn::pat::type::as;
   using ptn::pat::type::alt;
+  using ptn::pat::type::as;
+  using ptn::pat::type::is;
 
 } // namespace ptn
 
 // Optional sugar for the statically cached `on(...)` factory form.
 #ifndef PTN_ON
-#define PTN_ON(...) (::ptn::static_on([] { return ::ptn::on(__VA_ARGS__); }))
+#define PTN_ON(...)                                                 \
+  (::ptn::static_on([] { return ::ptn::on(__VA_ARGS__); }))
 #endif
 
 // IWYU pragma: end_exports

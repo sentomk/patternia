@@ -2,9 +2,9 @@
 
 // Public API and implementation for wildcard patterns (`__`).
 //
-// This file provides the wildcard pattern that matches any value without
-// binding. It includes both public API and internal implementation details,
-// keeping the module self-contained.
+// This file provides the wildcard pattern that matches any value
+// without binding. It includes both public API and internal
+// implementation details, keeping the module self-contained.
 
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/pattern_base.hpp"
@@ -32,6 +32,9 @@ namespace ptn::pat {
 
   // Global wildcard instance.
   inline constexpr ptn::pat::detail::wildcard_t __{};
+
+  // Shorthand wildcard alias.
+  inline constexpr ptn::pat::detail::wildcard_t _{};
 
 } // namespace ptn::pat
 
