@@ -119,3 +119,70 @@ TEST(UnifiedMatch, FullyQualifiedWorks) {
 
   EXPECT_EQ(result, 42);
 }
+
+// -- _ wildcard alias --
+
+TEST(UnifiedMatch, UnderscoreWildcardMatchesAnything) {
+  int x      = 999;
+  int result = match(x, lit(1) >> 10, _ >> -1);
+
+  EXPECT_EQ(result, -1);
+}
+
+TEST(UnifiedMatch, UnderscoreWildcardAsOnlyCase) {
+  int x      = 42;
+  int result = match(x, _ >> 0);
+
+  EXPECT_EQ(result, 0);
+}
+
+TEST(UnifiedMatch, UnderscoreWildcardWithVoidHandler) {
+  int x   = 1;
+  int hit = 0;
+
+  match(x, _ >> [&] { hit = 1; });
+
+  EXPECT_EQ(hit, 1);
+}
+
+TEST(UnifiedMatch, UnderscoreAndDoubleUnderscoreAreEquivalent) {
+  int x  = 5;
+  int r1 = match(x, lit(5) >> 50, _ >> 0);
+  int r2 = match(x, lit(5) >> 50, __ >> 0);
+
+  EXPECT_EQ(r1, r2);
+}
+
+// -- $ bind shorthand --
+
+TEST(UnifiedMatch, DollarBindCapturesSubject) {
+  int x      = 42;
+  int result = match(x, $ >> [](int v) { return v * 2; }, _ >> 0);
+
+  EXPECT_EQ(result, 84);
+}
+
+TEST(UnifiedMatch, DollarBindWithGuard) {
+  int x      = 10;
+  int result = match(
+      x, $[_0 > 5] >> [](int v) { return v; }, _ >> -1);
+
+  EXPECT_EQ(result, 10);
+}
+
+TEST(UnifiedMatch, DollarBindGuardRejects) {
+  int x      = 3;
+  int result = match(
+      x, $[_0 > 5] >> [](int v) { return v; }, _ >> -1);
+
+  EXPECT_EQ(result, -1);
+}
+
+TEST(UnifiedMatch, DollarBindEquivalentToBind) {
+  int x  = 7;
+  int r1 = match(x, $[_0 > 0] >> [](int v) { return v; }, _ >> 0);
+  int r2 = match(
+      x, bind()[_0 > 0] >> [](int v) { return v; }, _ >> 0);
+
+  EXPECT_EQ(r1, r2);
+}
