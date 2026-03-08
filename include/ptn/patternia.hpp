@@ -42,6 +42,7 @@ namespace ptn {
   using ptn::pat::lit;
   using ptn::pat::lit_ci;
 
+  using ptn::pat::$;
   using ptn::pat::bind;
 
   using ptn::pat::_;
