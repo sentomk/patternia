@@ -335,7 +335,7 @@ as<T>()   // alias of type::as<T>()
 match(v)
   .when(type::is<int>() >> [] { /* type-only */ })
   .when(type::as<std::string>() >> [](const std::string &s) { /* bound */ })
-  .when(type::as<std::string>()[_ != ""] >> [](const std::string &s) { /* guarded */ })
+  .when(type::as<std::string>()[_0 != ""] >> [](const std::string &s) { /* guarded */ })
   .when(type::is<Point>(bind(has<&Point::x, &Point::y>())) >>
         [](int x, int y) { /* structural bind */ })
   .otherwise([] {});
@@ -471,7 +471,7 @@ Guards are **declarative constraints attached to patterns**. They refine a match
 A guard failure **does not terminate** matching; it simply makes the current case fail and the engine continues to the next `.when(...)`.
 
 !!! warning
-    `_` and `rng(...)` are only valid when exactly one value is bound **now**.
+    `_0` and `rng(...)` are only valid when exactly one value is bound **now**.
     For multi-value patterns, use `arg<N>` or a lambda predicate.
 
 ---
@@ -496,11 +496,11 @@ pattern[guard]
 ```cpp
 match(x)
   .when(
-    bind()[_ > 0] >>
+    bind()[_0 > 0] >>
     [](int v) {
       // 1) bind() matches
       // 2) bind() binds v
-      // 3) guard (_ > 0) is evaluated
+      // 3) guard (_0 > 0) is evaluated
       // 4) handler runs only if guard passes
     }
   )
@@ -511,7 +511,7 @@ Type patterns can be guarded as well, as long as they bind:
 
 ```cpp
 match(v)
-  .when(type::as<std::string>()[_ != ""] >> [](const std::string &s) {
+  .when(type::as<std::string>()[_0 != ""] >> [](const std::string &s) {
     /* guarded alternative */
   })
   .otherwise([] {});
@@ -524,25 +524,25 @@ match(v)
 
 ---
 
-### Single-value Guards: `_` and `rng(...)`
+### Single-value Guards: `_0` and `rng(...)`
 
 Single-value guards are built with the global placeholder:
 
 ```cpp
-inline constexpr placeholder_t _;
+inline constexpr arg_t<0> _0{};
 ```
 
-`_` is **not** a runtime value. Expressions like `_ > 0` **construct a predicate object**.
+`_0` is **not** a runtime value. Expressions like `_0 > 0` **construct a predicate object**.
 
-#### Supported operators for `_`
+#### Supported operators for `_0`
 
 ```cpp
-_ >  rhs
-_ <  rhs
-_ >= rhs
-_ <= rhs
-_ == rhs
-_ != rhs
+_0 >  rhs
+_0 <  rhs
+_0 >= rhs
+_0 <= rhs
+_0 == rhs
+_0 != rhs
 ```
 
 #### Range helper: `rng(lo, hi, mode)`
@@ -559,7 +559,7 @@ rng(lo, hi, closed_open)    // [lo, hi)
 **Examples**:
 
 ```cpp
-bind()[_ > 0 && _ < 10]
+bind()[_0 > 0 && _0 < 10]
 bind()[rng(0, 10, closed_open)]   // [0, 10)
 ```
 

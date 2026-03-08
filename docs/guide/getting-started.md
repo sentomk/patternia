@@ -226,7 +226,7 @@ Guards allow you to attach constraints to patterns.
 using namespace ptn;
 
 match(x)
-  .when(bind()[_ > 0 && _ < 10] >> [](int v) {
+  .when(bind()[_0 > 0 && _0 < 10] >> [](int v) {
     std::cout << "in range: " << v << "\n";
   })
   .otherwise([] {
@@ -280,7 +280,7 @@ using V = std::variant<int, std::string, Point>;
 match(v)
   .when(is<int>() >> [] { /* type-only */ })
   .when(as<std::string>() >> [](const std::string &s) { /* bound */ })
-  .when(as<std::string>()[_ != ""] >> [](const std::string &s) { /* guarded */ })
+  .when(as<std::string>()[_0 != ""] >> [](const std::string &s) { /* guarded */ })
   .when(is<Point>(bind(has<&Point::x, &Point::y>())) >>
         [](int x, int y) { /* structural bind */ })
   .otherwise([] {});

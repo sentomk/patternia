@@ -18,18 +18,18 @@ For a single bound value, this often reads naturally:
 
 ```cpp
 match(x)
-  .when(bind()[_ > 0 && _ < 10] >> "small")
+  .when(bind()[_0 > 0 && _0 < 10] >> "small")
   .otherwise("other");
 ```
 
-Here, `_` is not a runtime variable. It is a placeholder used to construct a predicate over the bound value. The expression `_ > 0 && _ < 10` does not evaluate immediately; it builds a guard that will be evaluated after binding.
+Here, `_0` is not a runtime variable. It is a placeholder used to construct a predicate over the bound value. The expression `_0 > 0 && _0 < 10` does not evaluate immediately; it builds a guard that will be evaluated after binding.
 
 This style is intended for *simple, relational constraints*: comparisons, ranges, and boolean combinations. The goal is clarity, not expressiveness at all costs. If the condition can be read as a short sentence about the value, it likely belongs in this form.
 
 Logical composition using `&&` and `||` is fully supported and is often sufficient for straightforward rules:
 
 ```cpp
-.when(bind()[_ == 0 || _ == 1] >> "edge")
+.when(bind()[_0 == 0 || _0 == 1] >> "edge")
 ```
 
 As long as the logic remains local and obvious, keeping it in expression form improves readability by keeping the rule close to the case definition.
@@ -91,7 +91,7 @@ auto valid_id = [](int v) {
 };
 
 match(x)
-  .when(bind()[_ > 0 && valid_id] >> "valid")
+  .when(bind()[_0 > 0 && valid_id] >> "valid")
   .otherwise("invalid");
 ```
 

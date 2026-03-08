@@ -52,9 +52,9 @@ At this point, you move to the builder form, `match(x).when(...)`, and you make 
 ```cpp
 auto bucket(int x) {
   return match(x)
-    .when(bind()[_ < 0]   >> 0)
-    .when(bind()[_ < 10]  >> 1)
-    .when(bind()[_ < 100] >> 2)
+    .when(bind()[_0 < 0]   >> 0)
+    .when(bind()[_0 < 10]  >> 1)
+    .when(bind()[_0 < 100] >> 2)
     .otherwise(3);
 }
 ```

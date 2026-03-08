@@ -51,7 +51,7 @@ Patternia supports the same expressive power, but deliberately changes how it is
 
 ```cpp
 auto label = match(x)
-  .when(bind()[_ > 0 && _ < 10] >> "small")
+  .when(bind()[_0 > 0 && _0 < 10] >> "small")
   .otherwise("other");
 ```
 

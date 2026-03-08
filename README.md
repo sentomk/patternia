@@ -28,6 +28,7 @@
 
 ## *Update*
 
+- **API update (v0.8.3)** adds `match(x, cases...)` unified entry, `_` wildcard alias, `$` bind shorthand, and `_0`–`_3` guard placeholders. Guard placeholder `_` is deprecated in favor of `_0`.
 - **Release update (v0.8.2)** keeps public usage centered on `match(x) | on(...)` and adds reusable hot-path forms through `static_on(...)` and `PTN_ON(...)`.
 - **Performance update (v0.8.2)** introduces a lowering engine with `full` / `bucketed` / `none` legality and a switch-oriented static literal path for large keyed matches.
 - **Literal API update (v0.8.2)** keeps `lit(value)` and `lit_ci(value)` for general runtime matching while using `lit<value>()` for lowering-friendly compile-time literals.
@@ -389,7 +390,7 @@ Patternia introduces **first-class guard expressions** that are:
 * and structurally aware (single-value and multi-value guards).
 
 ```cpp
-bind()[_ > 0 && _ < 10]
+bind()[_0 > 0 && _0 < 10]
 bind(has<&A::x, &A::y>())[arg<0> * arg<1> > 100]
 ```
 
