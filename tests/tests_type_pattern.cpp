@@ -38,18 +38,21 @@ TEST(TypePattern, SimpleVariantDispatchPreservesFirstMatchWins) {
 
   int hit_count = 0;
   int result    = ptn::match(v)
-                   .when(ptn::type::is<int>() >> [&] {
-                     ++hit_count;
-                     return 1;
-                   })
-                   .when(ptn::type::is<int>() >> [&] {
-                     ++hit_count;
-                     return 2;
-                   })
-                   .when(ptn::__ >> [&] {
-                     ++hit_count;
-                     return 3;
-                   })
+                   .when(ptn::type::is<int>() >>
+                         [&] {
+                           ++hit_count;
+                           return 1;
+                         })
+                   .when(ptn::type::is<int>() >>
+                         [&] {
+                           ++hit_count;
+                           return 2;
+                         })
+                   .when(ptn::__ >>
+                         [&] {
+                           ++hit_count;
+                           return 3;
+                         })
                    .end();
 
   EXPECT_EQ(result, 1);
@@ -74,18 +77,21 @@ TEST(TypePattern, SimpleVariantDispatchUnlistedAltFallsToWildcard) {
   int str_hits      = 0;
 
   int result = ptn::match(v)
-                   .when(ptn::type::is<int>() >> [&] {
-                     ++int_hits;
-                     return 1;
-                   })
-                   .when(ptn::type::is<std::string>() >> [&] {
-                     ++str_hits;
-                     return 2;
-                   })
-                   .when(ptn::__ >> [&] {
-                     ++wildcard_hits;
-                     return 7;
-                   })
+                   .when(ptn::type::is<int>() >>
+                         [&] {
+                           ++int_hits;
+                           return 1;
+                         })
+                   .when(ptn::type::is<std::string>() >>
+                         [&] {
+                           ++str_hits;
+                           return 2;
+                         })
+                   .when(ptn::__ >>
+                         [&] {
+                           ++wildcard_hits;
+                           return 7;
+                         })
                    .end();
 
   EXPECT_EQ(result, 7);
@@ -101,14 +107,16 @@ TEST(TypePattern, MixedVariantGuardedFallsThroughToSimpleCase) {
   int simple_hits  = 0;
 
   int result = ptn::match(v)
-                   .when(ptn::type::as<int>()[ptn::_ > 100] >> [&](int) {
-                     ++guarded_hits;
-                     return 10;
-                   })
-                   .when(ptn::type::is<int>() >> [&] {
-                     ++simple_hits;
-                     return 1;
-                   })
+                   .when(ptn::type::as<int>()[ptn::_0 > 100] >>
+                         [&](int) {
+                           ++guarded_hits;
+                           return 10;
+                         })
+                   .when(ptn::type::is<int>() >>
+                         [&] {
+                           ++simple_hits;
+                           return 1;
+                         })
                    .when(ptn::__ >> [] { return 0; })
                    .end();
 
@@ -119,7 +127,9 @@ TEST(TypePattern, MixedVariantGuardedFallsThroughToSimpleCase) {
 
 TEST(TypePattern, MixedVariantGuardedCaseWinsWhenPredicateTrue) {
   std::variant<int, std::string> v = std::string("patternia");
-  auto long_string = [](const std::string &s) { return s.size() > 4; };
+  auto long_string                 = [](const std::string &s) {
+    return s.size() > 4;
+  };
 
   int guarded_hits = 0;
   int simple_hits  = 0;
@@ -130,10 +140,11 @@ TEST(TypePattern, MixedVariantGuardedCaseWinsWhenPredicateTrue) {
                            ++guarded_hits;
                            return 20;
                          })
-                   .when(ptn::type::is<std::string>() >> [&] {
-                     ++simple_hits;
-                     return 2;
-                   })
+                   .when(ptn::type::is<std::string>() >>
+                         [&] {
+                           ++simple_hits;
+                           return 2;
+                         })
                    .when(ptn::__ >> [] { return 0; })
                    .end();
 

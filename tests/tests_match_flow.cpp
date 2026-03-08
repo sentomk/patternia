@@ -54,7 +54,8 @@ int ZeroBindProbePattern::bind_calls = 0;
 struct ConditionalProbePattern
     : ptn::pat::base::pattern_base<ConditionalProbePattern>,
       ptn::pat::base::binding_pattern_base<ConditionalProbePattern> {
-  // Test-controlled match gate and bind counter for matrix scenarios.
+  // Test-controlled match gate and bind counter for matrix
+  // scenarios.
   static bool should_match;
   static int  bind_calls;
 
@@ -93,9 +94,9 @@ namespace ptn::pat::base {
 
 TEST(MatchFlow, OtherwiseCallableWithSubject) {
   int x      = 7;
-  int result = ptn::match(x).when(ptn::lit(1) >> 10).otherwise([](int v) {
-    return v * 2;
-  });
+  int result = ptn::match(x)
+                   .when(ptn::lit(1) >> 10)
+                   .otherwise([](int v) { return v * 2; });
 
   EXPECT_EQ(result, 14);
 }
@@ -118,7 +119,8 @@ TEST(MatchFlow, SubjectBindsAsLvalue) {
 
   int x      = 11;
   int result = ptn::match(x)
-                   .when(ForwardingProbePattern{} >> [](int v) { return v; })
+                   .when(ForwardingProbePattern{} >>
+                         [](int v) { return v; })
                    .otherwise(-1);
 
   EXPECT_EQ(result, 11);
@@ -132,7 +134,7 @@ TEST(MatchFlow, GuardedCaseBindsOnlyOnceOnMatch) {
 
   int x      = 11;
   int result = ptn::match(x)
-                   .when(ForwardingProbePattern{}[ptn::_ > 0] >>
+                   .when(ForwardingProbePattern{}[ptn::_0 > 0] >>
                          [](int v) { return v; })
                    .otherwise(-1);
 
@@ -144,7 +146,7 @@ TEST(MatchFlow, GuardedCaseBindsOnlyOnceOnMatch) {
 TEST(MatchFlow, GuardedPathOneBindVsLegacyTwoBindSequence) {
   int x = 11;
 
-  auto guarded = ForwardingProbePattern{}[ptn::_ > 0];
+  auto guarded = ForwardingProbePattern{}[ptn::_0 > 0];
 
   // Simulate legacy two-step flow:
   // 1) guarded.match(x) -> inner.bind(x) inside guard evaluation
@@ -154,18 +156,19 @@ TEST(MatchFlow, GuardedPathOneBindVsLegacyTwoBindSequence) {
 
   if (guarded.match(x)) {
     auto bound = guarded.bind(x);
-    (void)std::get<0>(bound);
+    (void) std::get<0>(bound);
   }
 
   EXPECT_EQ(ForwardingProbePattern::lvalue_bind_calls, 2);
   EXPECT_EQ(ForwardingProbePattern::rvalue_bind_calls, 0);
 
-  // Current optimized engine path should bind only once on guard-hit.
+  // Current optimized engine path should bind only once on
+  // guard-hit.
   ForwardingProbePattern::lvalue_bind_calls = 0;
   ForwardingProbePattern::rvalue_bind_calls = 0;
 
   int result = ptn::match(x)
-                   .when(ForwardingProbePattern{}[ptn::_ > 0] >>
+                   .when(ForwardingProbePattern{}[ptn::_0 > 0] >>
                          [](int v) { return v; })
                    .otherwise(-1);
 
@@ -180,7 +183,8 @@ TEST(MatchFlow, BindCountMatrixNoBindWhenPatternMisses) {
 
   int x      = 11;
   int result = ptn::match(x)
-                   .when(ConditionalProbePattern{} >> [](int) { return 1; })
+                   .when(ConditionalProbePattern{} >>
+                         [](int) { return 1; })
                    .otherwise(0);
 
   EXPECT_EQ(result, 0);
@@ -193,7 +197,8 @@ TEST(MatchFlow, BindCountMatrixOneBindWhenPatternMatches) {
 
   int x      = 11;
   int result = ptn::match(x)
-                   .when(ConditionalProbePattern{} >> [](int v) { return v; })
+                   .when(ConditionalProbePattern{} >>
+                         [](int v) { return v; })
                    .otherwise(-1);
 
   EXPECT_EQ(result, 11);
@@ -206,7 +211,7 @@ TEST(MatchFlow, BindCountMatrixGuardMissBindsOnceThenOtherwise) {
 
   int x      = 11;
   int result = ptn::match(x)
-                   .when(ForwardingProbePattern{}[ptn::_ > 100] >>
+                   .when(ForwardingProbePattern{}[ptn::_0 > 100] >>
                          [](int) { return 1; })
                    .otherwise(0);
 
@@ -221,9 +226,10 @@ TEST(MatchFlow, BindCountMatrixGuardMissThenNextCaseAddsSecondBind) {
 
   int x      = 11;
   int result = ptn::match(x)
-                   .when(ForwardingProbePattern{}[ptn::_ > 100] >>
+                   .when(ForwardingProbePattern{}[ptn::_0 > 100] >>
                          [](int) { return -1; })
-                   .when(ForwardingProbePattern{} >> [](int v) { return v; })
+                   .when(ForwardingProbePattern{} >>
+                         [](int v) { return v; })
                    .otherwise(0);
 
   EXPECT_EQ(result, 11);
@@ -232,7 +238,8 @@ TEST(MatchFlow, BindCountMatrixGuardMissThenNextCaseAddsSecondBind) {
 }
 
 TEST(MatchFlow, ZeroBindVariantStyleCaseSkipsBindInTypedEval) {
-  // This case mirrors variant style "type-only match + value/zero-arg handler".
+  // This case mirrors variant style "type-only match +
+  // value/zero-arg handler".
   ZeroBindProbePattern::bind_calls = 0;
 
   int x      = 7;
@@ -248,12 +255,10 @@ TEST(MatchFlow, ZeroBindVariantStyleCaseSkipsBindInTypedEval) {
 TEST(MatchFlow, PipeOnSyntaxOtherwise) {
   int x = 3;
 
-  int result = ptn::match(x) |
-               ptn::on(
-                   ptn::lit(1) >> 10,
-                   ptn::lit(2) >> 20,
-                   ptn::__ >> -1
-               );
+  int result = ptn::match(x)
+               | ptn::on(ptn::lit(1) >> 10,
+                         ptn::lit(2) >> 20,
+                         ptn::__ >> -1);
 
   EXPECT_EQ(result, -1);
 }
@@ -261,11 +266,8 @@ TEST(MatchFlow, PipeOnSyntaxOtherwise) {
 TEST(MatchFlow, PipeOnSyntaxEndWithWildcard) {
   int x = 2;
 
-  int result = ptn::match(x) |
-               ptn::on(
-                   ptn::lit(1) >> 10,
-                   ptn::__ >> 99
-               );
+  int result = ptn::match(x)
+               | ptn::on(ptn::lit(1) >> 10, ptn::__ >> 99);
 
   EXPECT_EQ(result, 99);
 }
@@ -274,44 +276,39 @@ TEST(MatchFlow, PipeOnVariantGuardedThenSameAltPlainGuardHit) {
   using V = std::variant<int, std::string>;
   V v     = 123;
 
-  int result = ptn::match(v) |
-               ptn::on(
-                   ptn::type::as<int>()[ptn::_ > 100] >> 10,
-                   ptn::type::is<int>() >> 1,
-                   ptn::type::is<std::string>() >> 2,
-                   ptn::__ >> 0
-               );
+  int result = ptn::match(v)
+               | ptn::on(ptn::type::as<int>()[ptn::_0 > 100] >> 10,
+                         ptn::type::is<int>() >> 1,
+                         ptn::type::is<std::string>() >> 2,
+                         ptn::__ >> 0);
 
   EXPECT_EQ(result, 10);
 }
 
-TEST(MatchFlow, PipeOnVariantGuardedThenSameAltPlainGuardMissFallsThrough) {
+TEST(MatchFlow,
+     PipeOnVariantGuardedThenSameAltPlainGuardMissFallsThrough) {
   using V = std::variant<int, std::string>;
   V v     = 7;
 
-  int result = ptn::match(v) |
-               ptn::on(
-                   ptn::type::as<int>()[ptn::_ > 100] >> 10,
-                   ptn::type::is<int>() >> 1,
-                   ptn::type::is<std::string>() >> 2,
-                   ptn::__ >> 0
-               );
+  int result = ptn::match(v)
+               | ptn::on(ptn::type::as<int>()[ptn::_0 > 100] >> 10,
+                         ptn::type::is<int>() >> 1,
+                         ptn::type::is<std::string>() >> 2,
+                         ptn::__ >> 0);
 
   EXPECT_EQ(result, 1);
 }
 
-TEST(MatchFlow, PipeOnVariantGuardedThenSameAltPlainDifferentAltUnaffected) {
+TEST(MatchFlow,
+     PipeOnVariantGuardedThenSameAltPlainDifferentAltUnaffected) {
   using V = std::variant<int, std::string>;
   V v     = std::string("ok");
 
-  int result = ptn::match(v) |
-               ptn::on(
-                   ptn::type::as<int>()[ptn::_ > 100] >> 10,
-                   ptn::type::is<int>() >> 1,
-                   ptn::type::is<std::string>() >> 2,
-                   ptn::__ >> 0
-               );
+  int result = ptn::match(v)
+               | ptn::on(ptn::type::as<int>()[ptn::_0 > 100] >> 10,
+                         ptn::type::is<int>() >> 1,
+                         ptn::type::is<std::string>() >> 2,
+                         ptn::__ >> 0);
 
   EXPECT_EQ(result, 2);
 }
-

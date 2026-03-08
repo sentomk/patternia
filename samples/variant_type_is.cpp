@@ -11,32 +11,38 @@ struct Point {
   int y;
 };
 
-std::string describe(const std::variant<int, std::string, Point> &v) {
+std::string
+describe(const std::variant<int, std::string, Point> &v) {
   return match(v)
       .when(type::is<int>() >> "int")
       .when(type::is<std::string>(bind()) >>
             [](const std::string &s) { return "str:" + s; })
-      .when(type::is<Point>(bind(has<&Point::x, &Point::y>())) >>
-            [](int x, int y) { return "pt:" + std::to_string(x + y); })
+      .when(
+          type::is<Point>(bind(has<&Point::x, &Point::y>())) >>
+          [](int x, int y) { return "pt:" + std::to_string(x + y); })
       .otherwise([] { return std::string("other"); });
 }
 
-std::string describe_as(const std::variant<int, std::string, Point> &v) {
-  // Same as describe(...), but uses the binding sugar `type::as<T>()`.
+std::string
+describe_as(const std::variant<int, std::string, Point> &v) {
+  // Same as describe(...), but uses the binding sugar
+  // `type::as<T>()`.
   //
-  // `type::as<T>()` is equivalent to `type::is<T>(bind())`, so the handler
-  // receives the alternative value (or bound fields when combined with
-  // `bind(has<...>())`).
+  // `type::as<T>()` is equivalent to `type::is<T>(bind())`, so the
+  // handler receives the alternative value (or bound fields when
+  // combined with `bind(has<...>())`).
   //
-  // Type patterns become binding patterns when their subpattern binds.
-  // Guards can be attached directly to `type::as<T>()`.
+  // Type patterns become binding patterns when their subpattern
+  // binds. Guards can be attached directly to `type::as<T>()`.
   return match(v)
       .when(type::is<int>() >> "int")
-      .when(type::as<std::string>()[_ != ""] >>
+      .when(type::as<std::string>()[_0 != ""] >>
             [](const std::string &s) { return "str:" + s; })
       .when(
-          type::as<Point>(has<&Point::x, &Point::y>())[arg<0> > 0 && arg<1> > 0]
-          >> [](int x, int y) { return "pt:" + std::to_string(x + y); })
+          type::as<Point>(
+              has<&Point::x, &Point::y>())[arg<0> > 0 && arg<1> > 0]
+          >>
+          [](int x, int y) { return "pt:" + std::to_string(x + y); })
       .otherwise([] { return std::string("other"); });
 }
 

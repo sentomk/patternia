@@ -17,14 +17,12 @@ std::uint64_t fib(std::uint64_t n) {
       .when(lit(1u) >> 1u)
 
       // Handles even n > 1.
-      .when(
-          bind()[_ > 1u && is_even] >>
-          [&](std::uint64_t v) { return fib(v - 1) + fib(v - 2); })
+      .when(bind()[_0 > 1u && is_even] >>
+            [&](std::uint64_t v) { return fib(v - 1) + fib(v - 2); })
 
       // Handles odd n > 1.
-      .when(
-          bind()[_ > 1u && is_odd] >>
-          [&](std::uint64_t v) { return fib(v - 1) + fib(v - 2); })
+      .when(bind()[_0 > 1u && is_odd] >>
+            [&](std::uint64_t v) { return fib(v - 1) + fib(v - 2); })
       .otherwise([] { return 0u; });
 }
 
@@ -33,4 +31,3 @@ int main() {
     std::cout << "fib(" << i << ") = " << fib(i) << "\n";
   }
 }
-

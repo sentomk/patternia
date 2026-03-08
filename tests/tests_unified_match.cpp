@@ -89,7 +89,7 @@ TEST(UnifiedMatch, VariantTypeAsBindsValue) {
 TEST(UnifiedMatch, GuardedBindMatchesWhenTrue) {
   int x      = 10;
   int result = match(
-      x, bind()[_ > 5] >> [](int v) { return v; }, __ >> 0);
+      x, bind()[_0 > 5] >> [](int v) { return v; }, __ >> 0);
 
   EXPECT_EQ(result, 10);
 }
@@ -97,7 +97,7 @@ TEST(UnifiedMatch, GuardedBindMatchesWhenTrue) {
 TEST(UnifiedMatch, GuardedBindFallsWhenFalse) {
   int x      = 3;
   int result = match(
-      x, bind()[_ > 5] >> [](int v) { return v; }, __ >> -1);
+      x, bind()[_0 > 5] >> [](int v) { return v; }, __ >> -1);
 
   EXPECT_EQ(result, -1);
 }
