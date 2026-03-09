@@ -164,26 +164,31 @@ namespace ptn::pat::type {
   } // namespace detail
 
   // ------------------------------------------------------------
-  // Public API.
+  // Public API (deprecated, use ptn::is<T> / ptn::as<T> /
+  // ptn::alt<I>).
   // ------------------------------------------------------------
 
   template <typename T>
+  [[deprecated("use is<T> instead of type::is<T>()")]]
   constexpr auto is() {
     return detail::type_is_pattern<T>{};
   }
 
   template <typename T, typename SubPattern>
+  [[deprecated("use is<T>(sub) instead of type::is<T>(sub)")]]
   constexpr auto is(SubPattern &&subpattern) {
     return detail::type_is_pattern<T, std::decay_t<SubPattern>>(
         std::forward<SubPattern>(subpattern));
   }
 
   template <std::size_t I>
+  [[deprecated("use alt<I> instead of type::alt<I>()")]]
   constexpr auto alt() {
     return detail::type_alt_pattern<I>{};
   }
 
   template <std::size_t I, typename SubPattern>
+  [[deprecated("use alt<I>(sub) instead of type::alt<I>(sub)")]]
   constexpr auto alt(SubPattern &&subpattern) {
     return detail::type_alt_pattern<I, std::decay_t<SubPattern>>(
         std::forward<SubPattern>(subpattern));
@@ -192,6 +197,7 @@ namespace ptn::pat::type {
   // Explicit binding sugar for type matches.
   // Equivalent to: is<T>(bind())
   template <typename T>
+  [[deprecated("use as<T> instead of type::as<T>()")]]
   constexpr auto as() {
     return is<T>(ptn::pat::bind());
   }
@@ -199,6 +205,7 @@ namespace ptn::pat::type {
   // Explicit binding sugar with a subpattern.
   // Equivalent to: is<T>(bind(subpattern))
   template <typename T, typename SubPattern>
+  [[deprecated("use as<T>(sub) instead of type::as<T>(sub)")]]
   constexpr auto as(SubPattern &&subpattern) {
     return is<T>(
         ptn::pat::bind(std::forward<SubPattern>(subpattern)));
