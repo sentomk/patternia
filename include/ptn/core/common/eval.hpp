@@ -28,34 +28,31 @@ namespace ptn::core::common {
 #define PTN_DETAIL_NOINLINE
 #endif
 
-#define PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE(n)                           \
-  case n:                                                                  \
-    return dispatch_static_literal_offset_case<Plan,                       \
-                                               static_cast<std::size_t>(n), \
-                                               Result>(subject,             \
-                                                       std::forward<        \
-                                                           CasesTuple>(     \
-                                                           cases),          \
-                                                       std::forward<        \
-                                                           Otherwise>(      \
-                                                           otherwise_handler))
+#define PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE(n)                    \
+  case n:                                                           \
+    return dispatch_static_literal_offset_case<                     \
+        Plan,                                                       \
+        static_cast<std::size_t>(n),                                \
+        Result>(subject,                                            \
+                std::forward<CasesTuple>(cases),                    \
+                std::forward<Otherwise>(otherwise_handler))
 
-#define PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(base)                    \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 0);                       \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 1);                       \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 2);                       \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 3);                       \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 4);                       \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 5);                       \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 6);                       \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 7);                       \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 8);                       \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 9);                       \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 10);                      \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 11);                      \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 12);                      \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 13);                      \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 14);                      \
+#define PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(base)             \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 0);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 1);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 2);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 3);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 4);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 5);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 6);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 7);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 8);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 9);                \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 10);               \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 11);               \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 12);               \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 13);               \
+  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 14);               \
   PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 15)
 
   // SFINAE Helper for C++17
@@ -253,7 +250,8 @@ namespace ptn::core::common {
     constexpr Result
     invoke_otherwise_typed(Subject    &subject,
                            Otherwise &&otherwise_handler) {
-      // Shared typed otherwise flow for both generic and lowered evaluators.
+      // Shared typed otherwise flow for both generic and lowered
+      // evaluators.
       using otherwise_result = traits::otherwise_result_t<Otherwise,
                                                           Subject>;
 
@@ -343,12 +341,6 @@ namespace ptn::core::common {
             bound_arity>();
         return static_cast<bool>(guarded.pred(bound));
       }
-      else if constexpr (ptn::pat::traits::is_guard_predicate_v<
-                             decltype(guarded.pred)>) {
-        ptn::core::common::static_assert_unary_guard_arity<
-            bound_arity>();
-        return static_cast<bool>(guarded.pred(std::get<0>(bound)));
-      }
       else {
         return static_cast<bool>(std::apply(guarded.pred, bound));
       }
@@ -367,10 +359,6 @@ namespace ptn::core::common {
                 std::decay_t<Pred>>::value,
             1>();
         return static_cast<bool>(pred(bound_tuple));
-      }
-      else if constexpr (ptn::pat::traits::is_guard_predicate_v<
-                             Pred>) {
-        return static_cast<bool>(pred(bound_ref));
       }
       else {
         return static_cast<bool>(std::invoke(pred, bound_ref));
@@ -466,13 +454,14 @@ namespace ptn::core::common {
         using case_t    = std::tuple_element_t<CaseIndex, tuple_t>;
         using handler_t = traits::case_handler_t<case_t>;
 
-        // Reuses the case object directly so temporary `on(...)` packs can
-        // stay on the rvalue fast path when the selected plan does not need
-        // general matching state.
+        // Reuses the case object directly so temporary `on(...)`
+        // packs can stay on the rvalue fast path when the selected
+        // plan does not need general matching state.
         auto &&current_case = std::get<CaseIndex>(
             std::forward<CasesTuple>(cases));
 
-        if constexpr (core::dsl::detail::is_value_handler_v<handler_t>) {
+        if constexpr (core::dsl::detail::is_value_handler_v<
+                          handler_t>) {
           return static_cast<Result>(current_case.handler.value);
         }
         else {
@@ -558,13 +547,15 @@ namespace ptn::core::common {
         using pattern_t = traits::case_pattern_t<case_t>;
 
         if constexpr (is_static_literal_pattern_v<pattern_t>) {
-          constexpr typename Metadata::key_t value =
-              static_literal_case_value<pattern_t, Subject>::value;
+          constexpr typename Metadata::key_t
+              value = static_literal_case_value<pattern_t,
+                                                Subject>::value;
           constexpr std::size_t offset = static_cast<std::size_t>(
               value - Metadata::min_value);
 
           if (table[offset] == Metadata::k_invalid_case_index) {
-            table[offset] = static_cast<typename Metadata::case_index_t>(I);
+            table[offset] = static_cast<
+                typename Metadata::case_index_t>(I);
           }
         }
 
@@ -576,9 +567,13 @@ namespace ptn::core::common {
       }
     }
 
-    template <typename Metadata, typename Subject, typename CasesTuple>
+    template <typename Metadata,
+              typename Subject,
+              typename CasesTuple>
     constexpr auto make_static_literal_case_index_table() {
-      std::array<typename Metadata::case_index_t, Metadata::range_size> table{};
+      std::array<typename Metadata::case_index_t,
+                 Metadata::range_size>
+          table{};
 
       for (auto &entry : table) {
         entry = Metadata::k_invalid_case_index;
@@ -603,10 +598,11 @@ namespace ptn::core::common {
                                          true> {
       using metadata_t = typename Plan::metadata_t;
 
-      static constexpr auto case_index_table =
-          make_static_literal_case_index_table<metadata_t,
-                                               Subject,
-                                               CasesTuple>();
+      static constexpr auto
+          case_index_table = make_static_literal_case_index_table<
+              metadata_t,
+              Subject,
+              CasesTuple>();
     };
 
     template <std::size_t CaseIndex,
@@ -625,14 +621,15 @@ namespace ptn::core::common {
               typename CasesTuple,
               typename Otherwise>
     inline Result dispatch_static_literal_offset_case(
-        Subject    &subject,
+        Subject     &subject,
         CasesTuple &&cases,
-        Otherwise &&otherwise_handler) {
+        Otherwise  &&otherwise_handler) {
       if constexpr (Offset < Plan::range_size) {
         using cache_t = static_literal_dispatch_cache<Plan,
                                                       Subject,
                                                       CasesTuple>;
-        constexpr auto case_index = cache_t::case_index_table[Offset];
+        constexpr auto
+            case_index = cache_t::case_index_table[Offset];
 
         if constexpr (case_index != Plan::k_invalid_case_index) {
           return invoke_static_literal_case_entry<
@@ -657,14 +654,15 @@ namespace ptn::core::common {
               typename Subject,
               typename CasesTuple,
               typename Otherwise>
-    inline Result dispatch_static_literal_offset(
-        std::size_t offset,
-        Subject    &subject,
-        CasesTuple &&cases,
-        Otherwise &&otherwise_handler) {
-      static_assert(
-          Plan::range_size <= k_static_literal_dense_dispatch_max_span,
-          "static literal dense dispatch span exceeds configured limit");
+    inline Result
+    dispatch_static_literal_offset(std::size_t  offset,
+                                   Subject     &subject,
+                                   CasesTuple &&cases,
+                                   Otherwise  &&otherwise_handler) {
+      static_assert(Plan::range_size
+                        <= k_static_literal_dense_dispatch_max_span,
+                    "static literal dense dispatch span exceeds "
+                    "configured limit");
 
       switch (offset) {
         PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(0);
@@ -718,14 +716,15 @@ namespace ptn::core::common {
               typename CasesTuple,
               typename Otherwise>
     inline Result eval_cases_impl_static_literal_dispatch(
-        Subject    &subject,
+        Subject     &subject,
         CasesTuple &&cases,
-        Otherwise &&otherwise_handler) {
+        Otherwise  &&otherwise_handler) {
       using key_t = typename Plan::key_t;
 
       const key_t value = static_cast<key_t>(subject);
       if (value >= Plan::min_value && value <= Plan::max_value) {
-        const auto offset = static_cast<std::size_t>(value - Plan::min_value);
+        const auto offset = static_cast<std::size_t>(
+            value - Plan::min_value);
         return dispatch_static_literal_offset<Plan, Result>(
             offset,
             subject,
@@ -872,7 +871,8 @@ namespace ptn::core::common {
         Subject    &subject,
         CasesTuple &cases,
         Otherwise &&otherwise_handler) {
-      if constexpr (Plan::kind == dispatch_plan_kind::variant_simple) {
+      if constexpr (Plan::kind
+                    == dispatch_plan_kind::variant_simple) {
         using entry_t = typename Plan::template case_entry<AltIndex>;
 
         if constexpr (entry_t::has_any) {
@@ -886,13 +886,15 @@ namespace ptn::core::common {
         }
       }
       else if constexpr (Plan::kind
-                         == dispatch_plan_kind::variant_alt_bucketed) {
-        using bucket_t = typename Plan::template case_bucket<AltIndex>;
+                         == dispatch_plan_kind::
+                             variant_alt_bucketed) {
+        using bucket_t = typename Plan::template case_bucket<
+            AltIndex>;
 
         if constexpr (bucket_t::has_any) {
-          // Replays only the residual case slice selected by the planner for
-          // this active alternative. This preserves first-match semantics
-          // without scanning unrelated cases.
+          // Replays only the residual case slice selected by the
+          // planner for this active alternative. This preserves
+          // first-match semantics without scanning unrelated cases.
           return eval_cases_impl_typed_variant_for_alt_case_range<
               AltIndex,
               bucket_t::begin,
@@ -958,15 +960,16 @@ namespace ptn::core::common {
       static Result invoke(Subject          &subject,
                            CasesTuple       &cases,
                            OtherwiseHandler &otherwise_handler) {
-        return eval_cases_impl_variant_dispatch_for_alt_hit<
-            Plan,
-            AltIndex,
-            Result>(subject, cases, otherwise_handler);
+        return eval_cases_impl_variant_dispatch_for_alt_hit<Plan,
+                                                            AltIndex,
+                                                            Result>(
+            subject, cases, otherwise_handler);
       }
     };
 
-    // Builds a dense cold-path trampoline table from the plan's compact map.
-    // Only alternatives that survive planning receive a slot.
+    // Builds a dense cold-path trampoline table from the plan's
+    // compact map. Only alternatives that survive planning receive a
+    // slot.
     template <typename Plan,
               typename Result,
               typename Subject,
@@ -976,9 +979,8 @@ namespace ptn::core::common {
               std::size_t... AltIndex>
     constexpr auto make_variant_dispatch_compact_table(
         std::index_sequence<AltIndex...>) {
-      using dispatch_fn_t = Result (*)(Subject &,
-                                       CasesTuple &,
-                                       OtherwiseHandler &);
+      using dispatch_fn_t = Result (*)(
+          Subject &, CasesTuple &, OtherwiseHandler &);
       std::array<dispatch_fn_t, UsedAltCount> table{};
 
       std::size_t next = 0;
@@ -998,8 +1000,8 @@ namespace ptn::core::common {
       return table;
     }
 
-    // Caches the cold-path tables derived from the selected variant plan.
-    // Hot and warm tiers bypass this structure entirely.
+    // Caches the cold-path tables derived from the selected variant
+    // plan. Hot and warm tiers bypass this structure entirely.
     template <typename Plan,
               typename Result,
               typename Subject,
@@ -1027,21 +1029,23 @@ namespace ptn::core::common {
               typename Subject,
               typename CasesTuple,
               typename Otherwise>
-    PTN_DETAIL_NOINLINE inline Result eval_cases_impl_variant_dispatch_cold(
+    PTN_DETAIL_NOINLINE inline Result
+    eval_cases_impl_variant_dispatch_cold(
         std::size_t active_index,
         Subject    &subject,
         CasesTuple &cases,
         Otherwise &&otherwise_handler) {
       using otherwise_handler_t = std::remove_reference_t<Otherwise>;
-      using cache_t             = variant_dispatch_cache<
-                      Plan,
-                      Result,
-                      Subject,
-                      CasesTuple,
-                      otherwise_handler_t>;
+      using cache_t             = variant_dispatch_cache<Plan,
+                                                         Result,
+                                                         Subject,
+                                                         CasesTuple,
+                                                         otherwise_handler_t>;
 
-      // First maps the full variant index to the compact trampoline slot.
-      const auto compact_index = cache_t::compact_alt_index_map[active_index];
+      // First maps the full variant index to the compact trampoline
+      // slot.
+      const auto compact_index = cache_t::compact_alt_index_map
+          [active_index];
       if (compact_index == cache_t::k_invalid_compact_index) {
         return invoke_otherwise_typed<Result>(
             subject, std::forward<Otherwise>(otherwise_handler));
@@ -1058,20 +1062,21 @@ namespace ptn::core::common {
               typename Subject,
               typename CasesTuple,
               typename Otherwise>
-    inline Result eval_cases_impl_variant_dispatch(
-        std::size_t active_index,
-        Subject    &subject,
-        CasesTuple &cases,
-        Otherwise &&otherwise_handler) {
+    inline Result
+    eval_cases_impl_variant_dispatch(std::size_t active_index,
+                                     Subject    &subject,
+                                     CasesTuple &cases,
+                                     Otherwise &&otherwise_handler) {
       if (active_index >= Plan::alt_count) {
         return invoke_otherwise_typed<Result>(
             subject, std::forward<Otherwise>(otherwise_handler));
       }
 
-      // Executes the same plan through different runtime shapes chosen by the
-      // plan tier. The semantics are identical; only code size and branch
-      // structure differ.
-      if constexpr (Plan::tier == variant_dispatch_tier::hot_inline) {
+      // Executes the same plan through different runtime shapes
+      // chosen by the plan tier. The semantics are identical; only
+      // code size and branch structure differ.
+      if constexpr (Plan::tier
+                    == variant_dispatch_tier::hot_inline) {
         return eval_cases_impl_variant_dispatch_by_alt_inline<
             Plan,
             0,
@@ -1098,34 +1103,36 @@ namespace ptn::core::common {
               subject, std::forward<Otherwise>(otherwise_handler));
         };
 
-        return variant_binary_alt_dispatch<0,
-                                           Plan::alt_count,
-                                           Plan::alt_count>::dispatch(
-            active_index, on_hit, on_miss);
+        return variant_binary_alt_dispatch<
+            0,
+            Plan::alt_count,
+            Plan::alt_count>::dispatch(active_index,
+                                       on_hit,
+                                       on_miss);
       }
       else {
-        return eval_cases_impl_variant_dispatch_cold<
-            Plan,
-            Result>(active_index,
-                    subject,
-                    cases,
-                    std::forward<Otherwise>(otherwise_handler));
+        return eval_cases_impl_variant_dispatch_cold<Plan, Result>(
+            active_index,
+            subject,
+            cases,
+            std::forward<Otherwise>(otherwise_handler));
       }
     }
 
     // Executes a precomputed dispatch plan.
-    // The planner owns dispatch selection; evaluator code here only maps the
-    // selected shape to its runtime entry point.
+    // The planner owns dispatch selection; evaluator code here only
+    // maps the selected shape to its runtime entry point.
     template <typename Plan,
               typename Result,
               typename Subject,
               typename CasesTuple,
               typename Otherwise>
-    constexpr Result eval_cases_with_dispatch_plan(
-        Subject    &subject,
-        CasesTuple &&cases,
-        Otherwise &&otherwise_handler) {
-      if constexpr (Plan::kind == dispatch_plan_kind::static_literal_dense) {
+    constexpr Result
+    eval_cases_with_dispatch_plan(Subject     &subject,
+                                  CasesTuple &&cases,
+                                  Otherwise  &&otherwise_handler) {
+      if constexpr (Plan::kind
+                    == dispatch_plan_kind::static_literal_dense) {
         return eval_cases_impl_static_literal_dispatch<Plan, Result>(
             subject,
             std::forward<CasesTuple>(cases),
@@ -1134,30 +1141,31 @@ namespace ptn::core::common {
       else {
         auto &cases_ref = cases;
 
-        if constexpr (Plan::kind == dispatch_plan_kind::literal_linear) {
+        if constexpr (Plan::kind
+                      == dispatch_plan_kind::literal_linear) {
           return eval_cases_impl_literal_simple_dispatch<0, Result>(
               subject,
               cases_ref,
               std::forward<Otherwise>(otherwise_handler));
         }
-        else if constexpr (Plan::kind == dispatch_plan_kind::variant_simple) {
+        else if constexpr (Plan::kind
+                           == dispatch_plan_kind::variant_simple) {
           const std::size_t active_index = subject.index();
-          return eval_cases_impl_variant_dispatch<
-              Plan,
-              Result>(active_index,
-                      subject,
-                      cases_ref,
-                      std::forward<Otherwise>(otherwise_handler));
+          return eval_cases_impl_variant_dispatch<Plan, Result>(
+              active_index,
+              subject,
+              cases_ref,
+              std::forward<Otherwise>(otherwise_handler));
         }
         else if constexpr (Plan::kind
-                           == dispatch_plan_kind::variant_alt_bucketed) {
+                           == dispatch_plan_kind::
+                               variant_alt_bucketed) {
           const std::size_t active_index = subject.index();
-          return eval_cases_impl_variant_dispatch<
-              Plan,
-              Result>(active_index,
-                      subject,
-                      cases_ref,
-                      std::forward<Otherwise>(otherwise_handler));
+          return eval_cases_impl_variant_dispatch<Plan, Result>(
+              active_index,
+              subject,
+              cases_ref,
+              std::forward<Otherwise>(otherwise_handler));
         }
         else {
           return eval_cases_impl_typed<0, Result>(
@@ -1173,16 +1181,14 @@ namespace ptn::core::common {
             typename Subject,
             typename CasesTuple,
             typename Otherwise>
-  constexpr Result eval_cases_typed(Subject    &subject,
+  constexpr Result eval_cases_typed(Subject     &subject,
                                     CasesTuple &&cases,
-                                    Otherwise &&otherwise_handler) {
-    using dispatch_plan_t = detail::dispatch_plan<Subject,
-                                                  std::remove_reference_t<
-                                                      CasesTuple>>;
+                                    Otherwise  &&otherwise_handler) {
+    using dispatch_plan_t = detail::
+        dispatch_plan<Subject, std::remove_reference_t<CasesTuple>>;
 
-    return detail::eval_cases_with_dispatch_plan<
-        dispatch_plan_t,
-        Result>(
+    return detail::eval_cases_with_dispatch_plan<dispatch_plan_t,
+                                                 Result>(
         subject,
         std::forward<CasesTuple>(cases),
         std::forward<Otherwise>(otherwise_handler));

@@ -34,7 +34,12 @@ namespace ptn::pat::mod {
   };
 
   // Placeholder type for creating comparison expressions.
-  struct placeholder_t {
+  //
+  // Deprecated: placeholder_t is superseded by arg_t<0> (_0).
+  // This type is retained only for backward compatibility and
+  // will be removed in a future release.
+  struct [[deprecated("use _0 (arg_t<0>) instead of placeholder_t")]]
+  placeholder_t {
 
     // Greater than comparison.
     template <typename T>
@@ -78,13 +83,6 @@ namespace ptn::pat::mod {
           {}, std::forward<T>(rhs)};
     }
   };
-
-  // Global placeholder instance for guard expressions.
-  //
-  // Deprecated: use _0 instead. The bare _ name is now reserved for
-  // the wildcard pattern in the public API.
-  [[deprecated("use _0 instead of _ for guard placeholder")]]
-  inline constexpr placeholder_t _{};
 
   // Multi-value guard expressions
   //
@@ -604,14 +602,10 @@ namespace ptn::pat::mod {
         return static_cast<bool>(
             pred(bound)); // tuple-level predicate
       }
-      else if constexpr (ptn::pat::traits::is_guard_predicate_v<
-                             Pred>) {
-        ptn::core::common::static_assert_unary_guard_arity<N>();
-
-        return static_cast<bool>(pred(std::get<0>(bound)));
-      }
       else {
-        // Callable guard: lambda / where / custom functor
+        // Callable guard: lambda / where / custom functor.
+        // Also handles binary_predicate and range_predicate via
+        // std::apply unpacking single-element tuples.
         return static_cast<bool>(std::apply(pred, bound));
       }
     }
