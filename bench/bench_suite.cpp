@@ -175,7 +175,7 @@ namespace {
 
   static int patternia_variant_route(const V &v) {
     using namespace ptn;
-    using ptn::pat::type::is;
+    using ptn::pat::is;
 
     return match(v)
         .when(is<int>() >> 1)
@@ -186,7 +186,7 @@ namespace {
 
   static int patternia_pipe_variant_route(const V &v) {
     using namespace ptn;
-    using ptn::pat::type::is;
+    using ptn::pat::is;
 
     return match(v)
            | on(is<int>() >> 1, is<std::string>() >> 2, __ >> 0);
@@ -195,46 +195,45 @@ namespace {
   static int patternia_pipe_variant_alt_route(const V &v) {
     using namespace ptn;
 
-    return match(v)
-           | on(type::alt<0>() >> 1, type::alt<1>() >> 2, __ >> 0);
+    return match(v) | on(alt<0>() >> 1, alt<1>() >> 2, __ >> 0);
   }
 
   static int patternia_pipe_variant_alt_32_route(const VAlt32 &v) {
     using namespace ptn;
 
     return match(v)
-           | on(type::alt<0>() >> 1,
-                type::alt<1>() >> 2,
-                type::alt<2>() >> 3,
-                type::alt<3>() >> 4,
-                type::alt<4>() >> 5,
-                type::alt<5>() >> 6,
-                type::alt<6>() >> 7,
-                type::alt<7>() >> 8,
-                type::alt<8>() >> 9,
-                type::alt<9>() >> 10,
-                type::alt<10>() >> 11,
-                type::alt<11>() >> 12,
-                type::alt<12>() >> 13,
-                type::alt<13>() >> 14,
-                type::alt<14>() >> 15,
-                type::alt<15>() >> 16,
-                type::alt<16>() >> 17,
-                type::alt<17>() >> 18,
-                type::alt<18>() >> 19,
-                type::alt<19>() >> 20,
-                type::alt<20>() >> 21,
-                type::alt<21>() >> 22,
-                type::alt<22>() >> 23,
-                type::alt<23>() >> 24,
-                type::alt<24>() >> 25,
-                type::alt<25>() >> 26,
-                type::alt<26>() >> 27,
-                type::alt<27>() >> 28,
-                type::alt<28>() >> 29,
-                type::alt<29>() >> 30,
-                type::alt<30>() >> 31,
-                type::alt<31>() >> 32,
+           | on(alt<0>() >> 1,
+                alt<1>() >> 2,
+                alt<2>() >> 3,
+                alt<3>() >> 4,
+                alt<4>() >> 5,
+                alt<5>() >> 6,
+                alt<6>() >> 7,
+                alt<7>() >> 8,
+                alt<8>() >> 9,
+                alt<9>() >> 10,
+                alt<10>() >> 11,
+                alt<11>() >> 12,
+                alt<12>() >> 13,
+                alt<13>() >> 14,
+                alt<14>() >> 15,
+                alt<15>() >> 16,
+                alt<16>() >> 17,
+                alt<17>() >> 18,
+                alt<18>() >> 19,
+                alt<19>() >> 20,
+                alt<20>() >> 21,
+                alt<21>() >> 22,
+                alt<22>() >> 23,
+                alt<23>() >> 24,
+                alt<24>() >> 25,
+                alt<25>() >> 26,
+                alt<26>() >> 27,
+                alt<27>() >> 28,
+                alt<28>() >> 29,
+                alt<29>() >> 30,
+                alt<30>() >> 31,
+                alt<31>() >> 32,
                 __ >> 0);
   }
 
@@ -242,38 +241,38 @@ namespace {
   patternia_pipe_variant_alt_32_route_static_cases(const VAlt32 &v) {
     using namespace ptn;
 
-    static auto cases = on(type::alt<0>() >> 1,
-                           type::alt<1>() >> 2,
-                           type::alt<2>() >> 3,
-                           type::alt<3>() >> 4,
-                           type::alt<4>() >> 5,
-                           type::alt<5>() >> 6,
-                           type::alt<6>() >> 7,
-                           type::alt<7>() >> 8,
-                           type::alt<8>() >> 9,
-                           type::alt<9>() >> 10,
-                           type::alt<10>() >> 11,
-                           type::alt<11>() >> 12,
-                           type::alt<12>() >> 13,
-                           type::alt<13>() >> 14,
-                           type::alt<14>() >> 15,
-                           type::alt<15>() >> 16,
-                           type::alt<16>() >> 17,
-                           type::alt<17>() >> 18,
-                           type::alt<18>() >> 19,
-                           type::alt<19>() >> 20,
-                           type::alt<20>() >> 21,
-                           type::alt<21>() >> 22,
-                           type::alt<22>() >> 23,
-                           type::alt<23>() >> 24,
-                           type::alt<24>() >> 25,
-                           type::alt<25>() >> 26,
-                           type::alt<26>() >> 27,
-                           type::alt<27>() >> 28,
-                           type::alt<28>() >> 29,
-                           type::alt<29>() >> 30,
-                           type::alt<30>() >> 31,
-                           type::alt<31>() >> 32,
+    static auto cases = on(alt<0>() >> 1,
+                           alt<1>() >> 2,
+                           alt<2>() >> 3,
+                           alt<3>() >> 4,
+                           alt<4>() >> 5,
+                           alt<5>() >> 6,
+                           alt<6>() >> 7,
+                           alt<7>() >> 8,
+                           alt<8>() >> 9,
+                           alt<9>() >> 10,
+                           alt<10>() >> 11,
+                           alt<11>() >> 12,
+                           alt<12>() >> 13,
+                           alt<13>() >> 14,
+                           alt<14>() >> 15,
+                           alt<15>() >> 16,
+                           alt<16>() >> 17,
+                           alt<17>() >> 18,
+                           alt<18>() >> 19,
+                           alt<19>() >> 20,
+                           alt<20>() >> 21,
+                           alt<21>() >> 22,
+                           alt<22>() >> 23,
+                           alt<23>() >> 24,
+                           alt<24>() >> 25,
+                           alt<25>() >> 26,
+                           alt<26>() >> 27,
+                           alt<27>() >> 28,
+                           alt<28>() >> 29,
+                           alt<29>() >> 30,
+                           alt<30>() >> 31,
+                           alt<31>() >> 32,
                            __ >> 0);
 
     return match(v) | cases;
@@ -395,10 +394,10 @@ namespace {
     };
 
     return match(v)
-        .when(type::as<int>()[_0 > 100] >> 10)
-        .when(type::is<int>() >> 1)
-        .when(type::as<std::string>()[long_string] >> 20)
-        .when(type::is<std::string>() >> 2)
+        .when(as<int>()[_0 > 100] >> 10)
+        .when(is<int>() >> 1)
+        .when(as<std::string>()[long_string] >> 20)
+        .when(is<std::string>() >> 2)
         .when(__ >> 0)
         .end();
   }
@@ -410,10 +409,10 @@ namespace {
     };
 
     return match(v)
-           | on(type::as<int>()[_0 > 100] >> 10,
-                type::is<int>() >> 1,
-                type::as<std::string>()[long_string] >> 20,
-                type::is<std::string>() >> 2,
+           | on(as<int>()[_0 > 100] >> 10,
+                is<int>() >> 1,
+                as<std::string>()[long_string] >> 20,
+                is<std::string>() >> 2,
                 __ >> 0);
   }
 
@@ -491,14 +490,14 @@ namespace {
     };
 
     return match(msg)
-        .when(type::as<ProtoPing>()[urgent_ping] >> 11)
-        .when(type::is<ProtoPing>() >> 1)
-        .when(type::as<ProtoData>()[heavy_data] >> 22)
-        .when(type::is<ProtoData>() >> 2)
-        .when(type::as<ProtoError>()[fatal_error] >> 33)
-        .when(type::is<ProtoError>() >> 3)
-        .when(type::as<ProtoControl>()[control_ack] >> 44)
-        .when(type::is<ProtoControl>() >> 4)
+        .when(as<ProtoPing>()[urgent_ping] >> 11)
+        .when(is<ProtoPing>() >> 1)
+        .when(as<ProtoData>()[heavy_data] >> 22)
+        .when(is<ProtoData>() >> 2)
+        .when(as<ProtoError>()[fatal_error] >> 33)
+        .when(is<ProtoError>() >> 3)
+        .when(as<ProtoControl>()[control_ack] >> 44)
+        .when(is<ProtoControl>() >> 4)
         .when(__ >> 0)
         .end();
   }
@@ -515,14 +514,14 @@ namespace {
     };
 
     return match(msg)
-           | on(type::as<ProtoPing>()[urgent_ping] >> 11,
-                type::is<ProtoPing>() >> 1,
-                type::as<ProtoData>()[heavy_data] >> 22,
-                type::is<ProtoData>() >> 2,
-                type::as<ProtoError>()[fatal_error] >> 33,
-                type::is<ProtoError>() >> 3,
-                type::as<ProtoControl>()[control_ack] >> 44,
-                type::is<ProtoControl>() >> 4,
+           | on(as<ProtoPing>()[urgent_ping] >> 11,
+                is<ProtoPing>() >> 1,
+                as<ProtoData>()[heavy_data] >> 22,
+                is<ProtoData>() >> 2,
+                as<ProtoError>()[fatal_error] >> 33,
+                is<ProtoError>() >> 3,
+                as<ProtoControl>()[control_ack] >> 44,
+                is<ProtoControl>() >> 4,
                 __ >> 0);
   }
 
@@ -616,14 +615,14 @@ namespace {
     auto wide_scan = [](const CmdScan &c) { return c.limit >= 128; };
 
     return match(msg)
-        .when(type::as<CmdSet>()[persistent_set] >> 101)
-        .when(type::is<CmdSet>() >> 100)
-        .when(type::as<CmdGet>()[hot_get] >> 201)
-        .when(type::is<CmdGet>() >> 200)
-        .when(type::as<CmdDel>()[deep_del] >> 301)
-        .when(type::is<CmdDel>() >> 300)
-        .when(type::as<CmdScan>()[wide_scan] >> 401)
-        .when(type::is<CmdScan>() >> 400)
+        .when(as<CmdSet>()[persistent_set] >> 101)
+        .when(is<CmdSet>() >> 100)
+        .when(as<CmdGet>()[hot_get] >> 201)
+        .when(is<CmdGet>() >> 200)
+        .when(as<CmdDel>()[deep_del] >> 301)
+        .when(is<CmdDel>() >> 300)
+        .when(as<CmdScan>()[wide_scan] >> 401)
+        .when(is<CmdScan>() >> 400)
         .when(__ >> 0)
         .end();
   }
@@ -640,14 +639,14 @@ namespace {
     auto wide_scan = [](const CmdScan &c) { return c.limit >= 128; };
 
     return match(msg)
-           | on(type::as<CmdSet>()[persistent_set] >> 101,
-                type::is<CmdSet>() >> 100,
-                type::as<CmdGet>()[hot_get] >> 201,
-                type::is<CmdGet>() >> 200,
-                type::as<CmdDel>()[deep_del] >> 301,
-                type::is<CmdDel>() >> 300,
-                type::as<CmdScan>()[wide_scan] >> 401,
-                type::is<CmdScan>() >> 400,
+           | on(as<CmdSet>()[persistent_set] >> 101,
+                is<CmdSet>() >> 100,
+                as<CmdGet>()[hot_get] >> 201,
+                is<CmdGet>() >> 200,
+                as<CmdDel>()[deep_del] >> 301,
+                is<CmdDel>() >> 300,
+                as<CmdScan>()[wide_scan] >> 401,
+                is<CmdScan>() >> 400,
                 __ >> 0);
   }
 

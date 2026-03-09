@@ -66,10 +66,8 @@ TEST(UnifiedMatch, VariantTypeIsDispatch) {
   using V = std::variant<int, std::string>;
   V v     = std::string("hello");
 
-  int result = match(v,
-                     type::is<int>() >> 1,
-                     type::is<std::string>() >> 2,
-                     __ >> 0);
+  int result = match(
+      v, is<int>() >> 1, is<std::string>() >> 2, __ >> 0);
 
   EXPECT_EQ(result, 2);
 }
@@ -79,7 +77,7 @@ TEST(UnifiedMatch, VariantTypeAsBindsValue) {
   V v     = 42;
 
   int result = match(
-      v, type::as<int>() >> [](int i) { return i * 2; }, __ >> 0);
+      v, as<int>() >> [](int i) { return i * 2; }, __ >> 0);
 
   EXPECT_EQ(result, 84);
 }

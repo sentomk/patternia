@@ -285,7 +285,10 @@ namespace ptn::pat {
       // Attach a sub-pattern: as<T>(sub)
       template <typename SubPattern>
       constexpr auto operator()(SubPattern &&sub) const {
-        return type::is<T>(
+        return type::detail::type_is_pattern<
+            T,
+            ptn::pat::detail::structural_bind_pattern<
+                std::decay_t<SubPattern>>>(
             ptn::pat::bind(std::forward<SubPattern>(sub)));
       }
     };

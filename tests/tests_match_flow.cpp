@@ -277,9 +277,9 @@ TEST(MatchFlow, PipeOnVariantGuardedThenSameAltPlainGuardHit) {
   V v     = 123;
 
   int result = ptn::match(v)
-               | ptn::on(ptn::type::as<int>()[ptn::_0 > 100] >> 10,
-                         ptn::type::is<int>() >> 1,
-                         ptn::type::is<std::string>() >> 2,
+               | ptn::on(ptn::as<int>()[ptn::_0 > 100] >> 10,
+                         ptn::is<int>() >> 1,
+                         ptn::is<std::string>() >> 2,
                          ptn::__ >> 0);
 
   EXPECT_EQ(result, 10);
@@ -291,9 +291,9 @@ TEST(MatchFlow,
   V v     = 7;
 
   int result = ptn::match(v)
-               | ptn::on(ptn::type::as<int>()[ptn::_0 > 100] >> 10,
-                         ptn::type::is<int>() >> 1,
-                         ptn::type::is<std::string>() >> 2,
+               | ptn::on(ptn::as<int>()[ptn::_0 > 100] >> 10,
+                         ptn::is<int>() >> 1,
+                         ptn::is<std::string>() >> 2,
                          ptn::__ >> 0);
 
   EXPECT_EQ(result, 1);
@@ -305,9 +305,9 @@ TEST(MatchFlow,
   V v     = std::string("ok");
 
   int result = ptn::match(v)
-               | ptn::on(ptn::type::as<int>()[ptn::_0 > 100] >> 10,
-                         ptn::type::is<int>() >> 1,
-                         ptn::type::is<std::string>() >> 2,
+               | ptn::on(ptn::as<int>()[ptn::_0 > 100] >> 10,
+                         ptn::is<int>() >> 1,
+                         ptn::is<std::string>() >> 2,
                          ptn::__ >> 0);
 
   EXPECT_EQ(result, 2);

@@ -11,8 +11,8 @@ TEST(TypePattern, TypeIsAndTypeAs) {
   std::variant<int, std::string> v = std::string("patternia");
 
   int result = ptn::match(v)
-                   .when(ptn::type::is<int>() >> [] { return -1; })
-                   .when(ptn::type::as<std::string>() >>
+                   .when(ptn::is<int>() >> [] { return -1; })
+                   .when(ptn::as<std::string>() >>
                          [](const std::string &s) {
                            return static_cast<int>(s.size());
                          })
@@ -38,12 +38,12 @@ TEST(TypePattern, SimpleVariantDispatchPreservesFirstMatchWins) {
 
   int hit_count = 0;
   int result    = ptn::match(v)
-                   .when(ptn::type::is<int>() >>
+                   .when(ptn::is<int>() >>
                          [&] {
                            ++hit_count;
                            return 1;
                          })
-                   .when(ptn::type::is<int>() >>
+                   .when(ptn::is<int>() >>
                          [&] {
                            ++hit_count;
                            return 2;
@@ -62,9 +62,7 @@ TEST(TypePattern, SimpleVariantDispatchPreservesFirstMatchWins) {
 TEST(TypePattern, SimpleVariantDispatchFallsBackToOtherwise) {
   std::variant<int, std::string> v = std::string("patternia");
 
-  int result = ptn::match(v)
-                   .when(ptn::type::is<int>() >> 1)
-                   .otherwise(99);
+  int result = ptn::match(v).when(ptn::is<int>() >> 1).otherwise(99);
 
   EXPECT_EQ(result, 99);
 }
@@ -77,12 +75,12 @@ TEST(TypePattern, SimpleVariantDispatchUnlistedAltFallsToWildcard) {
   int str_hits      = 0;
 
   int result = ptn::match(v)
-                   .when(ptn::type::is<int>() >>
+                   .when(ptn::is<int>() >>
                          [&] {
                            ++int_hits;
                            return 1;
                          })
-                   .when(ptn::type::is<std::string>() >>
+                   .when(ptn::is<std::string>() >>
                          [&] {
                            ++str_hits;
                            return 2;
@@ -107,12 +105,12 @@ TEST(TypePattern, MixedVariantGuardedFallsThroughToSimpleCase) {
   int simple_hits  = 0;
 
   int result = ptn::match(v)
-                   .when(ptn::type::as<int>()[ptn::_0 > 100] >>
+                   .when(ptn::as<int>()[ptn::_0 > 100] >>
                          [&](int) {
                            ++guarded_hits;
                            return 10;
                          })
-                   .when(ptn::type::is<int>() >>
+                   .when(ptn::is<int>() >>
                          [&] {
                            ++simple_hits;
                            return 1;
@@ -135,12 +133,12 @@ TEST(TypePattern, MixedVariantGuardedCaseWinsWhenPredicateTrue) {
   int simple_hits  = 0;
 
   int result = ptn::match(v)
-                   .when(ptn::type::as<std::string>()[long_string] >>
+                   .when(ptn::as<std::string>()[long_string] >>
                          [&](const std::string &) {
                            ++guarded_hits;
                            return 20;
                          })
-                   .when(ptn::type::is<std::string>() >>
+                   .when(ptn::is<std::string>() >>
                          [&] {
                            ++simple_hits;
                            return 2;
