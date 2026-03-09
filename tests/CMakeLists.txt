@@ -15,6 +15,7 @@ if(NOT TARGET GTest::gtest)
 endif()
 
 add_executable(ptn_tests
+  tests_destructure.cpp
   tests_guard.cpp
   tests_literal_pattern.cpp
   tests_match_flow.cpp
