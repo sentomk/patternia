@@ -184,3 +184,90 @@ TEST(UnifiedMatch, DollarBindEquivalentToBind) {
 
   EXPECT_EQ(r1, r2);
 }
+
+// -- is<T> / as<T> variable templates --
+
+TEST(UnifiedMatch, IsVariableTemplateMatchesType) {
+  using V = std::variant<int, std::string>;
+  V v     = 42;
+
+  int result = match(v, is<int> >> 1, is<std::string> >> 2, _ >> 0);
+
+  EXPECT_EQ(result, 1);
+}
+
+TEST(UnifiedMatch, AsVariableTemplateBindsValue) {
+  using V = std::variant<int, std::string>;
+  V v     = 42;
+
+  int result = match(
+      v, as<int> >> [](int i) { return i * 2; }, _ >> 0);
+
+  EXPECT_EQ(result, 84);
+}
+
+TEST(UnifiedMatch, IsWithSubPattern) {
+  using V = std::variant<int, std::string>;
+  V v     = std::string("hello");
+
+  auto result = match(
+      v,
+      is<std::string>(bind()) >>
+          [](const std::string &s) { return s; },
+      _ >> std::string("other"));
+
+  EXPECT_EQ(result, "hello");
+}
+
+TEST(UnifiedMatch, AsWithGuard) {
+  using V = std::variant<int, std::string>;
+  V v     = 42;
+
+  int result = match(
+      v,
+      as<int>()[_0 > 100] >> [](int i) { return i; },
+      as<int>() >> [](int i) { return -i; },
+      _ >> 0);
+
+  EXPECT_EQ(result, -42);
+}
+
+TEST(UnifiedMatch, AltVariableTemplateMatchesByIndex) {
+  using V = std::variant<int, std::string, double>;
+  V v     = 3.14;
+
+  int result = match(
+      v, alt<0> >> 1, alt<1> >> 2, alt<2> >> 3, _ >> 0);
+
+  EXPECT_EQ(result, 3);
+}
+
+// -- Implicit lit wrapping --
+// Note: implicit lit only works when the built-in >> operator does
+// not apply. For int >> int, C++ always selects the built-in bit
+// shift. Implicit lit works for: int >> lambda, string >> value,
+// etc.
+
+TEST(UnifiedMatch, ImplicitLitIntWithLambdaHandler) {
+  int x      = 2;
+  int result = match(
+      x, 1 >> [] { return 10; }, 2 >> [] { return 20; }, _ >> 0);
+
+  EXPECT_EQ(result, 20);
+}
+
+TEST(UnifiedMatch, ImplicitLitFallsToWildcard) {
+  int x      = 99;
+  int result = match(
+      x, 1 >> [] { return 10; }, 2 >> [] { return 20; }, _ >> -1);
+
+  EXPECT_EQ(result, -1);
+}
+
+TEST(UnifiedMatch, ImplicitLitEquivalentToExplicit) {
+  int x  = 3;
+  int r1 = match(x, 3 >> [] { return 30; }, _ >> 0);
+  int r2 = match(x, lit(3) >> [] { return 30; }, _ >> 0);
+
+  EXPECT_EQ(r1, r2);
+}
