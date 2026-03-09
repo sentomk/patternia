@@ -31,9 +31,10 @@ match(subject)
 **Basic Usage**:
 
 ```cpp
-match(x)
-  .when(lit(1) >> [] { return "one"; })
-  .otherwise("default");
+match(x) | on(
+  lit(1) >> [] { return "one"; },
+  __ >> "default"
+);
 ```
 
 **Type Control**:
@@ -76,41 +77,34 @@ auto r = match(x) | on(
 
 ---
 
-### `.when(pattern >> handler)`
+### Case Expression: `pattern >> handler`
 
-**Role**: Primary case-definition primitive.
+**Role**: Core case-definition primitive used within `on(...)`.
 
 **Syntax**:
 
 ```cpp
-.when(pattern >> handler)
+pattern >> handler
 ```
 
 **Key Characteristics**:
 
 * `pattern >> handler` forms a *case expression*
-* The handler’s parameter list is determined entirely by the pattern’s binding behavior
-* `.when()` only registers a branch; it does not trigger execution
+* The handler's parameter list is determined entirely by the pattern's binding behavior
+* Multiple cases are separated by commas within `on(...)`
 
 **Usage Examples**:
 
 ```cpp
 // Handler without bindings
-.when(lit(1) >> [] { return "one"; })   // No parameters
-.when(lit(2) >> 42)                     // Constant value handler
+lit(1) >> [] { return "one"; }   // No parameters
+lit(2) >> 42                     // Constant value handler
 
 // Handler with bindings
-.when(bind() >> [](int v) {
-  return v * 2;
-})
+$(is<int>()) >> [](int v) { return v * 2; }
 
 // Structural bindings
-.when(
-  bind(has<&Point::x, &Point::y>()) >>
-  [](int x, int y) {
-    return x + y;
-  }
-)
+$(has<&Point::x, &Point::y>()) >> [](int x, int y) { return x + y; }
 ```
 
 **Handler Forms**:
@@ -119,87 +113,7 @@ auto r = match(x) | on(
   Returns a fixed value. Semantically equivalent to a zero-argument function returning a constant.
 
 * **Function Handler** - `pattern >> callable`
-  Receives the values produced by the pattern’s bindings.
-
----
-
-### `.otherwise(...)` and `.end()` (Chained API, Deprecated)
-
-These terminal operations define how a match expression is finalized.
-The key distinction between them is the use of the `__` pattern.
-
-> [!WARNING]
-> Chained terminal forms are still available in v0.8.x, but are deprecated and
-> planned for future removal. Prefer `match(subject) | on(...)`.
-
----
-
-#### `.otherwise(...)` (Deprecated)
-
-**Role**: Match fallback that works in all scenarios.
-
-**Purpose**: Provides a fallback when no prior `when` clause matches successfully.
-
-**Characteristics**:
-
-* Cannot be used when a `__` pattern is present
-* Acts as a defensive default, not as a regular case
-* Evaluated only if no pattern has already matched
-
-```cpp
-auto r = match(x)
-  .when(lit(1) >> 10)
-  .when(lit(2) >> 20)
-  .otherwise(0);
-```
-
-**Execution Semantics**:
-
-```cpp
-auto result = match(42)
-  .when(lit(1) >> "one")      // No match
-  .when(lit(2) >> "two")      // No match
-  .otherwise("default");          // Executed as fallback
-```
-
----
-
-#### `.end()` (Deprecated)
-
-**Purpose**: Required when using the `__` pattern fallback.
-
-**Characteristics**:
-
-* **Must** be used when `__` pattern is present in the match
-* Can be used with or without return values (not limited to `void`)
-* Not required when only using `.otherwise()`
-* `.otherwise()` is rejected if a `__` pattern is present
-
-```cpp
-match(x)
-  .when(lit(1) >> [] { std::cout << "one\n"; })
-  .when(lit(2) >> [] { std::cout << "two\n"; })
-  .when(__   >> [] { std::cout << "other\n"; })  // pattern fallback
-  .end();  // Required for __ to work
-```
-
-**Critical Rule (chained API only)**: If `__` is used in chained `.when(...)`
-style without `.end()`, the match is not finalized.
-
-**Design Philosophy**:
-The distinction between `.otherwise()` and `.end()` is driven by the `__` pattern's requirement for match inference.
-
----
-
-### Comparison Summary
-
-| Feature                  | `.otherwise()` | `.end()` |
-| ------------------------ | -------------- | ---------- |
-| Key Requirement          | None          | Required for `__` pattern |
-| Return Type             | Handler-determined | Handler-determined |
-| Fallback Type           | Match fallback  | Pattern fallback (`__`) |
-| Usage Constraint         | Works in all scenarios | Must be used with `__` |
-| Typical Use Cases       | Value computation, defensive fallback | Exhaustive matching with `__` |
+  Receives the values produced by the pattern's bindings.
 
 ---
 
@@ -323,13 +237,13 @@ is<T>(subpattern)       // apply subpattern to the alternative
 **Examples**:
 
 ```cpp
-match(v)
-  .when(is<int>() >> [] { /* type-only */ })
-  .when($(is<std::string>()) >> [](const std::string &s) { /* bound */ })
-  .when($(is<std::string>())[_0 != ""] >> [](const std::string &s) { /* guarded */ })
-  .when(is<Point>(bind(has<&Point::x, &Point::y>())) >>
-        [](int x, int y) { /* structural bind */ })
-  .otherwise([] {});
+match(v) | on(
+  is<int>() >> [] { /* type-only */ },
+  $(is<std::string>()) >> [](const std::string &s) { /* bound */ },
+  $(is<std::string>())[_0 != ""] >> [](const std::string &s) { /* guarded */ },
+  is<Point>($(has<&Point::x, &Point::y>())) >> [](int x, int y) { /* structural bind */ },
+  __ >> [] {}
+);
 ```
 
 **Design Note**:
@@ -339,20 +253,32 @@ making binding intent clear and consistent with other binding patterns.
 
 ---
 
-### `bind()` (Binding Pattern)
+### `$()` and `bind()` (Binding Patterns)
 
-**Role**: Explicit value binding primitive.
+**Role**: Explicit value binding primitives.
 
-`bind()` is the primitive mechanism in Patternia that introduces bindings into a match.
-The `$()` callable syntax provides a convenient shorthand for `bind()`.
+Patternia provides two ways to introduce bindings:
+- `$()` - Convenient callable syntax (recommended)
+- `bind()` - Underlying primitive
 
 **Syntax**:
 
 ```cpp
-constexpr auto bind();                    // Binds the entire subject
+// $ callable forms
+$()                    // Binds the entire subject
+$(subpattern)          // Wraps subpattern with binding
 
-template <typename SubPattern>
-constexpr auto bind(SubPattern &&sub);    // Binds subject conditionally under a subpattern constraint
+// bind() forms
+bind()                 // Binds the entire subject
+bind(subpattern)       // Binds subject conditionally under a subpattern constraint
+```
+
+**Equivalences**:
+
+```cpp
+$()              ≡ bind()
+$(has<&T::x>())  ≡ bind(has<&T::x>())
+$(is<T>())       ≡ bind(is<T>())
 ```
 
 **Core Principles**:
@@ -360,15 +286,17 @@ constexpr auto bind(SubPattern &&sub);    // Binds subject conditionally under a
 1. All bindings are explicit
 2. No pattern introduces bindings implicitly
 3. Binding behavior fully determines handler parameter lists
+4. `$()` is the recommended syntax for clarity
 
 ---
 
 #### Binding the Entire Subject
 
 ```cpp
-.when(bind() >> [](auto v) {
-  return "captured: " + std::to_string(v);
-})
+match(x) | on(
+  $() >> [](auto v) { return "captured: " + std::to_string(v); },
+  __ >> "default"
+);
 ```
 
 * The entire subject is bound as a single value
@@ -376,18 +304,18 @@ constexpr auto bind(SubPattern &&sub);    // Binds subject conditionally under a
 
 ---
 
-#### Conditional Binding with `bind(subpattern)`
+#### Conditional Binding with `$(subpattern)`
 
 ```cpp
-.when(
-  bind(lit(Status::Running)) >>
-  [](Status s) {
+match(status) | on(
+  $(lit(Status::Running)) >> [](Status s) {
     return fmt("status = {}", static_cast<int>(s));
-  }
-)
+  },
+  __ >> "unknown"
+);
 ```
 
-* `bind(subpattern)` introduces a binding **only if the subpattern matches**
+* `$(subpattern)` introduces a binding **only if the subpattern matches**
 * The bound value is always the **entire subject**
 * The subpattern itself does **not** introduce bindings unless explicitly designed to do so
 
@@ -398,51 +326,50 @@ This form is useful when:
 * the constraint is semantic rather than structural
 
 
-#### Structural Binding with `has<>`
+#### Structural Binding with `$(has<>())`
 
 ```cpp
 struct Point { int x, int y; };
 
-.when(
-  bind(has<&Point::x, &Point::y>()) >>
-  [](int x, int y) {
+match(p) | on(
+  $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
     return fmt("({}, {})", x, y);
-  }
-)
+  },
+  __ >> "invalid"
+);
 ```
 
 * `has<>` describes the required structure
+* `$()` wraps it to enable binding
 * Only the listed members are bound
 * No access to unlisted members is provided
 
 Partial binding is expressed by listing only the desired members:
 
 ```cpp
-.when(
-  bind(has<&Point::x>()) >>
-  [](int x) {
-    return fmt("x = {}", x);
-  }
-)
+match(p) | on(
+  $(has<&Point::x>()) >> [](int x) { return fmt("x = {}", x); },
+  __ >> "invalid"
+);
 ```
 
 #### Binding Semantics
 
-* `bind()` always binds the *entire subject*
-* `bind(subpattern)` binds the subject, but only if `subpattern` matches successfully.
+* `$()` and `bind()` always bind the *entire subject*
+* `$(subpattern)` and `bind(subpattern)` bind the subject, but only if `subpattern` matches successfully.
   If `subpattern` itself produces bindings (rare/advanced), those may be appended after the subject.
 * The handler parameter order corresponds exactly to the binding order
 * Patterns that do not bind values do not affect handler signatures
 
 > [!IMPORTANT]
 > `lit()`, `lit<>()`, and `has<>` never introduce bindings by themselves.
-> All bindings are introduced exclusively by `bind(...)`.
+> All bindings are introduced exclusively by `$()` or `bind()`.
 
 ```cpp
-// Binding order example
-bind()                        -> (subject)
-bind(lit(...))              -> (subject)
-bind(has<&A::x, &A::y>())     -> (x, y) // because has() is used under bind(), extraction is defined by bind(...)
+// Binding order examples
+$()                           -> (subject)
+$(lit(...))                   -> (subject)
+$(has<&A::x, &A::y>())        -> (x, y)
 ```
 
 **Design Rationale**:
@@ -485,27 +412,26 @@ pattern[guard]
 **Example**:
 
 ```cpp
-match(x)
-  .when(
-    bind()[_0 > 0] >>
-    [](int v) {
-      // 1) bind() matches
-      // 2) bind() binds v
-      // 3) guard (_0 > 0) is evaluated
-      // 4) handler runs only if guard passes
-    }
-  )
-  .otherwise([] {});
+match(x) | on(
+  $()[_0 > 0] >> [](int v) {
+    // 1) $() matches
+    // 2) $() binds v
+    // 3) guard (_0 > 0) is evaluated
+    // 4) handler runs only if guard passes
+  },
+  __ >> [] {}
+);
 ```
 
 Type patterns can be guarded as well, as long as they bind:
 
 ```cpp
-match(v)
-  .when($(is<std::string>())[_0 != ""] >> [](const std::string &s) {
+match(v) | on(
+  $(is<std::string>())[_0 != ""] >> [](const std::string &s) {
     /* guarded alternative */
-  })
-  .otherwise([] {});
+  },
+  __ >> [] {}
+);
 ```
 
 **Guard composition** is supported:
@@ -550,8 +476,8 @@ rng(lo, hi, closed_open)    // [lo, hi)
 **Examples**:
 
 ```cpp
-bind()[_0 > 0 && _0 < 10]
-bind()[rng(0, 10, closed_open)]   // [0, 10)
+$()[_0 > 0 && _0 < 10]
+$()[rng(0, 10, closed_open)]   // [0, 10)
 ```
 
 Anything beyond these relational/range constraints should be expressed as a **custom predicate** (lambda), not as additional operator DSL.
@@ -583,23 +509,20 @@ There is **no `rng(...)`** for `arg<N>` expressions in the current design.
 
 ```cpp
 // x + y == 0
-match(p)
-  .when(
-    bind(has<&Point::x, &Point::y>())[arg<0> + arg<1> == 0] >>
-    [](int x, int y) { /* ... */ }
-  )
-  .otherwise([] {});
+match(p) | on(
+  $(has<&Point::x, &Point::y>())[arg<0> + arg<1> == 0] >>
+    [](int x, int y) { /* ... */ },
+  __ >> [] {}
+);
 ```
 
 ```cpp
 // Protocol-like constraint over multiple fields
-match(pkt)
-  .when(
-    bind(has<&Packet::type, &Packet::length>())
-      [arg<0> == 0x01 && arg<1> == 0] >>
-    [](auto type, auto len) { /* ... */ }
-  )
-  .otherwise([] {});
+match(pkt) | on(
+  $(has<&Packet::type, &Packet::length>())[arg<0> == 0x01 && arg<1> == 0] >>
+    [](auto type, auto len) { /* ... */ },
+  __ >> [] {}
+);
 ```
 
 #### Compile-time boundary checking
@@ -607,7 +530,7 @@ match(pkt)
 Using an out-of-range `arg<N>` is **ill-formed** and diagnosed at compile time (the library checks the maximum referenced index against the number of bound values):
 
 ```cpp
-bind(has<&Point::x>())[arg<1> > 0]
+$(has<&Point::x>())[arg<1> > 0]
 // ill-formed: arg<1> out of range (only one bound value)
 ```
 
@@ -620,7 +543,7 @@ A critical constraint of Patternia's guard DSL is that `arg<N>` is an **expressi
 So this is **not supported** as a guard DSL expression:
 
 ```cpp
-bind(has<&Message::payload>())[arg<0>.size() > 0] // do not do this
+$(has<&Message::payload>())[arg<0>.size() > 0] // do not do this
 ```
 
 When you need container queries, method calls, non-trivial computations, or any domain-specific logic, write a **lambda predicate** and pass it to `[]`.
@@ -632,14 +555,12 @@ auto non_empty = [](auto const& payload) {
   return !payload.empty();
 };
 
-match(msg)
-  .when(
-    bind(has<&Message::payload>())[non_empty] >>
-    [](auto const& payload) {
-      // payload is guaranteed non-empty here
-    }
-  )
-  .otherwise([] {});
+match(msg) | on(
+  $(has<&Message::payload>())[non_empty] >> [](auto const& payload) {
+    // payload is guaranteed non-empty here
+  },
+  __ >> [] {}
+);
 ```
 
 ```cpp
@@ -647,12 +568,10 @@ auto sum_is_even = [](int a, int b) {
   return ((a + b) % 2) == 0;
 };
 
-match(p)
-  .when(
-    bind(has<&Point::x, &Point::y>())[sum_is_even] >>
-    [](int x, int y) { /* ... */ }
-  )
-  .otherwise([] {});
+match(p) | on(
+  $(has<&Point::x, &Point::y>())[sum_is_even] >> [](int x, int y) { /* ... */ },
+  __ >> [] {}
+);
 ```
 
 ---
@@ -725,23 +644,21 @@ They do **not** bind or extract any values by themselves.
 
 ---
 
-### Integration with `bind()`
+### Integration with `$()`
 
-When combined with `bind()`, `has<>` enables **explicit structural extraction**.
+When combined with `$()`, `has<>` enables **explicit structural extraction**.
 
 ```cpp
-match(p)
-  .when(
-    bind(has<&Point::x, &Point::y>()) >>
-    [](int x, int y) {
-      return fmt("({}, {})", x, y);
-    }
-  )
-  .otherwise([] {});
+match(p) | on(
+  $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+    return fmt("({}, {})", x, y);
+  },
+  __ >> [] {}
+);
 ```
 
 * `has<>` performs the structural check
-* `bind()` extracts the selected member values
+* `$()` extracts the selected member values
 * The handler receives the extracted values in the order listed
 
 ---
@@ -753,14 +670,12 @@ Structural matching is **selective by design**.
 To bind only a subset of members, list only those members:
 
 ```cpp
-match(p)
-  .when(
-    bind(has<&Point::x>()) >>
-    [](int x) {
-      return fmt("x = {}", x);
-    }
-  )
-  .otherwise([] {});
+match(p) | on(
+  $(has<&Point::x>()) >> [](int x) {
+    return fmt("x = {}", x);
+  },
+  __ >> [] {}
+);
 ```
 
 No placeholder or positional skipping is required.
@@ -871,14 +786,10 @@ namespace ptn {
 
   // Structural patterns
   using ptn::pat::has;
-  using ptn::pat::ds;
 
   // Type patterns (variable templates)
   template <typename T>
   inline constexpr auto is = ptn::pat::is<T>;
-  
-  template <typename T>
-  inline constexpr auto as = ptn::pat::as<T>;
   
   template <std::size_t I>
   inline constexpr auto alt = ptn::pat::alt<I>;
