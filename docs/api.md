@@ -302,47 +302,41 @@ match(value)
 
 ---
 
-### `type::is<T>()` and `type::as<T>()` (Variant Type Matching)
+### `is<T>()` and `as<T>()` (Variant Type Matching)
 
 **Role**: Match `std::variant` alternatives by type, with optional explicit binding.
 
 **Syntax**:
 ```cpp
-type::is<T>()                 // type-only match
-type::is<T>(subpattern)       // apply subpattern to the alternative
+is<T>()                 // type-only match
+is<T>(subpattern)       // apply subpattern to the alternative
 
-type::as<T>()                 // explicit binding sugar for is<T>(bind())
-type::as<T>(subpattern)       // explicit binding sugar for is<T>(bind(subpattern))
-```
-
-**Shorthand**:
-```cpp
-is<T>()   // alias of type::is<T>()
-as<T>()   // alias of type::as<T>()
+as<T>()                 // explicit binding sugar for is<T>(bind())
+as<T>(subpattern)       // explicit binding sugar for is<T>(bind(subpattern))
 ```
 
 **Key Properties**:
 
 * Works on `std::variant` subjects only
-* `type::is<T>()` does not bind values
-* `type::as<T>()` is an explicit binding shortcut; it does not introduce implicit binding
-* When a type pattern binds (e.g. `type::as<T>()`, or `type::is<T>(bind(...))`), it is a **binding pattern** and can be guarded with `[]`
+* `is<T>()` does not bind values
+* `as<T>()` is an explicit binding shortcut; it does not introduce implicit binding
+* When a type pattern binds (e.g. `as<T>()`, or `is<T>(bind(...))`), it is a **binding pattern** and can be guarded with `[]`
 * Alternative type `T` must appear exactly once in the variant
 
 **Examples**:
 
 ```cpp
 match(v)
-  .when(type::is<int>() >> [] { /* type-only */ })
-  .when(type::as<std::string>() >> [](const std::string &s) { /* bound */ })
-  .when(type::as<std::string>()[_0 != ""] >> [](const std::string &s) { /* guarded */ })
-  .when(type::is<Point>(bind(has<&Point::x, &Point::y>())) >>
+  .when(is<int>() >> [] { /* type-only */ })
+  .when(as<std::string>() >> [](const std::string &s) { /* bound */ })
+  .when(as<std::string>()[_0 != ""] >> [](const std::string &s) { /* guarded */ })
+  .when(is<Point>(bind(has<&Point::x, &Point::y>())) >>
         [](int x, int y) { /* structural bind */ })
   .otherwise([] {});
 ```
 
 **Design Note**:
-`type::as<T>()` preserves the "explicit bind" rule by being a named shortcut for
+`as<T>()` preserves the "explicit bind" rule by being a named shortcut for
 `bind()`, not an implicit binding mechanism.
 
 
@@ -868,20 +862,29 @@ namespace ptn {
   using ptn::pat::lit;
   using ptn::pat::lit_ci;
   using ptn::pat::bind;
-  using ptn::pat::__;
+  using ptn::pat::_;
 
   // Guard system
-  using ptn::pat::mod::_;
+  using ptn::pat::mod::_0;
+  using ptn::pat::mod::_1;
+  using ptn::pat::mod::_2;
+  using ptn::pat::mod::_3;
   using ptn::pat::mod::arg;
   using ptn::pat::mod::rng;
 
   // Structural patterns
   using ptn::pat::has;
+  using ptn::pat::ds;
 
-  // Type patterns
-  namespace type = ptn::pat::type;
-  using ptn::pat::type::is;
-  using ptn::pat::type::as;
+  // Type patterns (variable templates)
+  template <typename T>
+  inline constexpr auto is = ptn::pat::is<T>;
+  
+  template <typename T>
+  inline constexpr auto as = ptn::pat::as<T>;
+  
+  template <std::size_t I>
+  inline constexpr auto alt = ptn::pat::alt<I>;
 }
 ```
 

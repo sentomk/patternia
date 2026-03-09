@@ -374,3 +374,29 @@ namespace ptn::pat::base {
   };
 
 } // namespace ptn::pat::base
+
+// binding_args specializations for factory types.
+namespace ptn::pat::base {
+
+  // is_factory<T> delegates to type_is_pattern<T, no_subpattern>.
+  template <typename T, typename Subject>
+  struct binding_args<ptn::pat::detail::is_factory<T>, Subject> {
+    using type = std::tuple<>;
+  };
+
+  // as_factory<T> delegates to type_is_pattern<T, binding_pattern>.
+  template <typename T, typename Subject>
+  struct binding_args<ptn::pat::detail::as_factory<T>, Subject> {
+    using type = typename binding_args<
+        ptn::pat::type::detail::
+            type_is_pattern<T, ptn::pat::detail::binding_pattern>,
+        Subject>::type;
+  };
+
+  // alt_factory<I> delegates to type_alt_pattern<I, no_subpattern>.
+  template <std::size_t I, typename Subject>
+  struct binding_args<ptn::pat::detail::alt_factory<I>, Subject> {
+    using type = std::tuple<>;
+  };
+
+} // namespace ptn::pat::base

@@ -28,6 +28,7 @@
 
 ## *Update*
 
+- **API update (v0.8.5)** introduces `is<T>()`, `as<T>()`, and `alt<I>()` variable templates for type patterns, `ds<&T::m...>()` for destructure-and-bind, and `has<>()[guard]` for structural validation. Old `type::` namespace functions are deprecated.
 - **API update (v0.8.3)** adds `match(x, cases...)` unified entry, `_` wildcard alias, `$` bind shorthand, and `_0`–`_3` guard placeholders. Guard placeholder `_` is deprecated in favor of `_0`.
 - **Release update (v0.8.2)** keeps public usage centered on `match(x) | on(...)` and adds reusable hot-path forms through `static_on(...)` and `PTN_ON(...)`.
 - **Performance update (v0.8.2)** introduces a lowering engine with `full` / `bucketed` / `none` legality and a switch-oriented static literal path for large keyed matches.
@@ -160,8 +161,8 @@ input distributions.
 
 ```cpp
 match(v) | on(
-  type::is<int>() >> 1,
-  type::is<std::string>() >> 2,
+  alt<0>() >> 1,
+  alt<1>() >> 2,
   __ >> 0
 );
 ```
@@ -169,7 +170,7 @@ match(v) | on(
 **Meaning**:
 - `VariantMixed`: mixed alternatives, reflects average dispatch behavior.
 - `VariantAltHot`: one alternative is hot, shows branch-locality sensitivity.
-- Used as a baseline for `type::is<T>()` paths.
+- Used as a baseline for `is<T>()` paths.
 
 #### 2) `VariantFastPathMixed` / `VariantFastPathAltHot` (simple-case fast path)
 
@@ -197,8 +198,8 @@ match(v) | on(
 
 ```cpp
 match(v) | on(
-  type::alt<0>() >> 1,
-  type::alt<1>() >> 2,
+  alt<0>() >> 1,
+  alt<1>() >> 2,
   __ >> 0
 );
 ```
@@ -215,10 +216,10 @@ match(v) | on(
 
 ```cpp
 match(v32) | on(
-  type::alt<0>() >> 1,
-  type::alt<1>() >> 2,
+  alt<0>() >> 1,
+  alt<1>() >> 2,
   // ...
-  type::alt<31>() >> 32,
+  alt<31>() >> 32,
   __ >> 0
 );
 ```
@@ -527,9 +528,9 @@ Runtime tests (`ptn_tests`):
 - `MatchFlow.OtherwiseCallableWithSubject`: verifies `.otherwise(...)` callable can receive subject.
 - `MatchFlow.WildcardEndFlow`: verifies wildcard `__` + `.end()` terminal flow.
 - `MatchFlow.SubjectBindsAsLvalue`: regression check that subject binding stays on lvalue path.
-- `TypePattern.TypeIsAndTypeAs`: verifies `type::is<T>()` and `type::as<T>()` dispatch for `std::variant`.
+- `TypePattern.TypeIsAndTypeAs`: verifies `is<T>()` and `as<T>()` dispatch for `std::variant`.
 - `TypePattern.AltByIndex`: verifies `alt<I>()` index-based variant dispatch.
-- `Guard.UnaryPlaceholderPredicate`: verifies unary guard expressions with `_`.
+- `Guard.UnaryPlaceholderPredicate`: verifies unary guard expressions with `_0`.
 - `Guard.RangeHelperModes`: verifies range helper behavior (`rng`) across interval modes.
 - `Guard.MultiArgExpressionPredicate`: verifies tuple guard expressions using `arg<N>`.
 - `Guard.MultiArgCallablePredicate`: verifies callable multi-argument guard predicates.
