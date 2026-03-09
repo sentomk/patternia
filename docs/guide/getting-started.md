@@ -200,8 +200,8 @@ match(value)
 ## 4. Binding Values
 
 To access matched values inside a handler, introduce bindings explicitly.
-For ordinary subjects, use `bind()`. For `std::variant` alternatives, you can
-also use `as<T>()` as an explicit binding shorthand.
+For ordinary subjects, use `bind()` or `$()`. For `std::variant` alternatives, you can
+use `$(is<T>())` as an explicit binding shorthand.
 
 ```cpp
 match(x)
@@ -212,8 +212,8 @@ match(x)
 ```
 
 Bindings are always explicit—nothing is bound implicitly.
-`bind()` is the primitive binding pattern, and `as<T>()` is a named shorthand
-for `is<T>(bind())`.
+`bind()` is the primitive binding pattern, and `$(is<T>())` uses the callable `$()`
+syntax to wrap `is<T>()` for explicit binding.
 
 This makes data flow **visible and predictable**, especially in complex matches.
 
@@ -271,16 +271,16 @@ Here:
 ## 7. Variant Type Matching (std::variant)
 
 Patternia can match `std::variant` alternatives by type using `is<T>()`.
-If you want to bind the alternative value, use `as<T>()`, which is explicit
-binding sugar for `is<T>(bind())`.
+If you want to bind the alternative value, use `$(is<T>())`, which uses the
+callable `$()` syntax for explicit binding.
 
 ```cpp
 using V = std::variant<int, std::string, Point>;
 
 match(v)
   .when(is<int>() >> [] { /* type-only */ })
-  .when(as<std::string>() >> [](const std::string &s) { /* bound */ })
-  .when(as<std::string>()[_0 != ""] >> [](const std::string &s) { /* guarded */ })
+  .when($(is<std::string>()) >> [](const std::string &s) { /* bound */ })
+  .when($(is<std::string>())[_0 != ""] >> [](const std::string &s) { /* guarded */ })
   .when(is<Point>(bind(has<&Point::x, &Point::y>())) >>
         [](int x, int y) { /* structural bind */ })
   .otherwise([] {});

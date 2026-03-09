@@ -394,9 +394,9 @@ namespace {
     };
 
     return match(v)
-        .when(as<int>()[_0 > 100] >> 10)
+        .when($(is<int>())[_0 > 100] >> 10)
         .when(is<int>() >> 1)
-        .when(as<std::string>()[long_string] >> 20)
+        .when($(is<std::string>())[long_string] >> 20)
         .when(is<std::string>() >> 2)
         .when(__ >> 0)
         .end();
@@ -409,9 +409,9 @@ namespace {
     };
 
     return match(v)
-           | on(as<int>()[_0 > 100] >> 10,
+           | on($(is<int>())[_0 > 100] >> 10,
                 is<int>() >> 1,
-                as<std::string>()[long_string] >> 20,
+                $(is<std::string>())[long_string] >> 20,
                 is<std::string>() >> 2,
                 __ >> 0);
   }
@@ -490,13 +490,13 @@ namespace {
     };
 
     return match(msg)
-        .when(as<ProtoPing>()[urgent_ping] >> 11)
+        .when($(is<ProtoPing>())[urgent_ping] >> 11)
         .when(is<ProtoPing>() >> 1)
-        .when(as<ProtoData>()[heavy_data] >> 22)
+        .when($(is<ProtoData>())[heavy_data] >> 22)
         .when(is<ProtoData>() >> 2)
-        .when(as<ProtoError>()[fatal_error] >> 33)
+        .when($(is<ProtoError>())[fatal_error] >> 33)
         .when(is<ProtoError>() >> 3)
-        .when(as<ProtoControl>()[control_ack] >> 44)
+        .when($(is<ProtoControl>())[control_ack] >> 44)
         .when(is<ProtoControl>() >> 4)
         .when(__ >> 0)
         .end();
@@ -514,13 +514,13 @@ namespace {
     };
 
     return match(msg)
-           | on(as<ProtoPing>()[urgent_ping] >> 11,
+           | on($(is<ProtoPing>())[urgent_ping] >> 11,
                 is<ProtoPing>() >> 1,
-                as<ProtoData>()[heavy_data] >> 22,
+                $(is<ProtoData>())[heavy_data] >> 22,
                 is<ProtoData>() >> 2,
-                as<ProtoError>()[fatal_error] >> 33,
+                $(is<ProtoError>())[fatal_error] >> 33,
                 is<ProtoError>() >> 3,
-                as<ProtoControl>()[control_ack] >> 44,
+                $(is<ProtoControl>())[control_ack] >> 44,
                 is<ProtoControl>() >> 4,
                 __ >> 0);
   }
@@ -615,13 +615,13 @@ namespace {
     auto wide_scan = [](const CmdScan &c) { return c.limit >= 128; };
 
     return match(msg)
-        .when(as<CmdSet>()[persistent_set] >> 101)
+        .when($(is<CmdSet>())[persistent_set] >> 101)
         .when(is<CmdSet>() >> 100)
-        .when(as<CmdGet>()[hot_get] >> 201)
+        .when($(is<CmdGet>())[hot_get] >> 201)
         .when(is<CmdGet>() >> 200)
-        .when(as<CmdDel>()[deep_del] >> 301)
+        .when($(is<CmdDel>())[deep_del] >> 301)
         .when(is<CmdDel>() >> 300)
-        .when(as<CmdScan>()[wide_scan] >> 401)
+        .when($(is<CmdScan>())[wide_scan] >> 401)
         .when(is<CmdScan>() >> 400)
         .when(__ >> 0)
         .end();
@@ -639,13 +639,13 @@ namespace {
     auto wide_scan = [](const CmdScan &c) { return c.limit >= 128; };
 
     return match(msg)
-           | on(as<CmdSet>()[persistent_set] >> 101,
+           | on($(is<CmdSet>())[persistent_set] >> 101,
                 is<CmdSet>() >> 100,
-                as<CmdGet>()[hot_get] >> 201,
+                $(is<CmdGet>())[hot_get] >> 201,
                 is<CmdGet>() >> 200,
-                as<CmdDel>()[deep_del] >> 301,
+                $(is<CmdDel>())[deep_del] >> 301,
                 is<CmdDel>() >> 300,
-                as<CmdScan>()[wide_scan] >> 401,
+                $(is<CmdScan>())[wide_scan] >> 401,
                 is<CmdScan>() >> 400,
                 __ >> 0);
   }

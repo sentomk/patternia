@@ -18,14 +18,14 @@ struct Packet {
   std::string payload;
 };
 
-// -- ds<>() destructure binding --
+// -- $(has<>()) destructure binding --
 
 TEST(Destructure, BasicMemberBinding) {
   Point p{3, 4};
 
   int result = match(
       p,
-      ds<&Point::x, &Point::y>() >>
+      $(has<&Point::x, &Point::y>()) >>
           [](int x, int y) { return x + y; },
       _ >> 0);
 
@@ -37,7 +37,7 @@ TEST(Destructure, WithGuard) {
 
   int result = match(
       p,
-      ds<&Point::x, &Point::y>()[_0 > 0 && _1 > 0] >>
+      $(has<&Point::x, &Point::y>())[_0 > 0 && _1 > 0] >>
           [](int x, int y) { return x * y; },
       _ >> -1);
 
@@ -49,7 +49,7 @@ TEST(Destructure, GuardRejects) {
 
   int result = match(
       p,
-      ds<&Point::x, &Point::y>()[_0 > 0 && _1 > 0] >>
+      $(has<&Point::x, &Point::y>())[_0 > 0 && _1 > 0] >>
           [](int x, int y) { return x * y; },
       _ >> -1);
 
@@ -60,7 +60,7 @@ TEST(Destructure, SingleMember) {
   Point p{42, 0};
 
   int result = match(
-      p, ds<&Point::x>() >> [](int x) { return x; }, _ >> 0);
+      p, $(has<&Point::x>()) >> [](int x) { return x; }, _ >> 0);
 
   EXPECT_EQ(result, 42);
 }
@@ -70,7 +70,7 @@ TEST(Destructure, EquivalentToBindHas) {
 
   int r1 = match(
       p,
-      ds<&Point::x, &Point::y>() >>
+      $(has<&Point::x, &Point::y>()) >>
           [](int x, int y) { return x + y; },
       _ >> 0);
 
@@ -88,7 +88,7 @@ TEST(Destructure, ThreeMembers) {
 
   auto result = match(
       pkt,
-      ds<&Packet::type, &Packet::length, &Packet::payload>() >>
+      $(has<&Packet::type, &Packet::length, &Packet::payload>()) >>
           [](int t, int l, const std::string &p) {
             return t + l + static_cast<int>(p.size());
           },

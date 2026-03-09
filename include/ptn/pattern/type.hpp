@@ -40,7 +40,7 @@ namespace ptn::pat::type {
     // Important: when SubPattern is a binding pattern (e.g. bind(),
     // bind(has<...>())), this type pattern itself becomes a binding
     // pattern, enabling guard syntax:
-    //   type::as<T>()[predicate]   // equivalent to
+    //   $(is<T>())[predicate]   // equivalent to
     //   is<T>(bind()[predicate])
     template <typename T, typename SubPattern = no_subpattern>
     struct type_is_pattern
@@ -164,8 +164,7 @@ namespace ptn::pat::type {
   } // namespace detail
 
   // ------------------------------------------------------------
-  // Public API (deprecated, use ptn::is<T> / ptn::as<T> /
-  // ptn::alt<I>).
+  // Public API (deprecated, use ptn::is<T> / ptn::alt<I>).
   // ------------------------------------------------------------
 
   template <typename T>
@@ -194,23 +193,6 @@ namespace ptn::pat::type {
         std::forward<SubPattern>(subpattern));
   }
 
-  // Explicit binding sugar for type matches.
-  // Equivalent to: is<T>(bind())
-  template <typename T>
-  [[deprecated("use as<T> instead of type::as<T>()")]]
-  constexpr auto as() {
-    return is<T>(ptn::pat::bind());
-  }
-
-  // Explicit binding sugar with a subpattern.
-  // Equivalent to: is<T>(bind(subpattern))
-  template <typename T, typename SubPattern>
-  [[deprecated("use as<T>(sub) instead of type::as<T>(sub)")]]
-  constexpr auto as(SubPattern &&subpattern) {
-    return is<T>(
-        ptn::pat::bind(std::forward<SubPattern>(subpattern)));
-  }
-
 } // namespace ptn::pat::type
 
 // ----------------------------------------------------------------
@@ -222,9 +204,9 @@ namespace ptn::pat::type {
 // Usage:
 //   is<int>                     // match variant alt, no bind
 //   is<int>(sub_pattern)        // match + delegate to sub_pattern
-//   as<int>                     // match + bind value
-//   as<int>[_0 > 0]             // match + bind + guard
-//   as<int>(ds<&P::x, &P::y>())// match + destructure bind
+//   $(is<int>())                // match + bind value (use $
+//   callable)
+//   $(is<int>())[_0 > 0]        // match + bind + guard
 //   alt_idx<0>                  // match by index, no bind
 // ----------------------------------------------------------------
 
@@ -256,43 +238,6 @@ namespace ptn::pat {
       }
     };
 
-    // Factory object for as<T> variable template.
-    //
-    // Acts as a binding pattern (type match + bind value),
-    // and supports operator() to attach a sub-pattern.
-    template <typename T>
-    struct as_factory
-        : type::detail::
-              type_is_pattern<T, ptn::pat::detail::binding_pattern> {
-
-      constexpr as_factory()
-          : type::detail::type_is_pattern<
-                T,
-                ptn::pat::detail::binding_pattern>(
-                ptn::pat::detail::binding_pattern{}) {
-      }
-
-      // No-arg call: as<T>() returns the base pattern (backward
-      // compat).
-      constexpr type::detail::
-          type_is_pattern<T, ptn::pat::detail::binding_pattern>
-          operator()() const {
-        return type::detail::
-            type_is_pattern<T, ptn::pat::detail::binding_pattern>(
-                ptn::pat::detail::binding_pattern{});
-      }
-
-      // Attach a sub-pattern: as<T>(sub)
-      template <typename SubPattern>
-      constexpr auto operator()(SubPattern &&sub) const {
-        return type::detail::type_is_pattern<
-            T,
-            ptn::pat::detail::structural_bind_pattern<
-                std::decay_t<SubPattern>>>(
-            ptn::pat::bind(std::forward<SubPattern>(sub)));
-      }
-    };
-
     // Factory object for alt<I> variable template.
     template <std::size_t I>
     struct alt_factory : type::detail::type_alt_pattern<I> {
@@ -319,10 +264,6 @@ namespace ptn::pat {
   // Variable template: match variant alternative by type (no bind).
   template <typename T>
   inline constexpr detail::is_factory<T> is{};
-
-  // Variable template: match variant alternative by type + bind.
-  template <typename T>
-  inline constexpr detail::as_factory<T> as{};
 
   // Variable template: match variant alternative by index (no bind).
   template <std::size_t I>
@@ -382,15 +323,6 @@ namespace ptn::pat::base {
   template <typename T, typename Subject>
   struct binding_args<ptn::pat::detail::is_factory<T>, Subject> {
     using type = std::tuple<>;
-  };
-
-  // as_factory<T> delegates to type_is_pattern<T, binding_pattern>.
-  template <typename T, typename Subject>
-  struct binding_args<ptn::pat::detail::as_factory<T>, Subject> {
-    using type = typename binding_args<
-        ptn::pat::type::detail::
-            type_is_pattern<T, ptn::pat::detail::binding_pattern>,
-        Subject>::type;
   };
 
   // alt_factory<I> delegates to type_alt_pattern<I, no_subpattern>.

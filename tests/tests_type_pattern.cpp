@@ -12,7 +12,7 @@ TEST(TypePattern, TypeIsAndTypeAs) {
 
   int result = ptn::match(v)
                    .when(ptn::is<int>() >> [] { return -1; })
-                   .when(ptn::as<std::string>() >>
+                   .when(ptn::$(ptn::is<std::string>()) >>
                          [](const std::string &s) {
                            return static_cast<int>(s.size());
                          })
@@ -105,7 +105,7 @@ TEST(TypePattern, MixedVariantGuardedFallsThroughToSimpleCase) {
   int simple_hits  = 0;
 
   int result = ptn::match(v)
-                   .when(ptn::as<int>()[ptn::_0 > 100] >>
+                   .when(ptn::$(ptn::is<int>())[ptn::_0 > 100] >>
                          [&](int) {
                            ++guarded_hits;
                            return 10;
@@ -133,7 +133,8 @@ TEST(TypePattern, MixedVariantGuardedCaseWinsWhenPredicateTrue) {
   int simple_hits  = 0;
 
   int result = ptn::match(v)
-                   .when(ptn::as<std::string>()[long_string] >>
+                   .when(ptn::$(ptn::is<std::string>())[long_string]
+                         >>
                          [&](const std::string &) {
                            ++guarded_hits;
                            return 20;

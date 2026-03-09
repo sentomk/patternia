@@ -26,21 +26,22 @@ describe(const std::variant<int, std::string, Point> &v) {
 std::string
 describe_as(const std::variant<int, std::string, Point> &v) {
   // Same as describe(...), but uses the binding sugar
-  // `as<T>`.
+  // `$(is<T>())` and `$(has<...>())`.
   //
-  // `as<T>` is equivalent to `is<T>(bind())`, so the
-  // handler receives the alternative value (or bound fields when
-  // combined with `bind(has<...>())`).
+  // `$(is<T>())` is equivalent to `is<T>(bind())`, so the
+  // handler receives the alternative value.
   //
-  // Type patterns become binding patterns when their subpattern
-  // binds. Guards can be attached directly to `as<T>`.
+  // For destructuring, use `is<T>()` with `$(has<...>())` to
+  // bind the extracted fields.
+  //
+  // Guards can be attached directly to binding patterns.
   return match(v)
       .when(is<int>() >> "int")
-      .when(as<std::string>()[_0 != ""] >>
+      .when($(is<std::string>())[_0 != ""] >>
             [](const std::string &s) { return "str:" + s; })
       .when(
-          as<Point>(
-              has<&Point::x, &Point::y>())[arg<0> > 0 && arg<1> > 0]
+          is<Point>($(
+              has<&Point::x, &Point::y>()))[arg<0> > 0 && arg<1> > 0]
           >>
           [](int x, int y) { return "pt:" + std::to_string(x + y); })
       .otherwise([] { return std::string("other"); });

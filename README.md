@@ -28,7 +28,7 @@
 
 ## *Update*
 
-- **API update (v0.8.5)** introduces `is<T>()`, `as<T>()`, and `alt<I>()` variable templates for type patterns, `ds<&T::m...>()` for destructure-and-bind, and `has<>()[guard]` for structural validation. Old `type::` namespace functions are deprecated.
+- **API update (v0.8.5)** introduces `is<T>()`, and `alt<I>()` variable templates for type patterns, `$(pattern)` callable syntax for explicit binding, and `has<>()[guard]` for structural validation. Old `type::` namespace functions are deprecated.
 - **API update (v0.8.3)** adds `match(x, cases...)` unified entry, `_` wildcard alias, `$` bind shorthand, and `_0`–`_3` guard placeholders. Guard placeholder `_` is deprecated in favor of `_0`.
 - **Release update (v0.8.2)** keeps public usage centered on `match(x) | on(...)` and adds reusable hot-path forms through `static_on(...)` and `PTN_ON(...)`.
 - **Performance update (v0.8.2)** introduces a lowering engine with `full` / `bucketed` / `none` legality and a switch-oriented static literal path for large keyed matches.
@@ -140,7 +140,7 @@ Patternia allows control flow to be written *in terms of structure*:
 
 ```cpp
 match(p) | on(
-  ds<&Point::x, &Point::y>() >> [](int x, int y) {
+  $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
     // explicitly operates on {x, y}
   },
   __ >> [] { /* fallback */ }
@@ -170,7 +170,7 @@ Patternia separates these concerns:
 
 ```cpp
 match(p) | on(
-  ds<&Point::x, &Point::y>()[arg<0> + arg<1> == 0] >>
+  $(has<&Point::x, &Point::y>())[arg<0> + arg<1> == 0] >>
       [](int x, int y) { /* ... */ },
   __ >> [] { /* ... */ }
 );
@@ -196,7 +196,7 @@ Patternia introduces **first-class guard expressions** that are:
 
 ```cpp
 bind()[_0 > 0 && _0 < 10]
-ds<&A::x, &A::y>()[arg<0> * arg<1> > 100]
+$(has<&A::x, &A::y>())[arg<0> * arg<1> > 100]
 ```
 
 Guards become part of the pattern language rather than incidental conditions.

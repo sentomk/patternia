@@ -44,7 +44,6 @@ namespace ptn {
 
   using ptn::pat::$;
   using ptn::pat::bind;
-  using ptn::pat::ds;
 
   using ptn::pat::_;
   using ptn::pat::__;
@@ -65,7 +64,6 @@ namespace ptn {
 
   // Type-pattern utilities (variable templates, 0.9 API).
   using ptn::pat::alt;
-  using ptn::pat::as;
   using ptn::pat::is;
 
   // Legacy type:: namespace (retained for backward compatibility).
