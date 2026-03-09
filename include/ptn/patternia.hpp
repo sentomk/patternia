@@ -44,6 +44,7 @@ namespace ptn {
 
   using ptn::pat::$;
   using ptn::pat::bind;
+  using ptn::pat::ds;
 
   using ptn::pat::_;
   using ptn::pat::__;
