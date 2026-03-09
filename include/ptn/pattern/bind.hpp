@@ -42,6 +42,17 @@ namespace ptn::pat {
       }
     };
 
+    // Helper to detect if a type has alt_index method
+    template <typename T, typename Subject, typename = void>
+    struct has_alt_index : std::false_type {};
+
+    template <typename T, typename Subject>
+    struct has_alt_index<
+        T,
+        Subject,
+        std::void_t<decltype(T::template alt_index<Subject>())>>
+        : std::true_type {};
+
     // A pattern that matches using a sub-pattern and binds both the
     // subject and the sub-pattern's bindings. Tag: A tag type for
     // binding identification (typically void). SubPattern: The
@@ -66,10 +77,33 @@ namespace ptn::pat {
 
       // Binds the subject itself by reference plus sub-pattern
       // bindings.
+      // Special case: if SubPattern is a type_is_pattern or
+      // type_alt_pattern with no_subpattern, bind the extracted
+      // alternative value instead of the whole variant.
       template <typename Subject>
       constexpr auto bind(const Subject &subject) const {
-        return std::tuple_cat(std::forward_as_tuple(subject),
-                              subpattern.bind(subject));
+        // Check if SubPattern has alt_index method (type pattern)
+        if constexpr (has_alt_index<SubPattern, Subject>::value) {
+          // Check if it has no subpattern (would return empty tuple)
+          if constexpr (std::tuple_size_v<decltype(subpattern.bind(
+                            subject))>
+                        == 0) {
+            // Extract and bind the alternative value
+            constexpr std::size_t
+                idx = SubPattern::template alt_index<Subject>();
+            return std::forward_as_tuple(std::get<idx>(subject));
+          }
+          else {
+            // Has subpattern, use normal behavior
+            return std::tuple_cat(std::forward_as_tuple(subject),
+                                  subpattern.bind(subject));
+          }
+        }
+        else {
+          // Not a type pattern, use normal behavior
+          return std::tuple_cat(std::forward_as_tuple(subject),
+                                subpattern.bind(subject));
+        }
       }
     };
 
@@ -159,12 +193,59 @@ namespace ptn::pat {
     }
   }
 
-  // $ - Shorthand alias for bind().
+  // bind_factory - Callable object that acts as both a binding
+  // pattern and a factory for creating binding patterns with
+  // subpatterns.
   //
-  // Captures the current subject itself. Equivalent to bind() but
-  // more concise in pattern expressions:
-  //   $[_0 > 0] >> [](int v) { return v * 2; }
-  inline constexpr detail::binding_pattern ${};
+  // This allows $ to work in multiple ways:
+  //   $ >> handler                    // direct binding
+  //   $[_0 > 0] >> handler            // binding with guard
+  //   $(has<&T::x>()) >> handler      // binding with subpattern
+  //   $(is<T>()) >> handler           // binding variant type
+  struct bind_factory : base::pattern_base<bind_factory>,
+                        base::binding_pattern_base<bind_factory> {
+
+    // Act as a binding pattern directly (for $ >> handler)
+    template <typename Subject>
+    constexpr bool match(const Subject &) const noexcept {
+      return true;
+    }
+
+    template <typename Subject>
+    constexpr auto bind(const Subject &subject) const {
+      return std::forward_as_tuple(subject);
+    }
+
+    // operator()() - Return binding_pattern for $() form
+    constexpr auto operator()() const {
+      return detail::binding_pattern{};
+    }
+
+    // operator()(subpattern) - Return appropriate binding pattern
+    template <typename SubPattern>
+    constexpr auto operator()(SubPattern &&subpattern) const {
+      using SP = std::decay_t<SubPattern>;
+
+      if constexpr (detail::is_structural_has_v<SP>) {
+        return detail::structural_bind_pattern<SP>(
+            std::forward<SubPattern>(subpattern));
+      }
+      else {
+        return detail::binding_as_pattern<void, SP>(
+            std::forward<SubPattern>(subpattern));
+      }
+    }
+  };
+
+  // $ - Shorthand for bind() that can also be called with
+  // subpatterns.
+  //
+  // Usage:
+  //   $ >> handler                    // bind whole subject
+  //   $[_0 > 0] >> handler            // bind with guard
+  //   $(has<&T::x, &T::y>()) >> handler  // bind structural members
+  //   $(is<T>()) >> handler           // bind variant alternative
+  inline constexpr bind_factory $;
 
   // ds<&T::m...>() - Destructure and bind member fields.
   //
@@ -191,16 +272,49 @@ namespace ptn::pat::base {
         const std::remove_reference_t<Subject> &>;
   };
 
+  // `bind_factory` binds one value: Subject (same as
+  // binding_pattern).
+  template <typename Subject>
+  struct binding_args<pat::bind_factory, Subject> {
+    using type = std::tuple<
+        const std::remove_reference_t<Subject> &>;
+  };
+
   // `binding_as_pattern` binds:
-  //   (Subject) + binding sequence returned by
+  //   Special case: if SubPattern is a type pattern with no
+  //   subpattern, bind the extracted alternative value.
+  //   Otherwise: (Subject) + binding sequence returned by
   //   SubPattern::bind(Subject)
   template <typename Tag, typename SubPattern, typename Subject>
   struct binding_args<
       pat::detail::binding_as_pattern<Tag, SubPattern>,
       Subject> {
-    using type = decltype(std::tuple_cat(
-        std::tuple<const std::remove_reference_t<Subject> &>{},
-        typename binding_args<SubPattern, Subject>::type{}));
+  private:
+    // Check if SubPattern has alt_index (is a type pattern)
+    static constexpr bool
+        is_type_pattern = pat::detail::has_alt_index<SubPattern,
+                                                     Subject>::value;
+
+    // Check if SubPattern binds nothing (empty tuple)
+    static constexpr bool
+        has_no_subpattern = std::tuple_size_v<
+                                typename binding_args<SubPattern,
+                                                      Subject>::type>
+                            == 0;
+
+  public:
+    using type = std::conditional_t<
+        is_type_pattern && has_no_subpattern,
+        // Type pattern with no subpattern: bind extracted value
+        std::tuple<const std::variant_alternative_t<
+            SubPattern::template alt_index<Subject>(),
+            std::remove_reference_t<Subject>> &>,
+        // Otherwise: bind Subject + SubPattern bindings
+        decltype(std::tuple_cat(
+            std::declval<std::tuple<
+                const std::remove_reference_t<Subject> &>>(),
+            std::declval<typename binding_args<SubPattern,
+                                               Subject>::type>()))>;
   };
 
   // Structural-binding pattern binds.

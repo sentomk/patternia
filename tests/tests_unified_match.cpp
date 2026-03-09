@@ -77,7 +77,7 @@ TEST(UnifiedMatch, VariantTypeAsBindsValue) {
   V v     = 42;
 
   int result = match(
-      v, as<int>() >> [](int i) { return i * 2; }, __ >> 0);
+      v, $(is<int>()) >> [](int i) { return i * 2; }, __ >> 0);
 
   EXPECT_EQ(result, 84);
 }
@@ -201,7 +201,7 @@ TEST(UnifiedMatch, AsVariableTemplateBindsValue) {
   V v     = 42;
 
   int result = match(
-      v, as<int> >> [](int i) { return i * 2; }, _ >> 0);
+      v, $(is<int>) >> [](int i) { return i * 2; }, _ >> 0);
 
   EXPECT_EQ(result, 84);
 }
@@ -225,8 +225,8 @@ TEST(UnifiedMatch, AsWithGuard) {
 
   int result = match(
       v,
-      as<int>()[_0 > 100] >> [](int i) { return i; },
-      as<int>() >> [](int i) { return -i; },
+      $(is<int>())[_0 > 100] >> [](int i) { return i; },
+      $(is<int>()) >> [](int i) { return -i; },
       _ >> 0);
 
   EXPECT_EQ(result, -42);
@@ -270,4 +270,110 @@ TEST(UnifiedMatch, ImplicitLitEquivalentToExplicit) {
   int r2 = match(x, lit(3) >> [] { return 30; }, _ >> 0);
 
   EXPECT_EQ(r1, r2);
+}
+
+// -- $(has<>()) structural binding --
+
+TEST(UnifiedMatch, DollarHasBindsStructuralMembers) {
+  struct Point {
+    int x, y;
+  };
+  Point p{3, 4};
+
+  int result = match(
+      p,
+      $(has<&Point::x, &Point::y>()) >>
+          [](int x, int y) { return x + y; },
+      _ >> 0);
+
+  EXPECT_EQ(result, 7);
+}
+
+TEST(UnifiedMatch, DollarHasWithGuard) {
+  struct Point {
+    int x, y;
+  };
+  Point p{3, 4};
+
+  int result = match(
+      p,
+      $(has<&Point::x, &Point::y>())[arg<0> + arg<1> > 10] >>
+          [](int x, int y) { return x + y; },
+      $(has<&Point::x, &Point::y>()) >>
+          [](int x, int y) { return x * y; },
+      _ >> 0);
+
+  EXPECT_EQ(result, 12); // 3 * 4, guard fails
+}
+
+TEST(UnifiedMatch, DollarHasEquivalentToBindHas) {
+  struct Point {
+    int x, y;
+  };
+  Point p{5, 6};
+
+  int r1 = match(
+      p,
+      $(has<&Point::x, &Point::y>()) >>
+          [](int x, int y) { return x + y; },
+      _ >> 0);
+
+  int r2 = match(
+      p,
+      bind(has<&Point::x, &Point::y>()) >>
+          [](int x, int y) { return x + y; },
+      _ >> 0);
+
+  EXPECT_EQ(r1, r2);
+}
+
+// -- $(is<T>()) variant binding --
+
+TEST(UnifiedMatch, DollarIsBindsVariantAlternative) {
+  using V = std::variant<int, std::string>;
+  V v     = 42;
+
+  int result = match(
+      v, $(is<int>()) >> [](int i) { return i * 2; }, _ >> 0);
+
+  EXPECT_EQ(result, 84);
+}
+
+TEST(UnifiedMatch, DollarIsWithGuard) {
+  using V = std::variant<int, std::string>;
+  V v     = 42;
+
+  int result = match(
+      v,
+      $(is<int>())[_0 > 100] >> [](int i) { return i; },
+      $(is<int>()) >> [](int i) { return -i; },
+      _ >> 0);
+
+  EXPECT_EQ(result, -42);
+}
+
+TEST(UnifiedMatch, DollarIsEquivalentToBindIs) {
+  using V = std::variant<int, std::string>;
+  V v     = 42;
+
+  int r1 = match(
+      v, $(is<int>()) >> [](int i) { return i * 2; }, _ >> 0);
+
+  int r2 = match(
+      v, bind(is<int>()) >> [](int i) { return i * 2; }, _ >> 0);
+
+  EXPECT_EQ(r1, r2);
+}
+
+TEST(UnifiedMatch, DollarIsWithStringVariant) {
+  using V = std::variant<int, std::string>;
+  V v     = std::string("hello");
+
+  auto result = match(
+      v,
+      $(is<std::string>()) >>
+          [](const std::string &s) { return s + " world"; },
+      _ >> std::string("other"));
+
+  EXPECT_EQ(result, "hello world");
 }
