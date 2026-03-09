@@ -32,8 +32,9 @@ match(subject)
 
 ```cpp
 match(x) | on(
-  lit(1) >> [] { return "one"; },
-  __ >> "default"
+  lit(1) >> [] { std::cout << "one\n"; },
+  lit(2) >> [] { std::cout << "two\n"; },
+  _      >> [] { std::cout << "other\n"; }
 );
 ```
 
@@ -57,7 +58,7 @@ match(subject) | on(case1, case2, ...)
 
 * Pipeline-style terminal form, evaluated immediately
 * Cases are evaluated sequentially using **first-match semantics**
-* Requires a pattern fallback `__` in the `on(...)` case list
+* Requires a pattern fallback `_` in the `on(...)` case list
 * Supports full pattern capabilities including guards and bindings
 
 **Basic Usage**:
@@ -66,7 +67,7 @@ match(subject) | on(case1, case2, ...)
 auto r = match(x) | on(
   lit(1) >> [] { return "one"; },
   lit(2) >> [] { return "two"; },
-  __     >> [] { return "other"; }
+  _     >> [] { return "other"; }
 );
 ```
 
@@ -161,58 +162,27 @@ constexpr auto lit_ci(V &&v);   // Runtime ASCII case-insensitive match
 **Examples**:
 
 ```cpp
-.when(lit(Status::Running) >> ...)   // General enum/value matching
-.when(lit<42>() >> ...)              // Compile-time integer literal
-.when(lit("hello") >> ...)          // Runtime string literal
-.when(lit_ci("hello") >> ...)       // Case-insensitive string match
-```
-
-**Supported Types**:
-
-* Arithmetic types (`int`, `double`, `float`)
-* Enumeration types
-* String types (`std::string`, `std::string_view`, `const char*`)
-* User-defined types providing `operator==`
-
----
-
-### `__` (Wildcard)
-
-**Role**: Pattern-level wildcard that matches any value without binding.
-
-**Syntax**:
-
-```cpp
-inline constexpr detail::wildcard_t __;
-```
-
-**Key Properties**:
-
-* Always matches
-* Introduces no bindings
-* Participates in pattern ordering and exhaustiveness
-
-```cpp
-.when(__ >> [] {
-  // No access to the matched value
+.when(_ >> [] {
+  return "fallback";
 })
 ```
 
-**Design Intent**:
+**Comparison with `.otherwise()`**:
 
 ```cpp
-match(value)
-  .when(lit("success") >> "ok")
-  .when(lit("error")   >> "fail")
-  .when(__             >> "unknown")  // Pattern-level fallback
-  .end();
+// Chained API (deprecated)
+match(x)
+  .when(lit(1)         >> "one")
+  .when(lit(2)         >> "two")
+  .when(_               >> "unknown")  // Pattern-level fallback
+  .otherwise("default");                // Match-level fallback (rejected)
 ```
 
 **Key Distinction**:
 
-* `__` - a pattern that participates in matching and ordering
-* `.otherwise()` - a match-level fallback executed only if no pattern matches
-* `__` and `.otherwise()` cannot be combined in the same match
+* `_` - a pattern that participates in matching and ordering
+* `.otherwise()` - a match-level fallback that is not a pattern
+* `_` and `.otherwise()` cannot be combined in the same match
 
 ---
 
@@ -242,7 +212,7 @@ match(v) | on(
   $(is<std::string>()) >> [](const std::string &s) { /* bound */ },
   $(is<std::string>())[_0 != ""] >> [](const std::string &s) { /* guarded */ },
   is<Point>($(has<&Point::x, &Point::y>())) >> [](int x, int y) { /* structural bind */ },
-  __ >> [] {}
+  _ >> [] {}
 );
 ```
 
@@ -295,7 +265,7 @@ $(is<T>())       ≡ bind(is<T>())
 ```cpp
 match(x) | on(
   $() >> [](auto v) { return "captured: " + std::to_string(v); },
-  __ >> "default"
+  _ >> "default"
 );
 ```
 
@@ -311,7 +281,7 @@ match(status) | on(
   $(lit(Status::Running)) >> [](Status s) {
     return fmt("status = {}", static_cast<int>(s));
   },
-  __ >> "unknown"
+  _ >> "unknown"
 );
 ```
 
@@ -335,7 +305,7 @@ match(p) | on(
   $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
     return fmt("({}, {})", x, y);
   },
-  __ >> "invalid"
+  _ >> "invalid"
 );
 ```
 
@@ -349,7 +319,7 @@ Partial binding is expressed by listing only the desired members:
 ```cpp
 match(p) | on(
   $(has<&Point::x>()) >> [](int x) { return fmt("x = {}", x); },
-  __ >> "invalid"
+  _ >> "invalid"
 );
 ```
 
@@ -419,7 +389,7 @@ match(x) | on(
     // 3) guard (_0 > 0) is evaluated
     // 4) handler runs only if guard passes
   },
-  __ >> [] {}
+  _ >> [] {}
 );
 ```
 
@@ -430,7 +400,7 @@ match(v) | on(
   $(is<std::string>())[_0 != ""] >> [](const std::string &s) {
     /* guarded alternative */
   },
-  __ >> [] {}
+  _ >> [] {}
 );
 ```
 
@@ -512,7 +482,7 @@ There is **no `rng(...)`** for `arg<N>` expressions in the current design.
 match(p) | on(
   $(has<&Point::x, &Point::y>())[arg<0> + arg<1> == 0] >>
     [](int x, int y) { /* ... */ },
-  __ >> [] {}
+  _ >> [] {}
 );
 ```
 
@@ -521,7 +491,7 @@ match(p) | on(
 match(pkt) | on(
   $(has<&Packet::type, &Packet::length>())[arg<0> == 0x01 && arg<1> == 0] >>
     [](auto type, auto len) { /* ... */ },
-  __ >> [] {}
+  _ >> [] {}
 );
 ```
 
@@ -559,7 +529,7 @@ match(msg) | on(
   $(has<&Message::payload>())[non_empty] >> [](auto const& payload) {
     // payload is guaranteed non-empty here
   },
-  __ >> [] {}
+  _ >> [] {}
 );
 ```
 
@@ -570,7 +540,7 @@ auto sum_is_even = [](int a, int b) {
 
 match(p) | on(
   $(has<&Point::x, &Point::y>())[sum_is_even] >> [](int x, int y) { /* ... */ },
-  __ >> [] {}
+  _ >> [] {}
 );
 ```
 
@@ -653,7 +623,7 @@ match(p) | on(
   $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
     return fmt("({}, {})", x, y);
   },
-  __ >> [] {}
+  _ >> [] {}
 );
 ```
 
@@ -674,7 +644,7 @@ match(p) | on(
   $(has<&Point::x>()) >> [](int x) {
     return fmt("x = {}", x);
   },
-  __ >> [] {}
+  _ >> [] {}
 );
 ```
 
