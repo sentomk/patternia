@@ -34,202 +34,6 @@
 - **Performance update (v0.8.2)** introduces a lowering engine with `full` / `bucketed` / `none` legality and a switch-oriented static literal path for large keyed matches.
 - **Literal API update (v0.8.2)** keeps `lit(value)` and `lit_ci(value)` for general runtime matching while using `lit<value>()` for lowering-friendly compile-time literals.
 
-## *Performance Snapshot*
-
-Current snapshots are generated from benchmark JSON via
-`scripts/bench_single_report.py`.
-
-For the full algorithm discussion behind v0.8.2, see the
-[Performance Notes](https://patternia.tech/performance/).
-
-### Literal Bench Guide (`ptn_bench_lit`)
-
-#### Why the 128-way benchmark exists
-
-The 128-way literal benchmark exists because a small literal chain does not
-show the real problem.
-
-Patternia needed one benchmark large enough to answer two separate questions:
-
-- how close `lit<...>()` lowering is to a hand-written `switch`
-- how much extra cost comes from rebuilding `on(...)` on every call
-
-#### 1) Raw inline `on(...)` vs `switch`
-
-This chart isolates the total cost of the plain pipeline form:
-
-![Patternia Literal Match 128 Raw On vs Switch (v0.8.2)](docs/assets/bench/v0.8.2-literal-on-vs-switch.png)
-
-`match(x) | on(...)` is expressive, but in a hot loop it still rebuilds:
-
-- case objects
-- value handlers
-- the final `on(...)` tuple
-
-That is why this comparison does not only measure dispatch quality. It also
-measures matcher construction overhead.
-
-#### 2) Cached matcher forms vs `switch`
-
-This chart isolates the forms that avoid rebuilding the matcher:
-
-![Patternia Literal Match 128 Cached Matcher vs Switch (v0.8.2)](docs/assets/bench/v0.8.2-literal-cached-vs-switch.png)
-
-The two cached forms answer slightly different needs.
-
-##### `static auto cases = on(...);`
-
-**Advantages**:
-
-- lowest-overhead reusable form in user code
-- easy for performance-sensitive loops and routing tables
-- makes matcher lifetime explicit
-
-**Tradeoffs**:
-
-- more ceremony than the pipeline form
-- not ideal when you want the match site to stay compact
-
-**Good fit**:
-
-- hot dispatch loops
-- local routing helpers
-- benchmark baselines
-
-```cpp
-static auto cases = on(
-  lit<1>() >> 1,
-  lit<2>() >> 2,
-  __ >> 0
-);
-
-return match(x) | cases;
-```
-
-##### `PTN_ON(...)`
-
-**Advantages**:
-
-- keeps the `match(x) | ...` pipeline syntax
-- avoids repeated matcher construction
-- much easier to drop into existing call sites than manual caching
-
-**Tradeoffs**:
-
-- still a macro-based entry point
-- not as explicit as a named `static auto cases` object when you want to share
-  the matcher across multiple functions or call sites
-
-**Good fit**:
-
-- pipeline-style code paths
-- performance-sensitive matches that still want compact call-site syntax
-- cases where you want most of the cached performance without introducing a
-  named matcher object
-
-```cpp
-return match(x) | PTN_ON(
-  lit<1>() >> 1,
-  lit<2>() >> 2,
-  __ >> 0
-);
-```
-
-### Variant Snapshot
-
-Current variant snapshot is generated from `ptn_bench_variant` JSON:
-
-![Patternia Variant Dispatch Snapshot (v0.8.0)](docs/assets/bench/v0.8.0-variant-single-report.png)
-
-### Variant Bench Guide (`ptn_bench_variant`)
-
-`ptn_bench_variant` currently focuses on variant dispatch and registers these
-scenario groups (all compared against `StdVisit` / `Sequential` / `SwitchIndex`
-where applicable):
-
-- `VariantMixed` / `VariantAltHot`
-- `VariantFastPathMixed` / `VariantFastPathAltHot`
-- `VariantAltIndexMixed` / `VariantAltIndexAltHot`
-- `VariantAltIndex32Mixed` / `VariantAltIndex32AltHot`
-
-#### 1) `VariantMixed` / `VariantAltHot` (baseline type dispatch)
-
-**Use**: baseline `std::variant<int, std::string>` routing with two different
-input distributions.
-
-**Code shape**:
-
-```cpp
-match(v) | on(
-  alt<0>() >> 1,
-  alt<1>() >> 2,
-  __ >> 0
-);
-```
-
-**Meaning**:
-- `VariantMixed`: mixed alternatives, reflects average dispatch behavior.
-- `VariantAltHot`: one alternative is hot, shows branch-locality sensitivity.
-- Used as a baseline for `is<T>()` paths.
-
-#### 2) `VariantFastPathMixed` / `VariantFastPathAltHot` (simple-case fast path)
-
-**Use**: verify the simple variant fast path (minimal pattern complexity).
-
-**Code shape**:
-
-```cpp
-match(v) | on(
-  type::alt<0>() >> 1,
-  type::alt<1>() >> 2,
-  __ >> 0
-);
-```
-
-**Meaning**:
-- Isolates dispatch overhead when patterns are direct alt checks.
-- Confirms whether optimized simple-dispatch entry is effective.
-
-#### 3) `VariantAltIndexMixed` / `VariantAltIndexAltHot` (index-addressed dispatch)
-
-**Use**: same 2-alt routing but expressed explicitly through `type::alt<I>()`.
-
-**Code shape**:
-
-```cpp
-match(v) | on(
-  alt<0>() >> 1,
-  alt<1>() >> 2,
-  __ >> 0
-);
-```
-
-**Meaning**:
-- Measures indexed dispatch behavior independent of type-name matching.
-- Helps distinguish type-based vs index-based dispatch costs.
-
-#### 4) `VariantAltIndex32Mixed` / `VariantAltIndex32AltHot` (32-branch scale test)
-
-**Use**: stress test for large branch sets (32 alternatives).
-
-**Code shape**:
-
-```cpp
-match(v32) | on(
-  alt<0>() >> 1,
-  alt<1>() >> 2,
-  // ...
-  alt<31>() >> 32,
-  __ >> 0
-);
-```
-
-**Meaning**:
-- Directly targets large-N dispatch scalability.
-- Evaluates effectiveness of compact map + cold-path strategy.
-- Compared against `SwitchIndex` baseline for dense branch routing.
-
-
 ## *Learn Patternia*
 
 ### Getting Started
@@ -336,7 +140,7 @@ Patternia allows control flow to be written *in terms of structure*:
 
 ```cpp
 match(p) | on(
-  bind(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+  ds<&Point::x, &Point::y>() >> [](int x, int y) {
     // explicitly operates on {x, y}
   },
   __ >> [] { /* fallback */ }
@@ -366,7 +170,7 @@ Patternia separates these concerns:
 
 ```cpp
 match(p) | on(
-  bind(has<&Point::x, &Point::y>())[arg<0> + arg<1> == 0] >>
+  ds<&Point::x, &Point::y>()[arg<0> + arg<1> == 0] >>
       [](int x, int y) { /* ... */ },
   __ >> [] { /* ... */ }
 );
@@ -392,7 +196,7 @@ Patternia introduces **first-class guard expressions** that are:
 
 ```cpp
 bind()[_0 > 0 && _0 < 10]
-bind(has<&A::x, &A::y>())[arg<0> * arg<1> > 100]
+ds<&A::x, &A::y>()[arg<0> * arg<1> > 100]
 ```
 
 Guards become part of the pattern language rather than incidental conditions.
@@ -560,51 +364,6 @@ ctest --test-dir build -R compile_fail --output-on-failure
 
 ```bash
 ctest --test-dir build --output-on-failure
-```
-
-## *Benchmarking (v0.8.0)*
-
-v0.8.0 keeps the unified benchmark suite and adds tiered-variant dispatch
-optimizations. For dispatch-focused evaluation, prefer `ptn_bench_variant`.
-
-### Recommended Variant Run Profile
-
-- Unit: nanoseconds (`ns`)
-- Stable profile: min time + repetitions + aggregate output
-- Filter: `Variant`
-
-### Reproducible Compare Workflow
-
-```powershell
-# 0) Build variant benchmark target
-cmake --build build --config Release --target ptn_bench_variant --parallel
-
-# 1) Run variant-focused suite
-.\build\bench\ptn_bench_variant.exe `
-  --benchmark_filter="Variant" `
-  --benchmark_min_time=0.5 `
-  --benchmark_repetitions=20 `
-  --benchmark_report_aggregates_only=true `
-  --benchmark_out="build/bench/variant_current.json" `
-  --benchmark_out_format=json
-
-# 2) Single-file visualization (same JSON, multi-implementation)
-py -3 scripts/bench_single_report.py `
-  --input "build/bench/variant_current.json" `
-  --include "Variant" `
-  --outdir "build/bench/single" `
-  --prefix "variant_current"
-
-# 3) Optional: compare two snapshots
-py -3 scripts/bench_stage_results.py `
-  --baseline "build/bench/variant_baseline.json" `
-  --current "build/bench/variant_current.json"
-
-py -3 scripts/bench_compare.py `
-  --include "Variant" `
-  --label-baseline "baseline" `
-  --label-current "current" `
-  --prefix "variant_compare"
 ```
 
 ## *API Reference*
