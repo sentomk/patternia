@@ -28,7 +28,7 @@
 
 ## *Update*
 
-- **API update (v0.8.5)** introduces `is<T>()`, and `alt<I>()` variable templates for type patterns, `$(pattern)` callable syntax for explicit binding, and `has<>()[guard]` for structural validation. Old `type::` namespace functions are deprecated.
+- **API update (v0.8.5)** introduces `is<T>()`, and `alt<I>()` variable templates for type patterns, `$(pattern)` callable syntax for explicit binding, and `has<>()[guard]` for structural validation.
 - **API update (v0.8.3)** adds `match(x, cases...)` unified entry, `_` wildcard alias, `$` bind shorthand, and `_0`–`_3` guard placeholders. Guard placeholder `_` is deprecated in favor of `_0`.
 - **Release update (v0.8.2)** keeps public usage centered on `match(x) | on(...)` and adds reusable hot-path forms through `static_on(...)` and `PTN_ON(...)`.
 - **Performance update (v0.8.2)** introduces a lowering engine with `full` / `bucketed` / `none` legality and a switch-oriented static literal path for large keyed matches.

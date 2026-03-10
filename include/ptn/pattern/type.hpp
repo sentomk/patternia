@@ -1,5 +1,5 @@
 // Public API and implementation for type-based patterns
-// (`type::is<T>()`). Provides variant alternative matching by type,
+// (`is<T>()`). Provides variant alternative matching by type,
 // with optional sub-pattern matching for binding or structural
 // checks.
 
@@ -16,13 +16,7 @@
 #include "ptn/pattern/base/binding_base.hpp"
 #include "ptn/pattern/base/pattern_base.hpp"
 
-namespace ptn::pat::type {
-
-  // ------------------------------------------------------------
-  // Internal Implementation Details
-  // ------------------------------------------------------------
-
-  namespace detail {
+namespace ptn::pat::detail {
 
     // Sentinel type representing "no subpattern".
     struct no_subpattern {};
@@ -71,9 +65,9 @@ namespace ptn::pat::type {
         constexpr bool alt_type_found = (idx >= 0);
         static_assert(
             alt_type_found,
-            "[Patternia.type::is]: Alternative type not found in "
+            "[Patternia.is]: Alternative type not found in "
             "std::variant. Tip: ensure the variant lists T, or use "
-            "type::alt<I>() to match by index.");
+            "alt<I>() to match by index.");
         return static_cast<std::size_t>(idx);
       }
 
@@ -161,45 +155,13 @@ namespace ptn::pat::type {
       }
     };
 
-  } // namespace detail
-
-  // ------------------------------------------------------------
-  // Public API (deprecated, use ptn::is<T> / ptn::alt<I>).
-  // ------------------------------------------------------------
-
-  template <typename T>
-  [[deprecated("use is<T> instead of type::is<T>()")]]
-  constexpr auto is() {
-    return detail::type_is_pattern<T>{};
-  }
-
-  template <typename T, typename SubPattern>
-  [[deprecated("use is<T>(sub) instead of type::is<T>(sub)")]]
-  constexpr auto is(SubPattern &&subpattern) {
-    return detail::type_is_pattern<T, std::decay_t<SubPattern>>(
-        std::forward<SubPattern>(subpattern));
-  }
-
-  template <std::size_t I>
-  [[deprecated("use alt<I> instead of type::alt<I>()")]]
-  constexpr auto alt() {
-    return detail::type_alt_pattern<I>{};
-  }
-
-  template <std::size_t I, typename SubPattern>
-  [[deprecated("use alt<I>(sub) instead of type::alt<I>(sub)")]]
-  constexpr auto alt(SubPattern &&subpattern) {
-    return detail::type_alt_pattern<I, std::decay_t<SubPattern>>(
-        std::forward<SubPattern>(subpattern));
-  }
-
-} // namespace ptn::pat::type
+  } // namespace ptn::pat::detail
 
 // ----------------------------------------------------------------
-// Short-form variable template aliases (0.9 API).
+// Short-form variable template aliases.
 //
 // These live in ptn::pat so they can be exported directly into ptn::
-// without the type:: prefix.
+// without a namespace prefix.
 //
 // Usage:
 //   is<int>                     // match variant alt, no bind
@@ -219,42 +181,40 @@ namespace ptn::pat {
     // Acts as a pattern itself (delegates to type_is_pattern<T>),
     // and supports operator() to attach a sub-pattern.
     template <typename T>
-    struct is_factory : type::detail::type_is_pattern<T> {
+    struct is_factory : type_is_pattern<T> {
 
       constexpr is_factory() = default;
 
       // No-arg call: is<T>() returns the base pattern (backward
       // compat).
-      constexpr type::detail::type_is_pattern<T> operator()() const {
+      constexpr type_is_pattern<T> operator()() const {
         return {};
       }
 
       // Attach a sub-pattern: is<T>(sub)
       template <typename SubPattern>
       constexpr auto operator()(SubPattern &&sub) const {
-        return type::detail::
-            type_is_pattern<T, std::decay_t<SubPattern>>(
+        return type_is_pattern<T, std::decay_t<SubPattern>>(
                 std::forward<SubPattern>(sub));
       }
     };
 
     // Factory object for alt<I> variable template.
     template <std::size_t I>
-    struct alt_factory : type::detail::type_alt_pattern<I> {
+    struct alt_factory : type_alt_pattern<I> {
 
       constexpr alt_factory() = default;
 
       // No-arg call: alt<I>() returns the base pattern (backward
       // compat).
-      constexpr type::detail::type_alt_pattern<I>
+      constexpr type_alt_pattern<I>
       operator()() const {
         return {};
       }
 
       template <typename SubPattern>
       constexpr auto operator()(SubPattern &&sub) const {
-        return type::detail::
-            type_alt_pattern<I, std::decay_t<SubPattern>>(
+        return type_alt_pattern<I, std::decay_t<SubPattern>>(
                 std::forward<SubPattern>(sub));
       }
     };
@@ -278,32 +238,32 @@ namespace ptn::pat {
 namespace ptn::pat::base {
 
   template <typename T, typename Subject>
-  struct binding_args<ptn::pat::type::detail::type_is_pattern<
+  struct binding_args<ptn::pat::detail::type_is_pattern<
                           T,
-                          ptn::pat::type::detail::no_subpattern>,
+                          ptn::pat::detail::no_subpattern>,
                       Subject> {
     using type = std::tuple<>;
   };
 
   template <typename T, typename SubPattern, typename Subject>
   struct binding_args<
-      ptn::pat::type::detail::type_is_pattern<T, SubPattern>,
+      ptn::pat::detail::type_is_pattern<T, SubPattern>,
       Subject> {
     using alt_t = ptn::meta::remove_cvref_t<T>;
     using type  = typename binding_args<SubPattern, alt_t>::type;
   };
 
   template <std::size_t I, typename Subject>
-  struct binding_args<ptn::pat::type::detail::type_alt_pattern<
+  struct binding_args<ptn::pat::detail::type_alt_pattern<
                           I,
-                          ptn::pat::type::detail::no_subpattern>,
+                          ptn::pat::detail::no_subpattern>,
                       Subject> {
     using type = std::tuple<>;
   };
 
   template <std::size_t I, typename SubPattern, typename Subject>
   struct binding_args<
-      ptn::pat::type::detail::type_alt_pattern<I, SubPattern>,
+      ptn::pat::detail::type_alt_pattern<I, SubPattern>,
       Subject> {
     using subject_t = ptn::meta::remove_cvref_t<Subject>;
     using args_t    = typename ptn::meta::template_info<

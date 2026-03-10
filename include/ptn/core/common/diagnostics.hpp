@@ -15,12 +15,12 @@
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/pattern/base/pattern_traits.hpp"
 
-namespace ptn::pat::type::detail {
+namespace ptn::pat::detail {
   struct no_subpattern;
 
   template <std::size_t I, typename SubPattern>
   struct type_alt_pattern;
-} // namespace ptn::pat::type::detail
+} // namespace ptn::pat::detail
 
 namespace ptn::pat::mod {
   template <typename Inner, typename Pred>
@@ -126,7 +126,7 @@ namespace ptn::core::common {
     struct alt_pattern_index : std::integral_constant<std::size_t, alt_npos> {};
 
     template <std::size_t I, typename SubPattern>
-    struct alt_pattern_index<ptn::pat::type::detail::type_alt_pattern<
+    struct alt_pattern_index<ptn::pat::detail::type_alt_pattern<
         I,
         SubPattern>> : std::integral_constant<std::size_t, I> {};
 
@@ -139,9 +139,9 @@ namespace ptn::core::common {
         : std::integral_constant<std::size_t, alt_npos> {};
 
     template <std::size_t I>
-    struct plain_alt_pattern_index<ptn::pat::type::detail::type_alt_pattern<
+    struct plain_alt_pattern_index<ptn::pat::detail::type_alt_pattern<
         I,
-        ptn::pat::type::detail::no_subpattern>>
+        ptn::pat::detail::no_subpattern>>
         : std::integral_constant<std::size_t, I> {};
 
     template <typename Case>
@@ -255,8 +255,8 @@ namespace ptn::core::common {
         !detail::has_unreachable_alt_after_plain_alt<Cases...>::value;
     static_assert(
         no_unreachable_alt_after_plain_alt,
-        "[Patternia.type::alt]: case is unreachable because an earlier "
-        "plain type::alt<I>() already covers this alternative. Tip: remove "
+        "[Patternia.alt]: case is unreachable because an earlier "
+        "plain alt<I>() already covers this alternative. Tip: remove "
         "the later alt<I>(...) case, or reorder cases.");
   }
 
@@ -268,8 +268,8 @@ namespace ptn::core::common {
         !detail::is_new_case_unreachable_after_plain_alt<Cases...>::value;
     static_assert(
         new_case_reachable,
-        "[Patternia.type::alt]: case is unreachable because an earlier "
-        "plain type::alt<I>() already covers this alternative. Tip: remove "
+        "[Patternia.alt]: case is unreachable because an earlier "
+        "plain alt<I>() already covers this alternative. Tip: remove "
         "the later alt<I>(...) case, or reorder cases.");
   }
 
@@ -475,7 +475,7 @@ namespace ptn::core::common {
         meta::is_spec_of_v<std::variant, meta::remove_cvref_t<Subject>>;
     static_assert(
         is_variant_subject,
-        "[Patternia.type::is]: Subject must be a std::variant.");
+        "[Patternia.is]: Subject must be a std::variant.");
   }
 
   // Ensures Alt appears exactly once in the variant's alternatives.
@@ -493,8 +493,8 @@ namespace ptn::core::common {
     constexpr bool alt_appears_once = (count == 1);
     static_assert(
         alt_appears_once,
-        "[Patternia.type::is]: Alternative type must appear exactly once in "
-        "std::variant. Tip: use type::alt<I>() for duplicate types, or wrap "
+        "[Patternia.is]: Alternative type must appear exactly once in "
+        "std::variant. Tip: use alt<I>() for duplicate types, or wrap "
         "types in distinct structs.");
   }
 
@@ -507,7 +507,7 @@ namespace ptn::core::common {
     // (A) Alternative index must be in range.
     constexpr bool alt_index_in_range = I < std::variant_size_v<subject_t>;
     static_assert(alt_index_in_range,
-                  "[Patternia.type::alt]: Alternative index is out of range. "
+                  "[Patternia.alt]: Alternative index is out of range. "
                   "Tip: valid indices are [0, variant_size-1].");
   }
 

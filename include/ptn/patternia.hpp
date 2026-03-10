@@ -62,12 +62,9 @@ namespace ptn {
   using ptn::pat::_ign;
   using ptn::pat::has;
 
-  // Type-pattern utilities (variable templates, 0.9 API).
+  // Type-pattern utilities (variable templates).
   using ptn::pat::alt;
   using ptn::pat::is;
-
-  // Legacy type:: namespace (retained for backward compatibility).
-  namespace type = ptn::pat::type;
 
 } // namespace ptn
 

@@ -16,7 +16,7 @@
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/common/diagnostics.hpp"
 
-namespace ptn::pat::type::detail {
+namespace ptn::pat::detail {
   struct no_subpattern;
 
   template <typename T, typename SubPattern>
@@ -24,7 +24,7 @@ namespace ptn::pat::type::detail {
 
   template <std::size_t I, typename SubPattern>
   struct type_alt_pattern;
-} // namespace ptn::pat::type::detail
+} // namespace ptn::pat::detail
 
 namespace ptn::pat::mod {
   template <typename Inner, typename Pred>
@@ -165,14 +165,14 @@ namespace ptn::core::common {
       }
     };
 
-    // Matches `type::is<T>()` with no subpattern/binding.
+    // Matches `is<T>()` with no subpattern/binding.
     template <typename Pattern>
     struct is_simple_variant_type_is_pattern : std::false_type {};
 
     template <typename Alt>
     struct is_simple_variant_type_is_pattern<
-        ptn::pat::type::detail::
-            type_is_pattern<Alt, ptn::pat::type::detail::no_subpattern>>
+        ptn::pat::detail::
+            type_is_pattern<Alt, ptn::pat::detail::no_subpattern>>
         : std::true_type {};
 
     template <typename Pattern>
@@ -180,40 +180,40 @@ namespace ptn::core::common {
         is_simple_variant_type_is_pattern_v = is_simple_variant_type_is_pattern<
             std::decay_t<Pattern>>::value;
 
-    // Matches `type::alt<I>()` with no subpattern/binding.
+    // Matches `alt<I>()` with no subpattern/binding.
     template <typename Pattern>
     struct is_simple_variant_type_alt_pattern : std::false_type {};
 
     template <std::size_t I>
     struct is_simple_variant_type_alt_pattern<
-        ptn::pat::type::detail::
-            type_alt_pattern<I, ptn::pat::type::detail::no_subpattern>>
+        ptn::pat::detail::
+            type_alt_pattern<I, ptn::pat::detail::no_subpattern>>
         : std::true_type {};
 
     template <typename Pattern>
     constexpr bool is_simple_variant_type_alt_pattern_v =
         is_simple_variant_type_alt_pattern<std::decay_t<Pattern>>::value;
 
-    // Matches `type::is<T>(...)` (any subpattern).
+    // Matches `is<T>(...)` (any subpattern).
     template <typename Pattern>
     struct is_variant_type_is_pattern : std::false_type {};
 
     template <typename Alt, typename SubPattern>
     struct is_variant_type_is_pattern<
-        ptn::pat::type::detail::type_is_pattern<Alt, SubPattern>>
+        ptn::pat::detail::type_is_pattern<Alt, SubPattern>>
         : std::true_type {};
 
     template <typename Pattern>
     constexpr bool is_variant_type_is_pattern_v = is_variant_type_is_pattern<
         std::decay_t<Pattern>>::value;
 
-    // Matches `type::alt<I>(...)` (any subpattern).
+    // Matches `alt<I>(...)` (any subpattern).
     template <typename Pattern>
     struct is_variant_type_alt_pattern : std::false_type {};
 
     template <std::size_t I, typename SubPattern>
     struct is_variant_type_alt_pattern<
-        ptn::pat::type::detail::type_alt_pattern<I, SubPattern>>
+        ptn::pat::detail::type_alt_pattern<I, SubPattern>>
         : std::true_type {};
 
     template <typename Pattern>
@@ -299,14 +299,14 @@ namespace ptn::core::common {
       inline static constexpr key_t value = static_cast<key_t>(V);
     };
 
-    // Extracts alt index from `type::alt<I>()` patterns.
+    // Extracts alt index from `alt<I>()` patterns.
     template <typename Pattern>
     struct simple_variant_alt_index;
 
     template <std::size_t I>
-    struct simple_variant_alt_index<ptn::pat::type::detail::type_alt_pattern<
+    struct simple_variant_alt_index<ptn::pat::detail::type_alt_pattern<
         I,
-        ptn::pat::type::detail::no_subpattern>>
+        ptn::pat::detail::no_subpattern>>
         : std::integral_constant<std::size_t, I> {};
 
     template <typename Pattern>
@@ -314,23 +314,23 @@ namespace ptn::core::common {
 
     template <std::size_t I, typename SubPattern>
     struct variant_type_alt_index<
-        ptn::pat::type::detail::type_alt_pattern<I, SubPattern>>
+        ptn::pat::detail::type_alt_pattern<I, SubPattern>>
         : std::integral_constant<std::size_t, I> {};
 
-    // Matches `type::is<T>(bind())`.
+    // Matches `is<T>(bind())`.
     template <typename Pattern>
     struct is_variant_direct_ref_bind_pattern : std::false_type {};
 
     template <typename Alt>
     struct is_variant_direct_ref_bind_pattern<
-        ptn::pat::type::detail::type_is_pattern<Alt,
+        ptn::pat::detail::type_is_pattern<Alt,
                                                 ptn::pat::detail::binding_pattern>>
         : std::true_type {};
 
-    // Matches `type::alt<I>(bind())`.
+    // Matches `alt<I>(bind())`.
     template <std::size_t I>
     struct is_variant_direct_ref_bind_pattern<
-        ptn::pat::type::detail::type_alt_pattern<I,
+        ptn::pat::detail::type_alt_pattern<I,
                                                  ptn::pat::detail::binding_pattern>>
         : std::true_type {};
 
