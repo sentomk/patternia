@@ -185,7 +185,7 @@ TEST(UnifiedMatch, DollarBindEquivalentToBind) {
   EXPECT_EQ(r1, r2);
 }
 
-// -- is<T> / as<T> variable templates --
+// -- is<T> / alt<I> variable templates --
 
 TEST(UnifiedMatch, IsVariableTemplateMatchesType) {
   using V = std::variant<int, std::string>;

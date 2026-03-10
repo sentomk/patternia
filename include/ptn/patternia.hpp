@@ -32,7 +32,7 @@
 #include "ptn/pattern/wildcard.hpp"        // wildcard
 #include "ptn/pattern/modifiers/guard.hpp" // guard
 #include "ptn/pattern/structural.hpp"      // has
-#include "ptn/pattern/type.hpp" // type::is, type::as, type::alt
+#include "ptn/pattern/type.hpp" // is<T>, alt<I>
 
 namespace ptn {
   // Imports DSL operators.

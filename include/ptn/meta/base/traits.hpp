@@ -35,14 +35,4 @@ namespace ptn::meta {
   template <typename T>
   inline constexpr bool is_tmpl_v = is_tmpl<T>::value;
 
-  // Legacy compatibility aliases
-  // Backward-compatible alias for is_tmpl.
-  // Kept for users who relied on the old name `is_template_instance`.
-  template <typename T>
-  using is_template_instance = is_tmpl<T>;
-
-  // Backward-compatible alias for is_tmpl_v.
-  template <typename T>
-  inline constexpr bool is_template_instance_v = is_tmpl_v<T>;
-
 } // namespace ptn::meta

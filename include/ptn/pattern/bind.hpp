@@ -247,18 +247,6 @@ namespace ptn::pat {
   //   $(is<T>()) >> handler           // bind variant alternative
   inline constexpr bind_factory $;
 
-  // ds<&T::m...>() - Destructure and bind member fields.
-  //
-  // Shorthand for bind(has<&T::m...>()). Matches structurally and
-  // binds the specified member fields for use in the handler:
-  //   ds<&Point::x, &Point::y>() >> [](int x, int y) { ... }
-  //   ds<&Point::x, &Point::y>()[_0 > 0] >> [](int x, int y) { ... }
-  template <auto... Ms>
-  constexpr auto ds() {
-    return detail::structural_bind_pattern<
-        detail::has_pattern<Ms...>>(detail::has_pattern<Ms...>{});
-  }
-
 } // namespace ptn::pat
 
 // Binding-args registration.
