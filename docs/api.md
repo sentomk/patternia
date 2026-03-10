@@ -170,7 +170,7 @@ constexpr auto lit_ci(V &&v);   // Runtime ASCII case-insensitive match
 **Comparison with `.otherwise()`**:
 
 ```cpp
-// Chained API (deprecated)
+// Chained API (deprecated; use match(x) | on(...) instead)
 match(x)
   .when(lit(1)         >> "one")
   .when(lit(2)         >> "two")

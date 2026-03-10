@@ -332,7 +332,7 @@ Runtime tests (`ptn_tests`):
 - `MatchFlow.OtherwiseCallableWithSubject`: verifies `.otherwise(...)` callable can receive subject.
 - `MatchFlow.WildcardEndFlow`: verifies wildcard `__` + `.end()` terminal flow.
 - `MatchFlow.SubjectBindsAsLvalue`: regression check that subject binding stays on lvalue path.
-- `TypePattern.TypeIsAndTypeAs`: verifies `is<T>()` and `as<T>()` dispatch for `std::variant`.
+- `TypePattern.TypeIsAndTypeAs`: verifies `is<T>()` and `$(is<T>())` dispatch for `std::variant`.
 - `TypePattern.AltByIndex`: verifies `alt<I>()` index-based variant dispatch.
 - `Guard.UnaryPlaceholderPredicate`: verifies unary guard expressions with `_0`.
 - `Guard.RangeHelperModes`: verifies range helper behavior (`rng`) across interval modes.
@@ -348,8 +348,7 @@ Compile-fail tests (`ctest -R compile_fail`):
 - `compile_fail.otherwise_with_wildcard`: rejects `.otherwise(...)` when wildcard `__` is already present.
 - `compile_fail.end_without_wildcard`: rejects `.end()` without wildcard fallback.
 - `compile_fail.case_after_wildcard`: rejects adding `.when(...)` after wildcard case.
-- `compile_fail.cases_with_binding`: rejects binding patterns inside `cases(...)`.
-- `compile_fail.cases_with_guard`: rejects guard-attached binding patterns inside `cases(...)`.
+
 
 ### Run Compile-Fail Tests (CTest)
 
@@ -398,7 +397,7 @@ ctest --test-dir build --output-on-failure
 ### III. Guard System
 
 * [`[]` Guard Attachment](https://sentomk.github.io/patternia/api/#guard-attachment)
-* [`_` Placeholder (Single-value Guards)](https://sentomk.github.io/patternia/api/#single-value-guards-_-and-rng)
+* [`_0` Placeholder (Single-value Guards)](https://sentomk.github.io/patternia/api/#single-value-guards-_-and-rng)
 * [`rng(...)` Range Guards](https://sentomk.github.io/patternia/api/#range-helper-rnglo-hi-mode)
 * [`arg<N>` (Multi-value Guards)](https://sentomk.github.io/patternia/api/#multi-value-guards-argn-expressions)
 * [Custom Predicate Guards (Lambda)](https://sentomk.github.io/patternia/api/#custom-predicates-recommended-for-domain-logic)

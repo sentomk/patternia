@@ -15,7 +15,7 @@ Patternia's DSL is designed to satisfy three key principles:
 
 Around these three principles, the entire system can be abstracted into three levels:
 
-1. **Pattern Level**: `lit(...)`, `type::is<T>`, destructuring, `bind(...)`, `__`, etc.
+1. **Pattern Level**: `lit(...)`, `is<T>`, destructuring, `bind(...)`, `__`, etc.
 2. **Case Level**: `.when(pattern >> handler)`.
 3. **Match Finalizer Level**: `.end()` / `.otherwise(...)`.
 
@@ -194,8 +194,8 @@ For variant-like types (including future kind/alternative patterns):
 
 ```cpp
 match(v)
-    .when(type::is<int>()         >> [] { /* int */ })
-    .when(type::is<std::string>() >> [] { /* string */ })
+    .when(is<int>()         >> [] { /* int */ })
+    .when(is<std::string>() >> [] { /* string */ })
     .when(__                       >> [] { /* other-kind */ })
     .end();
 ```
@@ -298,8 +298,8 @@ Use this decision table to directly guide user usage.
 
    ```cpp
    auto info = match(v)
-       .when(type::is<int>         >> "int")
-       .when(type::is<std::string> >> "string")
+       .when(is<int>         >> "int")
+       .when(is<std::string> >> "string")
        .when(__                     >> "other-kind")
        .otherwise("panic");
    ```
