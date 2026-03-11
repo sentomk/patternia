@@ -38,7 +38,7 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/chained_when_removed.cpp
   compile_fail/chained_otherwise_removed.cpp
   compile_fail/chained_end_removed.cpp
-  compile_fail/match_with_cases_removed.cpp
+  compile_fail/cases_factory_removed.cpp
   compile_fail/lit_v_factory_removed.cpp
   compile_fail/static_on_with_capture.cpp
   compile_fail/on_pipeline_without_wildcard.cpp
