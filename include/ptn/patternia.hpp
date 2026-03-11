@@ -87,6 +87,9 @@ namespace ptn {
 #define PTN_DETAIL_WHERE_INVOKE(n, args, ...)                       \
   PTN_DETAIL_WHERE_SELECT(n)(args, __VA_ARGS__)
 
+// Expands a named guard expression into a stateless predicate object.
+// The tuple of bound values is mapped to lambda parameters by position.
+// This macro currently supports 1 to 5 names.
 #define PTN_DETAIL_WHERE_1(args, ...)                               \
   (::ptn::pat::mod::make_callable_guard(                            \
       [](auto &&PTN_DETAIL_WHERE_NAME_1 args) -> bool {             \
@@ -128,6 +131,7 @@ namespace ptn {
       }))
 
 #ifndef PTN_WHERE
+// Creates a named guard predicate from 1 to 5 parameter names.
 #define PTN_WHERE(args, ...)                                        \
   PTN_DETAIL_WHERE_INVOKE(                                          \
       PTN_DETAIL_WHERE_COUNT_TUPLE(args),                           \
@@ -136,6 +140,7 @@ namespace ptn {
 #endif
 
 #ifndef PTN_LET
+// Single-value shorthand for PTN_WHERE((name), expr).
 #define PTN_LET(name, ...)                                          \
   PTN_WHERE((name), __VA_ARGS__)
 #endif
