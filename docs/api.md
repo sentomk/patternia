@@ -239,6 +239,20 @@ match(p) | on(
 `PTN_WHERE(...)` expands to a guard callable and composes with `&&` / `||`
 like other guard predicates.
 
+### `PTN_LET(name, expr)`
+
+Use the single-value form when a guard binds exactly one value and you want to
+ name it explicitly.
+
+```cpp
+match(x) | on(
+  $[PTN_LET(value, value > 0 && value < 10)] >> "small",
+  __ >> "other"
+);
+```
+
+`PTN_LET(name, expr)` is equivalent to `PTN_WHERE((name), expr)`.
+
 ---
 
 ## Structural Matching `has<&T::member...>()` {#structural-matching}

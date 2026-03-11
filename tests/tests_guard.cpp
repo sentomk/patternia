@@ -138,6 +138,15 @@ TEST(Guard, NamedSingleArgGuardMacro) {
   EXPECT_EQ(result, 7);
 }
 
+TEST(Guard, NamedSingleArgLetMacro) {
+  int x      = 7;
+  int result = match(x)
+               | on($[PTN_LET(value, value > 5)] >> [](int v) { return v; },
+                    _ >> 0);
+
+  EXPECT_EQ(result, 7);
+}
+
 TEST(Guard, NamedMultiArgGuardMacro) {
   Point p{2, 5};
 
@@ -178,6 +187,18 @@ TEST(Guard, NamedGuardMacroComposesWithCallablePredicate) {
 
   int result =
       match(x) | on($[PTN_WHERE((value), value > 5) && even]
+                        >> [](int v) { return v; },
+                    _ >> -1);
+
+  EXPECT_EQ(result, 8);
+}
+
+TEST(Guard, LetMacroComposesWithCallablePredicate) {
+  int  x    = 8;
+  auto even = [](int v) { return v % 2 == 0; };
+
+  int result =
+      match(x) | on($[PTN_LET(value, value > 5) && even]
                         >> [](int v) { return v; },
                     _ >> -1);
 

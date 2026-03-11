@@ -21,6 +21,15 @@ match(x) | on(
 );
 ```
 
+If you want a name instead of `_0`, use `PTN_LET(name, expr)`:
+
+```cpp
+match(x) | on(
+  $[PTN_LET(value, value == 0 || value == 1)] >> "edge",
+  __ >> "other"
+);
+```
+
 Use `rng(...)` when a range reads better than two comparisons:
 
 ```cpp

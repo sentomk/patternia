@@ -139,4 +139,9 @@ namespace ptn {
       __VA_ARGS__)
 #endif
 
+#ifndef PTN_LET
+#define PTN_LET(name, ...)                                          \
+  PTN_WHERE((name), __VA_ARGS__)
+#endif
+
 // IWYU pragma: end_exports
