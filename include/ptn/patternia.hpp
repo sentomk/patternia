@@ -74,4 +74,69 @@ namespace ptn {
   (::ptn::static_on([] { return ::ptn::on(__VA_ARGS__); }))
 #endif
 
+#define PTN_DETAIL_WHERE_CAT_IMPL(a, b) a##b
+#define PTN_DETAIL_WHERE_CAT(a, b) PTN_DETAIL_WHERE_CAT_IMPL(a, b)
+#define PTN_DETAIL_WHERE_COUNT_IMPL(_1, _2, _3, _4, _5, n, ...) n
+#define PTN_DETAIL_WHERE_COUNT(...)                                 \
+  PTN_DETAIL_WHERE_COUNT_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1)
+#define PTN_DETAIL_WHERE_COUNT_TUPLE(args)                          \
+  PTN_DETAIL_WHERE_COUNT args
+#define PTN_DETAIL_WHERE_NAME_1(a, ...) a
+#define PTN_DETAIL_WHERE_NAME_2(a, b, ...) b
+#define PTN_DETAIL_WHERE_NAME_3(a, b, c, ...) c
+#define PTN_DETAIL_WHERE_NAME_4(a, b, c, d, ...) d
+#define PTN_DETAIL_WHERE_NAME_5(a, b, c, d, e, ...) e
+#define PTN_DETAIL_WHERE_SELECT(n)                                  \
+  PTN_DETAIL_WHERE_CAT(PTN_DETAIL_WHERE_, n)
+#define PTN_DETAIL_WHERE_INVOKE(n, args, ...)                       \
+  PTN_DETAIL_WHERE_SELECT(n)(args, __VA_ARGS__)
+
+#define PTN_DETAIL_WHERE_1(args, ...)                               \
+  (::ptn::pat::mod::make_callable_guard(                            \
+      [](auto &&PTN_DETAIL_WHERE_NAME_1 args) -> bool {             \
+        return static_cast<bool>(__VA_ARGS__);                      \
+      }))
+
+#define PTN_DETAIL_WHERE_2(args, ...)                               \
+  (::ptn::pat::mod::make_callable_guard(                            \
+      [](auto &&PTN_DETAIL_WHERE_NAME_1 args,                       \
+         auto &&PTN_DETAIL_WHERE_NAME_2 args) -> bool {             \
+        return static_cast<bool>(__VA_ARGS__);                      \
+      }))
+
+#define PTN_DETAIL_WHERE_3(args, ...)                               \
+  (::ptn::pat::mod::make_callable_guard(                            \
+      [](auto &&PTN_DETAIL_WHERE_NAME_1 args,                       \
+         auto &&PTN_DETAIL_WHERE_NAME_2 args,                       \
+         auto &&PTN_DETAIL_WHERE_NAME_3 args) -> bool {             \
+        return static_cast<bool>(__VA_ARGS__);                      \
+      }))
+
+#define PTN_DETAIL_WHERE_4(args, ...)                               \
+  (::ptn::pat::mod::make_callable_guard(                            \
+      [](auto &&PTN_DETAIL_WHERE_NAME_1 args,                       \
+         auto &&PTN_DETAIL_WHERE_NAME_2 args,                       \
+         auto &&PTN_DETAIL_WHERE_NAME_3 args,                       \
+         auto &&PTN_DETAIL_WHERE_NAME_4 args) -> bool {             \
+        return static_cast<bool>(__VA_ARGS__);                      \
+      }))
+
+#define PTN_DETAIL_WHERE_5(args, ...)                               \
+  (::ptn::pat::mod::make_callable_guard(                            \
+      [](auto &&PTN_DETAIL_WHERE_NAME_1 args,                       \
+         auto &&PTN_DETAIL_WHERE_NAME_2 args,                       \
+         auto &&PTN_DETAIL_WHERE_NAME_3 args,                       \
+         auto &&PTN_DETAIL_WHERE_NAME_4 args,                       \
+         auto &&PTN_DETAIL_WHERE_NAME_5 args) -> bool {             \
+        return static_cast<bool>(__VA_ARGS__);                      \
+      }))
+
+#ifndef PTN_WHERE
+#define PTN_WHERE(args, ...)                                        \
+  PTN_DETAIL_WHERE_INVOKE(                                          \
+      PTN_DETAIL_WHERE_COUNT_TUPLE(args),                           \
+      args,                                                         \
+      __VA_ARGS__)
+#endif
+
 // IWYU pragma: end_exports

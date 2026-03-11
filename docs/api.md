@@ -224,6 +224,21 @@ bind()[rng(0, 10, pat::mod::open)]
 Use callables for domain logic that does not read naturally as a placeholder
 expression.
 
+### `PTN_WHERE((names...), expr)`
+
+Use named guard parameters without writing the lambda yourself.
+The macro currently supports 1 to 5 names.
+
+```cpp
+match(p) | on(
+  bind(has<&Point::x, &Point::y>())[PTN_WHERE((x, y), x == y)] >> "diagonal",
+  __ >> "other"
+);
+```
+
+`PTN_WHERE(...)` expands to a guard callable and composes with `&&` / `||`
+like other guard predicates.
+
 ---
 
 ## Structural Matching `has<&T::member...>()` {#structural-matching}

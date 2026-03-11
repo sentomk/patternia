@@ -343,6 +343,36 @@ namespace ptn::pat::mod {
 
   } // namespace detail
 
+  // Guard wrapper for macro-generated named predicates.
+  //
+  // This lets helper macros such as PTN_WHERE(...) participate in the
+  // existing guard composition path while still delegating tuple unpacking
+  // to invoke_guard when needed.
+  template <typename Fn>
+  struct callable_guard : traits::guard_predicate_tag {
+    Fn fn;
+
+    constexpr explicit callable_guard(Fn f) : fn(std::move(f)) {
+    }
+
+    template <typename... Args>
+    constexpr bool operator()(Args &&...args) const {
+      if constexpr (sizeof...(Args) == 1) {
+        return detail::invoke_guard(fn,
+                                    std::forward<Args>(args)...);
+      }
+      else {
+        return static_cast<bool>(fn(std::forward<Args>(args)...));
+      }
+    }
+  };
+
+  template <typename Fn>
+  constexpr auto make_callable_guard(Fn &&fn) {
+    return callable_guard<std::decay_t<Fn>>(
+        std::forward<Fn>(fn));
+  }
+
   // Logical AND for guard predicates.
   template <typename L, typename R>
   struct pred_and : traits::guard_predicate_tag {

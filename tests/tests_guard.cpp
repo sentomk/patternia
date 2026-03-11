@@ -128,3 +128,58 @@ TEST(Guard, MixedGuardCallableRejects) {
 
   EXPECT_EQ(result, -1);
 }
+
+TEST(Guard, NamedSingleArgGuardMacro) {
+  int x      = 7;
+  int result = match(x)
+               | on($[PTN_WHERE((value), value > 5)] >> [](int v) { return v; },
+                    _ >> 0);
+
+  EXPECT_EQ(result, 7);
+}
+
+TEST(Guard, NamedMultiArgGuardMacro) {
+  Point p{2, 5};
+
+  int result =
+      match(p) | on(bind(has<&Point::x, &Point::y>())
+                        [PTN_WHERE((x, y), x < y)] >> 1,
+                    _ >> 0);
+
+  EXPECT_EQ(result, 1);
+}
+
+TEST(Guard, NamedFiveArgGuardMacro) {
+  struct Record {
+    int a;
+    int b;
+    int c;
+    int d;
+    int e;
+  };
+
+  Record r{1, 2, 3, 4, 10};
+
+  int result =
+      match(r) | on(bind(has<&Record::a,
+                             &Record::b,
+                             &Record::c,
+                             &Record::d,
+                             &Record::e>())
+                        [PTN_WHERE((a, b, c, d, e), a + b + c + d == e)] >> 1,
+                    _ >> 0);
+
+  EXPECT_EQ(result, 1);
+}
+
+TEST(Guard, NamedGuardMacroComposesWithCallablePredicate) {
+  int  x    = 8;
+  auto even = [](int v) { return v % 2 == 0; };
+
+  int result =
+      match(x) | on($[PTN_WHERE((value), value > 5) && even]
+                        >> [](int v) { return v; },
+                    _ >> -1);
+
+  EXPECT_EQ(result, 8);
+}

@@ -47,6 +47,15 @@ match(p) | on(
 );
 ```
 
+If you prefer named guard parameters, use `PTN_WHERE((...), expr)`:
+
+```cpp
+match(p) | on(
+  bind(has<&Point::x, &Point::y>())[PTN_WHERE((x, y), x == y)] >> "diagonal",
+  __ >> "other"
+);
+```
+
 ## Use Lambdas for Domain Logic
 
 When the rule is not a short relational expression, use a predicate.
