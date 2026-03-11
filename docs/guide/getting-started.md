@@ -1,360 +1,222 @@
 # Getting Started
 
-Patternia is a header-only library.
-Once installed or fetched into your project, you can start using pattern matching immediately.
+## Install
 
-Below is minimal working example demonstrating the core DSL:
+```bash
+git clone https://github.com/SentoMK/patternia.git
+cd patternia
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
+```
+
+Patternia is header-only.
+Including `ptn/patternia.hpp` is enough to use the library.
 
 ---
 
-## Optional: Recommended Code Style
-
-To keep your chained `.when()` and `.otherwise()` expressions visually aligned and easy to scan, you can add a minimal `.clang-format` to your project root:
-
-```yaml
-# patternia .clang-format (minimal)
-BasedOnStyle: LLVM
-IndentWidth: 2            # or 4
-ContinuationIndentWidth: 4 # or 6
-ColumnLimit: 0
-BinPackArguments: false
-BinPackParameters: false
-BreakBeforeBinaryOperators: None
-```
-
-With this style, multi-line match expressions remain clean and consistent:
+## First Match
 
 ```cpp
-auto out =
-    match(5)
-      .when(lit(0) >> "zero")
-      .when(lit(5) >> "five")
-      .otherwise("other");
-```
-
-## 1. Installation
-
-Patternia is a **header-only** library. No compilation or binary linking is required.
-
-#### Using CMake FetchContent (Recommended)
-
-Patternia can be integrated directly via CMake `FetchContent`. This is the recommended approach during active development.
-
-```cmake
-include(FetchContent)
-
-FetchContent_Declare(
-  patternia
-  GIT_REPOSITORY https://github.com/SentoMK/patternia.git
-  GIT_TAG        main
-)
-
-FetchContent_MakeAvailable(patternia)
-```
-
-Then, include Patternia headers in your code:
-
-```cpp
-#include "ptn/patternia.hpp"
-```
-
-**Notes:**
-
-* `GIT_TAG main` tracks the latest development version
-* Patternia is header-only - no targets need to be linked
-* Requires **C++17 or later**
-
-
-
-### By vcpkg
-
-vcpkg support is **coming soon**.
-
-
-### Other Installation Methods
-
-For additional installation options and detailed setup instructions (including manual integration and future package manager support), see:
-
-👉 [Patternia Installation](https://sentomk.github.io/patternia/guide/installation/)
-
-
-## 2. Matching Values
-
-### Basic DSL Syntax
-
-At its simplest, Patternia replaces `if` / `switch` with a declarative, ordered match expression.
-
-```cpp
-#include <iostream>
 #include <ptn/patternia.hpp>
 
-using namespace ptn;
+int classify(int x) {
+  using namespace ptn;
 
-int main() {
-  int x = 2;
-
-  match(x)
-    .when(lit(1) >> [] { std::cout << "one\n"; })
-    .when(lit(2) >> [] { std::cout << "two\n"; })
-    .otherwise([] { std::cout << "other\n"; });
+  return match(x) | on(
+    lit(0) >> 0,
+    lit(5) >> 5,
+    __ >> -1
+  );
 }
 ```
 
-### Pattern Fallback with `__` and `.end()`
+Read this as:
 
-For exhaustive data types where you want to use pattern fallback:
+1. Start matching `x`.
+2. Try the cases in order.
+3. Use `__` for the final fallback.
 
-```cpp
-#include <iostream>
-#include <ptn/patternia.hpp>
+---
 
-using namespace ptn;
+## Side Effects and Returned Values
 
-int main() {
-  int x = 2;
-
-  match(x)
-    .when(lit(1) >> [] { std::cout << "one\n"; })
-    .when(lit(2) >> [] { std::cout << "two\n"; })
-    .when(__ >> [] { std::cout << "other values\n"; })  // pattern fallback
-    .end();  // required for __ to work
-}
-```
-
-### Tuple-Based Syntax (Simple Cases)
-
-For simple matching scenarios, Patternia provides a concise tuple-based syntax:
+Patternia matches are expressions.
+Handlers can return values or perform side effects.
 
 ```cpp
-#include <iostream>
-#include <ptn/patternia.hpp>
-
 using namespace ptn;
 
-int main() {
-  int x = 2;
-
-  match(x, cases(
+void log_value(int x) {
+  match(x) | on(
     lit(1) >> [] { std::cout << "one\n"; },
     lit(2) >> [] { std::cout << "two\n"; },
-    __    >> [] { std::cout << "other\n"; }  // pattern fallback
-  )).end();
+    __ >> [] { std::cout << "other\n"; }
+  );
 }
 ```
-
-**Key points:**
-
-* `match(subject, cases(...))` provides a compact syntax for simple cases
-* **No bindings/guards**: This syntax cannot be used with `bind()` or guard expressions
-* Cases are tested **top-to-bottom (first-match semantics)**
-* Supports both pattern fallback (`__`) and match fallback patterns
-* **Requires `.end()`** to trigger evaluation when using `__` pattern
-* Ideal for straightforward value matching without complex conditions
-
-**Limitations:**
-- Cannot use `bind()` (and therefore cannot use guard expressions `[]`)
-- Best suited for simple literal and wildcard matching
-- **Must use `.end()` when using `__` pattern to trigger evaluation**
-
-For complex matching with guards, use the standard DSL syntax shown above.
-
-
-## 3. Fallback Mechanisms and Match Completion
-
-Patternia supports **value-returning matches**, similar to Rust or Scala.
-
-```cpp
-int classify(int x) {
-  return match(x)
-    .when(lit(0) >> 0)
-    .when(lit(1) >> 1)
-    .otherwise(-1);  // returns a value
-}
-```
-
-Both `.otherwise()` and `.end()` can be used for either value-returning or side-effect scenarios. The key distinction is:
-
-* **`.otherwise()`**: Match fallback that works in all scenarios
-* **`.end()`**: Required when using `__` pattern fallback
-
-**Using `.otherwise()`:**
-```cpp
-auto result = match(value)
-  .when(lit(1) >> 100)
-  .when(lit(2) >> 200)
-  .otherwise(0);  // match fallback
-```
-
-**Using `.end()` with `__`:**
-```cpp
-match(value)
-  .when(lit(1) >> [] { std::cout << "case 1\n"; })
-  .when(lit(2) >> [] { std::cout << "case 2\n"; })
-  .when(__ >> [] { std::cout << "fallback\n"; })  // pattern fallback
-  .end();  // required for __
-```
-
-**Key Point:** `.end()` is specifically required when using the `__` pattern, while `.otherwise()` can be used independently of `__`.
-
-
-## 4. Binding Values
-
-To access matched values inside a handler, introduce bindings explicitly.
-For ordinary subjects, use `bind()` or `$()`. For `std::variant` alternatives, you can
-use `$(is<T>())` as an explicit binding shorthand.
-
-```cpp
-match(x)
-  .when(bind() >> [](int v) {
-    std::cout << "value = " << v << "\n";
-  })
-  .otherwise([] {});
-```
-
-Bindings are always explicit—nothing is bound implicitly.
-`bind()` is the primitive binding pattern, and `$(is<T>())` uses the callable `$()`
-syntax to wrap `is<T>()` for explicit binding.
-
-This makes data flow **visible and predictable**, especially in complex matches.
-
-
-## 5. Guards (Conditional Matching)
-
-Guards allow you to attach constraints to patterns.
 
 ```cpp
 using namespace ptn;
 
-match(x)
-  .when(bind()[_0 > 0 && _0 < 10] >> [](int v) {
-    std::cout << "in range: " << v << "\n";
-  })
-  .otherwise([] {
-    std::cout << "out of range\n";
-  });
+int score(int x) {
+  return match(x) | on(
+    lit(1) >> 100,
+    lit(2) >> 200,
+    __ >> 0
+  );
+}
 ```
 
-* `_` is a placeholder for the bound value
-* Guard expressions are **composable** and **side-effect free**
-* Guards run only after the pattern itself matches
+---
 
+## Binding
 
-## 6. Structural Matching
-
-Patternia can match **structure**, not just values.
+Use `$()` or `bind()` when the handler needs data from the match.
 
 ```cpp
+using namespace ptn;
+
+int identity(int x) {
+  return match(x) | on(
+    $() >> [](int v) { return v; },
+    __ >> 0
+  );
+}
+```
+
+`$()` is the concise spelling.
+`bind()` is the lower-level equivalent.
+
+---
+
+## Guards
+
+Attach a guard with `[]`.
+
+```cpp
+using namespace ptn;
+
+const char *bucket(int x) {
+  return match(x) | on(
+    bind()[_0 > 0 && _0 < 10] >> "small",
+    __ >> "other"
+  );
+}
+```
+
+For multiple bound values, use `arg<N>`:
+
+```cpp
+using namespace ptn;
+
 struct Point {
   int x;
   int y;
 };
 
-Point p{3, -3};
-
-match(p)
-  .when(
-    bind(has<&Point::x, &Point::y>())[arg<0> + arg<1> == 0] >>
-    [](int x, int y) {
-      std::cout << "on diagonal\n";
-    }
-  )
-  .otherwise([] {});
+bool on_unit_circle(const Point &p) {
+  return match(p) | on(
+    bind(has<&Point::x, &Point::y>())[arg<0> * arg<0> + arg<1> * arg<1> == 1]
+        >> true,
+    __ >> false
+  );
+}
 ```
 
-Here:
+---
 
-* `has<&Point::x, &Point::y>` describes the expected **shape**
-* `bind(...)` extracts values explicitly
-* Guards can express **relationships between multiple bindings**
+## Structural Matching
 
-
-## 7. Variant Type Matching (std::variant)
-
-Patternia can match `std::variant` alternatives by type using `is<T>()`.
-If you want to bind the alternative value, use `$(is<T>())`, which uses the
-callable `$()` syntax for explicit binding.
+Use `has<>` to describe object structure and `$()` to bind selected members.
 
 ```cpp
-using V = std::variant<int, std::string, Point>;
+using namespace ptn;
 
-match(v)
-  .when(is<int>() >> [] { /* type-only */ })
-  .when($(is<std::string>()) >> [](const std::string &s) { /* bound */ })
-  .when($(is<std::string>())[_0 != ""] >> [](const std::string &s) { /* guarded */ })
-  .when(is<Point>(bind(has<&Point::x, &Point::y>())) >>
-        [](int x, int y) { /* structural bind */ })
-  .otherwise([] {});
+struct Point {
+  int x;
+  int y;
+};
+
+int sum(const Point &p) {
+  return match(p) | on(
+    $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+      return x + y;
+    },
+    __ >> 0
+  );
+}
 ```
 
+---
 
-## 8. Pattern Fallback with `__` and `.end()`
+## Variant Matching
 
-Use `__` as a pattern fallback that **must be paired with `.end()`** to trigger match inference:
+Use `is<T>()` for type-based dispatch and `alt<I>()` for index-based dispatch.
 
 ```cpp
-// For exhaustive data types (integers, enums, etc.)
-match(x)
-  .when(lit(0) >> [] { std::cout << "zero\n"; })
-  .when(lit(1) >> [] { std::cout << "one\n"; })
-  .when(__ >> [] { std::cout << "other values\n"; })  // pattern fallback
-  .end();  // required for __ to work
+using namespace ptn;
+
+using Value = std::variant<int, std::string>;
+
+std::string describe(const Value &v) {
+  return match(v) | on(
+    is<int>() >> "int",
+    $(is<std::string>()) >> [](const std::string &s) {
+      return "str:" + s;
+    },
+    __ >> [] { return std::string("other"); }
+  );
+}
 ```
 
-**Important:** `__` (pattern fallback) **must** be used with `.end()` to enable match inference. Without `.end()`, the `__` case will not trigger.
+---
 
-## 9. Match Fallback with `.otherwise()`
+## Cached Hot Paths
 
-Use `.otherwise()` as a match fallback for scenarios where exhaustive matching is not possible or practical:
+If the same case pack is reused on a hot path, cache it:
 
 ```cpp
-// For non-exhaustive or complex data types
-match(data)
-  .when(valid_pattern >> handler)
-  .otherwise([] { std::cout << "no match found\n"; });  // match fallback
+using namespace ptn;
+
+int classify_fast(int x) {
+  return match(x) | PTN_ON(
+    lit<1>() >> 1,
+    lit<2>() >> 2,
+    __ >> 0
+  );
+}
 ```
 
-**Key Rules:**
-
-* **`__` + `.end()`**: Use for **exhaustive data types** (integers, enums, etc.) where all possible cases are known
-* **`.otherwise()`**: Use when matching is **not guaranteed to be exhaustive** (complex structures, variants, etc.)
-* **Cannot mix**: `__`/`.end()` and `.otherwise()` **cannot** be used in the same match expression
-
-## 10. When to Use Pattern Fallback vs Match Fallback
-
-Choose the right fallback strategy based on your data type:
+Or:
 
 ```cpp
-// For exhaustive types - use __ + end()
-enum class Color { Red, Green, Blue };
-match(color)
-  .when(lit(Color::Red) >> [] { /* ... */ })
-  .when(lit(Color::Green) >> [] { /* ... */ })
-  .when(__ >> [] { /* handles Color::Blue */ })
-  .end();
+using namespace ptn;
 
-// For non-exhaustive types - use otherwise()
-match(variant_value)
-  .when(some_pattern >> handler)
-  .otherwise(fallback_handler);
-
-// WRONG - cannot mix both
-match(value)
-  .when(pattern >> handler)
-  .when(__ >> [] { /* ... */ })
-  .otherwise([] { /* ... */ });  // Compile error!
+int classify_fast(int x) {
+  return match(x) | static_on([] {
+    return on(
+      lit<1>() >> 1,
+      lit<2>() >> 2,
+      __ >> 0
+    );
+  });
+}
 ```
 
+---
 
-## 11. When to Use Patternia
+## Tests
 
-Patternia is particularly effective when:
+```bash
+cmake -S . -B build -DPTN_BUILD_TESTS=ON
+cmake --build build --target ptn_tests
+ctest --test-dir build --output-on-failure
+```
 
-* branching depends on **data shape**, not just values
-* conditions involve **relationships between multiple fields**
-* `if` / `switch` logic becomes deeply nested
-* you want expression-oriented control flow
+---
 
-For a deeper dive, see the **API Reference** and **Design Guide**.
+## Next
 
-
-
+- Read the [API reference](../api.md)
+- Read the [design overview](../design-overview.md)
+- Continue with the tutorials under `docs/tutorials/`

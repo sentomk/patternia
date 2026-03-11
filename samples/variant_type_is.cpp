@@ -14,13 +14,13 @@ struct Point {
 std::string
 describe(const std::variant<int, std::string, Point> &v) {
   return match(v)
-      .when(is<int>() >> "int")
-      .when(is<std::string>(bind()) >>
-            [](const std::string &s) { return "str:" + s; })
-      .when(
-          is<Point>(bind(has<&Point::x, &Point::y>())) >>
-          [](int x, int y) { return "pt:" + std::to_string(x + y); })
-      .otherwise([] { return std::string("other"); });
+         | on(
+             is<int>() >> "int",
+             is<std::string>(bind()) >>
+                 [](const std::string &s) { return "str:" + s; },
+             is<Point>(bind(has<&Point::x, &Point::y>())) >>
+                 [](int x, int y) { return "pt:" + std::to_string(x + y); },
+             __ >> [] { return std::string("other"); });
 }
 
 std::string
@@ -36,15 +36,15 @@ describe_as(const std::variant<int, std::string, Point> &v) {
   //
   // Guards can be attached directly to binding patterns.
   return match(v)
-      .when(is<int>() >> "int")
-      .when($(is<std::string>())[_0 != ""] >>
-            [](const std::string &s) { return "str:" + s; })
-      .when(
-          is<Point>($(
-              has<&Point::x, &Point::y>()))[arg<0> > 0 && arg<1> > 0]
-          >>
-          [](int x, int y) { return "pt:" + std::to_string(x + y); })
-      .otherwise([] { return std::string("other"); });
+         | on(
+             is<int>() >> "int",
+             $(is<std::string>())[_0 != ""] >>
+                 [](const std::string &s) { return "str:" + s; },
+             is<Point>($(has<&Point::x, &Point::y>()))[arg<0> > 0
+                                                       && arg<1> > 0]
+                 >>
+                 [](int x, int y) { return "pt:" + std::to_string(x + y); },
+             __ >> [] { return std::string("other"); });
 }
 
 int main() {

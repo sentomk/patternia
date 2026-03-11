@@ -82,12 +82,12 @@ namespace ptn::core::common {
   // Validates a single case expression structure and handler compatibility.
   template <typename Case, typename Subject>
   constexpr void static_assert_valid_case() {
-    // (A) A .when(...) must receive a case expression.
+    // (A) Match inputs must be case expressions.
     constexpr bool is_case_expr = traits::is_case_expr_v<Case>;
     static_assert(
         is_case_expr,
-        "[Patternia.match] Argument to `.when()` must be a case expression "
-        "created with the '>>' operator.");
+        "[Patternia.match]: each case must be created with the '>>' "
+        "operator.");
     // (B) And its handler must be callable with bound values.
     static_assert_valid_handler<Case, Subject>();
   }
@@ -260,23 +260,6 @@ namespace ptn::core::common {
         "the later alt<I>(...) case, or reorder cases.");
   }
 
-  // Emits diagnostic only for the newly appended case in builder .when(...),
-  // to avoid cascading errors on subsequent chained cases.
-  template <typename... Cases>
-  constexpr void static_assert_new_case_reachable_after_plain_alt() {
-    constexpr bool new_case_reachable =
-        !detail::is_new_case_unreachable_after_plain_alt<Cases...>::value;
-    static_assert(
-        new_case_reachable,
-        "[Patternia.alt]: case is unreachable because an earlier "
-        "plain alt<I>() already covers this alternative. Tip: remove "
-        "the later alt<I>(...) case, or reorder cases.");
-  }
-
-  // ------------------------------------------------------------
-  // Builder API validation.
-  // ------------------------------------------------------------
-
   // Checks if the subject type is valid for pattern matching (must be an lvalue
   // reference). This is a variable template because class bodies can only use
   // static_assert with constant boolean conditions, not function calls.
@@ -292,52 +275,6 @@ namespace ptn::core::common {
                   "[Patternia.match]: subject must be an lvalue reference. "
                   "Tip: pass an lvalue (match(v)), not std::move(v).");
   };
-
-  // Validates the preconditions for adding a new case via .when().
-  // Ensures that no wildcard pattern ('__') has been added previously,
-  // as wildcard matches everything and makes subsequent cases unreachable.
-  template <bool HasPatternFallback>
-  constexpr void static_assert_when_precondition() {
-    // (A) No cases may follow a wildcard '__' (it matches everything).
-    constexpr bool can_add_after_wildcard = !HasPatternFallback;
-    static_assert(
-        can_add_after_wildcard,
-        "[Patternia.match.when]: cannot add cases after wildcard '__'. "
-        "Tip: move '__' to the last case.");
-  }
-
-  // Validates the preconditions for calling .otherwise().
-  // Ensures that .otherwise() is not used when a pattern-level fallback ('__')
-  // is already present, as the wildcard makes the explicit fallback redundant.
-  template <bool HasPatternFallback>
-  constexpr void static_assert_otherwise_precondition() {
-    // (A) .otherwise() is invalid when '__' is already present.
-    constexpr bool no_wildcard_present = !HasPatternFallback;
-    static_assert(no_wildcard_present,
-                  "[Patternia.match.otherwise]: wildcard '__' already present. "
-                  "Use .end() instead. Tip: remove .otherwise() when '__' is "
-                  "present.");
-  }
-
-  // Validates the preconditions for calling .end().
-  // Ensures:
-  // 1. A pattern-level fallback ('__') exists (exhaustive match).
-  // 2. No match-level fallback (from .otherwise()) has been added.
-  template <bool HasPatternFallback, bool HasMatchFallback>
-  constexpr void static_assert_end_precondition() {
-    // (A) .end() requires a wildcard case for pattern-level fallback.
-    constexpr bool has_fallback = HasPatternFallback;
-    static_assert(has_fallback,
-                  "[Patternia.match.end]: missing wildcard '__'. "
-                  "Use .otherwise(...) for non-exhaustive matches. Tip: add "
-                  "a '__' case before calling .end().");
-
-    // (B) .end() cannot follow .otherwise().
-    constexpr bool no_match_fallback = !HasMatchFallback;
-    static_assert(no_match_fallback,
-                  "[Patternia.match.end]: cannot be used after .otherwise(). "
-                  "Tip: remove .otherwise() when using .end().");
-  }
 
   // ------------------------------------------------------------
   // Literal Pattern Validation

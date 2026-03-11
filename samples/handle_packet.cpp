@@ -46,29 +46,27 @@ void parse_packet(const Packet &pkt) {
   };
 
   match(pkt)
-      // Handles ping packets.
-      .when(
+      | on(
+          // Handles ping packets.
           bind(
               has<&Packet::type,
                   &Packet::length>())[arg<0> == 0x01 && arg<1> == 0] >>
-          [](auto &&...) { handle_ping(); })
+              [](auto &&...) { handle_ping(); },
 
-      // Handles data packets.
-      .when(
+          // Handles data packets.
           bind(has<&Packet::payload>())[is_valid_payload] >>
-          [](const std::vector<std::uint8_t> &payload) {
-            handle_data(payload);
-          })
+              [](const std::vector<std::uint8_t> &payload) {
+                handle_data(payload);
+              },
 
-      // Handles error packets.
-      .when(
+          // Handles error packets.
           bind(has<&Packet::type, &Packet::payload>())[is_error_packet] >>
-          [](std::uint8_t, const std::vector<std::uint8_t> &payload) {
-            handle_error(payload[0]);
-          })
+              [](std::uint8_t, const std::vector<std::uint8_t> &payload) {
+                handle_error(payload[0]);
+              },
 
-      // Handles unmatched packets.
-      .otherwise([] { reject_packet(); });
+          // Handles unmatched packets.
+          __ >> [] { reject_packet(); });
 }
 
 int main() {

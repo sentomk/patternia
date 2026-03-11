@@ -83,9 +83,8 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/core/common/diagnostics.hpp
   include/ptn/core/common/eval.hpp
   include/ptn/core/common/optimize.hpp
-  include/ptn/core/engine/builder.hpp
   include/ptn/core/engine/match.hpp
-  include/ptn/core/engine/detail/builder_impl.hpp
+  include/ptn/core/engine/detail/pipeline_match_context.hpp
   include/ptn/core/engine/detail/match_impl.hpp
   include/ptn/core/dsl/case_expr.hpp
   include/ptn/core/dsl/ops.hpp

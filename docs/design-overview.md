@@ -1,368 +1,164 @@
-# Patternia Matching Semantics Overview
+# Design Overview
 
-(`__`, `.end()`, `.otherwise()` and Destructuring Patterns)
-
-## 0. Core Objectives
-
-Patternia's DSL is designed to satisfy three key principles:
-
-1. **Semantic Clarity**:
-   - Clear separation between "pattern-level" and "match-level" responsibilities.
-2. **Predictable Behavior**:
-   - Consistent with Rust and the C++ standard proposal P1371R1 `inspect` mechanism in spirit.
-3. **User-Friendly**:
-   - Minimal API coverage for both "statement-style matching" and "expression-style matching" requirements.
-
-Around these three principles, the entire system can be abstracted into three levels:
-
-1. **Pattern Level**: `lit(...)`, `is<T>`, destructuring, `bind(...)`, `__`, etc.
-2. **Case Level**: `.when(pattern >> handler)`.
-3. **Match Finalizer Level**: `.end()` / `.otherwise(...)`.
-
-All discussions below revolve around these three levels.
-
----
-
-## 1. Formal Definitions of Core Concepts
-
-### 1.1 `__` (Wildcard Pattern)
-
-* `__` is a **pattern** used to match "any value".
-* It exists only at the **Pattern Level** and does not control the entire match lifecycle.
-* It plays different roles in different contexts:
-
-  * In **literal matching**: Serves as a "fallback case".
-  * In **enum/variant-like matching**: Serves as a "fallback for remaining constructors".
-  * In **struct destructuring**:
-    Used for "field-level ignoring", similar to Rust's `_` / `..`.
-
-### 1.2 `.end()` (Match Finalizer for `__`)
-
-* `.end()` finalizes a match that uses the `__` pattern fallback:
-
-  * The entire `match(...)` expression may return a value or be `void`.
-  * Used for exhaustive-style matches where `__` is a regular case.
-* Corresponds to the **statement form** in the standard proposal's `inspect`
-  when handlers are `void`-returning.
-* Constraints:
-
-  * All case handlers must return compatible types (or all `void`).
-  * For exhaustible types (enum, bool, variant-like), future **exhaustiveness checking** will be performed:
-
-    * Compile-time diagnostics when not all enum values or alternatives are covered.
-
-### 1.3 `.otherwise(...)` (Expression-style Match Finalizer)
-
-* `.otherwise(fallback)` transforms the builder into **expression-style matching**:
-
-  * The entire `match(...)` has a unified return value.
-  * Similar to Rust's `let r = match x { ... };`
-* Corresponds to the **expression form** in the standard proposal's `inspect`:
-
-  * `pattern => expression,`
-* Constraints:
-
-  * All `.when(pattern >> handler)` handlers must return compatible types (or all `void`).
-  * `.otherwise(...)` provides the final fallback value:
-
-    * Used when no branches match.
-  * `.otherwise(...)` terminates the builder and determines the return type.
-
----
-
-## 2. Semantic Levels: Pattern vs Match Finalizer
-
-Always remember:
-
-> **`__` is a Pattern-level object;
-> `.end()` and `.otherwise()` are Match Finalizer-level objects.**
-
-They solve completely different problems:
-
-| Role           | Level          | Problem Solved                              |
-| --------------- | -------------- | ----------------------------------------- |
-| `__`           | Pattern Level  | How current case matches "any/remaining forms" |
-| `.end()`       | Match Level    | Finalizes a match that uses `__` as a case |
-| `.otherwise`    | Match Level    | Entire match "as expression" with final return value |
-
-Therefore:
-
-* `__` cannot replace `.otherwise()`:
-  It doesn't terminate the builder, nor determine return type.
-* `.otherwise()` cannot replace `__`:
-  It cannot express "fallback for remaining constructors/fields in pattern tree".
-
----
-
-## 3. `.end()` vs `.otherwise()`: Two Modes
-
-### 3.1 `.end()` - `__`-Finalized Matching
-
-**Use Cases:**
-
-* Want to use `__` as a regular case.
-* Want exhaustiveness checking for enum/variant-like types.
-
-**Semantic Characteristics:**
-
-* All handlers must return compatible types (or all `void`).
-* Return type is deduced from the cases.
-* Exhaustible types will be checked for "complete coverage".
-
-**Example (enum):**
+Patternia treats pattern matching as an expression over a concrete subject:
 
 ```cpp
-enum class Status { Pending, Running, Failed };
-
-match(status)
-    .when(lit(Status::Pending) >> [] { log("Pending"); })
-    .when(lit(Status::Running) >> [] { log("Running"); })
-    .when(__ >> [] { log("Other"); })  // pattern-level fallback
-    .end();                            // match finalizer for `__`
+match(subject) | on(
+  case_1,
+  case_2,
+  __ >> fallback
+)
 ```
 
-**Rust Analogy:**
+The library is built around four ideas:
 
-```rust
-match status {
-    Status::Pending => log("Pending"),
-    Status::Running => log("Running"),
-    _               => log("Other"),
-};
-```
-
-### 3.2 `.otherwise(...)` - Expression-style Matching
-
-**Use Cases:**
-
-* Need to **compute a value** from match:
-  * Generate labels for enum/variant;
-  * Calculate results, map strings, etc.
-
-**Semantic Characteristics:**
-
-* All handlers return the same type (or commonly convertible).
-* `.otherwise(fallback)` provides the final value.
-* The entire `match(...)` expression has a concrete type.
-
-**Example (Rust counterpart):**
-
-```cpp
-int x = 2;
-
-auto res = match(x)
-    .when(lit(1) >> "one")
-    .when(lit(2) >> "two")
-    .otherwise("Other");
-
-std::cout << res;
-```
-
-**Corresponding Rust:**
-
-```rust
-let x = 2;
-let res = match x {
-    1 => "one",
-    2 => "two",
-    _ => "Other",
-};
-println!("{}", res);
-```
+1. Subject flow is explicit.
+2. Binding is explicit.
+3. Cases are ordered and first-match-wins.
+4. The public syntax stays small.
 
 ---
 
-## 4. `__` Roles in Different Scenarios
+## Subject-First Matching
 
-### 4.1 As "Case Fallback" Wildcard
-
-Simplest literal scenario:
-
-```cpp
-match(x)
-    .when(lit(1) >> [] { /* one */ })
-    .when(lit(2) >> [] { /* two */ })
-    .when(__ >> [] { /* other */ })    // __ is pattern-level fallback here
-    .end();
-```
-
-* `__ >> ...`: Represents "all other values".
-
-### 4.2 Remaining Branch in Enum/Variant-like Matching
-
-For variant-like types (including future kind/alternative patterns):
+Patternia does not hide the matched value inside an implicit control-flow form.
+You always start with the subject:
 
 ```cpp
-match(v)
-    .when(is<int>()         >> [] { /* int */ })
-    .when(is<std::string>() >> [] { /* string */ })
-    .when(__                       >> [] { /* other-kind */ })
-    .end();
+match(x) | on(
+  lit(1) >> "one",
+  __ >> "other"
+);
 ```
 
-Here:
-
-* `__` represents "all alternatives except int and string".
-
-### 4.3 Field Wildcard in Struct Destructuring
-
-**Corresponding Rust:**
-
-```rust
-match p {
-    Point { x, .. } => println!("{}", x),
-}
-```
-
-**Patternia ideal DSL example:**
-
-```cpp
-struct Point { int x, y, z; };
-
-match(p)
-    .when(Point{ bind(x), __, __ } >> [&] {
-        std::cout << x;
-    })
-    .end();
-```
-
-**Meaning:**
-
-* Matches object of type `Point`.
-* Only binds first field `x`.
-* Other fields (`y`, `z`) are ignored with `__`.
-
-`__` here is **field-level wildcard**, not a fallback case.
-Future named field versions could also be extended:
-
-```cpp
-.when(Point{ .x = bind(x), .y = __, .z = __ } >> ...)
-```
+This makes the match expression read as data flow rather than as a block-level
+statement form.
 
 ---
 
-## 5. `__` and `.otherwise()` Are Mutually Exclusive
+## Immediate Evaluation
 
-`__` is a pattern-level fallback, while `.otherwise()` is a match-level fallback.
-Patternia rejects `.otherwise()` if a wildcard case is present. Use either:
-
-* `__` with `.end()` for pattern-level fallback, or
-* `.otherwise(...)` without `__` for match-level fallback.
-
----
-
-## 6. When to Use `.end()` and `.otherwise()`
-
-Use this decision table to directly guide user usage.
-
-### 6.1 Decision Table
-
-| Requirement                                   | Recommended Usage       |
-| ------------------------------------------- | --------------------- |
-| Use `__` as a case fallback                      | Use `.end()`          |
-| Need a value without `__`                       | Use `.otherwise(...)` |
-| Want exhaustiveness checking for enum/variant     | Use `.end()`          |
-| Express "all remaining matching forms"           | Use `__` in pattern   |
-| Express "entire match fallback return value"      | Use `.otherwise(...)` |
-
-### 6.2 Typical Patterns
-
-1. **`__`-finalized with fallback:**
-
-   ```cpp
-   match(s)
-       .when(lit(Status::Pending) >> [] { ... })
-       .when(lit(Status::Running) >> [] { ... })
-       .when(__ >> [] { ... }) // fallback
-       .end();
-   ```
-
-2. **Expression-style, Rust counterpart:**
-
-   ```cpp
-   auto res = match(x)
-       .when(lit(1) >> "one")
-       .when(lit(2) >> "two")
-       .otherwise("Other");
-   ```
-
-3. **Struct destructuring + field wildcard:**
-
-   ```cpp
-   match(p)
-       .when(Point{ bind(x), __, __ } >> [&] { return x; })
-       .otherwise(0);
-   ```
-
-4. **Variant-like + type matching + pattern fallback:**
-
-   ```cpp
-   auto info = match(v)
-       .when(is<int>         >> "int")
-       .when(is<std::string> >> "string")
-       .when(__                     >> "other-kind")
-       .otherwise("panic");
-   ```
-
----
-
-## 7. Implementation Details
-
-### 7.1 Builder Execution Flow
-
-The builder pattern ensures that matches are only executed when properly terminated:
+`match(subject)` by itself is only the left side of the pipeline.
+Evaluation happens when the `on(...)` case pack is supplied:
 
 ```cpp
-// Without .end() or .otherwise():
-match(value).when(lit(42) >> [] { /* handler */ });
-// Result: Nothing is executed - builder remains unterminated
-
-// With .end():
-match(value).when(lit(42) >> [] { /* handler */ }).end();
-// Result: match_impl::eval(subject_, cases_, std::move(dummy_fallback));
-
-// With .otherwise():
-match(value).when(lit(42) >> [] { /* handler */ }).otherwise(fallback);
-// Result: match_impl::eval(subject_, cases_, std::move(final_handler));
+auto result = match(x) | on(
+  lit(0) >> 0,
+  lit(1) >> 1,
+  __ >> -1
+);
 ```
 
-**Key Points:**
-
-* Without `.end()` or `.otherwise()`, the builder never triggers execution.
-* `.end()` creates an empty fallback handler for `__`-finalized execution.
-* `.otherwise()` uses the provided handler as the final fallback for expression-style execution.
-
-### 7.2 Type Safety Guarantees
-
-* **`.end()`**: All handlers must return compatible types (or all `void`)
-* **Expression-style (`.otherwise()`)**: All handlers must return compatible types
-* **Pattern matching**: Type-safe heterogeneous comparisons
-* **Binding**: Compile-time type deduction for bound values
+There is no separate chained builder API.
 
 ---
 
-## 8. Future Roadmap
+## Explicit Binding
 
-To make these semantics truly user-friendly, Patternia's future plans include:
+Matching and binding are deliberately separate.
+Patterns answer "does this match?"
+Binding answers "what values are exposed to the handler?"
 
-1. **Exhaustiveness Checking for `.end()`**:
-   * Enum/bool: Static checking for complete enum value coverage.
-   * Variant-like: Check for complete alternative coverage.
-   * Provide "missing case" and "useless case" hints.
+```cpp
+match(x) | on(
+  $() >> [](int v) { return v; },
+  __ >> 0
+);
+```
 
-2. **Formal Struct Destructuring DSL**:
-   * Positional: `Point{ bind(x), __, __ }`
-   * Named: `Point{ .x = bind(x), .y = __, .z = __ }`
-   * Support guard/bind/nested patterns.
+```cpp
+match(p) | on(
+  $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+    return x + y;
+  },
+  __ >> 0
+);
+```
 
-3. **Improved Error Messages**:
-   * Incompatible handler return types under `.end()` - clear error.
-   * Handler return type inconsistency under `.otherwise()` - clear type diagnostics.
-   * Wildcard + `.otherwise()` redundancy - hint "potentially redundant patterns".
+This separation keeps handler signatures predictable and keeps data flow local.
 
 ---
 
-This comprehensive design ensures that Patternia provides clear, predictable, and user-friendly pattern matching semantics while maintaining type safety and performance guarantees.
+## Guards Refine a Bound Case
 
+Guards apply after a binding pattern succeeds.
 
+```cpp
+match(x) | on(
+  bind()[_0 > 0 && _0 < 10] >> "small",
+  __ >> "other"
+);
+```
 
+The evaluation model is:
+
+1. Match the pattern.
+2. Bind values.
+3. Evaluate the guard.
+4. Run the handler on success.
+
+If the guard fails, matching continues with the next case.
+
+---
+
+## Wildcard Fallback
+
+Patternia requires an explicit fallback case in `on(...)`.
+
+```cpp
+match(v) | on(
+  is<int>() >> "int",
+  is<std::string>() >> "string",
+  __ >> "other"
+);
+```
+
+This keeps the terminal behavior visible inside the case list itself.
+
+---
+
+## Structural and Variant Matching Share One Core
+
+Literal matching, structural matching, guarded binding, and variant dispatch all
+lower through the same ordered case model.
+
+```cpp
+match(value) | on(
+  lit(1) >> "literal",
+  $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+    return x + y > 0 ? "point" : "origin-side";
+  },
+  $(is<std::string>())[_0 != ""] >> "string",
+  __ >> "other"
+);
+```
+
+That shared model is what keeps the DSL small without giving up expressive
+power.
+
+---
+
+## Performance Direction
+
+Patternia aims at zero-overhead abstractions:
+
+- no virtual dispatch
+- no RTTI
+- no heap allocation
+- aggressive inlining and compile-time validation
+
+For repeated hot paths, users can cache case packs with `static_on(...)` or
+`PTN_ON(...)`.
+
+---
+
+## Summary
+
+Patternia is intentionally narrow:
+
+- one subject-first entry
+- one case-pack terminal form
+- explicit binding
+- explicit wildcard fallback
+
+That constraint is part of the design.

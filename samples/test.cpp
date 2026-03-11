@@ -53,9 +53,9 @@ namespace {
 
     int x = 7;
     int r = match(x)
-                .when(forwarding_probe_pattern{} >>
-                      [](int v) { return v; })
-                .otherwise(-1);
+            | on(
+                forwarding_probe_pattern{} >> [](int v) { return v; },
+                __ >> -1);
 
     const bool ok = r == 7
                     && forwarding_probe_pattern::lvalue_bind_calls
@@ -81,11 +81,7 @@ int main() {
 
   V v{std::in_place_index<1>, 23};
 
-  auto res = match(v)
-                 .when(alt<0>() >> "Point")
-                 .when(alt<1>() >> "Height")
-                 .when(ptn::__ >> "Other")
-                 .end();
+  auto res = match(v) | on(alt<0>() >> "Point", alt<1>() >> "Height", __ >> "Other");
 
   std::cout << res << '\n';
 

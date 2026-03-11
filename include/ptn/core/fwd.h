@@ -7,11 +7,6 @@
 
 namespace ptn {
 
-  namespace core::engine::detail {
-    template <typename TV, bool HasMatchFallback, typename... Cases>
-    class match_builder;
-  } // namespace core::engine::detail
-
   // Public API match entry.
   template <typename T>
   constexpr auto match(T &value);

@@ -13,17 +13,18 @@ std::uint64_t fib(std::uint64_t n) {
   auto is_odd = [](auto v) { return v % 2u == 1u; };
 
   return match(n)
-      .when(lit(0u) >> 0u)
-      .when(lit(1u) >> 1u)
+         | on(
+             lit(0u) >> 0u,
+             lit(1u) >> 1u,
 
-      // Handles even n > 1.
-      .when(bind()[_0 > 1u && is_even] >>
-            [&](std::uint64_t v) { return fib(v - 1) + fib(v - 2); })
+             // Handles even n > 1.
+             bind()[_0 > 1u && is_even] >>
+                 [&](std::uint64_t v) { return fib(v - 1) + fib(v - 2); },
 
-      // Handles odd n > 1.
-      .when(bind()[_0 > 1u && is_odd] >>
-            [&](std::uint64_t v) { return fib(v - 1) + fib(v - 2); })
-      .otherwise([] { return 0u; });
+             // Handles odd n > 1.
+             bind()[_0 > 1u && is_odd] >>
+                 [&](std::uint64_t v) { return fib(v - 1) + fib(v - 2); },
+             __ >> 0u);
 }
 
 int main() {

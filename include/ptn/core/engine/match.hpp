@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "ptn/core/engine/detail/builder_impl.hpp"
+#include "ptn/core/engine/detail/pipeline_match_context.hpp"
 
 namespace ptn {
 
@@ -99,8 +99,8 @@ namespace ptn {
   // Unified entry for pattern matching with inline cases.
   //
   // This is the recommended entry point for 0.9+ API. Cases are
-  // provided directly as arguments, eliminating the need for builder
-  // chains or the pipe operator.
+  // provided directly as arguments as an alternative to the pipeline
+  // form.
   //
   // Usage:
   //   match(value,
@@ -121,23 +121,15 @@ namespace ptn {
         std::forward<CasesRest>(rest)...);
   }
 
-  // Primary entry for pattern matching (builder form).
+  // Entry for pipeline matching.
   //
-  // Subject type is automatically deduced as std::decay_t<T>.
+  // Subject type is automatically deduced as `T&`.
   // Usage:
-  //   - match(value).when(case1).when(case2).otherwise(handler)
   //   - match(value) | on(case1, case2, ..., __ >> fallback)
   template <typename T>
   constexpr auto match(T &value) {
     using V = T &;
-
-    // Initial builder state:
-    //   - no cases
-    //   - no match-level fallback
-    return core::engine::detail::
-        match_builder<V, false /* HasMatchFallback
-                                */
-                      >::create(V(value));
+    return core::engine::detail::pipeline_match_context<V>::create(V(value));
   }
 
   // Caches an `on(...)` matcher behind a stateless factory.

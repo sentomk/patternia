@@ -7,56 +7,41 @@ using namespace ptn;
 void parse_json(const json &j, int depth = 0) {
 
   match(j)
-
-      .when(bind()[is_type(json::value_t::null)] >> print_null(depth))
-
-      .when(bind()[is_type(json::value_t::boolean)] >> print_bool(depth))
-
-      .when(
+      | on(
+          bind()[is_type(json::value_t::null)] >> print_null(depth),
+          bind()[is_type(json::value_t::boolean)] >> print_bool(depth),
           bind()[is_type(json::value_t::number_integer)] >>
-          print_number<int>("int", depth))
-
-      .when(
+              print_number<int>("int", depth),
           bind()[is_type(json::value_t::number_unsigned)] >>
-          print_number<unsigned>("uint", depth))
-
-      .when(
+              print_number<unsigned>("uint", depth),
           bind()[is_type(json::value_t::number_float)] >>
-          print_number<double>("float", depth))
-
-      .when(bind()[is_type(json::value_t::string)] >> print_string(depth))
-
-      .when(
+              print_number<double>("float", depth),
+          bind()[is_type(json::value_t::string)] >> print_string(depth),
           bind()[is_empty_array] >>
-          [=](const json &) {
-            indent(depth);
-            std::cout << "array []\n";
-          })
-
-      .when(
+              [=](const json &) {
+                indent(depth);
+                std::cout << "array []\n";
+              },
           bind()[is_type(json::value_t::array)] >>
-          [=](const json &arr) {
-            indent(depth);
-            std::cout << "array (" << arr.size() << ")\n";
-            for (auto &e : arr) {
-              parse_json(e, depth + 1);
-            }
-          })
-
-      .when(
+              [=](const json &arr) {
+                indent(depth);
+                std::cout << "array (" << arr.size() << ")\n";
+                for (auto &e : arr) {
+                  parse_json(e, depth + 1);
+                }
+              },
           bind()[has_field("name")] >>
-          [=](const json &obj) {
+              [=](const json &obj) {
+                indent(depth);
+                std::cout << "object <named>\n";
+                for (auto &&[k, v] : obj.items()) {
+                  indent(depth + 1);
+                  std::cout << k << ":\n";
+                  parse_json(v, depth + 2);
+                }
+              },
+          __ >> [=] {
             indent(depth);
-            std::cout << "object <named>\n";
-            for (auto &&[k, v] : obj.items()) {
-              indent(depth + 1);
-              std::cout << k << ":\n";
-              parse_json(v, depth + 2);
-            }
-          })
-
-      .otherwise([=] {
-        indent(depth);
-        std::cout << "<unknown>\n";
-      });
+            std::cout << "<unknown>\n";
+          });
 }

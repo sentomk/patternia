@@ -92,23 +92,22 @@ namespace ptn::pat::base {
 
 } // namespace ptn::pat::base
 
-TEST(MatchFlow, OtherwiseCallableWithSubject) {
+TEST(MatchFlow, FallbackCaseCanBindSubject) {
   int x      = 7;
   int result = ptn::match(x)
-                   .when(ptn::lit(1) >> 10)
-                   .otherwise([](int v) { return v * 2; });
+               | ptn::on(ptn::lit(1) >> 10,
+                         ptn::bind() >> [](int v) { return v * 2; },
+                         ptn::__ >> -1);
 
   EXPECT_EQ(result, 14);
 }
 
-TEST(MatchFlow, WildcardEndFlow) {
+TEST(MatchFlow, WildcardCaseRunsFallbackHandler) {
   int x   = 9;
   int hit = 0;
 
-  ptn::match(x)
-      .when(ptn::lit(1) >> [&] { hit = 1; })
-      .when(ptn::__ >> [&] { hit = 2; })
-      .end();
+  ptn::match(x) | ptn::on(ptn::lit(1) >> [&] { hit = 1; },
+                          ptn::__ >> [&] { hit = 2; });
 
   EXPECT_EQ(hit, 2);
 }
@@ -119,9 +118,8 @@ TEST(MatchFlow, SubjectBindsAsLvalue) {
 
   int x      = 11;
   int result = ptn::match(x)
-                   .when(ForwardingProbePattern{} >>
-                         [](int v) { return v; })
-                   .otherwise(-1);
+               | ptn::on(ForwardingProbePattern{} >> [](int v) { return v; },
+                         ptn::__ >> -1);
 
   EXPECT_EQ(result, 11);
   EXPECT_EQ(ForwardingProbePattern::lvalue_bind_calls, 1);
@@ -134,9 +132,9 @@ TEST(MatchFlow, GuardedCaseBindsOnlyOnceOnMatch) {
 
   int x      = 11;
   int result = ptn::match(x)
-                   .when(ForwardingProbePattern{}[ptn::_0 > 0] >>
-                         [](int v) { return v; })
-                   .otherwise(-1);
+               | ptn::on(ForwardingProbePattern{}[ptn::_0 > 0]
+                             >> [](int v) { return v; },
+                         ptn::__ >> -1);
 
   EXPECT_EQ(result, 11);
   EXPECT_EQ(ForwardingProbePattern::lvalue_bind_calls, 1);
@@ -168,9 +166,9 @@ TEST(MatchFlow, GuardedPathOneBindVsLegacyTwoBindSequence) {
   ForwardingProbePattern::rvalue_bind_calls = 0;
 
   int result = ptn::match(x)
-                   .when(ForwardingProbePattern{}[ptn::_0 > 0] >>
-                         [](int v) { return v; })
-                   .otherwise(-1);
+               | ptn::on(ForwardingProbePattern{}[ptn::_0 > 0]
+                             >> [](int v) { return v; },
+                         ptn::__ >> -1);
 
   EXPECT_EQ(result, 11);
   EXPECT_EQ(ForwardingProbePattern::lvalue_bind_calls, 1);
@@ -183,9 +181,8 @@ TEST(MatchFlow, BindCountMatrixNoBindWhenPatternMisses) {
 
   int x      = 11;
   int result = ptn::match(x)
-                   .when(ConditionalProbePattern{} >>
-                         [](int) { return 1; })
-                   .otherwise(0);
+               | ptn::on(ConditionalProbePattern{} >> [](int) { return 1; },
+                         ptn::__ >> 0);
 
   EXPECT_EQ(result, 0);
   EXPECT_EQ(ConditionalProbePattern::bind_calls, 0);
@@ -197,9 +194,8 @@ TEST(MatchFlow, BindCountMatrixOneBindWhenPatternMatches) {
 
   int x      = 11;
   int result = ptn::match(x)
-                   .when(ConditionalProbePattern{} >>
-                         [](int v) { return v; })
-                   .otherwise(-1);
+               | ptn::on(ConditionalProbePattern{} >> [](int v) { return v; },
+                         ptn::__ >> -1);
 
   EXPECT_EQ(result, 11);
   EXPECT_EQ(ConditionalProbePattern::bind_calls, 1);
@@ -211,9 +207,9 @@ TEST(MatchFlow, BindCountMatrixGuardMissBindsOnceThenOtherwise) {
 
   int x      = 11;
   int result = ptn::match(x)
-                   .when(ForwardingProbePattern{}[ptn::_0 > 100] >>
-                         [](int) { return 1; })
-                   .otherwise(0);
+               | ptn::on(ForwardingProbePattern{}[ptn::_0 > 100]
+                             >> [](int) { return 1; },
+                         ptn::__ >> 0);
 
   EXPECT_EQ(result, 0);
   EXPECT_EQ(ForwardingProbePattern::lvalue_bind_calls, 1);
@@ -226,11 +222,10 @@ TEST(MatchFlow, BindCountMatrixGuardMissThenNextCaseAddsSecondBind) {
 
   int x      = 11;
   int result = ptn::match(x)
-                   .when(ForwardingProbePattern{}[ptn::_0 > 100] >>
-                         [](int) { return -1; })
-                   .when(ForwardingProbePattern{} >>
-                         [](int v) { return v; })
-                   .otherwise(0);
+               | ptn::on(ForwardingProbePattern{}[ptn::_0 > 100]
+                             >> [](int) { return -1; },
+                         ForwardingProbePattern{} >> [](int v) { return v; },
+                         ptn::__ >> 0);
 
   EXPECT_EQ(result, 11);
   EXPECT_EQ(ForwardingProbePattern::lvalue_bind_calls, 2);
@@ -243,9 +238,9 @@ TEST(MatchFlow, ZeroBindVariantStyleCaseSkipsBindInTypedEval) {
   ZeroBindProbePattern::bind_calls = 0;
 
   int x      = 7;
-  int result = ptn::match(x)
-                   .when(ZeroBindProbePattern{} >> [] { return 42; })
-                   .otherwise(-1);
+  int result =
+      ptn::match(x) | ptn::on(ZeroBindProbePattern{} >> [] { return 42; },
+                              ptn::__ >> -1);
 
   EXPECT_EQ(result, 42);
   // Fast path contract: zero-bind case should not call bind().
