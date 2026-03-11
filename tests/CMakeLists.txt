@@ -19,10 +19,10 @@ add_executable(ptn_tests
   tests_guard.cpp
   tests_literal_pattern.cpp
   tests_match_flow.cpp
+  tests_pipeline_match.cpp
   tests_public_api.cpp
   tests_terminal_semantics.cpp
   tests_type_pattern.cpp
-  tests_unified_match.cpp
 )
 
 target_link_libraries(ptn_tests PRIVATE
@@ -39,6 +39,7 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/chained_otherwise_removed.cpp
   compile_fail/chained_end_removed.cpp
   compile_fail/cases_factory_removed.cpp
+  compile_fail/direct_match_removed.cpp
   compile_fail/lit_v_factory_removed.cpp
   compile_fail/static_on_with_capture.cpp
   compile_fail/on_pipeline_without_wildcard.cpp
