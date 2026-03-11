@@ -152,6 +152,9 @@ namespace ptn::pat::traits {
   template <typename E>
   struct is_tuple_guard_predicate<mod::tuple_predicate<E>> : std::true_type {};
 
+  template <typename Fn>
+  struct is_tuple_guard_predicate<mod::callable_guard<Fn>> : std::true_type {};
+
   template <typename T>
   inline constexpr bool is_tuple_guard_predicate_v =
       is_tuple_guard_predicate<std::decay_t<T>>::value;

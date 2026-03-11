@@ -14,6 +14,9 @@ namespace ptn::pat::mod {
   template <typename Expr>
   struct tuple_predicate;
 
+  template <typename Fn>
+  struct callable_guard;
+
   template <typename L, typename R>
   struct pred_and;
 
