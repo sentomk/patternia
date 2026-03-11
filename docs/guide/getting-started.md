@@ -25,7 +25,7 @@ int classify(int x) {
   return match(x) | on(
     lit(0) >> 0,
     lit(5) >> 5,
-    __ >> -1
+    _ >> -1
   );
 }
 ```
@@ -34,7 +34,7 @@ Read this as:
 
 1. Start matching `x`.
 2. Try the cases in order.
-3. Use `__` for the final fallback.
+3. Use `_` for the final fallback.
 
 ---
 
@@ -50,7 +50,7 @@ void log_value(int x) {
   match(x) | on(
     lit(1) >> [] { std::cout << "one\n"; },
     lit(2) >> [] { std::cout << "two\n"; },
-    __ >> [] { std::cout << "other\n"; }
+    _ >> [] { std::cout << "other\n"; }
   );
 }
 ```
@@ -62,7 +62,7 @@ int score(int x) {
   return match(x) | on(
     lit(1) >> 100,
     lit(2) >> 200,
-    __ >> 0
+    _ >> 0
   );
 }
 ```
@@ -79,7 +79,7 @@ using namespace ptn;
 int identity(int x) {
   return match(x) | on(
     $ >> [](int v) { return v; },
-    __ >> 0
+    _ >> 0
   );
 }
 ```
@@ -99,7 +99,7 @@ using namespace ptn;
 const char *bucket(int x) {
   return match(x) | on(
     $[PTN_LET(value, value > 0 && value < 10)] >> "small",
-    __ >> "other"
+    _ >> "other"
   );
 }
 ```
@@ -118,7 +118,7 @@ bool on_unit_circle(const Point &p) {
   return match(p) | on(
     $(has<&Point::x, &Point::y>())[arg<0> * arg<0> + arg<1> * arg<1> == 1]
         >> true,
-    __ >> false
+    _ >> false
   );
 }
 ```
@@ -129,7 +129,7 @@ using namespace ptn;
 bool on_diagonal(const Point &p) {
   return match(p) | on(
     $(has<&Point::x, &Point::y>())[PTN_WHERE((x, y), x == y)] >> true,
-    __ >> false
+    _ >> false
   );
 }
 ```
@@ -153,7 +153,7 @@ int sum(const Point &p) {
     $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
       return x + y;
     },
-    __ >> 0
+    _ >> 0
   );
 }
 ```
@@ -175,7 +175,7 @@ std::string describe(const Value &v) {
     $(is<std::string>()) >> [](const std::string &s) {
       return "str:" + s;
     },
-    __ >> [] { return std::string("other"); }
+    _ >> [] { return std::string("other"); }
   );
 }
 ```
@@ -193,7 +193,7 @@ int classify_fast(int x) {
   return match(x) | PTN_ON(
     lit<1>() >> 1,
     lit<2>() >> 2,
-    __ >> 0
+    _ >> 0
   );
 }
 ```
@@ -208,7 +208,7 @@ int classify_fast(int x) {
     return on(
       lit<1>() >> 1,
       lit<2>() >> 2,
-      __ >> 0
+      _ >> 0
     );
   });
 }

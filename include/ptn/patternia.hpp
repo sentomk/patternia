@@ -28,7 +28,7 @@
 // --- All Pattern Modules ---
 // Includes all public pattern factories.
 #include "ptn/pattern/lit.hpp"             // lit, lit_ci
-#include "ptn/pattern/bind.hpp"            // bind
+#include "ptn/pattern/bind.hpp"            // $, $(...)
 #include "ptn/pattern/wildcard.hpp"        // wildcard
 #include "ptn/pattern/modifiers/guard.hpp" // guard
 #include "ptn/pattern/structural.hpp"      // has
@@ -72,11 +72,13 @@ namespace ptn {
 
 #define PTN_DETAIL_WHERE_CAT_IMPL(a, b) a##b
 #define PTN_DETAIL_WHERE_CAT(a, b) PTN_DETAIL_WHERE_CAT_IMPL(a, b)
+// Counts the number of names supplied in PTN_WHERE((a, b, ...), expr).
 #define PTN_DETAIL_WHERE_COUNT_IMPL(a1, a2, a3, a4, a5, n, ...) n
 #define PTN_DETAIL_WHERE_COUNT(...)                                 \
   PTN_DETAIL_WHERE_COUNT_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1)
 #define PTN_DETAIL_WHERE_COUNT_TUPLE(args)                          \
   PTN_DETAIL_WHERE_COUNT args
+// Picks the Nth identifier from the `(a, b, ...)` parameter list.
 #define PTN_DETAIL_WHERE_NAME_1(a, ...) a
 #define PTN_DETAIL_WHERE_NAME_2(a, b, ...) b
 #define PTN_DETAIL_WHERE_NAME_3(a, b, c, ...) c

@@ -8,7 +8,7 @@ Patternia exposes one public matching shape:
 match(subject) | on(
   case_1,
   case_2,
-  __ >> fallback
+  _ >> fallback
 )
 ```
 
@@ -25,7 +25,7 @@ There is no deferred builder stage.
 int x = 7;
 auto r = match(x) | on(
   lit(7) >> 1,
-  __ >> 0
+  _ >> 0
 );
 ```
 
@@ -45,7 +45,7 @@ Rules:
 match(x) | on(
   lit(1) >> "one",
   lit(2) >> "two",
-  __ >> "other"
+  _ >> "other"
 );
 ```
 
@@ -76,15 +76,14 @@ Bindings are determined entirely by the pattern.
 
 ---
 
-## Wildcard `__` and `_` {#__-wildcard}
+## Wildcard `_` {#_-wildcard}
 
-`__` is the explicit fallback pattern.
-`_` is an alias.
+`_` is the public wildcard and fallback pattern.
 
 ```cpp
 match(x) | on(
   lit(1) >> "one",
-  __ >> "other"
+  _ >> "other"
 );
 ```
 
@@ -101,7 +100,7 @@ Runtime literal match.
 ```cpp
 match(x) | on(
   lit(5) >> 42,
-  __ >> -1
+  _ >> -1
 );
 ```
 
@@ -115,7 +114,7 @@ consider static dispatch.
 match(x) | on(
   lit<1>() >> 1,
   lit<2>() >> 2,
-  __ >> 0
+  _ >> 0
 );
 ```
 
@@ -126,7 +125,7 @@ Runtime ASCII case-insensitive string match.
 ```cpp
 match(s) | on(
   lit_ci("hello") >> 1,
-  __ >> 0
+  _ >> 0
 );
 ```
 
@@ -148,7 +147,7 @@ Examples:
 ```cpp
 match(x) | on(
   $ >> [](int v) { return v; },
-  __ >> 0
+  _ >> 0
 );
 ```
 
@@ -157,7 +156,7 @@ match(v) | on(
   $(is<std::string>()) >> [](const std::string &s) {
     return s.size();
   },
-  __ >> 0
+  _ >> 0
 );
 ```
 
@@ -176,7 +175,7 @@ Attach a guard to a binding pattern with `pattern[guard]`.
 ```cpp
 match(x) | on(
   $[PTN_LET(value, value > 0 && value < 10)] >> "small",
-  __ >> "other"
+  _ >> "other"
 );
 ```
 
@@ -232,7 +231,7 @@ The macro currently supports 1 to 5 names.
 ```cpp
 match(p) | on(
   $(has<&Point::x, &Point::y>())[PTN_WHERE((x, y), x == y)] >> "diagonal",
-  __ >> "other"
+  _ >> "other"
 );
 ```
 
@@ -247,7 +246,7 @@ Use the single-value form when a guard binds exactly one value and you want to
 ```cpp
 match(x) | on(
   $[PTN_LET(value, value > 0 && value < 10)] >> "small",
-  __ >> "other"
+  _ >> "other"
 );
 ```
 
@@ -270,7 +269,7 @@ match(p) | on(
   $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
     return x + y;
   },
-  __ >> 0
+  _ >> 0
 );
 ```
 
@@ -294,7 +293,7 @@ match(v) | on(
   $(is<std::string>()) >> [](const std::string &s) {
     return "str:" + s;
   },
-  __ >> [] { return std::string("other"); }
+  _ >> [] { return std::string("other"); }
 );
 ```
 
@@ -306,7 +305,7 @@ Index-based `std::variant` match.
 match(v) | on(
   alt<0>() >> "first",
   alt<1>() >> "second",
-  __ >> "other"
+  _ >> "other"
 );
 ```
 
@@ -329,7 +328,7 @@ match(x) | static_on([] {
   return on(
     lit<1>() >> 1,
     lit<2>() >> 2,
-    __ >> 0
+    _ >> 0
   );
 });
 ```
@@ -342,7 +341,7 @@ Convenience macro over `static_on(...)`.
 match(x) | PTN_ON(
   lit<1>() >> 1,
   lit<2>() >> 2,
-  __ >> 0
+  _ >> 0
 );
 ```
 
@@ -358,7 +357,7 @@ The public surface is re-exported through `namespace ptn`:
 - `on`
 - `lit`, `lit_ci`
 - `$`
-- `_`, `__`
+- `_`
 - `_0`, `arg`, `rng`
 - `has`
 - `is`, `alt`
@@ -377,7 +376,7 @@ int main() {
   int r = match(x) | on(
     lit(1) >> 10,
     lit(2) >> 20,
-    __ >> 0
+    _ >> 0
   );
 
   return r == 20 ? 0 : 1;

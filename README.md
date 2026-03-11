@@ -40,7 +40,7 @@ int classify(int x) {
   return match(x) | on(
     lit(0) >> 0,
     lit(1) >> 1,
-    __ >> -1
+    _ >> -1
   );
 }
 ```
@@ -48,7 +48,7 @@ int classify(int x) {
 `match(subject)` creates the evaluation context.
 `on(...)` provides the ordered case list.
 `pattern >> handler` defines one case.
-`__` is the required fallback case.
+`_` is the required fallback case.
 
 ## Highlights
 
@@ -69,7 +69,7 @@ const char *bucket(int x) {
   return match(x) | on(
     $[PTN_LET(value, value < 0)] >> "negative",
     $[PTN_LET(value, value < 10)] >> "small",
-    __ >> "large"
+    _ >> "large"
   );
 }
 ```
@@ -89,7 +89,7 @@ int magnitude2(const Point &p) {
     $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
       return x * x + y * y;
     },
-    __ >> 0
+    _ >> 0
   );
 }
 ```
@@ -107,7 +107,7 @@ std::string describe(const Value &v) {
     $(is<std::string>()) >> [](const std::string &s) {
       return "str:" + s;
     },
-    __ >> [] { return std::string("other"); }
+    _ >> [] { return std::string("other"); }
   );
 }
 ```
@@ -157,7 +157,7 @@ int fast_classify(int x) {
   return match(x) | PTN_ON(
     lit<1>() >> 1,
     lit<2>() >> 2,
-    __ >> 0
+    _ >> 0
   );
 }
 ```
@@ -172,7 +172,7 @@ int fast_classify(int x) {
     return on(
       lit<1>() >> 1,
       lit<2>() >> 2,
-      __ >> 0
+      _ >> 0
     );
   });
 }

@@ -6,7 +6,7 @@ Patternia treats pattern matching as an expression over a concrete subject:
 match(subject) | on(
   case_1,
   case_2,
-  __ >> fallback
+  _ >> fallback
 )
 ```
 
@@ -27,7 +27,7 @@ You always start with the subject:
 ```cpp
 match(x) | on(
   lit(1) >> "one",
-  __ >> "other"
+  _ >> "other"
 );
 ```
 
@@ -45,7 +45,7 @@ Evaluation happens when the `on(...)` case pack is supplied:
 auto result = match(x) | on(
   lit(0) >> 0,
   lit(1) >> 1,
-  __ >> -1
+  _ >> -1
 );
 ```
 
@@ -62,7 +62,7 @@ Binding answers "what values are exposed to the handler?"
 ```cpp
 match(x) | on(
   $ >> [](int v) { return v; },
-  __ >> 0
+  _ >> 0
 );
 ```
 
@@ -71,7 +71,7 @@ match(p) | on(
   $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
     return x + y;
   },
-  __ >> 0
+  _ >> 0
 );
 ```
 
@@ -86,7 +86,7 @@ Guards apply after a binding pattern succeeds.
 ```cpp
 match(x) | on(
   $[PTN_LET(value, value > 0 && value < 10)] >> "small",
-  __ >> "other"
+  _ >> "other"
 );
 ```
 
@@ -109,7 +109,7 @@ Patternia requires an explicit fallback case in `on(...)`.
 match(v) | on(
   is<int>() >> "int",
   is<std::string>() >> "string",
-  __ >> "other"
+  _ >> "other"
 );
 ```
 
@@ -129,7 +129,7 @@ match(value) | on(
     return x + y > 0 ? "point" : "origin-side";
   },
   $(is<std::string>())[PTN_LET(text, text != "")] >> "string",
-  __ >> "other"
+  _ >> "other"
 );
 ```
 

@@ -26,7 +26,7 @@ Patternia:
 auto label = match(x) | on(
   lit(0) >> "zero",
   lit(1) >> "one",
-  __ >> "many"
+  _ >> "many"
 );
 ```
 
@@ -38,7 +38,7 @@ Patternia keeps binding explicit because it is a C++ library:
 ```cpp
 match(value) | on(
   $ >> [](auto v) { process(v); },
-  __ >> [] {}
+  _ >> [] {}
 );
 ```
 
@@ -49,7 +49,7 @@ Patternia guards refine a bound case:
 ```cpp
 auto label = match(x) | on(
   $[PTN_LET(value, value > 0 && value < 10)] >> "small",
-  __ >> "other"
+  _ >> "other"
 );
 ```
 
@@ -61,7 +61,7 @@ Without native language destructuring, Patternia uses explicit member pointers:
 auto label = match(user) | on(
   $(has<&User::age, &User::active>())[arg<0> < 18 && arg<1> == true]
       >> "minor",
-  __ >> "adult"
+  _ >> "adult"
 );
 ```
 

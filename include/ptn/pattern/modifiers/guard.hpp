@@ -342,9 +342,10 @@ namespace ptn::pat::mod {
 
   // Guard wrapper for macro-generated named predicates.
   //
-  // This lets helper macros such as PTN_WHERE(...) participate in the
-  // existing guard composition path while still delegating tuple unpacking
-  // to invoke_guard when needed.
+  // PTN_WHERE(...) and PTN_LET(...) expand to plain lambdas. Wrapping them
+  // in guard_predicate_tag keeps them compatible with the existing guard
+  // composition operators while still using invoke_guard for the single-tuple
+  // case produced by guarded_pattern.
   template <typename Fn>
   struct callable_guard : traits::guard_predicate_tag {
     Fn fn;
@@ -355,10 +356,12 @@ namespace ptn::pat::mod {
     template <typename... Args>
     constexpr bool operator()(Args &&...args) const {
       if constexpr (sizeof...(Args) == 1) {
+        // guarded_pattern passes one tuple-like binding object here.
         return detail::invoke_guard(fn,
                                     std::forward<Args>(args)...);
       }
       else {
+        // Direct multi-argument calls come from composed guard predicates.
         return static_cast<bool>(fn(std::forward<Args>(args)...));
       }
     }

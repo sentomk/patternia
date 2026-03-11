@@ -14,7 +14,7 @@ auto describe(int x) {
   return match(x) | on(
     lit(0) >> "zero",
     lit(1) >> "one",
-    __ >> "many"
+    _ >> "many"
   );
 }
 ```
@@ -32,7 +32,7 @@ auto bucket(int x) {
     $[_0 < 0] >> 0,
     $[_0 < 10] >> 1,
     $[_0 < 100] >> 2,
-    __ >> 3
+    _ >> 3
   );
 }
 ```
@@ -53,7 +53,7 @@ auto label(const User &u) {
   return match(u) | on(
     $(has<&User::active>())[arg<0> == false] >> "inactive",
     $(has<&User::age>())[arg<0> < 18] >> "minor",
-    __ >> "adult"
+    _ >> "adult"
   );
 }
 ```
@@ -64,4 +64,4 @@ The shift is simple:
 
 - use literal cases for value dispatch
 - use explicit binding and guards for constrained cases
-- keep the fallback visible as `__`
+- keep the fallback visible as `_`

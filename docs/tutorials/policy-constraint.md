@@ -37,7 +37,7 @@ bool allowed(const Request &req) {
         [arg<0> == Role::User && arg<1> >= 0 && arg<2> == true] >> true,
     $(has<&Request::role, &Request::resource_id>())
         [arg<0> == Role::Guest && is_public_resource] >> true,
-    __ >> false
+    _ >> false
   );
 }
 ```

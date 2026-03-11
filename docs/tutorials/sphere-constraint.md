@@ -27,7 +27,7 @@ const char *classify(const Vec3 &p) {
 
   return match(p) | on(
     $(has<&Vec3::x, &Vec3::y, &Vec3::z>())[inside_unit_sphere] >> "inside",
-    __ >> "outside"
+    _ >> "outside"
   );
 }
 ```
@@ -43,7 +43,7 @@ const char *classify_upper(const Vec3 &p) {
   return match(p) | on(
     $(has<&Vec3::x, &Vec3::y, &Vec3::z>())[arg<2> >= 0 && inside_unit_sphere]
         >> "inside",
-    __ >> "outside"
+    _ >> "outside"
   );
 }
 ```
