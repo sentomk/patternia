@@ -32,10 +32,10 @@ bool allowed(const Request &req) {
   using namespace ptn;
 
   return match(req) | on(
-    bind(has<&Request::role>())[arg<0> == Role::Admin] >> true,
-    bind(has<&Request::role, &Request::resource_id, &Request::read_only>())
+    $(has<&Request::role>())[arg<0> == Role::Admin] >> true,
+    $(has<&Request::role, &Request::resource_id, &Request::read_only>())
         [arg<0> == Role::User && arg<1> >= 0 && arg<2> == true] >> true,
-    bind(has<&Request::role, &Request::resource_id>())
+    $(has<&Request::role, &Request::resource_id>())
         [arg<0> == Role::Guest && is_public_resource] >> true,
     __ >> false
   );

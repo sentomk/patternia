@@ -5,7 +5,7 @@ In Patternia, they live inside the case definition:
 
 ```cpp
 match(x) | on(
-  bind()[_0 > 0 && _0 < 10] >> "small",
+  $[_0 > 0 && _0 < 10] >> "small",
   __ >> "other"
 );
 ```
@@ -16,7 +16,7 @@ Use `_0` for a case that binds exactly one value.
 
 ```cpp
 match(x) | on(
-  bind()[_0 == 0 || _0 == 1] >> "edge",
+  $[_0 == 0 || _0 == 1] >> "edge",
   __ >> "other"
 );
 ```
@@ -34,8 +34,8 @@ Use `rng(...)` when a range reads better than two comparisons:
 
 ```cpp
 match(x) | on(
-  bind()[rng(0, 10)] >> "closed",
-  bind()[rng(0, 10, pat::mod::open)] >> "open",
+  $[rng(0, 10)] >> "closed",
+  $[rng(0, 10, pat::mod::open)] >> "open",
   __ >> "other"
 );
 ```
@@ -51,7 +51,7 @@ struct Point {
 };
 
 match(p) | on(
-  bind(has<&Point::x, &Point::y>())[arg<0> == arg<1>] >> "diagonal",
+  $(has<&Point::x, &Point::y>())[arg<0> == arg<1>] >> "diagonal",
   __ >> "other"
 );
 ```
@@ -60,7 +60,7 @@ If you prefer named guard parameters, use `PTN_WHERE((...), expr)`:
 
 ```cpp
 match(p) | on(
-  bind(has<&Point::x, &Point::y>())[PTN_WHERE((x, y), x == y)] >> "diagonal",
+  $(has<&Point::x, &Point::y>())[PTN_WHERE((x, y), x == y)] >> "diagonal",
   __ >> "other"
 );
 ```
@@ -83,7 +83,7 @@ auto is_prime = [](int v) {
 };
 
 match(x) | on(
-  bind()[is_prime] >> "prime",
+  $[is_prime] >> "prime",
   __ >> "composite"
 );
 ```
@@ -96,7 +96,7 @@ auto valid_id = [](int v) {
 };
 
 match(x) | on(
-  bind()[_0 > 0 && valid_id] >> "valid",
+  $[_0 > 0 && valid_id] >> "valid",
   __ >> "invalid"
 );
 ```

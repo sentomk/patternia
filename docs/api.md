@@ -134,22 +134,20 @@ match(s) | on(
 
 ## Binding Patterns {#binding-patterns}
 
-### `$()` and `bind()`
+### `$` and `$(...)`
 
 Patternia keeps binding explicit.
 
 ```cpp
-$()             // bind the whole subject
+$               // bind the whole subject
 $(subpattern)   // bind under a subpattern
-bind()          // same idea, lower-level spelling
-bind(subpattern)
 ```
 
 Examples:
 
 ```cpp
 match(x) | on(
-  $() >> [](int v) { return v; },
+  $ >> [](int v) { return v; },
   __ >> 0
 );
 ```
@@ -177,7 +175,7 @@ Attach a guard to a binding pattern with `pattern[guard]`.
 
 ```cpp
 match(x) | on(
-  bind()[_0 > 0 && _0 < 10] >> "small",
+  $[PTN_LET(value, value > 0 && value < 10)] >> "small",
   __ >> "other"
 );
 ```
@@ -195,21 +193,23 @@ A guard failure only rejects the current case.
 
 ## Guard Helpers {#guard-helpers}
 
-### `_0`, `_1`, `_2`, `_3`
+### `_0`
 
-Placeholder aliases for the first few bound values.
+Placeholder alias for a single bound value.
 
 ```cpp
-bind()[_0 > 5]
-bind(has<&Point::x, &Point::y>())[_0 + _1 == 0]
+$[_0 > 5]
 ```
+
+Use `_0` when one binding is enough and the predicate reads clearly without an
+explicit name.
 
 ### `arg<N>`
 
 Indexed placeholder for general multi-binding guards.
 
 ```cpp
-bind(has<&Point::x, &Point::y>())[arg<0> * arg<0> + arg<1> * arg<1> == 25]
+$(has<&Point::x, &Point::y>())[arg<0> * arg<0> + arg<1> * arg<1> == 25]
 ```
 
 ### `rng(lo, hi, mode)`
@@ -217,12 +217,12 @@ bind(has<&Point::x, &Point::y>())[arg<0> * arg<0> + arg<1> * arg<1> == 25]
 Range helper for single-bound-value guards.
 
 ```cpp
-bind()[rng(0, 10)]
-bind()[rng(0, 10, pat::mod::open)]
+$[rng(0, 10)]
+$[rng(0, 10, pat::mod::open)]
 ```
 
-Use callables for domain logic that does not read naturally as a placeholder
-expression.
+Use callables for domain logic that does not read naturally as `_0`,
+`arg<N>`, or `PTN_WHERE(...)`.
 
 ### `PTN_WHERE((names...), expr)`
 
@@ -231,7 +231,7 @@ The macro currently supports 1 to 5 names.
 
 ```cpp
 match(p) | on(
-  bind(has<&Point::x, &Point::y>())[PTN_WHERE((x, y), x == y)] >> "diagonal",
+  $(has<&Point::x, &Point::y>())[PTN_WHERE((x, y), x == y)] >> "diagonal",
   __ >> "other"
 );
 ```
@@ -258,7 +258,7 @@ match(x) | on(
 ## Structural Matching `has<&T::member...>()` {#structural-matching}
 
 `has<>` describes structure.
-Wrap it with `$()` or `bind()` to extract values.
+Wrap it with `$(...)` to extract values.
 
 ```cpp
 struct Point {
@@ -314,7 +314,7 @@ Rules:
 
 - `is<T>()` requires `T` to appear exactly once.
 - `alt<I>()` requires `I` to be in range.
-- Use `$()` when you want the alternative value bound into the handler.
+- Use `$(...)` when you want the alternative value bound into the handler.
 
 ---
 
@@ -357,9 +357,9 @@ The public surface is re-exported through `namespace ptn`:
 - `match`
 - `on`
 - `lit`, `lit_ci`
-- `$`, `bind`
+- `$`
 - `_`, `__`
-- `_0`, `_1`, `_2`, `_3`, `arg`, `rng`
+- `_0`, `arg`, `rng`
 - `has`
 - `is`, `alt`
 

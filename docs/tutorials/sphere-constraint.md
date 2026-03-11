@@ -26,7 +26,7 @@ const char *classify(const Vec3 &p) {
   using namespace ptn;
 
   return match(p) | on(
-    bind(has<&Vec3::x, &Vec3::y, &Vec3::z>())[inside_unit_sphere] >> "inside",
+    $(has<&Vec3::x, &Vec3::y, &Vec3::z>())[inside_unit_sphere] >> "inside",
     __ >> "outside"
   );
 }
@@ -41,7 +41,7 @@ const char *classify_upper(const Vec3 &p) {
   using namespace ptn;
 
   return match(p) | on(
-    bind(has<&Vec3::x, &Vec3::y, &Vec3::z>())[arg<2> >= 0 && inside_unit_sphere]
+    $(has<&Vec3::x, &Vec3::y, &Vec3::z>())[arg<2> >= 0 && inside_unit_sphere]
         >> "inside",
     __ >> "outside"
   );

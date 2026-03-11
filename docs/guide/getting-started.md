@@ -71,21 +71,21 @@ int score(int x) {
 
 ## Binding
 
-Use `$()` or `bind()` when the handler needs data from the match.
+Use `$` or `$(...)` when the handler needs data from the match.
 
 ```cpp
 using namespace ptn;
 
 int identity(int x) {
   return match(x) | on(
-    $() >> [](int v) { return v; },
+    $ >> [](int v) { return v; },
     __ >> 0
   );
 }
 ```
 
-`$()` is the concise spelling.
-`bind()` is the lower-level equivalent.
+Use `$` to bind the whole subject.
+Use `$(...)` to bind under a subpattern.
 
 ---
 
@@ -98,13 +98,13 @@ using namespace ptn;
 
 const char *bucket(int x) {
   return match(x) | on(
-    bind()[_0 > 0 && _0 < 10] >> "small",
+    $[PTN_LET(value, value > 0 && value < 10)] >> "small",
     __ >> "other"
   );
 }
 ```
 
-For multiple bound values, use `arg<N>`:
+For multiple bound values, use `arg<N>` or `PTN_WHERE((...), expr)`:
 
 ```cpp
 using namespace ptn;
@@ -116,8 +116,19 @@ struct Point {
 
 bool on_unit_circle(const Point &p) {
   return match(p) | on(
-    bind(has<&Point::x, &Point::y>())[arg<0> * arg<0> + arg<1> * arg<1> == 1]
+    $(has<&Point::x, &Point::y>())[arg<0> * arg<0> + arg<1> * arg<1> == 1]
         >> true,
+    __ >> false
+  );
+}
+```
+
+```cpp
+using namespace ptn;
+
+bool on_diagonal(const Point &p) {
+  return match(p) | on(
+    $(has<&Point::x, &Point::y>())[PTN_WHERE((x, y), x == y)] >> true,
     __ >> false
   );
 }
@@ -127,7 +138,7 @@ bool on_unit_circle(const Point &p) {
 
 ## Structural Matching
 
-Use `has<>` to describe object structure and `$()` to bind selected members.
+Use `has<>` to describe object structure and `$(...)` to bind selected members.
 
 ```cpp
 using namespace ptn;

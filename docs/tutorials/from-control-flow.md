@@ -29,9 +29,9 @@ auto bucket(int x) {
   using namespace ptn;
 
   return match(x) | on(
-    bind()[_0 < 0] >> 0,
-    bind()[_0 < 10] >> 1,
-    bind()[_0 < 100] >> 2,
+    $[_0 < 0] >> 0,
+    $[_0 < 10] >> 1,
+    $[_0 < 100] >> 2,
     __ >> 3
   );
 }
@@ -51,8 +51,8 @@ auto label(const User &u) {
   using namespace ptn;
 
   return match(u) | on(
-    bind(has<&User::active>())[arg<0> == false] >> "inactive",
-    bind(has<&User::age>())[arg<0> < 18] >> "minor",
+    $(has<&User::active>())[arg<0> == false] >> "inactive",
+    $(has<&User::age>())[arg<0> < 18] >> "minor",
     __ >> "adult"
   );
 }
