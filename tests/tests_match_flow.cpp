@@ -96,7 +96,7 @@ TEST(MatchFlow, FallbackCaseCanBindSubject) {
   int x      = 7;
   int result = ptn::match(x)
                | ptn::on(ptn::lit(1) >> 10,
-                         ptn::bind() >> [](int v) { return v * 2; },
+                         ptn::$ >> [](int v) { return v * 2; },
                          ptn::__ >> -1);
 
   EXPECT_EQ(result, 14);

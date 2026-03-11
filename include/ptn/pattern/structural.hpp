@@ -70,7 +70,7 @@ namespace ptn::pat {
 
       // IMPORTANT:
       // `has<>` MUST NOT bind anything.
-      // Binding is handled exclusively by `bind(...)`.
+      // Binding is handled exclusively by `$` and `$(...)`.
       template <typename Subject>
       constexpr auto bind(Subject &&) const noexcept {
         return std::tuple<>{};
@@ -83,7 +83,7 @@ namespace ptn::pat {
       // not bind any values to the handler.
       //
       // Usage:
-      //   has<&Pkt::type, &Pkt::len>()[_0 == 0x01 && _1 == 0]
+      //   has<&Pkt::type, &Pkt::len>()[_0 == 0x01 && arg<1> == 0]
       //       >> [] { handle_ping(); }
       template <typename Pred>
       constexpr auto operator[](Pred &&pred) const;

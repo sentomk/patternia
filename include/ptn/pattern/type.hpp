@@ -31,11 +31,11 @@ namespace ptn::pat::detail {
     // - Otherwise: delegates match/bind to the subpattern on the
     // selected alt.
     //
-    // Important: when SubPattern is a binding pattern (e.g. bind(),
-    // bind(has<...>())), this type pattern itself becomes a binding
+    // Important: when SubPattern is a binding pattern (e.g. $(),
+    // $(has<...>())), this type pattern itself becomes a binding
     // pattern, enabling guard syntax:
     //   $(is<T>())[predicate]   // equivalent to
-    //   is<T>(bind()[predicate])
+    //   is<T>($[predicate])
     template <typename T, typename SubPattern = no_subpattern>
     struct type_is_pattern
         : base::pattern_base<type_is_pattern<T, SubPattern>>,

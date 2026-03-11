@@ -71,14 +71,18 @@ TEST(PipelineMatch, VariantTypeAsBindsValue) {
 
 TEST(PipelineMatch, GuardedBindMatchesWhenTrue) {
   int x      = 10;
-  int result = match(x) | on(bind()[_0 > 5] >> [](int v) { return v; }, __ >> 0);
+  int result =
+      match(x) | on($[PTN_LET(value, value > 5)] >> [](int v) { return v; },
+                    __ >> 0);
 
   EXPECT_EQ(result, 10);
 }
 
 TEST(PipelineMatch, GuardedBindFallsWhenFalse) {
   int x      = 3;
-  int result = match(x) | on(bind()[_0 > 5] >> [](int v) { return v; }, __ >> -1);
+  int result =
+      match(x) | on($[PTN_LET(value, value > 5)] >> [](int v) { return v; },
+                    __ >> -1);
 
   EXPECT_EQ(result, -1);
 }
@@ -149,10 +153,12 @@ TEST(PipelineMatch, DollarBindGuardRejects) {
   EXPECT_EQ(result, -1);
 }
 
-TEST(PipelineMatch, DollarBindEquivalentToBind) {
+TEST(PipelineMatch, DollarBindSupportsNamedGuard) {
   int x  = 7;
   int r1 = match(x) | on($[_0 > 0] >> [](int v) { return v; }, _ >> 0);
-  int r2 = match(x) | on(bind()[_0 > 0] >> [](int v) { return v; }, _ >> 0);
+  int r2 =
+      match(x) | on($[PTN_LET(value, value > 0)] >> [](int v) { return v; },
+                    _ >> 0);
 
   EXPECT_EQ(r1, r2);
 }
@@ -179,11 +185,11 @@ TEST(PipelineMatch, IsWithSubPattern) {
   using V = std::variant<int, std::string>;
   V v     = std::string("hello");
 
-  auto result = match(v)
-                | on(is<std::string>(bind()) >> [](const std::string &s) {
-                     return s;
-                   },
-                     _ >> std::string("other"));
+  auto result =
+      match(v) | on($(is<std::string>()) >> [](const std::string &s) {
+                    return s;
+                  },
+                    _ >> std::string("other"));
 
   EXPECT_EQ(result, "hello");
 }
@@ -265,7 +271,7 @@ TEST(PipelineMatch, DollarHasWithGuard) {
   EXPECT_EQ(result, 12);
 }
 
-TEST(PipelineMatch, DollarHasEquivalentToBindHas) {
+TEST(PipelineMatch, DollarHasMatchesStructuralBinding) {
   struct Point {
     int x;
     int y;
@@ -279,7 +285,7 @@ TEST(PipelineMatch, DollarHasEquivalentToBindHas) {
                 _ >> 0);
 
   int r2 = match(p)
-           | on(bind(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+           | on($(has<&Point::x, &Point::y>()) >> [](int x, int y) {
                 return x + y;
               },
                 _ >> 0);
@@ -308,12 +314,12 @@ TEST(PipelineMatch, DollarIsWithGuard) {
   EXPECT_EQ(result, -42);
 }
 
-TEST(PipelineMatch, DollarIsEquivalentToBindIs) {
+TEST(PipelineMatch, DollarIsMatchesTypedBinding) {
   using V = std::variant<int, std::string>;
   V v     = 42;
 
   int r1 = match(v) | on($(is<int>()) >> [](int i) { return i * 2; }, _ >> 0);
-  int r2 = match(v) | on(bind(is<int>()) >> [](int i) { return i * 2; }, _ >> 0);
+  int r2 = match(v) | on($(is<int>()) >> [](int i) { return i * 2; }, _ >> 0);
 
   EXPECT_EQ(r1, r2);
 }

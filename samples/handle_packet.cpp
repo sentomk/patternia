@@ -48,19 +48,19 @@ void parse_packet(const Packet &pkt) {
   match(pkt)
       | on(
           // Handles ping packets.
-          bind(
+          $(
               has<&Packet::type,
                   &Packet::length>())[arg<0> == 0x01 && arg<1> == 0] >>
               [](auto &&...) { handle_ping(); },
 
           // Handles data packets.
-          bind(has<&Packet::payload>())[is_valid_payload] >>
+          $(has<&Packet::payload>())[is_valid_payload] >>
               [](const std::vector<std::uint8_t> &payload) {
                 handle_data(payload);
               },
 
           // Handles error packets.
-          bind(has<&Packet::type, &Packet::payload>())[is_error_packet] >>
+          $(has<&Packet::type, &Packet::payload>())[is_error_packet] >>
               [](std::uint8_t, const std::vector<std::uint8_t> &payload) {
                 handle_error(payload[0]);
               },

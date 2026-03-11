@@ -317,7 +317,7 @@ namespace ptn::core::common {
         ptn::pat::detail::type_alt_pattern<I, SubPattern>>
         : std::integral_constant<std::size_t, I> {};
 
-    // Matches `is<T>(bind())`.
+    // Matches `$(is<T>())`.
     template <typename Pattern>
     struct is_variant_direct_ref_bind_pattern : std::false_type {};
 
@@ -327,7 +327,7 @@ namespace ptn::core::common {
                                                 ptn::pat::detail::binding_pattern>>
         : std::true_type {};
 
-    // Matches `alt<I>(bind())`.
+    // Matches `$(alt<I>())`.
     template <std::size_t I>
     struct is_variant_direct_ref_bind_pattern<
         ptn::pat::detail::type_alt_pattern<I,

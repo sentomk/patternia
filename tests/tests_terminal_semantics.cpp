@@ -39,8 +39,8 @@ TEST(TerminalSemantics, WildcardReturnsFallbackCase) {
 TEST(TerminalSemantics, FirstMatchingCaseWins) {
   int x = 9;
 
-  int result = ptn::match(x)
-               | ptn::on(ptn::bind() >> 1, ptn::bind() >> 2, ptn::__ >> 0);
+  int result =
+      ptn::match(x) | ptn::on(ptn::$ >> 1, ptn::$ >> 2, ptn::__ >> 0);
 
   EXPECT_EQ(result, 1);
 }

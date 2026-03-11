@@ -18,11 +18,11 @@ std::uint64_t fib(std::uint64_t n) {
              lit(1u) >> 1u,
 
              // Handles even n > 1.
-             bind()[_0 > 1u && is_even] >>
+             $[PTN_LET(value, value > 1u) && is_even] >>
                  [&](std::uint64_t v) { return fib(v - 1) + fib(v - 2); },
 
              // Handles odd n > 1.
-             bind()[_0 > 1u && is_odd] >>
+             $[PTN_LET(value, value > 1u) && is_odd] >>
                  [&](std::uint64_t v) { return fib(v - 1) + fib(v - 2); },
              __ >> 0u);
 }

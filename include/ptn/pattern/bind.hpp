@@ -1,6 +1,6 @@
 #pragma once
 
-// Public API and implementation for binding patterns (`bind()`).
+// Public API and implementation for binding patterns (`$` and `$()`).
 //
 // This file provides factory functions to create patterns that
 // capture and bind subject values for later use in pattern matching.
@@ -166,32 +166,10 @@ namespace ptn::pat {
 
   // Public API.
   //
-  // Note: The bind(v) / bind(v, subpattern) forms are not provided.
+  // Note: Named binder forms are not provided.
   // In C++, v would be treated as a variable name in the DSL
   // context, which would result in a "v undeclared" compilation
   // error.
-
-  // bind() - Captures the current subject itself.
-  constexpr auto bind() {
-    // Use void as Tag for placeholder purposes.
-    return detail::binding_pattern{};
-  }
-
-  // bind(subpattern) - First matches with subpattern, then captures
-  // subject.
-  template <typename SubPattern>
-  constexpr auto bind(SubPattern &&subpattern) {
-    using SP = std::decay_t<SubPattern>;
-
-    if constexpr (detail::is_structural_has_v<SP>) {
-      return detail::structural_bind_pattern<SP>(
-          std::forward<SubPattern>(subpattern));
-    }
-    else {
-      return detail::binding_as_pattern<void, SP>(
-          std::forward<SubPattern>(subpattern));
-    }
-  }
 
   // bind_factory - Callable object that acts as both a binding
   // pattern and a factory for creating binding patterns with
@@ -237,8 +215,7 @@ namespace ptn::pat {
     }
   };
 
-  // $ - Shorthand for bind() that can also be called with
-  // subpatterns.
+  // $ - Binding pattern and factory for binding subpatterns.
   //
   // Usage:
   //   $ >> handler                    // bind whole subject

@@ -43,16 +43,12 @@ namespace ptn {
   using ptn::pat::lit_ci;
 
   using ptn::pat::$;
-  using ptn::pat::bind;
 
   using ptn::pat::_;
   using ptn::pat::__;
 
   // Guard utilities.
   using ptn::pat::mod::_0;
-  using ptn::pat::mod::_1;
-  using ptn::pat::mod::_2;
-  using ptn::pat::mod::_3;
   using ptn::pat::mod::operator&&;
   using ptn::pat::mod::operator||;
   using ptn::pat::mod::arg;
@@ -76,7 +72,7 @@ namespace ptn {
 
 #define PTN_DETAIL_WHERE_CAT_IMPL(a, b) a##b
 #define PTN_DETAIL_WHERE_CAT(a, b) PTN_DETAIL_WHERE_CAT_IMPL(a, b)
-#define PTN_DETAIL_WHERE_COUNT_IMPL(_1, _2, _3, _4, _5, n, ...) n
+#define PTN_DETAIL_WHERE_COUNT_IMPL(a1, a2, a3, a4, a5, n, ...) n
 #define PTN_DETAIL_WHERE_COUNT(...)                                 \
   PTN_DETAIL_WHERE_COUNT_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1)
 #define PTN_DETAIL_WHERE_COUNT_TUPLE(args)                          \

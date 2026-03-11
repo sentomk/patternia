@@ -47,9 +47,6 @@ namespace ptn::pat::mod {
 
   // Shorthand aliases for common argument placeholders.
   inline constexpr arg_t<0> _0{};
-  inline constexpr arg_t<1> _1{};
-  inline constexpr arg_t<2> _2{};
-  inline constexpr arg_t<3> _3{};
 
   // Value wrapper for literals in expression templates.
   template <typename T>

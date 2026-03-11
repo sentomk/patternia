@@ -8,21 +8,21 @@ void parse_json(const json &j, int depth = 0) {
 
   match(j)
       | on(
-          bind()[is_type(json::value_t::null)] >> print_null(depth),
-          bind()[is_type(json::value_t::boolean)] >> print_bool(depth),
-          bind()[is_type(json::value_t::number_integer)] >>
+          $[is_type(json::value_t::null)] >> print_null(depth),
+          $[is_type(json::value_t::boolean)] >> print_bool(depth),
+          $[is_type(json::value_t::number_integer)] >>
               print_number<int>("int", depth),
-          bind()[is_type(json::value_t::number_unsigned)] >>
+          $[is_type(json::value_t::number_unsigned)] >>
               print_number<unsigned>("uint", depth),
-          bind()[is_type(json::value_t::number_float)] >>
+          $[is_type(json::value_t::number_float)] >>
               print_number<double>("float", depth),
-          bind()[is_type(json::value_t::string)] >> print_string(depth),
-          bind()[is_empty_array] >>
+          $[is_type(json::value_t::string)] >> print_string(depth),
+          $[is_empty_array] >>
               [=](const json &) {
                 indent(depth);
                 std::cout << "array []\n";
               },
-          bind()[is_type(json::value_t::array)] >>
+          $[is_type(json::value_t::array)] >>
               [=](const json &arr) {
                 indent(depth);
                 std::cout << "array (" << arr.size() << ")\n";
@@ -30,7 +30,7 @@ void parse_json(const json &j, int depth = 0) {
                   parse_json(e, depth + 1);
                 }
               },
-          bind()[has_field("name")] >>
+          $[has_field("name")] >>
               [=](const json &obj) {
                 indent(depth);
                 std::cout << "object <named>\n";

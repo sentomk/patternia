@@ -35,7 +35,7 @@ TEST(Destructure, WithGuard) {
   Point p{5, 10};
 
   int result = match(p)
-               | on($(has<&Point::x, &Point::y>())[_0 > 0 && _1 > 0]
+               | on($(has<&Point::x, &Point::y>())[_0 > 0 && arg<1> > 0]
                         >> [](int x, int y) { return x * y; },
                     _ >> -1);
 
@@ -46,7 +46,7 @@ TEST(Destructure, GuardRejects) {
   Point p{-1, 10};
 
   int result = match(p)
-               | on($(has<&Point::x, &Point::y>())[_0 > 0 && _1 > 0]
+               | on($(has<&Point::x, &Point::y>())[_0 > 0 && arg<1> > 0]
                         >> [](int x, int y) { return x * y; },
                     _ >> -1);
 
@@ -61,7 +61,7 @@ TEST(Destructure, SingleMember) {
   EXPECT_EQ(result, 42);
 }
 
-TEST(Destructure, EquivalentToBindHas) {
+TEST(Destructure, StructuralBindingProducesMemberValues) {
   Point p{3, 4};
 
   int r1 = match(p)
@@ -70,7 +70,7 @@ TEST(Destructure, EquivalentToBindHas) {
                 _ >> 0);
 
   int r2 = match(p)
-           | on(bind(has<&Point::x, &Point::y>()) >>
+           | on($(has<&Point::x, &Point::y>()) >>
                     [](int x, int y) { return x + y; },
                 _ >> 0);
 
@@ -116,10 +116,11 @@ TEST(HasGuard, BasicGuardRejects) {
 TEST(HasGuard, MultiMemberGuard) {
   Packet pkt{0x01, 0, ""};
 
-  int result = match(pkt)
-               | on(has<&Packet::type, &Packet::length>()[_0 == 0x01 && _1 == 0]
-                        >> [] { return 1; },
-                    _ >> 0);
+  int result =
+      match(pkt)
+      | on(has<&Packet::type, &Packet::length>()[_0 == 0x01 && arg<1> == 0]
+               >> [] { return 1; },
+           _ >> 0);
 
   EXPECT_EQ(result, 1);
 }
