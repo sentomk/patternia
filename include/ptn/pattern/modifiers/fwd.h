@@ -41,9 +41,6 @@ namespace ptn::pat::mod {
   template <typename T>
   struct max_tuple_guard_index;
 
-  // Forward declare placeholder type
-  struct placeholder_t;
-
   // Forward declare range predicate and related types
   enum class range_mode : int;
 

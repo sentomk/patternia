@@ -33,57 +33,6 @@ namespace ptn::pat::mod {
     }
   };
 
-  // Placeholder type for creating comparison expressions.
-  //
-  // Deprecated: placeholder_t is superseded by arg_t<0> (_0).
-  // This type is retained only for backward compatibility and
-  // will be removed in a future release.
-  struct [[deprecated("use _0 (arg_t<0>) instead of placeholder_t")]]
-  placeholder_t {
-
-    // Greater than comparison.
-    template <typename T>
-    auto operator>(T &&rhs) const {
-      return binary_predicate<std::greater<>, std::decay_t<T>>{
-          {}, std::forward<T>(rhs)};
-    }
-
-    // Less than comparison.
-    template <typename T>
-    auto operator<(T &&rhs) const {
-      return binary_predicate<std::less<>, std::decay_t<T>>{
-          {}, std::forward<T>(rhs)};
-    }
-
-    // Greater than or equal comparison.
-    template <typename T>
-    auto operator>=(T &&rhs) const {
-      return binary_predicate<std::greater_equal<>, std::decay_t<T>>{
-          {}, std::forward<T>(rhs)};
-    }
-
-    // Less than or equal comparison.
-    template <typename T>
-    auto operator<=(T &&rhs) const {
-      return binary_predicate<std::less_equal<>, std::decay_t<T>>{
-          {}, std::forward<T>(rhs)};
-    }
-
-    // Equality comparison.
-    template <typename T>
-    auto operator==(T &&rhs) const {
-      return binary_predicate<std::equal_to<>, std::decay_t<T>>{
-          {}, std::forward<T>(rhs)};
-    }
-
-    // Inequality comparison.
-    template <typename T>
-    auto operator!=(T &&rhs) const {
-      return binary_predicate<std::not_equal_to<>, std::decay_t<T>>{
-          {}, std::forward<T>(rhs)};
-    }
-  };
-
   // Multi-value guard expressions
   //
   // arg<N>: placeholder for the Nth bound element.
