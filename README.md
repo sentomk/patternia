@@ -144,7 +144,7 @@ ctest --test-dir build --output-on-failure
 Current test coverage includes:
 
 - Runtime coverage for literals, guards, structural binding, variant dispatch, public API usage, and pipeline semantics.
-- Compile-fail coverage for removed chained syntax, removed legacy compact forms, missing wildcard fallback in `on(...)`, and invalid `static_on(...)` captures.
+- Compile-fail coverage for removed chained syntax, removed compact forms, missing wildcard fallback in `on(...)`, and invalid `static_on(...)` captures.
 
 ## Performance-Oriented Usage
 

@@ -141,12 +141,12 @@ TEST(MatchFlow, GuardedCaseBindsOnlyOnceOnMatch) {
   EXPECT_EQ(ForwardingProbePattern::rvalue_bind_calls, 0);
 }
 
-TEST(MatchFlow, GuardedPathOneBindVsLegacyTwoBindSequence) {
+TEST(MatchFlow, GuardedPathAvoidsManualDoubleBindSequence) {
   int x = 11;
 
   auto guarded = ForwardingProbePattern{}[ptn::_0 > 0];
 
-  // Simulate legacy two-step flow:
+  // Simulate a naive two-step flow:
   // 1) guarded.match(x) -> inner.bind(x) inside guard evaluation
   // 2) guarded.bind(x)  -> bind again before handler invocation
   ForwardingProbePattern::lvalue_bind_calls = 0;
@@ -201,7 +201,7 @@ TEST(MatchFlow, BindCountMatrixOneBindWhenPatternMatches) {
   EXPECT_EQ(ConditionalProbePattern::bind_calls, 1);
 }
 
-TEST(MatchFlow, BindCountMatrixGuardMissBindsOnceThenOtherwise) {
+TEST(MatchFlow, BindCountMatrixGuardMissBindsOnceThenFallback) {
   ForwardingProbePattern::lvalue_bind_calls = 0;
   ForwardingProbePattern::rvalue_bind_calls = 0;
 
@@ -247,7 +247,7 @@ TEST(MatchFlow, ZeroBindVariantStyleCaseSkipsBindInTypedEval) {
   EXPECT_EQ(ZeroBindProbePattern::bind_calls, 0);
 }
 
-TEST(MatchFlow, PipeOnSyntaxOtherwise) {
+TEST(MatchFlow, PipeOnUsesWildcardFallback) {
   int x = 3;
 
   int result = ptn::match(x)
@@ -258,7 +258,7 @@ TEST(MatchFlow, PipeOnSyntaxOtherwise) {
   EXPECT_EQ(result, -1);
 }
 
-TEST(MatchFlow, PipeOnSyntaxEndWithWildcard) {
+TEST(MatchFlow, PipeOnWildcardFallbackReturnsValue) {
   int x = 2;
 
   int result = ptn::match(x)

@@ -185,8 +185,7 @@ namespace ptn::pat {
 
       constexpr is_factory() = default;
 
-      // No-arg call: is<T>() returns the base pattern (backward
-      // compat).
+      // No-arg call form: `is<T>()`.
       constexpr type_is_pattern<T> operator()() const {
         return {};
       }
@@ -205,8 +204,7 @@ namespace ptn::pat {
 
       constexpr alt_factory() = default;
 
-      // No-arg call: alt<I>() returns the base pattern (backward
-      // compat).
+      // No-arg call form: `alt<I>()`.
       constexpr type_alt_pattern<I>
       operator()() const {
         return {};
