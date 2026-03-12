@@ -23,5 +23,10 @@ reflect the current supported API surface.
 - [v0.7.6](v0.7.6.md) - February 21, 2026
 
 ## 0.8.x
-- [v0.8.2](v0.8.2.md) - March 3, 2026
 - [v0.8.0](v0.8.0.md) - February 27, 2026
+- [v0.8.2](v0.8.2.md) - March 3, 2026
+- [v0.8.3](v0.8.3.md) - March 9, 2026
+- [v0.8.5](v0.8.5.md) - March 10, 2026
+
+## 0.9.x
+- [v0.9.0](v0.9.0.md) - March 13, 2026

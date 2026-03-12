@@ -6,17 +6,18 @@ This section tracks performance-oriented algorithm evolution by version.
 
 ## Current Version
 
-**v0.8.2** is the current performance baseline.
+**v0.8.2** established the lowering engine baseline.
+See [v0.8.2 performance note](v0.8.2.md) for benchmark data and algorithm details.
 
-- [Open v0.8.2 performance note](v0.8.2.md)
-- [Open v0.8.2 release note](../changelog/v0.8.2.md)
+Releases from v0.8.3 onward focus on guard fixes, API ergonomics, and
+compiler compatibility. No new dispatch algorithms were introduced.
 
 ---
 
 ## Version Index
 
-- [v0.8.2](v0.8.2.md) (current)
-- [v0.8.0](v0.8.0.md) (baseline)
+- [v0.8.2](v0.8.2.md) (lowering engine baseline)
+- [v0.8.0](v0.8.0.md) (tiered variant dispatch)
 
 ---
 
@@ -31,5 +32,4 @@ Performance notes focus on:
 For API compatibility and migration notes, see:
 
 - [Changelog Releases](../changelog/releases.md)
-- [v0.8.2 Release Note](../changelog/v0.8.2.md)
 - [API Reference](../api.md)

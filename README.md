@@ -5,6 +5,7 @@
     <source media="(prefers-color-scheme: light)"
             srcset="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/banner-dark.svg">
     <img alt="Patternia logo"
+         src="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/banner-dark.svg"
          width="300"
          style="max-width: 90%; height: auto; margin-top: 10px; transform: translateX(-2px);">
   </picture>
@@ -29,8 +30,6 @@ It keeps matching expression-oriented, explicit, and zero-overhead.
 
 ## Syntax
 
-Patternia is centered on one public matching form:
-
 ```cpp
 #include <ptn/patternia.hpp>
 
@@ -54,7 +53,7 @@ int classify(int x) {
 
 - Literal, structural, and `std::variant` matching in one DSL.
 - Explicit binding through `$` and `$(...)`.
-- Declarative guards through `PTN_LET`, `PTN_WHERE`, `_0`, `arg<N>`, `rng(...)`, and callables.
+- Declarative guards via `PTN_LET`, `PTN_WHERE`, `_0`, `arg<N>`, `rng(...)`, and callables.
 - No RTTI, no virtual dispatch, no heap allocation.
 - Static literal and variant dispatch lowering for hot paths.
 
@@ -79,10 +78,7 @@ const char *bucket(int x) {
 ```cpp
 using namespace ptn;
 
-struct Point {
-  int x;
-  int y;
-};
+struct Point { int x; int y; };
 
 int magnitude2(const Point &p) {
   return match(p) | on(
@@ -114,19 +110,33 @@ std::string describe(const Value &v) {
 
 ## Installation
 
-Patternia is header-only.
-You can add the repository directly or install it through CMake.
+Patternia is header-only with no external dependencies.
+
+**FetchContent** (recommended):
+
+```cmake
+include(FetchContent)
+FetchContent_Declare(patternia
+  GIT_REPOSITORY https://github.com/sentomk/patternia.git
+  GIT_TAG v0.9.0
+)
+FetchContent_MakeAvailable(patternia)
+
+target_link_libraries(your_target PRIVATE patternia::patternia)
+```
+
+**Direct clone**:
 
 ```bash
 git clone https://github.com/SentoMK/patternia.git
 cd patternia
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake -S . -B build
 cmake --build build
 ```
 
-## Tests
+See [Installation Guide](https://patternia.tech/guide/installation/) for `find_package`, submodule, and header-copy options.
 
-Build and run the runtime and compile-fail suites:
+## Tests
 
 ```bash
 cmake -S . -B build -DPTN_BUILD_TESTS=ON
@@ -134,21 +144,9 @@ cmake --build build --target ptn_tests
 ctest --test-dir build --output-on-failure
 ```
 
-On Windows PowerShell:
-
-```powershell
-.\build\tests\ptn_tests.exe
-ctest --test-dir build --output-on-failure
-```
-
-Current test coverage includes:
-
-- Runtime coverage for literals, guards, structural binding, variant dispatch, public API usage, and pipeline semantics.
-- Compile-fail coverage for removed chained syntax, removed compact forms, missing wildcard fallback in `on(...)`, and invalid `static_on(...)` captures.
-
 ## Performance-Oriented Usage
 
-For repeated hot paths, cache the case pack explicitly:
+Cache the case pack for repeated hot paths:
 
 ```cpp
 using namespace ptn;
@@ -162,21 +160,8 @@ int fast_classify(int x) {
 }
 ```
 
-Or use `static_on(...)` directly:
-
-```cpp
-using namespace ptn;
-
-int fast_classify(int x) {
-  return match(x) | static_on([] {
-    return on(
-      lit<1>() >> 1,
-      lit<2>() >> 2,
-      _ >> 0
-    );
-  });
-}
-```
+`PTN_ON(...)` is a convenience wrapper over `static_on(...)`.
+It avoids rebuilding the matcher object on every call.
 
 ## Documentation
 
