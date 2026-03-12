@@ -72,10 +72,14 @@ namespace ptn {
 
 #define PTN_DETAIL_WHERE_CAT_IMPL(a, b) a##b
 #define PTN_DETAIL_WHERE_CAT(a, b) PTN_DETAIL_WHERE_CAT_IMPL(a, b)
+// Extra indirection so MSVC's traditional preprocessor splits
+// __VA_ARGS__ into separate arguments before forwarding.
+#define PTN_DETAIL_WHERE_EXPAND(...) __VA_ARGS__
 // Counts the number of names supplied in PTN_WHERE((a, b, ...), expr).
 #define PTN_DETAIL_WHERE_COUNT_IMPL(a1, a2, a3, a4, a5, n, ...) n
 #define PTN_DETAIL_WHERE_COUNT(...)                                 \
-  PTN_DETAIL_WHERE_COUNT_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1)
+  PTN_DETAIL_WHERE_EXPAND(                                          \
+      PTN_DETAIL_WHERE_COUNT_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1))
 #define PTN_DETAIL_WHERE_COUNT_TUPLE(args)                          \
   PTN_DETAIL_WHERE_COUNT args
 // Picks the Nth identifier from the `(a, b, ...)` parameter list.
@@ -87,7 +91,8 @@ namespace ptn {
 #define PTN_DETAIL_WHERE_SELECT(n)                                  \
   PTN_DETAIL_WHERE_CAT(PTN_DETAIL_WHERE_, n)
 #define PTN_DETAIL_WHERE_INVOKE(n, args, ...)                       \
-  PTN_DETAIL_WHERE_SELECT(n)(args, __VA_ARGS__)
+  PTN_DETAIL_WHERE_EXPAND(                                          \
+      PTN_DETAIL_WHERE_SELECT(n)(args, __VA_ARGS__))
 
 // Expands a named guard expression into a stateless predicate object.
 // The tuple of bound values is mapped to lambda parameters by position.
