@@ -342,7 +342,7 @@ namespace ptn::core::common {
         return static_cast<bool>(guarded.pred(bound));
       }
       else {
-        return static_cast<bool>(std::apply(guarded.pred, bound));
+        return static_cast<bool>(invoke_from_tuple(guarded.pred, bound));
       }
     }
 

@@ -323,6 +323,25 @@ namespace ptn::pat::mod {
     template <typename T>
     inline constexpr bool is_tuple_v = is_tuple<T>::value;
 
+    template <typename Pred, typename Tuple, std::size_t... I>
+    constexpr decltype(auto) invoke_from_tuple_impl(
+        Pred                   &&pred,
+        Tuple                  &&tuple,
+        std::index_sequence<I...>) {
+      return std::invoke(std::forward<Pred>(pred),
+                         std::get<I>(std::forward<Tuple>(tuple))...);
+    }
+
+    template <typename Pred, typename Tuple>
+    constexpr decltype(auto) invoke_from_tuple(Pred &&pred,
+                                               Tuple &&tuple) {
+      using tuple_t = std::remove_reference_t<Tuple>;
+      return invoke_from_tuple_impl(
+          std::forward<Pred>(pred),
+          std::forward<Tuple>(tuple),
+          std::make_index_sequence<std::tuple_size_v<tuple_t>>{});
+    }
+
     template <typename Pred, typename T>
     constexpr bool invoke_guard(const Pred &pred, T &&v) {
       if constexpr (std::is_base_of_v<traits::guard_predicate_tag,
@@ -331,7 +350,7 @@ namespace ptn::pat::mod {
       }
       else if constexpr (is_tuple_v<std::decay_t<T>>) {
         return static_cast<bool>(
-            std::apply(pred, std::forward<T>(v)));
+            invoke_from_tuple(pred, std::forward<T>(v)));
       }
       else {
         return static_cast<bool>(pred(std::forward<T>(v)));
@@ -584,8 +603,8 @@ namespace ptn::pat::mod {
       else {
         // Callable guard: lambda / where / custom functor.
         // Also handles binary_predicate and range_predicate via
-        // std::apply unpacking single-element tuples.
-        return static_cast<bool>(std::apply(pred, bound));
+        // tuple expansion for single-element bindings.
+        return static_cast<bool>(detail::invoke_from_tuple(pred, bound));
       }
     }
 
