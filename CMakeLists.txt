@@ -70,6 +70,7 @@ PTN_SET_IF_UNDEFINED(PTN_MASTER_PROJECT ${_PTN_MASTER_PROJECT})
 option(PTN_INSTALL "Generate install/export targets" ${PTN_MASTER_PROJECT})
 option(PTN_BUILD_TESTS "Build unit tests" ${PTN_MASTER_PROJECT})
 option(PTN_BUILD_BENCHMARKS "Build benchmarks" ${PTN_MASTER_PROJECT})
+option(PTN_BUILD_SAMPLES "Build sample programs" ${PTN_MASTER_PROJECT})
 option(PTN_DEV_INDEX "Create local indexable target for IDEs (not installed)" ON)
 option(PTN_SKIP_COMPILER_CHECK "Skip compiler version check" OFF)
 
@@ -181,25 +182,27 @@ if(PTN_BUILD_BENCHMARKS)
   add_subdirectory(bench)
 endif()
 
-add_executable(sample_fibo
-  samples/fibo.cpp
-)
-target_link_libraries(sample_fibo PRIVATE patternia)
+if(PTN_BUILD_SAMPLES)
+  add_executable(sample_fibo
+    samples/fibo.cpp
+  )
+  target_link_libraries(sample_fibo PRIVATE patternia)
 
-add_executable(sample_packet
-  samples/handle_packet.cpp
-)
-target_link_libraries(sample_packet PRIVATE patternia)
+  add_executable(sample_packet
+    samples/handle_packet.cpp
+  )
+  target_link_libraries(sample_packet PRIVATE patternia)
 
-add_executable(sample_test
-  samples/test.cpp
-)
-target_link_libraries(sample_test PRIVATE patternia)
+  add_executable(sample_test
+    samples/test.cpp
+  )
+  target_link_libraries(sample_test PRIVATE patternia)
 
-add_executable(sample_variant 
-  samples/variant_type_is.cpp
-)
-target_link_libraries(sample_variant PRIVATE patternia)
+  add_executable(sample_variant
+    samples/variant_type_is.cpp
+  )
+  target_link_libraries(sample_variant PRIVATE patternia)
+endif()
 
 # add_executable(json_parser
 #   samples/json_dispatch/parse_json_pred.hpp
