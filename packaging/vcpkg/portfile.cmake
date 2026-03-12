@@ -1,3 +1,5 @@
+set(VCPKG_BUILD_TYPE release)
+
 vcpkg_from_github(
   OUT_SOURCE_PATH SOURCE_PATH
   REPO SentoMK/patternia
@@ -18,8 +20,9 @@ vcpkg_cmake_configure(
 
 vcpkg_cmake_install()
 
-vcpkg_cmake_config_fixup(PACKAGE_NAME patternia)
+vcpkg_cmake_config_fixup(PACKAGE_NAME patternia CONFIG_PATH lib/cmake/patternia)
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug")
+file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/lib")
 
 vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")
