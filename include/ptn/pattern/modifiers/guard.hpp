@@ -328,8 +328,8 @@ namespace ptn::pat::mod {
         Pred                   &&pred,
         Tuple                  &&tuple,
         std::index_sequence<I...>) {
-      return std::invoke(std::forward<Pred>(pred),
-                         std::get<I>(std::forward<Tuple>(tuple))...);
+      return std::forward<Pred>(pred)(
+          std::get<I>(std::forward<Tuple>(tuple))...);
     }
 
     template <typename Pred, typename Tuple>
