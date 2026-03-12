@@ -7,7 +7,36 @@ You can integrate Patternia into your project in any of the following ways.
 
 ---
 
-## 1. Recommended: Fetch Patternia automatically
+## 1. vcpkg
+
+```bash
+vcpkg install patternia
+```
+
+Or via `vcpkg.json` manifest:
+
+```json
+{
+  "dependencies": ["patternia"]
+}
+```
+
+Then in your CMake project:
+
+```cmake
+find_package(patternia CONFIG REQUIRED)
+target_link_libraries(your_target PRIVATE patternia::patternia)
+```
+
+Pass the vcpkg toolchain file to CMake if it is not already in your preset:
+
+```bash
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
+```
+
+---
+
+## 2. Fetch Patternia automatically
 
 You may choose to fetch Patternia as a remote dependency during configuration.
 
@@ -34,7 +63,7 @@ This fits well in reproducible CI pipelines and modern CMake workflows.
 
 ---
 
-## 2. Install and consume via `find_package()`
+## 3. Install and consume via `find_package()`
 
 Patternia provides full CMake package export support.
 
@@ -57,7 +86,7 @@ This is the recommended method for system-wide integration, packaging, and distr
 
 ---
 
-## 3. Add Patternia as a Git submodule
+## 4. Add Patternia as a Git submodule
 
 ```bash
 git submodule add https://github.com/sentomk/patternia extern/patternia
@@ -74,7 +103,7 @@ This approach keeps Patternia version-controlled inside your repository and work
 
 ---
 
-## 4. Include the `include/` directory directly
+## 5. Include the `include/` directory directly
 
 This is the simplest approach.
 Just add Patternia’s header path to your target:
