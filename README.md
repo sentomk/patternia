@@ -112,7 +112,18 @@ std::string describe(const Value &v) {
 
 Patternia is header-only with no external dependencies.
 
-**FetchContent** (recommended):
+**vcpkg** (recommended):
+
+```bash
+vcpkg install patternia
+```
+
+```cmake
+find_package(patternia CONFIG REQUIRED)
+target_link_libraries(your_target PRIVATE patternia::patternia)
+```
+
+**FetchContent**:
 
 ```cmake
 include(FetchContent)
