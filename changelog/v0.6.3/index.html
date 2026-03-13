@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -1032,6 +1032,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../v0.9.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../v0.8.2/" class="md-nav__link">
         
   
@@ -1040,6 +1124,34 @@
     
   
     v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
   
 
     
@@ -1081,211 +1193,44 @@
 
 
 <h1 id="patternia-v063-release-note">Patternia v0.6.3 Release Note<a class="headerlink" href="#patternia-v063-release-note" title="Permanent link">&para;</a></h1>
-<p><strong>Release Date:</strong> January 2, 2026<br />
+<p><strong>Release Date:</strong> January 2, 2026
 <strong>Version:</strong> 0.6.3</p>
 <hr />
-<div align="center">
-<h1>🎆Happy NewYear!🎆</h1>
-</div>
-
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Patternia v0.6.3 introduces a performance-focused refactor that removes the lvalue-qualified <code>when()</code> method overload. This change enforces rvalue usage of the match builder, eliminating unnecessary tuple copying overhead during case accumulation and improving both runtime performance and code clarity.</p>
+<p>Patternia v0.6.3 was an intermediate cleanup release on the path away from the
+old builder-heavy API.</p>
+<p>This page has been normalized to the current API surface. The original release
+note focused on left-value chained builder mutation, which is no longer part of
+the repository.</p>
 <hr />
-<h2 id="api-changes">API Changes<a class="headerlink" href="#api-changes" title="Permanent link">&para;</a></h2>
-<h3 id="removed-lvalue-qualified-when-overload">Removed Lvalue-Qualified <code>when()</code> Overload<a class="headerlink" href="#removed-lvalue-qualified-when-overload" title="Permanent link">&para;</a></h3>
-<p><strong>Removed:</strong> The <code>const &amp;</code> qualified overload for the <code>when()</code> method has been removed to enforce rvalue-only usage of the match builder.</p>
-<p><strong>Previous Behavior (v0.6.2):</strong>
-<div class="highlight"><pre><span></span><code><span class="c1">// Two overloads existed - rvalue and lvalue</span>
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">CaseExpr</span><span class="o">&gt;</span>
-<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">when</span><span class="p">(</span><span class="n">CaseExpr</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">expr</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* rvalue-qualified */</span><span class="w"> </span><span class="p">}</span>
+<h2 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h2>
+<h3 id="fewer-staging-forms">Fewer Staging Forms<a class="headerlink" href="#fewer-staging-forms" title="Permanent link">&para;</a></h3>
+<p>The design direction in this release was to reduce partially mutated builder
+states and push users toward one-shot case assembly.</p>
+<p>That direction is now complete in the current API:</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
 
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">CaseExpr</span><span class="o">&gt;</span>
-<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">when</span><span class="p">(</span><span class="n">CaseExpr</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">expr</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* lvalue-qualified - REMOVED */</span><span class="w"> </span><span class="p">}</span>
-</code></pre></div></p>
-<p><strong>New Behavior (v0.6.3):</strong>
-<div class="highlight"><pre><span></span><code><span class="c1">// Only rvalue-qualified overload remains</span>
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">CaseExpr</span><span class="o">&gt;</span>
-<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">when</span><span class="p">(</span><span class="n">CaseExpr</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">expr</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="o">!</span><span class="n">has_pattern_fallback</span><span class="p">,</span>
-<span class="w">        </span><span class="s">&quot;[Patternia.match]: no cases may follow a wildcard (&#39;__&#39;) pattern&quot;</span><span class="p">);</span>
-
-<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">ptn</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">traits</span><span class="o">::</span><span class="n">is_case_expr_v</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">decay_t</span><span class="o">&lt;</span><span class="n">CaseExpr</span><span class="o">&gt;&gt;</span><span class="p">,</span>
-<span class="w">        </span><span class="s">&quot;Argument to .when() must be a case expression created with the &#39;&gt;&gt;&#39; operator&quot;</span><span class="p">);</span>
-
-<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">ptn</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">traits</span><span class="o">::</span><span class="n">is_handler_invocable_v</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">decay_t</span><span class="o">&lt;</span><span class="n">CaseExpr</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">subject_type</span><span class="o">&gt;</span><span class="p">,</span>
-<span class="w">        </span><span class="s">&quot;Handler signature does not match the pattern&#39;s binding result&quot;</span><span class="p">);</span>
-
-<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">case_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">decay_t</span><span class="o">&lt;</span><span class="n">CaseExpr</span><span class="o">&gt;</span><span class="p">;</span>
-<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">new_cases</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tuple_utils</span><span class="o">::</span><span class="n">tuple_append_t</span><span class="o">&lt;</span><span class="n">cases_type</span><span class="p">,</span><span class="w"> </span><span class="n">case_t</span><span class="o">&gt;</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">builder_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match_builder</span><span class="o">&lt;</span><span class="n">subject_type</span><span class="p">,</span><span class="w"> </span><span class="n">has_match_fallback</span><span class="p">,</span><span class="w"> </span><span class="n">new_cases</span><span class="o">&gt;</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">builder_t</span><span class="p">{</span>
-<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">subject_type</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subject_</span><span class="p">),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">new_cases</span><span class="p">)};</span>
-<span class="p">}</span>
-</code></pre></div></p>
-<hr />
-<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
-<h3 id="correct-usage-rvalue-chains">Correct Usage (Rvalue Chains)<a class="headerlink" href="#correct-usage-rvalue-chains" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.3 - Correct: chained temporary usage</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
-</code></pre></div>
-<h3 id="incorrect-usage-no-longer-supported">Incorrect Usage (No Longer Supported)<a class="headerlink" href="#incorrect-usage-no-longer-supported" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.3 - ERROR: Cannot call when() on lvalue match_builder</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">);</span><span class="w">  </span><span class="c1">// COMPILE ERROR in v0.6.3</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">);</span><span class="w">  </span><span class="c1">// COMPILE ERROR in v0.6.3</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
-
-<span class="c1">// v0.6.2 - Previously allowed (but inefficient)</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">);</span><span class="w">  </span><span class="c1">// Allowed but caused tuple copying</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">);</span><span class="w">  </span><span class="c1">// Allowed but caused tuple copying</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
-</code></pre></div>
-<h3 id="alternative-for-lvalue-patterns">Alternative for Lvalue Patterns<a class="headerlink" href="#alternative-for-lvalue-patterns" title="Permanent link">&para;</a></h3>
-<p>For scenarios requiring intermediate storage, use <code>std::move</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.3 - Alternative: explicitly move the builder</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-<span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">builder</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">);</span>
-<span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">builder</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">);</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">builder</span><span class="p">).</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
-</code></pre></div>
-<hr />
-<h2 id="implementation-details">Implementation Details<a class="headerlink" href="#implementation-details" title="Permanent link">&para;</a></h2>
-<h3 id="performance-optimization">Performance Optimization<a class="headerlink" href="#performance-optimization" title="Permanent link">&para;</a></h3>
-<p><strong>Problem:</strong> The lvalue-qualified <code>when()</code> overload required copying the internal tuple of cases on each invocation, leading to O(n²) tuple copying complexity for n cases.</p>
-<p><strong>Solution:</strong> By enforcing rvalue-only usage, each <code>when()</code> call can move the tuple instead of copying it, reducing complexity to O(n).</p>
-<p><strong>Performance Impact:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="c1">// Before (v0.6.2) - Tuple copying at each step</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">case1</span><span class="p">);</span><span class="w">  </span><span class="c1">// Copy empty tuple → tuple&lt;case1&gt;</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">case2</span><span class="p">);</span><span class="w">  </span><span class="c1">// Copy tuple&lt;case1&gt; → tuple&lt;case1, case2&gt;</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">case3</span><span class="p">);</span><span class="w">  </span><span class="c1">// Copy tuple&lt;case1, case2&gt; → tuple&lt;case1, case2, case3&gt;</span>
-<span class="c1">// Total: 3 copies of growing tuples</span>
-
-<span class="c1">// After (v0.6.3) - Tuple moving at each step</span>
-<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">case1</span><span class="p">)</span><span class="w">  </span><span class="c1">// Move empty tuple → tuple&lt;case1&gt;</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">case2</span><span class="p">)</span><span class="w">  </span><span class="c1">// Move tuple&lt;case1&gt; → tuple&lt;case1, case2&gt;</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">case3</span><span class="p">)</span><span class="w">  </span><span class="c1">// Move tuple&lt;case1, case2&gt; → tuple&lt;case1, case2, case3&gt;</span>
-<span class="c1">// Total: 0 copies, 3 moves</span>
-</code></pre></div>
-<h3 id="code-simplification">Code Simplification<a class="headerlink" href="#code-simplification" title="Permanent link">&para;</a></h3>
-<p><strong>Removed Code:</strong> 29 lines of duplicate implementation logic were eliminated.</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// REMOVED: Lvalue-qualified overload</span>
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">CaseExpr</span><span class="o">&gt;</span>
-<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">when</span><span class="p">(</span><span class="n">CaseExpr</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">expr</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="o">!</span><span class="n">has_pattern_fallback</span><span class="p">,</span>
-<span class="w">        </span><span class="s">&quot;[Patternia.match]: no cases may follow a wildcard (&#39;__&#39;) pattern&quot;</span><span class="p">);</span>
-
-<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">ptn</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">traits</span><span class="o">::</span><span class="n">is_case_expr_v</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">decay_t</span><span class="o">&lt;</span><span class="n">CaseExpr</span><span class="o">&gt;&gt;</span><span class="p">,</span>
-<span class="w">        </span><span class="s">&quot;Argument to .when() must be a case expression created with the &#39;&gt;&gt;&#39; operator&quot;</span><span class="p">);</span>
-
-<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">ptn</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">traits</span><span class="o">::</span><span class="n">is_handler_invocable_v</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">decay_t</span><span class="o">&lt;</span><span class="n">CaseExpr</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">subject_type</span><span class="o">&gt;</span><span class="p">,</span>
-<span class="w">        </span><span class="s">&quot;Handler signature does not match the pattern&#39;s binding result&quot;</span><span class="p">);</span>
-
-<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">case_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">decay_t</span><span class="o">&lt;</span><span class="n">CaseExpr</span><span class="o">&gt;</span><span class="p">;</span>
-<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">new_cases</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tuple_utils</span><span class="o">::</span><span class="n">tuple_append_t</span><span class="o">&lt;</span><span class="n">cases_type</span><span class="p">,</span><span class="w"> </span><span class="n">case_t</span><span class="o">&gt;</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">builder_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match_builder</span><span class="o">&lt;</span><span class="n">subject_type</span><span class="p">,</span><span class="w"> </span><span class="n">has_match_fallback</span><span class="p">,</span><span class="w"> </span><span class="n">new_cases</span><span class="o">&gt;</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">builder_t</span><span class="p">{</span>
-<span class="w">        </span><span class="n">subject_</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">tuple_cat</span><span class="p">(</span><span class="n">cases_</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_tuple</span><span class="p">(</span><span class="n">expr</span><span class="p">))};</span><span class="w">  </span><span class="c1">// Tuple CAT with copy</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">classify</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>The removed overload used <code>std::tuple_cat(cases_, std::make_tuple(expr))</code>, which created a new tuple by copying the existing <code>cases_</code> tuple, while the retained rvalue version uses <code>std::move(new_cases)</code> for efficient move semantics.</p>
+<h3 id="simpler-evaluation-flow">Simpler Evaluation Flow<a class="headerlink" href="#simpler-evaluation-flow" title="Permanent link">&para;</a></h3>
+<p>By moving away from incremental builder mutation, the implementation can keep
+case ordering, fallback rules, and diagnostics localized to one explicit case
+pack.</p>
+<h3 id="why-this-note-still-exists">Why This Note Still Exists<a class="headerlink" href="#why-this-note-still-exists" title="Permanent link">&para;</a></h3>
+<p>v0.6.3 matters historically because it shows the library already moving away
+from mutable chained state. Later cleanups removed that builder surface
+entirely.</p>
 <hr />
-<h2 id="migration-guide">Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
-<h3 id="from-v062-to-v063">From v0.6.2 to v0.6.3<a class="headerlink" href="#from-v062-to-v063" title="Permanent link">&para;</a></h3>
-<p><strong>1. Refactor Lvalue Builder Usage:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.2 - Lvalue usage (no longer supported)</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern1</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler1</span><span class="p">);</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern2</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler2</span><span class="p">);</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">default_handler</span><span class="p">);</span>
-
-<span class="c1">// v0.6.3 - Migrate to rvalue chain</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern1</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler1</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern2</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler2</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">default_handler</span><span class="p">);</span>
-</code></pre></div>
-<p><strong>2. Conditional Case Addition:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.2 - Conditional cases with lvalue</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">condition1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">builder</span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern1</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler1</span><span class="p">);</span>
-<span class="p">}</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">condition2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">builder</span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern2</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler2</span><span class="p">);</span>
-<span class="p">}</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">default_handler</span><span class="p">);</span>
-
-<span class="c1">// v0.6.3 - Alternative approaches</span>
-
-<span class="c1">// Option A: Use std::move in each branch</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">condition1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">builder</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">pattern1</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler1</span><span class="p">);</span>
-<span class="p">}</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">condition2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">builder</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">pattern2</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler2</span><span class="p">);</span>
-<span class="p">}</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">builder</span><span class="p">).</span><span class="n">otherwise</span><span class="p">(</span><span class="n">default_handler</span><span class="p">);</span>
-
-<span class="c1">// Option B: Build cases dynamically (preferred for complex conditions)</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">build_cases</span><span class="p">(</span><span class="n">condition1</span><span class="p">,</span><span class="w"> </span><span class="n">condition2</span><span class="p">)).</span><span class="n">end</span><span class="p">();</span>
-</code></pre></div>
-<p><strong>3. Debugging/Logging:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.2 - Lvalue for intermediate inspection</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern1</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler1</span><span class="p">);</span>
-<span class="c1">// Inspect builder state...</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern2</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler2</span><span class="p">);</span>
-
-<span class="c1">// v0.6.3 - Use explicit moves if needed</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-<span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">builder</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">pattern1</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler1</span><span class="p">);</span>
-<span class="c1">// Inspect builder state...</span>
-<span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">builder</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">pattern2</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler2</span><span class="p">);</span>
-</code></pre></div>
-<hr />
-<h2 id="breaking-changes">Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h2>
-<h3 id="api-changes_1">API Changes<a class="headerlink" href="#api-changes_1" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Lvalue-Qualified <code>when()</code> Removed:</strong> Calling <code>when()</code> on an lvalue <code>match_builder</code> now results in a compile-time error.</li>
-</ul>
-<h3 id="impact-analysis">Impact Analysis<a class="headerlink" href="#impact-analysis" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Low Impact:</strong> Most existing code already uses the idiomatic rvalue chain pattern</li>
-<li><strong>Compile-Time Detection:</strong> Errors are caught at compile time, not runtime</li>
-<li><strong>Simple Migration:</strong> Affected patterns can be refactored with straightforward syntax changes</li>
-<li><strong>Performance Benefit:</strong> The change improves performance for all patterns, even unaffected ones</li>
-</ul>
-<h3 id="code-patterns-affected">Code Patterns Affected<a class="headerlink" href="#code-patterns-affected" title="Permanent link">&para;</a></h3>
-<p><strong>Affected Pattern:</strong>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">case1</span><span class="p">);</span>
-<span class="n">builder</span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">case2</span><span class="p">);</span>
-</code></pre></div></p>
-<p><strong>Unaffected Pattern:</strong>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">case1</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">case2</span><span class="p">);</span>
-</code></pre></div></p>
-<hr />
-<h2 id="documentation-improvements">Documentation Improvements<a class="headerlink" href="#documentation-improvements" title="Permanent link">&para;</a></h2>
-<p>This release also includes documentation updates to:
-- Clarify the rvalue-only usage pattern for match builders
-- Add examples of proper match builder chaining
-- Update migration guidance for affected code patterns
-- Enhance performance optimization documentation</p>
-<hr />
-<p><strong>Note:</strong> This release focuses on internal optimization and API refinement. The core pattern matching functionality and runtime behavior remain unchanged from v0.6.2. All existing patterns using the idiomatic rvalue chain pattern continue to work without modification.</p>
+<h2 id="historical-note">Historical Note<a class="headerlink" href="#historical-note" title="Permanent link">&para;</a></h2>
+<p>The original v0.6.3 page documented staged builder mutation and related
+termination helpers. Those APIs have since been removed in favor of the single
+pipeline form <code>match(subject) | on(...)</code>.</p>
 
 
 

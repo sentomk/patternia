@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -1032,6 +1032,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../v0.9.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../v0.8.2/" class="md-nav__link">
         
   
@@ -1040,6 +1124,34 @@
     
   
     v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
   
 
     
@@ -1086,18 +1198,19 @@
 <hr />
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>Patternia v0.7.2 is a diagnostics and correctness patch release focused on
-deterministic unreachable-case detection for <code>type::alt&lt;I&gt;()</code> case ordering.
+deterministic unreachable-case detection for <code>alt&lt;I&gt;()</code> case ordering.
 This release does not change runtime matching semantics.</p>
 <hr />
 <h2 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h2>
-<h3 id="deterministic-unreachable-typealti-diagnostics">Deterministic Unreachable <code>type::alt&lt;I&gt;()</code> Diagnostics<a class="headerlink" href="#deterministic-unreachable-typealti-diagnostics" title="Permanent link">&para;</a></h3>
+<h3 id="deterministic-unreachable-alti-diagnostics">Deterministic Unreachable <code>alt&lt;I&gt;()</code> Diagnostics<a class="headerlink" href="#deterministic-unreachable-alti-diagnostics" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Added compile-time detection for unreachable alt cases caused by ordering:
-  when a plain <code>type::alt&lt;I&gt;()</code> appears first, any later <code>type::alt&lt;I&gt;(...)</code>
+  when a plain <code>alt&lt;I&gt;()</code> appears first, any later <code>alt&lt;I&gt;(...)</code>
   case is now diagnosed as unreachable.</li>
-<li>Builder <code>.when(...)</code> diagnostics are scoped to the newly appended case to
-  avoid cascading duplicate errors on subsequent chained cases.</li>
-<li><code>cases(...)</code> performs full-pack unreachable checks consistently.</li>
+<li>Pipeline case diagnostics are scoped to the newly appended case to avoid
+  cascading duplicate errors on later checks.</li>
+<li>The removed compact case-pack form performed full-pack unreachable checks
+  consistently.</li>
 </ul>
 <h3 id="diagnostics-infrastructure-improvements">Diagnostics Infrastructure Improvements<a class="headerlink" href="#diagnostics-infrastructure-improvements" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1111,18 +1224,16 @@ This release does not change runtime matching semantics.</p>
 <li>Source compatibility: unchanged.</li>
 <li>API surface: unchanged.</li>
 <li>Behavior change: compile-time diagnostics are stricter for deterministic
-  unreachable <code>type::alt&lt;I&gt;()</code> ordering.</li>
+  unreachable <code>alt&lt;I&gt;()</code> ordering.</li>
 </ul>
 <hr />
 <h2 id="implementation-notes-selected">Implementation Notes (Selected)<a class="headerlink" href="#implementation-notes-selected" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>include/ptn/core/common/diagnostics.hpp</code></li>
 <li>Added alt-index analysis traits and unreachable-after-plain-alt checker.</li>
-<li>Added targeted builder check (<code>new case</code> only) and full-pack check.</li>
-<li><code>include/ptn/core/engine/detail/builder_impl.hpp</code></li>
-<li><code>.when(...)</code> now validates newly added case reachability for alt ordering.</li>
+<li>Added targeted pipeline validation (<code>new case</code> only) and full-pack check.</li>
 <li><code>include/ptn/core/dsl/ops.hpp</code></li>
-<li><code>cases(...)</code> now validates full alt-order reachability.</li>
+<li>Legacy compact case-pack validation covered full alt-order reachability.</li>
 </ul>
 
 

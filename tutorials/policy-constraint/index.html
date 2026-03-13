@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -615,10 +615,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#from-ad-hoc-rules-to-declarative-policies" class="md-nav__link">
+  <a href="#naming-domain-predicates" class="md-nav__link">
     <span class="md-ellipsis">
       
-        From Ad-Hoc Rules to Declarative Policies
+        Naming Domain Predicates
       
     </span>
   </a>
@@ -626,10 +626,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining-the-policy-domain" class="md-nav__link">
+  <a href="#declaring-the-rules" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Defining the Policy Domain
+        Declaring the Rules
       
     </span>
   </a>
@@ -637,87 +637,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#recognizing-a-constraint-based-match" class="md-nav__link">
+  <a href="#why-this-helps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Recognizing a Constraint-Based Match
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#binding-the-relevant-dimensions-of-a-rule" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Binding the Relevant Dimensions of a Rule
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#expressing-unconditional-policies-declaratively" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Expressing Unconditional Policies Declaratively
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#combining-multiple-constraints-in-a-single-rule" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Combining Multiple Constraints in a Single Rule
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#introducing-domain-specific-predicates" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Introducing Domain-Specific Predicates
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#declaring-the-default-policy-explicitly" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Declaring the Default Policy Explicitly
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#reading-policies-as-patterns-not-branches" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reading Policies as Patterns, Not Branches
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#policies-as-declarative-constraints" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Policies as Declarative Constraints
+        Why This Helps
       
     </span>
   </a>
@@ -1200,6 +1123,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../../changelog/v0.9.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.8.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.8.3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../changelog/v0.8.2/" class="md-nav__link">
         
   
@@ -1208,6 +1215,34 @@
     
   
     v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
   
 
     
@@ -1249,13 +1284,8 @@
 
 
 <h1 id="policy-constraint-matching">Policy Constraint Matching<a class="headerlink" href="#policy-constraint-matching" title="Permanent link">&para;</a></h1>
-<h2 id="from-ad-hoc-rules-to-declarative-policies">From Ad-Hoc Rules to Declarative Policies<a class="headerlink" href="#from-ad-hoc-rules-to-declarative-policies" title="Permanent link">&para;</a></h2>
-<p>Policy-based decisions are a common source of complexity in real-world systems. Access control, feature gating, pricing rules, and workflow authorization often begin as a handful of conditions, then gradually accumulate exceptions, overrides, and special cases.</p>
-<p>In traditional C++, this logic is usually expressed as a growing chain of <code>if</code> statements. Each new rule is “inserted” somewhere into the control flow, and the meaning of the code becomes inseparable from its ordering. The logic works, but understanding <em>why</em> a decision was made requires tracing execution step by step.</p>
-<p>Patternia approaches policy decisions differently. Instead of encoding policy as control flow, it treats each rule as a <em>case</em> defined by structure and constraints. The goal is not to evaluate conditions procedurally, but to describe which policies exist and when they apply.</p>
-<hr />
-<h2 id="defining-the-policy-domain">Defining the Policy Domain<a class="headerlink" href="#defining-the-policy-domain" title="Permanent link">&para;</a></h2>
-<p>We start by modeling the data involved in the decision. A policy decision typically depends on who is making the request, what is being accessed, and how it is accessed.</p>
+<p>Policy logic is usually a sequence of overlapping conditions.
+Patternia turns those rules into an ordered case list.</p>
 <div class="highlight"><pre><span></span><code><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Role</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="n">Guest</span><span class="p">,</span>
 <span class="w">  </span><span class="n">User</span><span class="p">,</span>
@@ -1268,111 +1298,33 @@
 <span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">read_only</span><span class="p">;</span>
 <span class="p">};</span>
 </code></pre></div>
-<p>This structure already hints at the nature of the problem. There is no single field that determines the outcome. The decision depends on relationships between fields, which immediately places us outside the realm of value dispatch.</p>
-<hr />
-<h2 id="recognizing-a-constraint-based-match">Recognizing a Constraint-Based Match<a class="headerlink" href="#recognizing-a-constraint-based-match" title="Permanent link">&para;</a></h2>
-<p>Because the outcome cannot be determined by enumerating values, <code>cases()</code> is not the right tool here. What we need is a set of rules, each defined by constraints over the request data. This is exactly the scenario where <code>when(...)</code> and guarded bindings are intended to be used.</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="cm">/* policy rule */</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="cm">/* policy rule */</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="cm">/* default policy */</span><span class="p">);</span>
-</code></pre></div>
-<p>At this level, the match already reads as a policy table rather than as a branching program.</p>
-<hr />
-<h2 id="binding-the-relevant-dimensions-of-a-rule">Binding the Relevant Dimensions of a Rule<a class="headerlink" href="#binding-the-relevant-dimensions-of-a-rule" title="Permanent link">&para;</a></h2>
-<p>Each policy rule depends on a specific subset of the request fields. Instead of passing the entire <code>Request</code> object into every handler, we bind only the data that the rule actually reasons about.</p>
-<div class="highlight"><pre><span></span><code><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">role</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">resource_id</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">read_only</span><span class="o">&gt;</span><span class="p">())</span>
-</code></pre></div>
-<p>This binding step defines the vocabulary of the rule. Everything that follows—the guard and the handler—will operate strictly in terms of these bound values. The rule does not “peek” back into the original object.</p>
-<hr />
-<h2 id="expressing-unconditional-policies-declaratively">Expressing Unconditional Policies Declaratively<a class="headerlink" href="#expressing-unconditional-policies-declaratively" title="Permanent link">&para;</a></h2>
-<p>Some policies are unconditional within their scope. For example, administrators may be allowed to access any resource regardless of mode.</p>
-<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">  </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">role</span><span class="o">&gt;</span><span class="p">())</span>
-<span class="w">    </span><span class="p">[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Role</span><span class="o">::</span><span class="n">Admin</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">  </span><span class="nb">true</span>
-<span class="p">)</span>
-</code></pre></div>
-<p>This case reads as a direct statement of policy. There is no procedural logic hidden in the handler. The policy itself is expressed entirely in the pattern and guard.</p>
-<hr />
-<h2 id="combining-multiple-constraints-in-a-single-rule">Combining Multiple Constraints in a Single Rule<a class="headerlink" href="#combining-multiple-constraints-in-a-single-rule" title="Permanent link">&para;</a></h2>
-<p>More realistic policies involve multiple conditions. Consider a rule that allows regular users to access resources only in read-only mode, and only when the resource identifier is valid.</p>
-<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">  </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">role</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">resource_id</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">read_only</span><span class="o">&gt;</span><span class="p">())</span>
-<span class="w">    </span><span class="p">[</span>
-<span class="w">      </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Role</span><span class="o">::</span><span class="n">User</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<span class="w">      </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<span class="w">      </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">true</span>
-<span class="w">    </span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">  </span><span class="nb">true</span>
-<span class="p">)</span>
-</code></pre></div>
-<p>This is a <strong>multi-value guard</strong>, and therefore <code>_</code> does not exist here. Every relationship is spelled out explicitly in terms of bound values. The guard describes <em>why</em> the rule applies; the handler simply enacts the decision.</p>
-<hr />
-<h2 id="introducing-domain-specific-predicates">Introducing Domain-Specific Predicates<a class="headerlink" href="#introducing-domain-specific-predicates" title="Permanent link">&para;</a></h2>
-<p>Some policy constraints cannot be expressed as simple relational checks. Whether a resource is public, restricted, or archived may depend on external logic or domain knowledge. Attempting to encode this logic directly into expression guards would reduce clarity.</p>
-<p>Instead, we name the predicate:</p>
+<h2 id="naming-domain-predicates">Naming Domain Predicates<a class="headerlink" href="#naming-domain-predicates" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">is_public_resource</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span>
 <span class="p">};</span>
 </code></pre></div>
-<p>And then integrate it into the rule:</p>
-<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">  </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">role</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">resource_id</span><span class="o">&gt;</span><span class="p">())</span>
-<span class="w">    </span><span class="p">[</span>
-<span class="w">      </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Role</span><span class="o">::</span><span class="n">Guest</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<span class="w">      </span><span class="n">is_public_resource</span>
-<span class="w">    </span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">  </span><span class="nb">true</span>
-<span class="p">)</span>
-</code></pre></div>
-<p>This mirrors the approach taken in geometric constraints: arithmetic-heavy logic lives in a predicate; simple relational logic remains declarative.</p>
-<hr />
-<h2 id="declaring-the-default-policy-explicitly">Declaring the Default Policy Explicitly<a class="headerlink" href="#declaring-the-default-policy-explicitly" title="Permanent link">&para;</a></h2>
-<p>Policy systems must always answer the question “what happens if no rule applies?”. Patternia forces this answer to be explicit.</p>
-<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
-</code></pre></div>
-<p>This is not a fallback rule among others; it is a statement of intent. Requests that do not satisfy any declared policy are denied by default.</p>
-<hr />
-<h2 id="reading-policies-as-patterns-not-branches">Reading Policies as Patterns, Not Branches<a class="headerlink" href="#reading-policies-as-patterns-not-branches" title="Permanent link">&para;</a></h2>
-<p>Putting the rules together yields a complete policy matcher:</p>
-<div class="highlight"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">allowed</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Request</span><span class="o">&amp;</span><span class="w"> </span><span class="n">req</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+<h2 id="declaring-the-rules">Declaring the Rules<a class="headerlink" href="#declaring-the-rules" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">allowed</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Request</span><span class="w"> </span><span class="o">&amp;</span><span class="n">req</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
 
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">      </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">role</span><span class="o">&gt;</span><span class="p">())</span>
-<span class="w">        </span><span class="p">[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Role</span><span class="o">::</span><span class="n">Admin</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">      </span><span class="nb">true</span>
-<span class="w">    </span><span class="p">)</span>
-
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">      </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">role</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">resource_id</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">read_only</span><span class="o">&gt;</span><span class="p">())</span>
-<span class="w">        </span><span class="p">[</span>
-<span class="w">          </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Role</span><span class="o">::</span><span class="n">User</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<span class="w">          </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<span class="w">          </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">true</span>
-<span class="w">        </span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">      </span><span class="nb">true</span>
-<span class="w">    </span><span class="p">)</span>
-
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">      </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">role</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">resource_id</span><span class="o">&gt;</span><span class="p">())</span>
-<span class="w">        </span><span class="p">[</span>
-<span class="w">          </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Role</span><span class="o">::</span><span class="n">Guest</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<span class="w">          </span><span class="n">is_public_resource</span>
-<span class="w">        </span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">      </span><span class="nb">true</span>
-<span class="w">    </span><span class="p">)</span>
-
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">req</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">role</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Role</span><span class="o">::</span><span class="n">Admin</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span>
+<span class="w">    </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">role</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">resource_id</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">read_only</span><span class="o">&gt;</span><span class="p">())</span>
+<span class="w">        </span><span class="p">[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Role</span><span class="o">::</span><span class="n">User</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">true</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span>
+<span class="w">    </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">role</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Request</span><span class="o">::</span><span class="n">resource_id</span><span class="o">&gt;</span><span class="p">())</span>
+<span class="w">        </span><span class="p">[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Role</span><span class="o">::</span><span class="n">Guest</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">is_public_resource</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nb">false</span>
+<span class="w">  </span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Each policy is a self-contained case. The order is visible. The constraints are explicit. The handler code is trivial because all reasoning has already been done.</p>
-<hr />
-<h2 id="policies-as-declarative-constraints">Policies as Declarative Constraints<a class="headerlink" href="#policies-as-declarative-constraints" title="Permanent link">&para;</a></h2>
-<p>The important takeaway from this example is not how access control works, but how constraints scale when treated as patterns. Each policy is a description of <em>when it applies</em>, not a fragment of control flow.</p>
-<p>This mirrors the lesson from geometric constraint matching. Whether the constraint is mathematical or organizational, the structure is the same: bind what matters, declare why the case applies, and keep behavior separate from validation.</p>
-<p>This is the essence of constraint-based matching in Patternia.</p>
+<h2 id="why-this-helps">Why This Helps<a class="headerlink" href="#why-this-helps" title="Permanent link">&para;</a></h2>
+<p>Each rule is self-contained:</p>
+<ul>
+<li>the binding states which fields matter</li>
+<li>the guard states why the rule applies</li>
+<li>the handler states the outcome</li>
+</ul>
+<p>That keeps policy code readable even when ordering matters.</p>
 
 
 

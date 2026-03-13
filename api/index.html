@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/favicon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -845,10 +845,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#introduction" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Introduction
+        Overview
       
     </span>
   </a>
@@ -856,18 +856,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#i-match-dsl-core-framework" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        I. Match DSL Core Framework
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="I. Match DSL Core Framework">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#matchsubject" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -877,46 +865,57 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#matchsubject-on" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#oncases" class="md-nav__link">
     <span class="md-ellipsis">
       
-        match(subject) | on(...)
+        on(case1, case2, ...)
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#whenpattern-handler" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#pattern-handler" class="md-nav__link">
     <span class="md-ellipsis">
       
-        .when(pattern &gt;&gt; handler)
+        pattern &gt;&gt; handler
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#otherwise-and-end-chained-api-deprecated" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#_-wildcard" class="md-nav__link">
     <span class="md-ellipsis">
       
-        .otherwise(...) and .end() (Chained API, Deprecated)
+        Wildcard _
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label=".otherwise(...) and .end() (Chained API, Deprecated)">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#literal-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Literal Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Literal Patterns">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#otherwise-deprecated" class="md-nav__link">
+  <a href="#litvalue" class="md-nav__link">
     <span class="md-ellipsis">
       
-        .otherwise(...) (Deprecated)
+        lit(value)
       
     </span>
   </a>
@@ -924,26 +923,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#end-deprecated" class="md-nav__link">
+  <a href="#litvalue_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        .end() (Deprecated)
+        lit&lt;value&gt;()
       
     </span>
   </a>
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-        
           <li class="md-nav__item">
-  <a href="#comparison-summary" class="md-nav__link">
+  <a href="#lit_civalue" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Comparison Summary
+        lit_ci(value)
       
     </span>
   </a>
@@ -956,108 +950,25 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#ii-pattern-primitives" class="md-nav__link">
+  <a href="#binding-patterns" class="md-nav__link">
     <span class="md-ellipsis">
       
-        II. Pattern Primitives
+        Binding Patterns
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="II. Pattern Primitives">
+    <nav class="md-nav" aria-label="Binding Patterns">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#litvalue-and-litvalue" class="md-nav__link">
+  <a href="#and" class="md-nav__link">
     <span class="md-ellipsis">
       
-        lit(value) and lit&lt;value&gt;()
+        $ and $(...)
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#__-wildcard" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        __ (Wildcard)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#typeist-and-typeast-variant-type-matching" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        type::is&lt;T&gt;() and type::as&lt;T&gt;() (Variant Type Matching)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#bind-binding-pattern" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        bind() (Binding Pattern)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="bind() (Binding Pattern)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#binding-the-entire-subject" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Binding the Entire Subject
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#conditional-binding-with-bindsubpattern" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Conditional Binding with bind(subpattern)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#structural-binding-with-has" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Structural Binding with has&lt;&gt;
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#binding-semantics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Binding Semantics
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -1067,45 +978,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#iii-guard-system" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        III. Guard System
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="III. Guard System">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#guard-attachment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        [] Guard Attachment
+        Guard Attachment []
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#single-value-guards-_-and-rng" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#guard-helpers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Single-value Guards: _ and rng(...)
+        Guard Helpers
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Single-value Guards: _ and rng(...)">
+    <nav class="md-nav" aria-label="Guard Helpers">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#supported-operators-for-_" class="md-nav__link">
+  <a href="#_0" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supported operators for _
+        _0
       
     </span>
   </a>
@@ -1113,38 +1012,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#range-helper-rnglo-hi-mode" class="md-nav__link">
+  <a href="#argn" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Range helper: rng(lo, hi, mode)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#multi-value-guards-argn-expressions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multi-value Guards: arg&lt;N&gt; Expressions
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Multi-value Guards: arg&lt;N&gt; Expressions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#supported-operators-for-multi-value-expressions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Supported operators for multi-value expressions
+        arg&lt;N&gt;
       
     </span>
   </a>
@@ -1152,26 +1023,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#compile-time-boundary-checking" class="md-nav__link">
+  <a href="#rnglo-hi-mode" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Compile-time boundary checking
+        rng(lo, hi, mode)
       
     </span>
   </a>
   
 </li>
         
-      </ul>
-    </nav>
+          <li class="md-nav__item">
+  <a href="#ptn_wherenames-expr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PTN_WHERE((names...), expr)
+      
+    </span>
+  </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#custom-predicates-recommended-for-domain-logic" class="md-nav__link">
+  <a href="#ptn_letname-expr" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Custom Predicates (Recommended for "Domain Logic")
+        PTN_LET(name, expr)
       
     </span>
   </a>
@@ -1184,22 +1061,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#iv-structural-matching" class="md-nav__link">
+  <a href="#structural-matching" class="md-nav__link">
     <span class="md-ellipsis">
       
-        IV. Structural Matching
+        Structural Matching has&lt;&amp;T::member...&gt;()
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="IV. Structural Matching">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#variant-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variant Matching is&lt;T&gt;() and alt&lt;I&gt;()
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Variant Matching is&lt;T&gt;() and alt&lt;I&gt;()">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#hastmember" class="md-nav__link">
+  <a href="#ist" class="md-nav__link">
     <span class="md-ellipsis">
       
-        has&lt;&amp;T::member...&gt;
+        is&lt;T&gt;()
       
     </span>
   </a>
@@ -1207,98 +1095,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#semantics" class="md-nav__link">
+  <a href="#alti" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Semantics
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#core-characteristics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Core Characteristics
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#basic-examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Basic Examples
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#integration-with-bind" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Integration with bind()
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#partial-structural-matching" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Partial Structural Matching
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#design-rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Design Rationale
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#standalone-vs-bound-usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Standalone vs Bound Usage
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#compile-time-guarantees" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Compile-time Guarantees
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#conceptual-analogy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Conceptual Analogy
+        alt&lt;I&gt;()
       
     </span>
   </a>
@@ -1311,22 +1111,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v-namespace-structure" class="md-nav__link">
+  <a href="#cached-case-packs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        V. Namespace Structure
+        Cached Case Packs
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="V. Namespace Structure">
+    <nav class="md-nav" aria-label="Cached Case Packs">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#primary-namespace-aliases" class="md-nav__link">
+  <a href="#static_on" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Primary Namespace Aliases
+        static_on(...)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptn_on" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PTN_ON(...)
       
     </span>
   </a>
@@ -1335,6 +1146,28 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#namespace-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Namespace Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#minimal-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimal Example
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1584,6 +1417,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../changelog/v0.9.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/v0.8.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/v0.8.3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../changelog/v0.8.2/" class="md-nav__link">
         
   
@@ -1592,6 +1509,34 @@
     
   
     v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
   
 
     
@@ -1633,701 +1578,273 @@
 
 
 <h1 id="patternia-api-reference">Patternia API Reference<a class="headerlink" href="#patternia-api-reference" title="Permanent link">&para;</a></h1>
-<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
-<p>Patternia provides a comprehensive pattern matching system for C++ with a focus on type safety, performance, and expressiveness. This document outlines the core APIs that constitute Patternia's pattern matching language.</p>
-<hr />
-<h2 id="i-match-dsl-core-framework">I. Match DSL Core Framework<a class="headerlink" href="#i-match-dsl-core-framework" title="Permanent link">&para;</a></h2>
-<p>The Match DSL forms the foundation of Patternia.<br />
-It defines how values are inspected, how cases are registered, and how matching is ultimately evaluated.</p>
-<hr />
-<h3 id="matchsubject"><code>match(subject)</code><a class="headerlink" href="#matchsubject" title="Permanent link">&para;</a></h3>
-<p><strong>Role</strong>: DSL entry point and evaluation context for the entire system.</p>
-<p><strong>Syntax</strong>:
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
-</code></pre></div></p>
-<p><strong>Core Characteristics</strong>:</p>
-<ul>
-<li><code>subject</code> is the value being matched, not an implicitly captured variable</li>
-<li><code>match()</code> returns a builder object; no matching is performed immediately</li>
-<li>Cases are evaluated sequentially using <strong>first-match semantics</strong></li>
-</ul>
-<p><strong>Basic Usage</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;default&quot;</span><span class="p">);</span>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Patternia exposes one public matching shape:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">case_1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">case_2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">fallback</span>
+<span class="p">)</span>
 </code></pre></div>
-<p><strong>Type Control</strong>:</p>
-<p>Patternia currently matches the subject as its actual type; there is no
-<code>match&lt;AsType&gt;(subject)</code> override.</p>
+<p>The pipeline is immediate.
+There is no deferred builder stage.</p>
 <hr />
-<h3 id="matchsubject-on"><code>match(subject) | on(...)</code><a class="headerlink" href="#matchsubject-on" title="Permanent link">&para;</a></h3>
-<p><strong>Role</strong>: Primary API for Patternia v0.8.x.</p>
-<p><strong>Syntax</strong>:
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span><span class="n">case1</span><span class="p">,</span><span class="w"> </span><span class="n">case2</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span>
-</code></pre></div></p>
-<p><strong>Key Characteristics</strong>:</p>
-<ul>
-<li>Pipeline-style terminal form, evaluated immediately</li>
-<li>Cases are evaluated sequentially using <strong>first-match semantics</strong></li>
-<li>Requires a pattern fallback <code>__</code> in the <code>on(...)</code> case list</li>
-<li>Supports full pattern capabilities including guards and bindings</li>
-</ul>
-<p><strong>Basic Usage</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="n">__</span><span class="w">     </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;other&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<h2 id="matchsubject"><code>match(subject)</code><a class="headerlink" href="#matchsubject" title="Permanent link">&para;</a></h2>
+<p><code>match(subject)</code> creates the evaluation context for one subject value.</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">;</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
 <span class="p">);</span>
 </code></pre></div>
-<p><strong>Compatibility Note</strong>:</p>
+<p>Rules:</p>
 <ul>
-<li><code>match(subject, cases(...)).end()</code> was removed in v0.8.0.</li>
-<li>Migrate legacy compact forms to <code>match(subject) | on(...)</code>.</li>
+<li><code>subject</code> must be an lvalue.</li>
+<li>Cases are evaluated in source order.</li>
+<li>Matching uses first-match-wins semantics.</li>
 </ul>
 <hr />
-<h3 id="whenpattern-handler"><code>.when(pattern &gt;&gt; handler)</code><a class="headerlink" href="#whenpattern-handler" title="Permanent link">&para;</a></h3>
-<p><strong>Role</strong>: Primary case-definition primitive.</p>
-<p><strong>Syntax</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler</span><span class="p">)</span>
+<h2 id="oncases"><code>on(case1, case2, ...)</code><a class="headerlink" href="#oncases" title="Permanent link">&para;</a></h2>
+<p><code>on(...)</code> groups the case list consumed by <code>match(subject)</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
 </code></pre></div>
-<p><strong>Key Characteristics</strong>:</p>
+<p>Rules:</p>
 <ul>
-<li><code>pattern &gt;&gt; handler</code> forms a <em>case expression</em></li>
-<li>The handler’s parameter list is determined entirely by the pattern’s binding behavior</li>
-<li><code>.when()</code> only registers a branch; it does not trigger execution</li>
-</ul>
-<p><strong>Usage Examples</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// Handler without bindings</span>
-<span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w">   </span><span class="c1">// No parameters</span>
-<span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">42</span><span class="p">)</span><span class="w">                     </span><span class="c1">// Constant value handler</span>
-
-<span class="c1">// Handler with bindings</span>
-<span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
-<span class="p">})</span>
-
-<span class="c1">// Structural bindings</span>
-<span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">  </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">  </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">)</span>
-</code></pre></div>
-<p><strong>Handler Forms</strong>:</p>
-<ul>
-<li>
-<p><strong>Value Handler</strong> - <code>pattern &gt;&gt; value</code>
-  Returns a fixed value. Semantically equivalent to a zero-argument function returning a constant.</p>
-</li>
-<li>
-<p><strong>Function Handler</strong> - <code>pattern &gt;&gt; callable</code>
-  Receives the values produced by the pattern’s bindings.</p>
-</li>
+<li>The last case must be a wildcard fallback.</li>
+<li>Each entry must be a <code>pattern &gt;&gt; handler</code> case expression.</li>
+<li>Unreachable wildcard/alt ordering errors are diagnosed at compile time.</li>
 </ul>
 <hr />
-<h3 id="otherwise-and-end-chained-api-deprecated"><code>.otherwise(...)</code> and <code>.end()</code> (Chained API, Deprecated)<a class="headerlink" href="#otherwise-and-end-chained-api-deprecated" title="Permanent link">&para;</a></h3>
-<p>These terminal operations define how a match expression is finalized.
-The key distinction between them is the use of the <code>__</code> pattern.</p>
-<blockquote>
-<p>[!WARNING]
-Chained terminal forms are still available in v0.8.x, but are deprecated and
-planned for future removal. Prefer <code>match(subject) | on(...)</code>.</p>
-</blockquote>
-<hr />
-<h4 id="otherwise-deprecated"><code>.otherwise(...)</code> (Deprecated)<a class="headerlink" href="#otherwise-deprecated" title="Permanent link">&para;</a></h4>
-<p><strong>Role</strong>: Match fallback that works in all scenarios.</p>
-<p><strong>Purpose</strong>: Provides a fallback when no prior <code>when</code> clause matches successfully.</p>
-<p><strong>Characteristics</strong>:</p>
-<ul>
-<li>Cannot be used when a <code>__</code> pattern is present</li>
-<li>Acts as a defensive default, not as a regular case</li>
-<li>Evaluated only if no pattern has already matched</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<h2 id="pattern-handler"><code>pattern &gt;&gt; handler</code><a class="headerlink" href="#pattern-handler" title="Permanent link">&para;</a></h2>
+<p>This is the core case-expression form.</p>
+<div class="highlight"><pre><span></span><code><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">42</span>
+<span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<p><strong>Execution Semantics</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">)</span><span class="w">      </span><span class="c1">// No match</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">)</span><span class="w">      </span><span class="c1">// No match</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;default&quot;</span><span class="p">);</span><span class="w">          </span><span class="c1">// Executed as fallback</span>
+<p>Handler forms:</p>
+<ul>
+<li><code>pattern &gt;&gt; value</code></li>
+<li><code>pattern &gt;&gt; callable</code></li>
+</ul>
+<p>Bindings are determined entirely by the pattern.</p>
+<hr />
+<h2 id="_-wildcard">Wildcard <code>_</code><a class="headerlink" href="#_-wildcard" title="Permanent link">&para;</a></h2>
+<p><code>_</code> is the public wildcard and fallback pattern.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>The wildcard does not bind values by itself.</p>
+<hr />
+<h2 id="literal-patterns">Literal Patterns<a class="headerlink" href="#literal-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="litvalue"><code>lit(value)</code><a class="headerlink" href="#litvalue" title="Permanent link">&para;</a></h3>
+<p>Runtime literal match.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">-1</span>
+<span class="p">);</span>
+</code></pre></div>
+<h3 id="litvalue_1"><code>lit&lt;value&gt;()</code><a class="headerlink" href="#litvalue_1" title="Permanent link">&para;</a></h3>
+<p>Compile-time literal match.
+Useful when the literal is known at compile time and the lowering engine can
+consider static dispatch.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<h3 id="lit_civalue"><code>lit_ci(value)</code><a class="headerlink" href="#lit_civalue" title="Permanent link">&para;</a></h3>
+<p>Runtime ASCII case-insensitive string match.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit_ci</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
 </code></pre></div>
 <hr />
-<h4 id="end-deprecated"><code>.end()</code> (Deprecated)<a class="headerlink" href="#end-deprecated" title="Permanent link">&para;</a></h4>
-<p><strong>Purpose</strong>: Required when using the <code>__</code> pattern fallback.</p>
-<p><strong>Characteristics</strong>:</p>
-<ul>
-<li><strong>Must</strong> be used when <code>__</code> pattern is present in the match</li>
-<li>Can be used with or without return values (not limited to <code>void</code>)</li>
-<li>Not required when only using <code>.otherwise()</code></li>
-<li><code>.otherwise()</code> is rejected if a <code>__</code> pattern is present</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;one</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;two</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;other</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// pattern fallback</span>
-<span class="w">  </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">  </span><span class="c1">// Required for __ to work</span>
+<h2 id="binding-patterns">Binding Patterns<a class="headerlink" href="#binding-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="and"><code>$</code> and <code>$(...)</code><a class="headerlink" href="#and" title="Permanent link">&para;</a></h3>
+<p>Patternia keeps binding explicit.</p>
+<div class="highlight"><pre><span></span><code><span class="n">$</span><span class="w">               </span><span class="c1">// bind the whole subject</span>
+<span class="n">$</span><span class="p">(</span><span class="n">subpattern</span><span class="p">)</span><span class="w">   </span><span class="c1">// bind under a subpattern</span>
 </code></pre></div>
-<p><strong>Critical Rule (chained API only)</strong>: If <code>__</code> is used in chained <code>.when(...)</code>
-style without <code>.end()</code>, the match is not finalized.</p>
-<p><strong>Design Philosophy</strong>:
-The distinction between <code>.otherwise()</code> and <code>.end()</code> is driven by the <code>__</code> pattern's requirement for match inference.</p>
-<hr />
-<h3 id="comparison-summary">Comparison Summary<a class="headerlink" href="#comparison-summary" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Feature</th>
-<th><code>.otherwise()</code></th>
-<th><code>.end()</code></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Key Requirement</td>
-<td>None</td>
-<td>Required for <code>__</code> pattern</td>
-</tr>
-<tr>
-<td>Return Type</td>
-<td>Handler-determined</td>
-<td>Handler-determined</td>
-</tr>
-<tr>
-<td>Fallback Type</td>
-<td>Match fallback</td>
-<td>Pattern fallback (<code>__</code>)</td>
-</tr>
-<tr>
-<td>Usage Constraint</td>
-<td>Works in all scenarios</td>
-<td>Must be used with <code>__</code></td>
-</tr>
-<tr>
-<td>Typical Use Cases</td>
-<td>Value computation, defensive fallback</td>
-<td>Exhaustive matching with <code>__</code></td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="ii-pattern-primitives">II. Pattern Primitives<a class="headerlink" href="#ii-pattern-primitives" title="Permanent link">&para;</a></h2>
-<p>Pattern primitives constitute the core vocabulary of Patternia’s pattern language.<br />
-They describe <em>what</em> is matched, <em>what</em> is ignored, and <em>what</em> is explicitly bound.</p>
-<hr />
-<h3 id="litvalue-and-litvalue"><code>lit(value)</code> and <code>lit&lt;value&gt;()</code><a class="headerlink" href="#litvalue-and-litvalue" title="Permanent link">&para;</a></h3>
-<p><strong>Role</strong>: Fundamental value patterns for exact matching.</p>
-<p><strong>Syntax</strong>:
-<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">V</span><span class="o">&gt;</span>
-<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">lit</span><span class="p">(</span><span class="n">V</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">v</span><span class="p">);</span><span class="w">      </span><span class="c1">// Runtime value pattern</span>
-
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">auto</span><span class="w"> </span><span class="n">V</span><span class="o">&gt;</span>
-<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">lit</span><span class="p">();</span><span class="w">           </span><span class="c1">// Compile-time value pattern</span>
-
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">V</span><span class="o">&gt;</span>
-<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">lit_ci</span><span class="p">(</span><span class="n">V</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">v</span><span class="p">);</span><span class="w">   </span><span class="c1">// Runtime ASCII case-insensitive match</span>
-</code></pre></div></p>
-<p><strong>Semantics</strong>:</p>
-<ul>
-<li><code>lit(value)</code> stores a runtime value and matches with <code>operator==</code></li>
-<li><code>lit&lt;value&gt;()</code> encodes the value in the type and is the entry point for
-  static literal lowering</li>
-<li><code>lit_ci(value)</code> performs ASCII case-insensitive matching for string-like
-  values</li>
-<li><code>lit_ci()</code> intentionally remains a runtime factory; there is no
-  <code>lit_ci&lt;value&gt;()</code> static counterpart</li>
-<li>All three produce no bindings</li>
-</ul>
-<p><strong>When To Use Which</strong>:</p>
-<ul>
-<li>Use <code>lit(value)</code> for general matching, dynamic values, and string literals</li>
-<li>Use <code>lit&lt;value&gt;()</code> when the literal is known at compile time and you want the
-  lowering engine to consider switch-like optimization paths</li>
-<li>Use <code>lit_ci(value)</code> for runtime ASCII case-insensitive string matching</li>
-</ul>
-<p><strong>Examples</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Running</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">...)</span><span class="w">   </span><span class="c1">// General enum/value matching</span>
-<span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">42</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">...)</span><span class="w">              </span><span class="c1">// Compile-time integer literal</span>
-<span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">...)</span><span class="w">          </span><span class="c1">// Runtime string literal</span>
-<span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit_ci</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">...)</span><span class="w">       </span><span class="c1">// Case-insensitive string match</span>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
 </code></pre></div>
-<p><strong>Supported Types</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>Binding rules:</p>
 <ul>
-<li>Arithmetic types (<code>int</code>, <code>double</code>, <code>float</code>)</li>
-<li>Enumeration types</li>
-<li>String types (<code>std::string</code>, <code>std::string_view</code>, <code>const char*</code>)</li>
-<li>User-defined types providing <code>operator==</code></li>
+<li>No pattern binds implicitly.</li>
+<li>Handler parameters follow binding order.</li>
+<li>Patterns that do not bind produce zero-argument handlers.</li>
 </ul>
 <hr />
-<h3 id="__-wildcard"><code>__</code> (Wildcard)<a class="headerlink" href="#__-wildcard" title="Permanent link">&para;</a></h3>
-<p><strong>Role</strong>: Pattern-level wildcard that matches any value without binding.</p>
-<p><strong>Syntax</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="n">detail</span><span class="o">::</span><span class="n">wildcard_t</span><span class="w"> </span><span class="n">__</span><span class="p">;</span>
+<h2 id="guard-attachment">Guard Attachment <code>[]</code><a class="headerlink" href="#guard-attachment" title="Permanent link">&para;</a></h2>
+<p>Attach a guard to a binding pattern with <code>pattern[guard]</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">PTN_LET</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;small&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
 </code></pre></div>
-<p><strong>Key Properties</strong>:</p>
-<ul>
-<li>Always matches</li>
-<li>Introduces no bindings</li>
-<li>Participates in pattern ordering and exhaustiveness</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="c1">// No access to the matched value</span>
-<span class="p">})</span>
-</code></pre></div>
-<p><strong>Design Intent</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="s">&quot;success&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;ok&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="s">&quot;error&quot;</span><span class="p">)</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;fail&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w">             </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;unknown&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// Pattern-level fallback</span>
-<span class="w">  </span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
-</code></pre></div>
-<p><strong>Key Distinction</strong>:</p>
-<ul>
-<li><code>__</code> - a pattern that participates in matching and ordering</li>
-<li><code>.otherwise()</code> - a match-level fallback executed only if no pattern matches</li>
-<li><code>__</code> and <code>.otherwise()</code> cannot be combined in the same match</li>
-</ul>
-<hr />
-<h3 id="typeist-and-typeast-variant-type-matching"><code>type::is&lt;T&gt;()</code> and <code>type::as&lt;T&gt;()</code> (Variant Type Matching)<a class="headerlink" href="#typeist-and-typeast-variant-type-matching" title="Permanent link">&para;</a></h3>
-<p><strong>Role</strong>: Match <code>std::variant</code> alternatives by type, with optional explicit binding.</p>
-<p><strong>Syntax</strong>:
-<div class="highlight"><pre><span></span><code><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">()</span><span class="w">                 </span><span class="c1">// type-only match</span>
-<span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subpattern</span><span class="p">)</span><span class="w">       </span><span class="c1">// apply subpattern to the alternative</span>
-
-<span class="n">type</span><span class="o">::</span><span class="n">as</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">()</span><span class="w">                 </span><span class="c1">// explicit binding sugar for is&lt;T&gt;(bind())</span>
-<span class="n">type</span><span class="o">::</span><span class="n">as</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subpattern</span><span class="p">)</span><span class="w">       </span><span class="c1">// explicit binding sugar for is&lt;T&gt;(bind(subpattern))</span>
-</code></pre></div></p>
-<p><strong>Shorthand</strong>:
-<div class="highlight"><pre><span></span><code><span class="n">is</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">()</span><span class="w">   </span><span class="c1">// alias of type::is&lt;T&gt;()</span>
-<span class="n">as</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">()</span><span class="w">   </span><span class="c1">// alias of type::as&lt;T&gt;()</span>
-</code></pre></div></p>
-<p><strong>Key Properties</strong>:</p>
-<ul>
-<li>Works on <code>std::variant</code> subjects only</li>
-<li><code>type::is&lt;T&gt;()</code> does not bind values</li>
-<li><code>type::as&lt;T&gt;()</code> is an explicit binding shortcut; it does not introduce implicit binding</li>
-<li>When a type pattern binds (e.g. <code>type::as&lt;T&gt;()</code>, or <code>type::is&lt;T&gt;(bind(...))</code>), it is a <strong>binding pattern</strong> and can be guarded with <code>[]</code></li>
-<li>Alternative type <code>T</code> must appear exactly once in the variant</li>
-</ul>
-<p><strong>Examples</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* type-only */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">as</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* bound */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">as</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()[</span><span class="n">_</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* guarded */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">()))</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">        </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* structural bind */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
-</code></pre></div>
-<p><strong>Design Note</strong>:
-<code>type::as&lt;T&gt;()</code> preserves the "explicit bind" rule by being a named shortcut for
-<code>bind()</code>, not an implicit binding mechanism.</p>
-<hr />
-<h3 id="bind-binding-pattern"><code>bind()</code> (Binding Pattern)<a class="headerlink" href="#bind-binding-pattern" title="Permanent link">&para;</a></h3>
-<p><strong>Role</strong>: Explicit value binding primitive.</p>
-<p><code>bind()</code> is the primitive mechanism in Patternia that introduces bindings into a match.
-Some APIs (e.g. <code>type::as&lt;T&gt;()</code>) are explicit shorthands built on top of <code>bind()</code>.</p>
-<p><strong>Syntax</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">bind</span><span class="p">();</span><span class="w">                    </span><span class="c1">// Binds the entire subject</span>
-
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">SubPattern</span><span class="o">&gt;</span>
-<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">bind</span><span class="p">(</span><span class="n">SubPattern</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">sub</span><span class="p">);</span><span class="w">    </span><span class="c1">// Binds subject conditionally under a subpattern constraint</span>
-</code></pre></div>
-<p><strong>Core Principles</strong>:</p>
+<p>Guard evaluation order:</p>
 <ol>
-<li>All bindings are explicit</li>
-<li>No pattern introduces bindings implicitly</li>
-<li>Binding behavior fully determines handler parameter lists</li>
+<li>Match the pattern.</li>
+<li>Bind values.</li>
+<li>Evaluate the guard.</li>
+<li>Invoke the handler if the guard passes.</li>
 </ol>
+<p>A guard failure only rejects the current case.</p>
 <hr />
-<h4 id="binding-the-entire-subject">Binding the Entire Subject<a class="headerlink" href="#binding-the-entire-subject" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">bind</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">auto</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;captured: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">v</span><span class="p">);</span>
-<span class="p">})</span>
+<h2 id="guard-helpers">Guard Helpers<a class="headerlink" href="#guard-helpers" title="Permanent link">&para;</a></h2>
+<h3 id="_0"><code>_0</code><a class="headerlink" href="#_0" title="Permanent link">&para;</a></h3>
+<p>Placeholder alias for a single bound value.</p>
+<div class="highlight"><pre><span></span><code><span class="n">$</span><span class="p">[</span><span class="n">_0</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="p">]</span>
 </code></pre></div>
-<ul>
-<li>The entire subject is bound as a single value</li>
-<li>The handler receives exactly one parameter</li>
-</ul>
+<p>Use <code>_0</code> when one binding is enough and the predicate reads clearly without an
+explicit name.</p>
+<h3 id="argn"><code>arg&lt;N&gt;</code><a class="headerlink" href="#argn" title="Permanent link">&para;</a></h3>
+<p>Indexed placeholder for general multi-binding guards.</p>
+<div class="highlight"><pre><span></span><code><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">25</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="rnglo-hi-mode"><code>rng(lo, hi, mode)</code><a class="headerlink" href="#rnglo-hi-mode" title="Permanent link">&para;</a></h3>
+<p>Range helper for single-bound-value guards.</p>
+<div class="highlight"><pre><span></span><code><span class="n">$</span><span class="p">[</span><span class="n">rng</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)]</span>
+<span class="n">$</span><span class="p">[</span><span class="n">rng</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">pat</span><span class="o">::</span><span class="n">mod</span><span class="o">::</span><span class="n">open</span><span class="p">)]</span>
+</code></pre></div>
+<p>Use callables for domain logic that does not read naturally as <code>_0</code>,
+<code>arg&lt;N&gt;</code>, or <code>PTN_WHERE(...)</code>.</p>
+<h3 id="ptn_wherenames-expr"><code>PTN_WHERE((names...), expr)</code><a class="headerlink" href="#ptn_wherenames-expr" title="Permanent link">&para;</a></h3>
+<p>Use named guard parameters without writing the lambda yourself.
+The macro currently supports 1 to 5 names.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">PTN_WHERE</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">),</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">y</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;diagonal&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
+<p><code>PTN_WHERE(...)</code> expands to a guard callable and composes with <code>&amp;&amp;</code> / <code>||</code>
+like other guard predicates.</p>
+<h3 id="ptn_letname-expr"><code>PTN_LET(name, expr)</code><a class="headerlink" href="#ptn_letname-expr" title="Permanent link">&para;</a></h3>
+<p>Use the single-value form when a guard binds exactly one value and you want to
+ name it explicitly.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">PTN_LET</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;small&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
+<p><code>PTN_LET(name, expr)</code> is equivalent to <code>PTN_WHERE((name), expr)</code>.</p>
 <hr />
-<h4 id="conditional-binding-with-bindsubpattern">Conditional Binding with <code>bind(subpattern)</code><a class="headerlink" href="#conditional-binding-with-bindsubpattern" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">  </span><span class="n">bind</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Running</span><span class="p">))</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">  </span><span class="p">[](</span><span class="n">Status</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">fmt</span><span class="p">(</span><span class="s">&quot;status = {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">s</span><span class="p">));</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">)</span>
-</code></pre></div>
-<ul>
-<li><code>bind(subpattern)</code> introduces a binding <strong>only if the subpattern matches</strong></li>
-<li>The bound value is always the <strong>entire subject</strong></li>
-<li>The subpattern itself does <strong>not</strong> introduce bindings unless explicitly designed to do so</li>
-</ul>
-<p>This form is useful when:</p>
-<ul>
-<li>a value must be both <strong>filtered</strong> and <strong>captured</strong></li>
-<li>the captured value needs to be reused by the handler</li>
-<li>the constraint is semantic rather than structural</li>
-</ul>
-<h4 id="structural-binding-with-has">Structural Binding with <code>has&lt;&gt;</code><a class="headerlink" href="#structural-binding-with-has" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Point</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
-
-<span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">  </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">  </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">fmt</span><span class="p">(</span><span class="s">&quot;({}, {})&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">)</span>
-</code></pre></div>
-<ul>
-<li><code>has&lt;&gt;</code> describes the required structure</li>
-<li>Only the listed members are bound</li>
-<li>No access to unlisted members is provided</li>
-</ul>
-<p>Partial binding is expressed by listing only the desired members:</p>
-<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">  </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">  </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">fmt</span><span class="p">(</span><span class="s">&quot;x = {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">);</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">)</span>
-</code></pre></div>
-<h4 id="binding-semantics">Binding Semantics<a class="headerlink" href="#binding-semantics" title="Permanent link">&para;</a></h4>
-<ul>
-<li><code>bind()</code> always binds the <em>entire subject</em></li>
-<li><code>bind(subpattern)</code> binds the subject, but only if <code>subpattern</code> matches successfully.
-  If <code>subpattern</code> itself produces bindings (rare/advanced), those may be appended after the subject.</li>
-<li>The handler parameter order corresponds exactly to the binding order</li>
-<li>Patterns that do not bind values do not affect handler signatures</li>
-</ul>
-<blockquote>
-<p>[!IMPORTANT]
-<code>lit()</code>, <code>lit&lt;&gt;()</code>, and <code>has&lt;&gt;</code> never introduce bindings by themselves.
-All bindings are introduced exclusively by <code>bind(...)</code>.</p>
-</blockquote>
-<div class="highlight"><pre><span></span><code><span class="c1">// Binding order example</span>
-<span class="n">bind</span><span class="p">()</span><span class="w">                        </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
-<span class="n">bind</span><span class="p">(</span><span class="n">lit</span><span class="p">(...))</span><span class="w">              </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
-<span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">A</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">A</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())</span><span class="w">     </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="c1">// because has() is used under bind(), extraction is defined by bind(...)</span>
-</code></pre></div>
-<p><strong>Design Rationale</strong>:</p>
-<p>Patternia deliberately separates <em>matching</em> from <em>binding</em>.
-A pattern answers <strong>"does this value match?"</strong>
-A binding answers <strong>"what values become available to the handler?"</strong></p>
-<p>This separation keeps control flow declarative and data flow explicit.</p>
-<hr />
-<h2 id="iii-guard-system">III. Guard System<a class="headerlink" href="#iii-guard-system" title="Permanent link">&para;</a></h2>
-<p>Guards are <strong>declarative constraints attached to patterns</strong>. They refine a match <strong>after binding succeeds</strong>, and before the handler is invoked.</p>
-<p>A guard failure <strong>does not terminate</strong> matching; it simply makes the current case fail and the engine continues to the next <code>.when(...)</code>.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p><code>_</code> and <code>rng(...)</code> are only valid when exactly one value is bound <strong>now</strong>.
-For multi-value patterns, use <code>arg&lt;N&gt;</code> or a lambda predicate.</p>
-</div>
-<hr />
-<h3 id="guard-attachment"><code>[]</code> Guard Attachment<a class="headerlink" href="#guard-attachment" title="Permanent link">&para;</a></h3>
-<p><strong>Syntax</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">pattern</span><span class="p">[</span><span class="n">guard</span><span class="p">]</span>
-</code></pre></div>
-<p><strong>Evaluation Order</strong>:</p>
-<ol>
-<li><code>pattern.match(subject)</code></li>
-<li><code>pattern.bind(subject)</code> -&gt; produces bound values (the handler inputs)</li>
-<li>evaluate <code>guard</code> (against the bound values)</li>
-<li>if guard passes -&gt; invoke handler; otherwise try next case</li>
-</ol>
-<p><strong>Example</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">    </span><span class="n">bind</span><span class="p">()[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">    </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="c1">// 1) bind() matches</span>
-<span class="w">      </span><span class="c1">// 2) bind() binds v</span>
-<span class="w">      </span><span class="c1">// 3) guard (_ &gt; 0) is evaluated</span>
-<span class="w">      </span><span class="c1">// 4) handler runs only if guard passes</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
-</code></pre></div>
-<p>Type patterns can be guarded as well, as long as they bind:</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">as</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()[</span><span class="n">_</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="cm">/* guarded alternative */</span>
-<span class="w">  </span><span class="p">})</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
-</code></pre></div>
-<p><strong>Guard composition</strong> is supported:</p>
-<ul>
-<li><code>&amp;&amp;</code> (logical AND)</li>
-<li><code>||</code> (logical OR)</li>
-</ul>
-<hr />
-<h3 id="single-value-guards-_-and-rng">Single-value Guards: <code>_</code> and <code>rng(...)</code><a class="headerlink" href="#single-value-guards-_-and-rng" title="Permanent link">&para;</a></h3>
-<p>Single-value guards are built with the global placeholder:</p>
-<div class="highlight"><pre><span></span><code><span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="n">placeholder_t</span><span class="w"> </span><span class="n">_</span><span class="p">;</span>
-</code></pre></div>
-<p><code>_</code> is <strong>not</strong> a runtime value. Expressions like <code>_ &gt; 0</code> <strong>construct a predicate object</strong>.</p>
-<h4 id="supported-operators-for-_">Supported operators for <code>_</code><a class="headerlink" href="#supported-operators-for-_" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w">  </span><span class="n">rhs</span>
-<span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w">  </span><span class="n">rhs</span>
-<span class="n">_</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">rhs</span>
-<span class="n">_</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">rhs</span>
-<span class="n">_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">rhs</span>
-<span class="n">_</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">rhs</span>
-</code></pre></div>
-<h4 id="range-helper-rnglo-hi-mode">Range helper: <code>rng(lo, hi, mode)</code><a class="headerlink" href="#range-helper-rnglo-hi-mode" title="Permanent link">&para;</a></h4>
-<p>Use <code>rng(...)</code> for interval constraints (it returns a predicate usable inside <code>[]</code>).</p>
-<div class="highlight"><pre><span></span><code><span class="n">rng</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span><span class="w"> </span><span class="n">hi</span><span class="p">)</span><span class="w">                 </span><span class="c1">// [lo, hi]</span>
-<span class="n">rng</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span><span class="w"> </span><span class="n">hi</span><span class="p">,</span><span class="w"> </span><span class="n">open</span><span class="p">)</span><span class="w">           </span><span class="c1">// (lo, hi)</span>
-<span class="n">rng</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span><span class="w"> </span><span class="n">hi</span><span class="p">,</span><span class="w"> </span><span class="n">open_closed</span><span class="p">)</span><span class="w">    </span><span class="c1">// (lo, hi]</span>
-<span class="n">rng</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span><span class="w"> </span><span class="n">hi</span><span class="p">,</span><span class="w"> </span><span class="n">closed_open</span><span class="p">)</span><span class="w">    </span><span class="c1">// [lo, hi)</span>
-</code></pre></div>
-<p><strong>Examples</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">bind</span><span class="p">()[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span>
-<span class="n">bind</span><span class="p">()[</span><span class="n">rng</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">closed_open</span><span class="p">)]</span><span class="w">   </span><span class="c1">// [0, 10)</span>
-</code></pre></div>
-<p>Anything beyond these relational/range constraints should be expressed as a <strong>custom predicate</strong> (lambda), not as additional operator DSL.</p>
-<hr />
-<h3 id="multi-value-guards-argn-expressions">Multi-value Guards: <code>arg&lt;N&gt;</code> Expressions<a class="headerlink" href="#multi-value-guards-argn-expressions" title="Permanent link">&para;</a></h3>
-<p>For guards that relate <strong>multiple bound values</strong>, use <code>arg&lt;N&gt;</code> to reference the <em>N-th bound value</em> (0-based):</p>
-<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">I</span><span class="o">&gt;</span>
-<span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="n">arg_t</span><span class="o">&lt;</span><span class="n">I</span><span class="o">&gt;</span><span class="w"> </span><span class="n">arg</span><span class="p">{};</span>
-</code></pre></div>
-<p><strong>Key rule</strong>: <code>arg&lt;N&gt;</code> indices correspond <strong>exactly</strong> to the pattern’s binding order (and therefore the handler’s parameter order).</p>
-<h4 id="supported-operators-for-multi-value-expressions">Supported operators for multi-value expressions<a class="headerlink" href="#supported-operators-for-multi-value-expressions" title="Permanent link">&para;</a></h4>
-<p>Multi-value guard expressions support:</p>
-<ul>
-<li>comparisons: <code>== != &lt; &gt; &lt;= &gt;=</code></li>
-<li>arithmetic: <code>+ - * / %</code></li>
-<li>plus logical composition via <code>&amp;&amp;</code> and <code>||</code></li>
-</ul>
-<p>There is <strong>no <code>rng(...)</code></strong> for <code>arg&lt;N&gt;</code> expressions in the current design.</p>
-<p><strong>Examples</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// x + y == 0</span>
-<span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">    </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">    </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
-<span class="w">  </span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="c1">// Protocol-like constraint over multiple fields</span>
-<span class="n">match</span><span class="p">(</span><span class="n">pkt</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">    </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Packet</span><span class="o">::</span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Packet</span><span class="o">::</span><span class="n">length</span><span class="o">&gt;</span><span class="p">())</span>
-<span class="w">      </span><span class="p">[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">0x01</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">    </span><span class="p">[](</span><span class="k">auto</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">len</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
-<span class="w">  </span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
-</code></pre></div>
-<h4 id="compile-time-boundary-checking">Compile-time boundary checking<a class="headerlink" href="#compile-time-boundary-checking" title="Permanent link">&para;</a></h4>
-<p>Using an out-of-range <code>arg&lt;N&gt;</code> is <strong>ill-formed</strong> and diagnosed at compile time (the library checks the maximum referenced index against the number of bound values):</p>
-<div class="highlight"><pre><span></span><code><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
-<span class="c1">// ill-formed: arg&lt;1&gt; out of range (only one bound value)</span>
-</code></pre></div>
-<hr />
-<h3 id="custom-predicates-recommended-for-domain-logic">Custom Predicates (Recommended for "Domain Logic")<a class="headerlink" href="#custom-predicates-recommended-for-domain-logic" title="Permanent link">&para;</a></h3>
-<p>A critical constraint of Patternia's guard DSL is that <code>arg&lt;N&gt;</code> is an <strong>expression-template placeholder</strong>, not "the real field type" in a way that enables arbitrary member access in the DSL.</p>
-<p>So this is <strong>not supported</strong> as a guard DSL expression:</p>
-<div class="highlight"><pre><span></span><code><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Message</span><span class="o">::</span><span class="n">payload</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="c1">// do not do this</span>
-</code></pre></div>
-<p>When you need container queries, method calls, non-trivial computations, or any domain-specific logic, write a <strong>lambda predicate</strong> and pass it to <code>[]</code>.</p>
-<p><strong>Examples</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">non_empty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[](</span><span class="k">auto</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">payload</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="o">!</span><span class="n">payload</span><span class="p">.</span><span class="n">empty</span><span class="p">();</span>
-<span class="p">};</span>
-
-<span class="n">match</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">    </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Message</span><span class="o">::</span><span class="n">payload</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">non_empty</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">    </span><span class="p">[](</span><span class="k">auto</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">payload</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="c1">// payload is guaranteed non-empty here</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">sum_is_even</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="p">};</span>
-
-<span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">    </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">sum_is_even</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">    </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
-<span class="w">  </span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
-</code></pre></div>
-<hr />
-<h2 id="iv-structural-matching">IV. Structural Matching<a class="headerlink" href="#iv-structural-matching" title="Permanent link">&para;</a></h2>
-<p>Structural matching allows Patternia to reason about the <em>shape</em> of objects at compile time,
-independently of control flow and value-level logic.</p>
-<p>Rather than destructuring by position, Patternia describes structure through <strong>explicit member selection</strong>.</p>
-<hr />
-<h3 id="hastmember"><code>has&lt;&amp;T::member...&gt;</code><a class="headerlink" href="#hastmember" title="Permanent link">&para;</a></h3>
-<p><strong>Role</strong>: Structural constraint and decomposition primitive.</p>
-<p><strong>Syntax</strong>:
-<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">auto</span><span class="p">...</span><span class="w"> </span><span class="n">Ms</span><span class="o">&gt;</span>
-<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">has</span><span class="p">();</span>
-</code></pre></div></p>
-<p>Each template argument must be a pointer to a non-static data member.</p>
-<hr />
-<h3 id="semantics">Semantics<a class="headerlink" href="#semantics" title="Permanent link">&para;</a></h3>
-<p><code>has&lt;Ms...&gt;</code> declares a <strong>compile-time structural requirement</strong>:</p>
-<ul>
-<li>The matched type must contain all listed data members</li>
-<li>The order of members is <strong>not positional</strong></li>
-<li>No values are accessed unless used within <code>bind()</code></li>
-</ul>
-<p>This makes <code>has&lt;&gt;</code> a <em>structural predicate</em>, not a value pattern.</p>
-<hr />
-<h3 id="core-characteristics">Core Characteristics<a class="headerlink" href="#core-characteristics" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Declarative structural constraints without control flow</li>
-<li>No implicit value access or extraction</li>
-<li>Independent of member layout or declaration order</li>
-<li>Compile-time validation of member pointers</li>
-</ul>
-<hr />
-<h3 id="basic-examples">Basic Examples<a class="headerlink" href="#basic-examples" title="Permanent link">&para;</a></h3>
+<h2 id="structural-matching">Structural Matching <code>has&lt;&amp;T::member...&gt;()</code><a class="headerlink" href="#structural-matching" title="Permanent link">&para;</a></h2>
+<p><code>has&lt;&gt;</code> describes structure.
+Wrap it with <code>$(...)</code> to extract values.</p>
 <div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Point</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
 <span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
 <span class="p">};</span>
 
-<span class="k">struct</span><span class="w"> </span><span class="nc">Packet</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
-<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">length</span><span class="p">;</span>
-<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">uint8_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="p">;</span>
-<span class="p">};</span>
-
-<span class="c1">// Structural checks</span>
-<span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span>
-<span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Packet</span><span class="o">::</span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Packet</span><span class="o">::</span><span class="n">length</span><span class="o">&gt;</span>
+<span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
 </code></pre></div>
-<p>These patterns assert that the matched value exposes the listed members.
-They do <strong>not</strong> bind or extract any values by themselves.</p>
-<hr />
-<h3 id="integration-with-bind">Integration with <code>bind()</code><a class="headerlink" href="#integration-with-bind" title="Permanent link">&para;</a></h3>
-<p>When combined with <code>bind()</code>, <code>has&lt;&gt;</code> enables <strong>explicit structural extraction</strong>.</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">    </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">    </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">fmt</span><span class="p">(</span><span class="s">&quot;({}, {})&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
-</code></pre></div>
+<p>Properties:</p>
 <ul>
-<li><code>has&lt;&gt;</code> performs the structural check</li>
-<li><code>bind()</code> extracts the selected member values</li>
-<li>The handler receives the extracted values in the order listed</li>
+<li>Member order is explicit and stable.</li>
+<li>Unlisted members are ignored.</li>
+<li>Validation happens at compile time.</li>
 </ul>
 <hr />
-<h3 id="partial-structural-matching">Partial Structural Matching<a class="headerlink" href="#partial-structural-matching" title="Permanent link">&para;</a></h3>
-<p>Structural matching is <strong>selective by design</strong>.</p>
-<p>To bind only a subset of members, list only those members:</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">    </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">    </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">fmt</span><span class="p">(</span><span class="s">&quot;x = {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">);</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]</span><span class="w"> </span><span class="p">{});</span>
+<h2 id="variant-matching">Variant Matching <code>is&lt;T&gt;()</code> and <code>alt&lt;I&gt;()</code><a class="headerlink" href="#variant-matching" title="Permanent link">&para;</a></h2>
+<h3 id="ist"><code>is&lt;T&gt;()</code><a class="headerlink" href="#ist" title="Permanent link">&para;</a></h3>
+<p>Type-based <code>std::variant</code> match.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;int&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;str:&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+<span class="p">);</span>
 </code></pre></div>
-<p>No placeholder or positional skipping is required.
-Unlisted members are simply ignored.</p>
-<hr />
-<h3 id="design-rationale">Design Rationale<a class="headerlink" href="#design-rationale" title="Permanent link">&para;</a></h3>
-<p>Patternia intentionally avoids positional or placeholder-based structural patterns.</p>
+<h3 id="alti"><code>alt&lt;I&gt;()</code><a class="headerlink" href="#alti" title="Permanent link">&para;</a></h3>
+<p>Index-based <code>std::variant</code> match.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;first&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;second&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>Rules:</p>
 <ul>
-<li>There is no notion of "ignored slots"</li>
-<li>There is no dependency on member order</li>
-<li>There is no implicit reflection</li>
-</ul>
-<p>Instead:</p>
-<ul>
-<li>Structure is described by <strong>explicit member pointers</strong></li>
-<li>Decomposition is driven by <strong>what you list</strong>, not what you omit</li>
-<li>This aligns with C++’s existing type system and avoids reflection-like assumptions</li>
+<li><code>is&lt;T&gt;()</code> requires <code>T</code> to appear exactly once.</li>
+<li><code>alt&lt;I&gt;()</code> requires <code>I</code> to be in range.</li>
+<li>Use <code>$(...)</code> when you want the alternative value bound into the handler.</li>
 </ul>
 <hr />
-<h3 id="standalone-vs-bound-usage">Standalone vs Bound Usage<a class="headerlink" href="#standalone-vs-bound-usage" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">T</span><span class="o">::</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">T</span><span class="o">::</span><span class="n">b</span><span class="o">&gt;</span><span class="w">        </span><span class="c1">// Structural constraint only</span>
-<span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">T</span><span class="o">::</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">T</span><span class="o">::</span><span class="n">b</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="c1">// Structural constraint + value extraction</span>
+<h2 id="cached-case-packs">Cached Case Packs<a class="headerlink" href="#cached-case-packs" title="Permanent link">&para;</a></h2>
+<h3 id="static_on"><code>static_on(...)</code><a class="headerlink" href="#static_on" title="Permanent link">&para;</a></h3>
+<p>Cache a stateless <code>on(...)</code> factory.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">static_on</span><span class="p">([]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">});</span>
 </code></pre></div>
-<p>This separation ensures that:</p>
+<h3 id="ptn_on"><code>PTN_ON(...)</code><a class="headerlink" href="#ptn_on" title="Permanent link">&para;</a></h3>
+<p>Convenience macro over <code>static_on(...)</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PTN_ON</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>The factory must be stateless.</p>
+<hr />
+<h2 id="namespace-summary">Namespace Summary<a class="headerlink" href="#namespace-summary" title="Permanent link">&para;</a></h2>
+<p>The public surface is re-exported through <code>namespace ptn</code>:</p>
 <ul>
-<li>Structural reasoning remains declarative</li>
-<li>Data flow remains explicit</li>
-<li>Control flow remains predictable</li>
+<li><code>match</code></li>
+<li><code>on</code></li>
+<li><code>lit</code>, <code>lit_ci</code></li>
+<li><code>$</code></li>
+<li><code>_</code></li>
+<li><code>_0</code>, <code>arg</code>, <code>rng</code></li>
+<li><code>has</code></li>
+<li><code>is</code>, <code>alt</code></li>
 </ul>
 <hr />
-<h3 id="compile-time-guarantees">Compile-time Guarantees<a class="headerlink" href="#compile-time-guarantees" title="Permanent link">&para;</a></h3>
-<ul>
-<li>All member pointers are validated at compile time</li>
-<li>Invalid or non-existent members are diagnosed immediately</li>
-<li>No runtime reflection or metadata is required</li>
-</ul>
-<hr />
-<h3 id="conceptual-analogy">Conceptual Analogy<a class="headerlink" href="#conceptual-analogy" title="Permanent link">&para;</a></h3>
-<p><code>has&lt;&gt;</code> is conceptually similar to Rust’s structural patterns:</p>
-<div class="highlight"><pre><span></span><code><span class="n">Point</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="p">}</span>
-</code></pre></div>
-<p>—but adapted to C++’s lack of native reflection by using explicit member pointers.</p>
-<p>It expresses <strong>what structure is required</strong>, not <strong>how to traverse it</strong>.</p>
-<hr />
-<h2 id="v-namespace-structure">V. Namespace Structure<a class="headerlink" href="#v-namespace-structure" title="Permanent link">&para;</a></h2>
-<p>Patternia employs a layered namespace architecture:</p>
-<div class="highlight"><pre><span></span><code>ptn/                                    // Root namespace
-├── core/                              // Core matching engine
-│   ├── engine/                        // Matching engine implementation
-│   ├── dsl/                           // DSL operators
-│   └── common/                        // Common utilities and traits
-├── pat/                              // Pattern definitions
-│   ├── base/                          // Pattern base classes
-│   ├── lit.hpp                        // Literal pattern implementation
-│   ├── bind.hpp                       // Binding pattern implementation
-│   ├── wildcard.hpp                   // Wildcard pattern
-│   ├── structural.hpp                 // Structural pattern
-│   └── modifiers/                     // Pattern modifiers
-│       └── guard.hpp                  // Guard system
-└── meta/                             // Metaprogramming tools
-    ├── base/                         // Base traits
-    ├── dsa/                          // Data structures and algorithms
-    └── query/                        // Query utilities
-</code></pre></div>
-<h3 id="primary-namespace-aliases">Primary Namespace Aliases<a class="headerlink" href="#primary-namespace-aliases" title="Permanent link">&para;</a></h3>
-<p>For user convenience, Patternia provides all pattern functions directly in the <code>ptn</code> namespace:</p>
-<div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="c1">// Core matching</span>
-<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">engine</span><span class="o">::</span><span class="n">match</span><span class="p">;</span>
+<h2 id="minimal-example">Minimal Example<a class="headerlink" href="#minimal-example" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ptn/patternia.hpp&gt;</span>
 
-<span class="w">  </span><span class="c1">// Pattern primitives</span>
-<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">pat</span><span class="o">::</span><span class="n">lit</span><span class="p">;</span>
-<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">pat</span><span class="o">::</span><span class="n">lit_ci</span><span class="p">;</span>
-<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">pat</span><span class="o">::</span><span class="n">bind</span><span class="p">;</span>
-<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">pat</span><span class="o">::</span><span class="n">__</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
 
-<span class="w">  </span><span class="c1">// Guard system</span>
-<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">pat</span><span class="o">::</span><span class="n">mod</span><span class="o">::</span><span class="n">_</span><span class="p">;</span>
-<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">pat</span><span class="o">::</span><span class="n">mod</span><span class="o">::</span><span class="n">arg</span><span class="p">;</span>
-<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">pat</span><span class="o">::</span><span class="n">mod</span><span class="o">::</span><span class="n">rng</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="p">);</span>
 
-<span class="w">  </span><span class="c1">// Structural patterns</span>
-<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">pat</span><span class="o">::</span><span class="n">has</span><span class="p">;</span>
-
-<span class="w">  </span><span class="c1">// Type patterns</span>
-<span class="w">  </span><span class="k">namespace</span><span class="w"> </span><span class="nn">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">ptn</span><span class="o">::</span><span class="nn">pat</span><span class="o">::</span><span class="nn">type</span><span class="p">;</span>
-<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="p">;</span>
-<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">pat</span><span class="o">::</span><span class="n">type</span><span class="o">::</span><span class="n">as</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
-<hr />
-<p>This API reference focuses on Patternia's core design philosophy and essential APIs, providing readers with an understanding of Patternia's language composition rather than merely a function list. This organization facilitates better comprehension of Patternia's mental model and usage patterns.</p>
 
 
 

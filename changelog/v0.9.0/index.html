@@ -12,9 +12,13 @@
         <meta name="author" content="Y.F. Guo">
       
       
-        <link rel="canonical" href="https://sentomk.github.io/patternia/changelog/v0.7.6/">
+        <link rel="canonical" href="https://sentomk.github.io/patternia/changelog/v0.9.0/">
       
       
+        <link rel="prev" href="../releases/">
+      
+      
+        <link rel="next" href="../v0.8.5/">
       
       
         
@@ -25,7 +29,7 @@
     
     
       
-        <title>Patternia v0.7.6 Release Note - Patternia</title>
+        <title>v0.9.0 - Patternia</title>
       
     
     
@@ -78,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#patternia-v076-release-note" class="md-skip">
+        <a href="#patternia-v090-release-note" class="md-skip">
           Skip to content
         </a>
       
@@ -111,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Patternia v0.7.6 Release Note
+              v0.9.0
             
           </span>
         </div>
@@ -312,10 +316,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../releases/" class="md-tabs__link">
           
   
@@ -949,26 +955,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
             
   
   
@@ -986,7 +997,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1029,10 +1040,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../v0.9.0/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.0
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1048,6 +1086,159 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#highlights" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Highlights
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Highlights">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#named-guard-macros-ptn_where-and-ptn_let" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Named Guard Macros: PTN_WHERE and PTN_LET
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-cleanup-bind-and-_1_2_3-removed-breaking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Cleanup: bind() and _1/_2/_3 Removed (Breaking)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#callable-guard-fixes-for-msvc-and-standard-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Callable Guard Fixes for MSVC and Standard C++
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vcpkg-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vcpkg Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration Notes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bind-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bind() removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_1_2_3-removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _1/_2/_3 removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug Fixes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1192,72 +1383,157 @@
   
 
 
-<h1 id="patternia-v076-release-note">Patternia v0.7.6 Release Note<a class="headerlink" href="#patternia-v076-release-note" title="Permanent link">&para;</a></h1>
-<p><strong>Release Date:</strong> February 21, 2026<br />
-<strong>Version:</strong> 0.7.6</p>
+<h1 id="patternia-v090-release-note">Patternia v0.9.0 Release Note<a class="headerlink" href="#patternia-v090-release-note" title="Permanent link">&para;</a></h1>
+<p><strong>Release Date:</strong> March 13, 2026
+<strong>Version:</strong> 0.9.0</p>
 <hr />
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Patternia v0.7.6 is a performance and benchmarking release focused on variant
-dispatch internals, practical benchmark coverage, and easier benchmark result
-visualization.</p>
-<p>Compared with v0.7.5, this version adds targeted fast paths for variant
-matching (including mixed simple + guarded patterns), introduces real-world
-benchmark scenarios, and streamlines single-file benchmark reporting.</p>
+<p>Patternia v0.9.0 is an API modernization and compiler compatibility release.</p>
+<p>It introduces <code>PTN_WHERE</code> and <code>PTN_LET</code> as the canonical named-guard syntax,
+removes the legacy <code>bind()</code> entry point and positional guard aliases <code>_1</code>/<code>_2</code>/<code>_3</code>,
+and ships a series of fixes that make callable guards work correctly across
+GCC, Clang, and MSVC. vcpkg packaging support is also added in this version.</p>
 <hr />
 <h2 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h2>
-<h3 id="variant-dispatch-performance-core">Variant Dispatch Performance (Core)<a class="headerlink" href="#variant-dispatch-performance-core" title="Permanent link">&para;</a></h3>
+<h3 id="named-guard-macros-ptn_where-and-ptn_let">Named Guard Macros: <code>PTN_WHERE</code> and <code>PTN_LET</code><a class="headerlink" href="#named-guard-macros-ptn_where-and-ptn_let" title="Permanent link">&para;</a></h3>
+<p><code>PTN_WHERE((names...), expr)</code> gives guard arguments explicit names without
+writing a lambda. It supports 1 to 5 bound values:</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">Point</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="nf">on_diagonal</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Point</span><span class="w"> </span><span class="o">&amp;</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">PTN_WHERE</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">),</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">y</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nb">false</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>PTN_LET(name, expr)</code> is the single-value shorthand, equivalent to
+<code>PTN_WHERE((name), expr)</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="nf">bucket</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">$</span><span class="p">[</span><span class="n">PTN_LET</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;negative&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="n">$</span><span class="p">[</span><span class="n">PTN_LET</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;small&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;large&quot;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Both macros expand to captureless guard callables and compose with <code>&amp;&amp;</code> / <code>||</code>
+like other guard predicates.</p>
+<h3 id="api-cleanup-bind-and-_1_2_3-removed-breaking">API Cleanup: <code>bind()</code> and <code>_1</code>/<code>_2</code>/<code>_3</code> Removed (Breaking)<a class="headerlink" href="#api-cleanup-bind-and-_1_2_3-removed-breaking" title="Permanent link">&para;</a></h3>
+<p>The legacy <code>bind()</code> entry point and the positional guard aliases <code>_1</code>, <code>_2</code>,
+<code>_3</code> have been removed from the public surface.</p>
+<p>Migrate to the current equivalents:</p>
+<table>
+<thead>
+<tr>
+<th>Removed</th>
+<th>Replacement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bind()</code></td>
+<td><code>$</code></td>
+</tr>
+<tr>
+<td><code>bind(subpattern)</code></td>
+<td><code>$(subpattern)</code></td>
+</tr>
+<tr>
+<td><code>_1</code></td>
+<td><code>arg&lt;0&gt;</code> or <code>PTN_LET</code></td>
+</tr>
+<tr>
+<td><code>_2</code></td>
+<td><code>arg&lt;1&gt;</code></td>
+</tr>
+<tr>
+<td><code>_3</code></td>
+<td><code>arg&lt;2&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<p>A compile-fail test covers both removed names to prevent silent regressions.</p>
+<h3 id="callable-guard-fixes-for-msvc-and-standard-c">Callable Guard Fixes for MSVC and Standard C++<a class="headerlink" href="#callable-guard-fixes-for-msvc-and-standard-c" title="Permanent link">&para;</a></h3>
+<p>Four guard fixes were shipped in this cycle:</p>
 <ul>
-<li>Added a single-dispatch fast path for simple variant cases.</li>
-<li>Specialized simple dispatch by active variant index to reduce per-case
-  matching overhead.</li>
-<li>Added prefiltering for mixed simple + guarded variant patterns so guarded
-  branches can skip irrelevant alternatives early.</li>
-<li>Simplified internal index-resolution flow for typed variant dispatch.</li>
+<li><strong>Callable guards evaluate as tuple predicates.</strong> The guard trait system
+  now classifies <code>callable_guard</code> correctly so <code>PTN_WHERE</code>/<code>PTN_LET</code>
+  participate in composed guard evaluation (<code>&amp;&amp;</code>, <code>||</code>) on all compilers.</li>
+<li><strong>Replaced <code>std::apply</code> in tuple guard calls</strong> with an explicit index
+  sequence expansion to avoid MSVC ICEs on conformance-mode builds.</li>
+<li><strong>Replaced <code>std::invoke</code> in callable guard dispatch</strong> with direct call
+  syntax for the same reason.</li>
+<li><strong>MSVC traditional preprocessor workaround</strong> for <code>PTN_WHERE</code> argument
+  counting via <code>__VA_ARGS__</code> indirection.</li>
 </ul>
-<h3 id="real-world-variant-benchmarks">Real-World Variant Benchmarks<a class="headerlink" href="#real-world-variant-benchmarks" title="Permanent link">&para;</a></h3>
+<p>These fixes have no effect on GCC and Clang builds. MSVC users with
+<code>/Zc:preprocessor</code> enabled are not affected either.</p>
+<h3 id="vcpkg-support">vcpkg Support<a class="headerlink" href="#vcpkg-support" title="Permanent link">&para;</a></h3>
+<p>Patternia is now available through the vcpkg package manager:</p>
+<div class="highlight"><pre><span></span><code>vcpkg<span class="w"> </span>install<span class="w"> </span>patternia
+</code></pre></div>
+<p>Or via <code>vcpkg.json</code> manifest:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;patternia&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Consume through the existing CMake target:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">find_package</span><span class="p">(</span><span class="s">patternia</span><span class="w"> </span><span class="s">CONFIG</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
+<span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">your_target</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">patternia::patternia</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="migration-notes">Migration Notes<a class="headerlink" href="#migration-notes" title="Permanent link">&para;</a></h2>
+<h3 id="bind-removed"><code>bind()</code> removed<a class="headerlink" href="#bind-removed" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// Before</span>
+<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">bind</span><span class="p">()[</span><span class="n">_0</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+
+<span class="c1">// After</span>
+<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_0</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<h3 id="_1_2_3-removed"><code>_1</code>/<code>_2</code>/<code>_3</code> removed<a class="headerlink" href="#_1_2_3-removed" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// Before</span>
+<span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">_1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">_2</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;diagonal&quot;</span>
+
+<span class="c1">// After</span>
+<span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;diagonal&quot;</span>
+<span class="c1">// or</span>
+<span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">PTN_WHERE</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">),</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">y</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;diagonal&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="bug-fixes">Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Added protocol-router scenario benchmarks.</li>
-<li>Added command-parser scenario benchmarks.</li>
-<li>For each scenario, included side-by-side implementations for:</li>
-<li>Patternia</li>
-<li>if-else</li>
-<li>switch-case</li>
-<li>std::visit</li>
-</ul>
-<h3 id="benchmark-tooling-and-visualization">Benchmark Tooling and Visualization<a class="headerlink" href="#benchmark-tooling-and-visualization" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Added <code>scripts/bench_single_report.py</code> for single-JSON visualization across
-  multiple implementations in the same scenario.</li>
-<li>The script outputs chart + markdown + csv summaries to simplify local
-  analysis and sharing.</li>
-</ul>
-<h3 id="documentation-refresh">Documentation Refresh<a class="headerlink" href="#documentation-refresh" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Moved latest benchmark snapshot to the top of README for faster
-  performance-oriented access.</li>
-<li>Updated benchmark workflow docs with single-file visualization commands.</li>
+<li>Fixed <code>PTN_WHERE</code> argument counting failing under MSVC traditional
+  preprocessor mode. Added <code>__VA_ARGS__</code> indirection as a standard
+  workaround. No effect on conforming preprocessors.</li>
+<li>Fixed callable guards failing to dispatch bound values correctly in
+  composed guard expressions by routing them through the tuple predicate
+  path instead of <code>std::invoke</code>.</li>
+<li>Fixed <code>std::apply</code>-based tuple guard calls producing ICEs on MSVC
+  conformance builds.</li>
 </ul>
 <hr />
-<h2 id="compatibility-notes">Compatibility Notes<a class="headerlink" href="#compatibility-notes" title="Permanent link">&para;</a></h2>
+<h2 id="internal">Internal<a class="headerlink" href="#internal" title="Permanent link">&para;</a></h2>
 <ul>
-<li>API surface: unchanged for 0.7.x users.</li>
-<li>Source compatibility: unchanged.</li>
-<li>Runtime semantics: unchanged externally; optimizations are internal to
-  variant evaluation and benchmark tooling.</li>
-</ul>
-<hr />
-<h2 id="implementation-notes">Implementation Notes<a class="headerlink" href="#implementation-notes" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>include/ptn/core/common/eval.hpp</code></li>
-<li>Added and refined variant fast paths for simple and mixed-guarded cases.</li>
-<li><code>bench/bench_match_variant.cpp</code></li>
-<li>Added protocol-router and command-parser practical benchmark scenarios.</li>
-<li><code>scripts/bench_single_report.py</code></li>
-<li>Added single-JSON benchmark report generation utility.</li>
-<li><code>README.md</code></li>
-<li>Updated benchmark snapshot placement and workflow guidance.</li>
-<li><code>docs/index.md</code></li>
-<li>Synced benchmark tooling entry points for docs navigation.</li>
+<li><code>include/ptn/pattern/modifiers/guard.hpp</code>: added <code>callable_guard</code> type
+  and <code>make_callable_guard</code>, rewrote tuple expansion without <code>std::apply</code>
+  or <code>std::invoke</code>.</li>
+<li><code>include/ptn/pattern/base/pattern_traits.hpp</code>, <code>modifiers/fwd.h</code>:
+  added <code>callable_guard</code> to the guard trait classifier.</li>
+<li><code>include/ptn/patternia.hpp</code>: added <code>PTN_WHERE</code> and <code>PTN_LET</code> macros,
+  removed <code>bind</code> and <code>_1</code>/<code>_2</code>/<code>_3</code> exports.</li>
+<li><code>tests/compile_fail/</code>: added <code>bind_function_removed.cpp</code> and
+  <code>guard_placeholder_alias_removed.cpp</code>.</li>
 </ul>
 
 
@@ -1289,6 +1565,44 @@ benchmark scenarios, and streamlines single-file benchmark reporting.</p>
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../releases/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Releases">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Releases
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../v0.8.5/" class="md-footer__link md-footer__link--next" aria-label="Next: v0.8.5">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                v0.8.5
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">

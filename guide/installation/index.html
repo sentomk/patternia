@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -758,10 +758,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-recommended-fetch-patternia-automatically" class="md-nav__link">
+  <a href="#1-vcpkg" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Recommended: Fetch Patternia automatically
+        1. vcpkg
       
     </span>
   </a>
@@ -769,10 +769,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-install-and-consume-via-find_package" class="md-nav__link">
+  <a href="#2-fetch-patternia-automatically" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Install and consume via find_package()
+        2. Fetch Patternia automatically
       
     </span>
   </a>
@@ -780,10 +780,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-add-patternia-as-a-git-submodule" class="md-nav__link">
+  <a href="#3-install-and-consume-via-find_package" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Add Patternia as a Git submodule
+        3. Install and consume via find_package()
       
     </span>
   </a>
@@ -791,10 +791,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-include-the-include-directory-directly" class="md-nav__link">
+  <a href="#4-add-patternia-as-a-git-submodule" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Include the include/ directory directly
+        4. Add Patternia as a Git submodule
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-include-the-include-directory-directly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Include the include/ directory directly
       
     </span>
   </a>
@@ -1134,6 +1145,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../../changelog/v0.9.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.8.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.8.3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../changelog/v0.8.2/" class="md-nav__link">
         
   
@@ -1142,6 +1237,34 @@
     
   
     v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
   
 
     
@@ -1187,7 +1310,23 @@
 There is no build system, no linking step, and no external dependency.</p>
 <p>You can integrate Patternia into your project in any of the following ways.</p>
 <hr />
-<h2 id="1-recommended-fetch-patternia-automatically">1. Recommended: Fetch Patternia automatically<a class="headerlink" href="#1-recommended-fetch-patternia-automatically" title="Permanent link">&para;</a></h2>
+<h2 id="1-vcpkg">1. vcpkg<a class="headerlink" href="#1-vcpkg" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>vcpkg<span class="w"> </span>install<span class="w"> </span>patternia
+</code></pre></div>
+<p>Or via <code>vcpkg.json</code> manifest:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;patternia&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Then in your CMake project:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">find_package</span><span class="p">(</span><span class="s">patternia</span><span class="w"> </span><span class="s">CONFIG</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
+<span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">your_target</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">patternia::patternia</span><span class="p">)</span>
+</code></pre></div>
+<p>Pass the vcpkg toolchain file to CMake if it is not already in your preset:</p>
+<div class="highlight"><pre><span></span><code>cmake<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span>-DCMAKE_TOOLCHAIN_FILE<span class="o">=</span>/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
+</code></pre></div>
+<hr />
+<h2 id="2-fetch-patternia-automatically">2. Fetch Patternia automatically<a class="headerlink" href="#2-fetch-patternia-automatically" title="Permanent link">&para;</a></h2>
 <p>You may choose to fetch Patternia as a remote dependency during configuration.</p>
 <p><strong>FetchContent:</strong></p>
 <div class="highlight"><pre><span></span><code><span class="nb">include</span><span class="p">(</span><span class="s">FetchContent</span><span class="p">)</span>
@@ -1204,7 +1343,7 @@ There is no build system, no linking step, and no external dependency.</p>
 </code></pre></div>
 <p>This fits well in reproducible CI pipelines and modern CMake workflows.</p>
 <hr />
-<h2 id="2-install-and-consume-via-find_package">2. Install and consume via <code>find_package()</code><a class="headerlink" href="#2-install-and-consume-via-find_package" title="Permanent link">&para;</a></h2>
+<h2 id="3-install-and-consume-via-find_package">3. Install and consume via <code>find_package()</code><a class="headerlink" href="#3-install-and-consume-via-find_package" title="Permanent link">&para;</a></h2>
 <p>Patternia provides full CMake package export support.</p>
 <p>Install:</p>
 <div class="highlight"><pre><span></span><code>cmake<span class="w"> </span>-B<span class="w"> </span>build
@@ -1217,7 +1356,7 @@ cmake<span class="w"> </span>--install<span class="w"> </span>build<span class="
 </code></pre></div>
 <p>This is the recommended method for system-wide integration, packaging, and distribution.</p>
 <hr />
-<h2 id="3-add-patternia-as-a-git-submodule">3. Add Patternia as a Git submodule<a class="headerlink" href="#3-add-patternia-as-a-git-submodule" title="Permanent link">&para;</a></h2>
+<h2 id="4-add-patternia-as-a-git-submodule">4. Add Patternia as a Git submodule<a class="headerlink" href="#4-add-patternia-as-a-git-submodule" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>submodule<span class="w"> </span>add<span class="w"> </span>https://github.com/sentomk/patternia<span class="w"> </span>extern/patternia
 </code></pre></div>
 <p>Then in your CMake project:</p>
@@ -1226,7 +1365,7 @@ cmake<span class="w"> </span>--install<span class="w"> </span>build<span class="
 </code></pre></div>
 <p>This approach keeps Patternia version-controlled inside your repository and works well for mid- to large-scale projects.</p>
 <hr />
-<h2 id="4-include-the-include-directory-directly">4. Include the <code>include/</code> directory directly<a class="headerlink" href="#4-include-the-include-directory-directly" title="Permanent link">&para;</a></h2>
+<h2 id="5-include-the-include-directory-directly">5. Include the <code>include/</code> directory directly<a class="headerlink" href="#5-include-the-include-directory-directly" title="Permanent link">&para;</a></h2>
 <p>This is the simplest approach.
 Just add Patternia’s header path to your target:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">target_include_directories</span><span class="p">(</span><span class="s">your_target</span>

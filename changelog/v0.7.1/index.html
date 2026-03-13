@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -1032,6 +1032,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../v0.9.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../v0.8.2/" class="md-nav__link">
         
   
@@ -1040,6 +1124,34 @@
     
   
     v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
   
 
     
@@ -1099,16 +1211,16 @@ cases. No runtime behavior or matching semantics changed.</p>
 </ul>
 <h3 id="actionable-error-hints">Actionable Error Hints<a class="headerlink" href="#actionable-error-hints" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Added concise <code>Tip:</code> guidance to key diagnostics in match builder validation.</li>
-<li>Improved guidance for wildcard placement, <code>.end()</code>/<code>.otherwise()</code> misuse,
-  and lvalue subject requirements.</li>
+<li>Added concise <code>Tip:</code> guidance to key diagnostics in pipeline validation.</li>
+<li>Improved guidance for wildcard placement, incomplete matches, and subject
+  category requirements.</li>
 </ul>
 <h3 id="variant-type-diagnostics">Variant Type Diagnostics<a class="headerlink" href="#variant-type-diagnostics" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Improved <code>type::is&lt;T&gt;()</code> not-found diagnostics with clearer wording and
+<li>Improved <code>is&lt;T&gt;()</code> not-found diagnostics with clearer wording and
   concrete recovery guidance.</li>
 <li>Added explicit guidance for duplicate variant alternatives:
-  prefer <code>type::alt&lt;I&gt;()</code> or distinct wrapper types.</li>
+  prefer <code>alt&lt;I&gt;()</code> or distinct wrapper types.</li>
 </ul>
 <hr />
 <h2 id="compatibility-notes">Compatibility Notes<a class="headerlink" href="#compatibility-notes" title="Permanent link">&para;</a></h2>
@@ -1124,7 +1236,7 @@ cases. No runtime behavior or matching semantics changed.</p>
 <li>Requirement names made semantic.</li>
 <li>Several static-assert messages now include fix-oriented hints.</li>
 <li><code>include/ptn/pattern/type.hpp</code></li>
-<li><code>type::is&lt;T&gt;()</code> alternative lookup diagnostics refined.</li>
+<li><code>is&lt;T&gt;()</code> alternative lookup diagnostics refined.</li>
 </ul>
 
 

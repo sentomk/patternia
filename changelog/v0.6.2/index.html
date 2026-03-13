@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -1032,6 +1032,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../v0.9.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../v0.8.2/" class="md-nav__link">
         
   
@@ -1040,6 +1124,34 @@
     
   
     v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
   
 
     
@@ -1081,92 +1193,48 @@
 
 
 <h1 id="patternia-v062-release-note">Patternia v0.6.2 Release Note<a class="headerlink" href="#patternia-v062-release-note" title="Permanent link">&para;</a></h1>
-<p><strong>Release Date:</strong> December 23, 2025<br />
+<p><strong>Release Date:</strong> December 23, 2025
 <strong>Version:</strong> 0.6.2</p>
 <hr />
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Patternia v0.6.2 introduces enhanced compile-time safety through the addition of <code>[[nodiscard]]</code> attribute to the <code>match_builder</code> class. This release prevents incomplete or unused match expressions from silently producing undefined behavior or logical errors, providing developers with clear compiler warnings when match expressions are not properly terminated.</p>
+<p>Patternia v0.6.2 tightened compile-time feedback for incomplete matches.</p>
+<p>This page has been normalized to the current API surface. The original release
+note described <code>[[nodiscard]]</code> on the old builder object; the same idea now
+applies to the pipeline match context.</p>
 <hr />
-<h2 id="api-changes">API Changes<a class="headerlink" href="#api-changes" title="Permanent link">&para;</a></h2>
-<h3 id="nodiscard-attribute-for-match_builder"><code>[[nodiscard]]</code> Attribute for <code>match_builder</code><a class="headerlink" href="#nodiscard-attribute-for-match_builder" title="Permanent link">&para;</a></h3>
-<p><strong>Added:</strong> The <code>match_builder</code> class is now marked with the <code>[[nodiscard]]</code> attribute to prevent unused match expressions.</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.2 - [[nodiscard]] with custom warning message</span>
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">TV</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">HasMatchFallback</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Cases</span><span class="o">&gt;</span>
-<span class="k">class</span><span class="w"> </span><span class="p">[[</span><span class="n">nodiscard</span><span class="p">(</span>
-<span class="w">    </span><span class="s">&quot;[Patternia.match]: incomplete match expression. &quot;</span>
-<span class="w">    </span><span class="s">&quot;Call .otherwise(...) or .end() to finalize.&quot;</span><span class="p">)]]</span>
-<span class="n">match_builder</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// Implementation...</span>
-<span class="p">};</span>
-</code></pre></div>
-<p><strong>Example:</strong>
-<div class="highlight"><pre><span></span><code><span class="c1">// Incomplete match expression - generates compiler warning</span>
-<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">);</span>
-<span class="c1">// WARNING: [Patternia.match]: incomplete match expression. Call .otherwise(...) or .end() to finalize.</span>
+<h2 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h2>
+<h3 id="incomplete-match-diagnostics">Incomplete Match Diagnostics<a class="headerlink" href="#incomplete-match-diagnostics" title="Permanent link">&para;</a></h3>
+<p>Ignoring a partially formed match is diagnosed so unfinished expressions do not
+silently disappear.</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
 
-<span class="c1">// Correct usage - properly terminated</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;other&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">});</span>
-</code></pre></div></p>
-<p><strong>Key Benefits:</strong>
-- <strong>Compile-Time Safety:</strong> Detects unused match expressions at compile time
-- <strong>Clear Diagnostics:</strong> Custom warning message provides actionable guidance
-- <strong>Prevents Bugs:</strong> Avoids silent failures from incomplete pattern matches</p>
-<hr />
-<h2 id="implementation-details">Implementation Details<a class="headerlink" href="#implementation-details" title="Permanent link">&para;</a></h2>
-<h3 id="custom-warning-message">Custom Warning Message<a class="headerlink" href="#custom-warning-message" title="Permanent link">&para;</a></h3>
-<p>The <code>[[nodiscard]]</code> attribute includes a custom warning message to guide developers:</p>
-<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="p">[[</span><span class="n">nodiscard</span><span class="p">(</span>
-<span class="w">    </span><span class="s">&quot;[Patternia.match]: incomplete match expression. &quot;</span>
-<span class="w">    </span><span class="s">&quot;Call .otherwise(...) or .end() to finalize.&quot;</span><span class="p">)]]</span>
-<span class="n">match_builder</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// Class implementation...</span>
-<span class="p">};</span>
-</code></pre></div>
-<h3 id="code-cleanup-in-otherwise-method">Code Cleanup in <code>otherwise()</code> Method<a class="headerlink" href="#code-cleanup-in-otherwise-method" title="Permanent link">&para;</a></h3>
-<p><strong>Refactored:</strong> Removed duplicate <code>static_assert</code> statement in the <code>otherwise()</code> method for cleaner code.</p>
-<hr />
-<h2 id="migration-guide">Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
-<h3 id="from-v061-to-v062">From v0.6.1 to v0.6.2<a class="headerlink" href="#from-v061-to-v062" title="Permanent link">&para;</a></h3>
-<p><strong>Impact:</strong> Minimal - this change only introduces compiler warnings, not breaking changes.</p>
-<p><strong>1. Address New Warnings:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.1 - No warning</span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">old_code</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">do_something</span><span class="p">();</span><span class="w"> </span><span class="p">})</span>
-<span class="w">        </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">do_other</span><span class="p">();</span><span class="w"> </span><span class="p">});</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+<span class="w">  </span><span class="c1">// warning: incomplete match expression</span>
 <span class="p">}</span>
+</code></pre></div>
+<p>The intended form is to finish the match by piping an <code>on(...)</code> case pack:</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
 
-<span class="c1">// v0.6.2 - Warning generated</span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">new_code</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">do_something</span><span class="p">();</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
-<span class="w">        </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">do_other</span><span class="p">();</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">});</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">classify</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
-<p><strong>2. Intentional Side-Effect Operations:</strong></p>
-<p>For side-effect only operations, use explicit <code>(void)</code> cast:</p>
-<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">logging</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">level</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">match</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
-<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">LOG_INFO</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">log_info</span><span class="p">();</span><span class="w"> </span><span class="p">})</span>
-<span class="w">        </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">log_warning</span><span class="p">();</span><span class="w"> </span><span class="p">});</span>
-<span class="w">    </span><span class="c1">// Explicit cast indicates intentional disregard</span>
-<span class="p">}</span>
-</code></pre></div>
+<h3 id="safety-direction">Safety Direction<a class="headerlink" href="#safety-direction" title="Permanent link">&para;</a></h3>
+<p>This release reinforced a project rule that remains active:</p>
+<ul>
+<li>an unfinished match expression should be noisy</li>
+<li>diagnostics should tell users the next valid step</li>
+<li>API misuse should fail at compile time, not at runtime</li>
+</ul>
 <hr />
-<h2 id="breaking-changes">Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h2>
-<p><strong>None.</strong> This release is fully backward compatible. The <code>[[nodiscard]]</code> attribute only generates compiler warnings and does not change the behavior of existing code.</p>
-<hr />
-<h2 id="performance-impact">Performance Impact<a class="headerlink" href="#performance-impact" title="Permanent link">&para;</a></h2>
-<p><strong>Runtime Performance:</strong> No impact - <code>[[nodiscard]]</code> is a compile-time attribute only
-<strong>Compilation Time:</strong> No impact - attribute processing is negligible
-<strong>Binary Size:</strong> No impact - no runtime code generated</p>
-<hr />
-<p><strong>Note:</strong> This release focuses on enhancing compile-time safety and developer experience. The core pattern matching functionality and runtime behavior remain unchanged from v0.6.1.</p>
+<h2 id="historical-note">Historical Note<a class="headerlink" href="#historical-note" title="Permanent link">&para;</a></h2>
+<p>The original v0.6.2 note explained the warning in terms of a chained builder
+that was later removed. Current code still gets the same safety signal through
+the pipeline context returned by <code>match(subject)</code>.</p>
 
 
 

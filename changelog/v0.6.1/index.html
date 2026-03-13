@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -1032,6 +1032,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../v0.9.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../v0.8.2/" class="md-nav__link">
         
   
@@ -1040,6 +1124,34 @@
     
   
     v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
   
 
     
@@ -1081,319 +1193,59 @@
 
 
 <h1 id="patternia-v061-release-note">Patternia v0.6.1 Release Note<a class="headerlink" href="#patternia-v061-release-note" title="Permanent link">&para;</a></h1>
-<p><strong>Release Date:</strong> December 20, 2025<br />
+<p><strong>Release Date:</strong> December 20, 2025
 <strong>Version:</strong> 0.6.1</p>
 <hr />
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Patternia v0.6.1 introduces significant API refinements focused on pattern matching termination semantics, enhanced perfect forwarding, and simplified syntax for common matching scenarios. This release improves the clarity and safety of pattern matching expressions while maintaining full backward compatibility for existing code patterns.</p>
+<p>Patternia v0.6.1 focused on evaluation semantics, forwarding behavior, and API
+clarity.</p>
+<p>This page has been normalized to the current API surface. The original release
+note described the removed chained termination flow and the removed compact
+case-pack form.</p>
 <hr />
-<h2 id="api-changes">API Changes<a class="headerlink" href="#api-changes" title="Permanent link">&para;</a></h2>
-<h3 id="pattern-termination-semantics-end-vs-otherwise">Pattern Termination Semantics: <code>.end()</code> vs <code>.otherwise()</code><a class="headerlink" href="#pattern-termination-semantics-end-vs-otherwise" title="Permanent link">&para;</a></h3>
-<p><strong>Enhanced:</strong> Introduced mutually exclusive termination methods with clear semantic distinction.</p>
-<h4 id="end-for-exhaustive-matches-with-wildcard-patterns"><code>.end()</code> for Exhaustive Matches with Wildcard Patterns<a class="headerlink" href="#end-for-exhaustive-matches-with-wildcard-patterns" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.1 - Explicit end() for wildcard-based exhaustive matches</span>
-<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern1</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler1</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern2</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler2</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;wildcard fallback&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// Pattern-level fallback</span>
-<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">  </span><span class="c1">// Required termination</span>
+<h2 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h2>
+<h3 id="value-category-preservation">Value Category Preservation<a class="headerlink" href="#value-category-preservation" title="Permanent link">&para;</a></h3>
+<p><code>match()</code> continued to preserve the subject category needed for binding and
+handler invocation.</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
 
-<span class="c1">// Compile-time enforcement: end() requires wildcard pattern</span>
-<span class="k">static_assert</span><span class="p">(</span><span class="n">has_pattern_fallback</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;.end() requires a pattern-level fallback (&#39;__&#39;)&quot;</span><span class="p">);</span>
-</code></pre></div>
-<h4 id="otherwise-for-non-exhaustive-matches"><code>.otherwise()</code> for Non-Exhaustive Matches<a class="headerlink" href="#otherwise-for-non-exhaustive-matches" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.1 - otherwise() for match-level fallbacks</span>
-<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern1</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler1</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern2</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler2</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;default value&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">});</span><span class="w">  </span><span class="c1">// Match-level fallback</span>
-
-<span class="c1">// Compile-time enforcement: otherwise() cannot coexist with wildcard</span>
-<span class="k">static_assert</span><span class="p">(</span><span class="o">!</span><span class="n">has_pattern_fallback</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&#39;otherwise()&#39; cannot be used when a wildcard &#39;__&#39; pattern is present&quot;</span><span class="p">);</span>
-</code></pre></div>
-<p><strong>Key Improvements:</strong>
-- <strong>Mutual Exclusivity:</strong> Compile-time errors prevent mixing <code>.end()</code> and <code>.otherwise()</code>
-- <strong>Semantic Clarity:</strong> Clear distinction between pattern-level vs match-level fallbacks
-- <strong>Exhaustive Matching:</strong> <code>.end()</code> ensures coverage through wildcard patterns
-- <strong>Type Safety:</strong> Better compiler diagnostics for termination mismatches</p>
-<h3 id="enhanced-perfect-forwarding-in-match">Enhanced Perfect Forwarding in <code>match()</code><a class="headerlink" href="#enhanced-perfect-forwarding-in-match" title="Permanent link">&para;</a></h3>
-<p><strong>Improved:</strong> <code>match()</code> function now implements perfect forwarding for better value category preservation.</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.1 - Perfect forwarding implementation</span>
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
-<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">V</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">decay_t</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span><span class="p">;</span><span class="w">  </span><span class="c1">// Preserve reference semantics</span>
-
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">core</span><span class="o">::</span><span class="n">engine</span><span class="o">::</span><span class="n">detail</span><span class="o">::</span><span class="n">match_builder</span><span class="o">&lt;</span>
-<span class="w">        </span><span class="n">V</span><span class="p">,</span>
-<span class="w">        </span><span class="nb">false</span><span class="w"> </span><span class="cm">/* HasMatchFallback */</span>
-<span class="w">    </span><span class="o">&gt;::</span><span class="n">create</span><span class="p">(</span><span class="n">V</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">)));</span>
-<span class="p">}</span>
-
-<span class="c1">// Usage examples preserving value categories</span>
-<span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
-<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">);</span><span class="w">                    </span><span class="c1">// lvalue reference preserved</span>
-<span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span><span class="w">                    </span><span class="c1">// rvalue becomes lvalue reference to temporary</span>
-<span class="n">match</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">container</span><span class="p">));</span><span class="w">  </span><span class="c1">// move semantics preserved where applicable</span>
-</code></pre></div>
-<p><strong>Technical Benefits:</strong>
-- <strong>Value Category Preservation:</strong> Maintains lvalue/rvalue distinctions
-- <strong>Optimal Performance:</strong> Eliminates unnecessary copies in parameter handling
-- <strong>Type Deduction:</strong> Cleaner template argument resolution
-- <strong>Compiler Optimization:</strong> Better opportunities for inlining and optimization</p>
-<h3 id="new-compact-syntax-matchsubject-casesend">New Compact Syntax: <code>match(subject, cases()).end()</code><a class="headerlink" href="#new-compact-syntax-matchsubject-casesend" title="Permanent link">&para;</a></h3>
-<p><strong>Added:</strong> Concise syntax for simple pattern matching scenarios with pre-defined case collections.</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.1 - Compact syntax for straightforward matches</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span>
-<span class="w">    </span><span class="n">cases</span><span class="p">(</span>
-<span class="w">        </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">    </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">    </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">,</span><span class="w"> </span>
-<span class="w">        </span><span class="n">lit</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w">    </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;three&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="n">__</span><span class="w">        </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
-<span class="w">    </span><span class="p">)</span>
-<span class="p">).</span><span class="n">end</span><span class="p">();</span>
-
-<span class="c1">// Equivalent traditional syntax</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">    </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">    </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w">    </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;three&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w">        </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
-</code></pre></div>
-<p><strong>Syntax Features:</strong>
-- <strong>Concise Expression:</strong> Single-line definition for simple matches
-- <strong>Case Collection:</strong> <code>cases()</code> function groups pattern-handler pairs
-- <strong>Type Safety:</strong> Compile-time validation of case expressions
-- <strong>Readability:</strong> Improved clarity for straightforward matching logic</p>
-<p><strong>Implementation Details:</strong>
-<div class="highlight"><pre><span></span><code><span class="c1">// Internal cases_pack structure</span>
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Cases</span><span class="o">&gt;</span>
-<span class="k">struct</span><span class="w"> </span><span class="nc">cases_pack</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">tuple_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">Cases</span><span class="p">...</span><span class="o">&gt;</span><span class="p">;</span>
-<span class="w">    </span><span class="n">tuple_type</span><span class="w"> </span><span class="n">cases</span><span class="p">;</span>
-<span class="p">};</span>
-
-<span class="c1">// Specialized match overload for cases_pack</span>
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">TV</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Cases</span><span class="o">&gt;</span>
-<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">TV</span><span class="o">&amp;</span><span class="w"> </span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="n">core</span><span class="o">::</span><span class="n">dsl</span><span class="o">::</span><span class="n">detail</span><span class="o">::</span><span class="n">cases_pack</span><span class="o">&lt;</span><span class="n">Cases</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pack</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">subject_ref_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">remove_reference_t</span><span class="o">&lt;</span><span class="n">TV</span><span class="o">&gt;&amp;</span><span class="p">;</span>
-<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">builder_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">detail</span><span class="o">::</span><span class="n">match_builder</span><span class="o">&lt;</span><span class="n">subject_ref_t</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="n">Cases</span><span class="p">...</span><span class="o">&gt;</span><span class="p">;</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">builder_t</span><span class="o">::</span><span class="n">create</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">pack</span><span class="p">.</span><span class="n">cases</span><span class="p">));</span>
-<span class="p">}</span>
-</code></pre></div></p>
-<hr />
-<h2 id="api-migration-from-case_tuple-to-cases">API Migration from <code>case_tuple</code> to <code>cases</code><a class="headerlink" href="#api-migration-from-case_tuple-to-cases" title="Permanent link">&para;</a></h2>
-<p><strong>Changed:</strong> Renamed <code>case_tuple</code> to <code>cases</code> for improved naming consistency and clarity.</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.0 - case_tuple syntax</span>
-<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">case_tuple</span><span class="p">([](</span><span class="k">auto</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* handler */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">case_tuple</span><span class="p">([](</span><span class="k">auto</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* handler */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* fallback */</span><span class="w"> </span><span class="p">});</span>
-
-<span class="c1">// v0.6.1 - cases syntax (renamed from case_tuple)</span>
-<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">cases</span><span class="p">([](</span><span class="k">auto</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* handler */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">cases</span><span class="p">([](</span><span class="k">auto</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* handler */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* fallback */</span><span class="w"> </span><span class="p">});</span>
-
-<span class="c1">// v0.6.1 - New cases() function for compact syntax</span>
-<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">cases</span><span class="p">(</span>
-<span class="w">    </span><span class="n">pattern1</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler1</span><span class="p">,</span>
-<span class="w">    </span><span class="n">pattern2</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler2</span><span class="p">,</span>
-<span class="w">    </span><span class="n">__</span><span class="w">         </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">fallback_handler</span>
-<span class="p">)).</span><span class="n">end</span><span class="p">();</span>
-</code></pre></div>
-<p><strong>Migration Benefits:</strong>
-- <strong>Naming Clarity:</strong> <code>cases</code> better represents the functionality
-- <strong>Consistent Naming:</strong> Aligns with new <code>cases()</code> function
-- <strong>Backward Compatibility:</strong> Simple search-and-replace migration
-- <strong>Enhanced Semantics:</strong> Clearer intent expression</p>
-<hr />
-<h2 id="internal-architecture-improvements">Internal Architecture Improvements<a class="headerlink" href="#internal-architecture-improvements" title="Permanent link">&para;</a></h2>
-<h3 id="enhanced-builder-pattern-with-termination-validation">Enhanced Builder Pattern with Termination Validation<a class="headerlink" href="#enhanced-builder-pattern-with-termination-validation" title="Permanent link">&para;</a></h3>
-<p><strong>Refactored:</strong> Match builder now includes compile-time validation for termination semantics.</p>
-<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">TV</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">HasMatchFallback</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="p">...</span><span class="w"> </span><span class="n">Cases</span><span class="o">&gt;</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">match_builder</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// Compile-time predicates for termination validation</span>
-<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">has_pattern_fallback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
-<span class="w">        </span><span class="p">(</span><span class="n">traits</span><span class="o">::</span><span class="n">is_pattern_fallback_v</span><span class="o">&lt;</span><span class="n">traits</span><span class="o">::</span><span class="n">case_pattern_t</span><span class="o">&lt;</span><span class="n">Cases</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">...);</span>
-
-<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">has_match_fallback</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HasMatchFallback</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">is_exhaustive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
-<span class="w">        </span><span class="n">has_pattern_fallback</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">has_match_fallback</span><span class="p">;</span>
-
-<span class="w">    </span><span class="c1">// .end() requires pattern fallback</span>
-<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">end</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">static_assert</span><span class="p">(</span><span class="n">has_pattern_fallback</span><span class="p">,</span><span class="w"> </span>
-<span class="w">            </span><span class="s">&quot;[Patternia.match.end]: .end() requires a pattern-level fallback (&#39;__&#39;)&quot;</span><span class="p">);</span>
-<span class="w">        </span><span class="k">static_assert</span><span class="p">(</span><span class="o">!</span><span class="n">has_match_fallback</span><span class="p">,</span>
-<span class="w">            </span><span class="s">&quot;[Patternia.match.end]: .end() cannot be used after otherwise()&quot;</span><span class="p">);</span>
-<span class="w">        </span><span class="c1">// Implementation...</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="c1">// .otherwise() cannot coexist with pattern fallback</span>
-<span class="w">    </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Otherwise</span><span class="o">&gt;</span>
-<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="k">decltype</span><span class="p">(</span><span class="k">auto</span><span class="p">)</span><span class="w"> </span><span class="n">otherwise</span><span class="p">(</span><span class="n">Otherwise</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">handler</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">static_assert</span><span class="p">(</span><span class="o">!</span><span class="n">has_pattern_fallback</span><span class="p">,</span>
-<span class="w">            </span><span class="s">&quot;[Patternia.match]: &#39;otherwise()&#39; cannot be used when a wildcard &#39;__&#39; pattern is present&quot;</span><span class="p">);</span>
-<span class="w">        </span><span class="c1">// Implementation...</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">};</span>
-</code></pre></div>
-<h3 id="improved-template-metaprogramming">Improved Template Metaprogramming<a class="headerlink" href="#improved-template-metaprogramming" title="Permanent link">&para;</a></h3>
-<p><strong>Enhanced:</strong> Better type trait validation and template instantiation optimization.</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// Enhanced case expression validation</span>
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">CaseExpr</span><span class="o">&gt;</span>
-<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">when</span><span class="p">(</span><span class="n">CaseExpr</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">expr</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="o">!</span><span class="n">has_pattern_fallback</span><span class="p">,</span>
-<span class="w">        </span><span class="s">&quot;[Patternia.match]: no cases may follow a wildcard (&#39;__&#39;) pattern&quot;</span><span class="p">);</span>
-
-<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">ptn</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">traits</span><span class="o">::</span><span class="n">is_case_expr_v</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">decay_t</span><span class="o">&lt;</span><span class="n">CaseExpr</span><span class="o">&gt;&gt;</span><span class="p">,</span>
-<span class="w">        </span><span class="s">&quot;Argument to .when() must be a case expression created with the &#39;&gt;&gt;&#39; operator&quot;</span><span class="p">);</span>
-
-<span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="n">ptn</span><span class="o">::</span><span class="n">core</span><span class="o">::</span><span class="n">traits</span><span class="o">::</span><span class="n">is_handler_invocable_v</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">decay_t</span><span class="o">&lt;</span><span class="n">CaseExpr</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">subject_type</span><span class="o">&gt;</span><span class="p">,</span>
-<span class="w">        </span><span class="s">&quot;Handler signature does not match the pattern&#39;s binding result&quot;</span><span class="p">);</span>
-
-<span class="w">    </span><span class="c1">// Case concatenation and builder creation...</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">classify</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">values</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">values</span><span class="p">))</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">$</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="n">xs</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">xs</span><span class="p">.</span><span class="n">empty</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
-<hr />
-<h2 id="performance-optimizations">Performance Optimizations<a class="headerlink" href="#performance-optimizations" title="Permanent link">&para;</a></h2>
-<h3 id="enhanced-perfect-forwarding-implementation">Enhanced Perfect Forwarding Implementation<a class="headerlink" href="#enhanced-perfect-forwarding-implementation" title="Permanent link">&para;</a></h3>
-<p><strong>Optimized:</strong> Improved parameter handling eliminates unnecessary temporaries.</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.1 - Optimized parameter forwarding</span>
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
-<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">V</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">decay_t</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span><span class="p">;</span><span class="w">  </span><span class="c1">// Direct reference binding</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">match_builder</span><span class="o">&lt;</span><span class="n">V</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="o">&gt;::</span><span class="n">create</span><span class="p">(</span><span class="n">V</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">value</span><span class="p">)));</span>
-<span class="p">}</span>
+<h3 id="fallback-discipline">Fallback Discipline<a class="headerlink" href="#fallback-discipline" title="Permanent link">&para;</a></h3>
+<p>This release period clarified a rule that still applies after the builder
+cleanup: total matches should make the fallback explicit in the case list.</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
 
-<span class="c1">// Benefits:</span>
-<span class="c1">// - Direct reference binding without extra decay steps</span>
-<span class="c1">// - Preserved value categories for optimal performance</span>
-<span class="c1">// - Reduced template instantiation overhead</span>
-<span class="c1">// - Better compiler optimization opportunities</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="nf">day_name</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">day</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">day</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;Monday&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;Tuesday&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;invalid&quot;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
 </code></pre></div>
-<h3 id="builder-efficiency-improvements">Builder Efficiency Improvements<a class="headerlink" href="#builder-efficiency-improvements" title="Permanent link">&para;</a></h3>
-<p><strong>Enhanced:</strong> Streamlined builder construction and case management.</p>
+<h3 id="diagnostics-direction">Diagnostics Direction<a class="headerlink" href="#diagnostics-direction" title="Permanent link">&para;</a></h3>
+<p>The project kept moving toward earlier validation and clearer compile-time
+feedback for malformed matches.</p>
+<hr />
+<h2 id="what-still-matters">What Still Matters<a class="headerlink" href="#what-still-matters" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Reduced Tuple Operations:</strong> Optimized case concatenation</li>
-<li><strong>Better Move Semantics:</strong> Improved resource management in builder chains</li>
-<li><strong>Compile-Time Optimization:</strong> Enhanced template metaprogramming efficiency</li>
-<li><strong>Inline Optimization:</strong> Better opportunities for compiler inlining</li>
+<li><code>match(subject)</code> remains the single public entry point.</li>
+<li>A final <code>_</code> case is the current total-match form.</li>
+<li>Diagnostics should steer users toward a single obvious spelling.</li>
 </ul>
 <hr />
-<h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
-<h3 id="exhaustive-matching-with-end">Exhaustive Matching with <code>.end()</code><a class="headerlink" href="#exhaustive-matching-with-end" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Shape</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="nc">Type</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Circle</span><span class="p">,</span><span class="w"> </span><span class="n">Square</span><span class="p">,</span><span class="w"> </span><span class="n">Triangle</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="n">type</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">classify_shape</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Shape</span><span class="o">&amp;</span><span class="w"> </span><span class="n">shape</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
-<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Shape</span><span class="o">::</span><span class="n">type</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Shape</span><span class="o">::</span><span class="n">Circle</span><span class="p">)</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;circular&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
-<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Shape</span><span class="o">::</span><span class="n">type</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Shape</span><span class="o">::</span><span class="n">Square</span><span class="p">)</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;rectangular&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
-<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Shape</span><span class="o">::</span><span class="n">type</span><span class="o">&gt;</span><span class="p">(</span><span class="n">Shape</span><span class="o">::</span><span class="n">Triangle</span><span class="p">)</span><span class="w">  </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;triangular&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
-<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w">                                 </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;unknown shape&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
-<span class="w">        </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">  </span><span class="c1">// Explicit termination for exhaustive match</span>
-<span class="p">}</span>
-</code></pre></div>
-<h3 id="non-exhaustive-matching-with-otherwise">Non-Exhaustive Matching with <code>.otherwise()</code><a class="headerlink" href="#non-exhaustive-matching-with-otherwise" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">safe_divide</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
-<span class="w">        </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">{};</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// Division by zero</span>
-<span class="w">        </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([</span><span class="o">&amp;</span><span class="p">]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">{</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">b</span><span class="p">};</span><span class="w"> </span><span class="p">});</span>
-<span class="w">    </span><span class="c1">// No .end() needed - .otherwise() provides termination</span>
-<span class="p">}</span>
-</code></pre></div>
-<h3 id="compact-syntax-for-simple-matches">Compact Syntax for Simple Matches<a class="headerlink" href="#compact-syntax-for-simple-matches" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">get_day_name</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">day</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">day</span><span class="p">,</span><span class="w"> </span>
-<span class="w">        </span><span class="n">cases</span><span class="p">(</span>
-<span class="w">            </span><span class="mi">1</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;Monday&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="mi">2</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;Tuesday&quot;</span><span class="p">,</span><span class="w"> </span>
-<span class="w">            </span><span class="mi">3</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;Wednesday&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="mi">4</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;Thursday&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="mi">5</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;Friday&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="mi">6</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;Saturday&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="mi">7</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;Sunday&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="n">__</span><span class="w">  </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;Invalid day&quot;</span>
-<span class="w">        </span><span class="p">)</span>
-<span class="w">    </span><span class="p">).</span><span class="n">end</span><span class="p">();</span>
-<span class="p">}</span>
-</code></pre></div>
-<h3 id="perfect-forwarding-benefits">Perfect Forwarding Benefits<a class="headerlink" href="#perfect-forwarding-benefits" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="c1">// Example showing preserved value categories</span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">demonstrate_forwarding</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">vec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">};</span>
-
-<span class="w">    </span><span class="c1">// lvalue reference preserved</span>
-<span class="w">    </span><span class="n">match</span><span class="p">(</span><span class="n">vec</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">size</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* vec is still accessible */</span><span class="w"> </span><span class="p">});</span>
-
-<span class="w">    </span><span class="c1">// rvalue handled efficiently</span>
-<span class="w">    </span><span class="n">match</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">vec</span><span class="p">)).</span><span class="n">when</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">empty</span><span class="o">&gt;</span><span class="p">(</span><span class="nb">false</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* moved vector */</span><span class="w"> </span><span class="p">});</span>
-<span class="p">}</span>
-</code></pre></div>
-<hr />
-<h2 id="migration-guide">Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
-<h3 id="from-v060-to-v061">From v0.6.0 to v0.6.1<a class="headerlink" href="#from-v060-to-v061" title="Permanent link">&para;</a></h3>
-<p><strong>1. Update Termination Semantics:</strong>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.0 - Mixed termination (now invalid)</span>
-<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern1</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler1</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">fallback_handler</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">([]()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;unreachable&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">});</span><span class="w">  </span><span class="c1">// ERROR in v0.6.1</span>
-
-<span class="c1">// v0.6.1 - Correct .end() usage</span>
-<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">pattern1</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">handler1</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">fallback_handler</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">  </span><span class="c1">// Proper termination for exhaustive match</span>
-</code></pre></div></p>
-<p><strong>2. Rename case_tuple to cases:</strong>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.0</span>
-<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">).</span><span class="n">case_tuple</span><span class="p">([](</span><span class="k">auto</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">process</span><span class="p">(</span><span class="n">x</span><span class="p">);</span><span class="w"> </span><span class="p">});</span>
-
-<span class="c1">// v0.6.1</span>
-<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">).</span><span class="n">cases</span><span class="p">([](</span><span class="k">auto</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">process</span><span class="p">(</span><span class="n">x</span><span class="p">);</span><span class="w"> </span><span class="p">});</span>
-</code></pre></div></p>
-<p><strong>3. Consider Compact Syntax for Simple Cases:</strong>
-<div class="highlight"><pre><span></span><code><span class="c1">// v0.6.0 - Verbose traditional syntax</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span>
-
-<span class="c1">// v0.6.1 - Compact alternative</span>
-<span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">,</span>
-<span class="w">    </span><span class="n">cases</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span><span class="p">)</span>
-<span class="p">).</span><span class="n">end</span><span class="p">();</span>
-</code></pre></div></p>
-<hr />
-<h2 id="breaking-changes">Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h2>
-<h3 id="api-mutations">API Mutations<a class="headerlink" href="#api-mutations" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><code>case_tuple</code> → <code>cases</code>:</strong> Function renamed for clarity (simple search-and-replace)</li>
-<li><strong>Termination Validation:</strong> New compile-time errors prevent invalid termination combinations</li>
-<li><strong>Wildcard Pattern Requirements:</strong> <code>.end()</code> now required when using <code>__</code> patterns</li>
-</ul>
-<h3 id="migration-impact">Migration Impact<a class="headerlink" href="#migration-impact" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Low Risk:</strong> Most code changes are simple renames or termination additions</li>
-<li><strong>Compile-Time Safety:</strong> New validation catches potential errors early</li>
-<li><strong>Backward Compatibility:</strong> Core pattern matching logic unchanged</li>
-</ul>
-<hr />
-<h2 id="performance-impact">Performance Impact<a class="headerlink" href="#performance-impact" title="Permanent link">&para;</a></h2>
-<p><strong>Compilation Time:</strong> Improved 10-15% through better template optimization
-<strong>Runtime Performance:</strong> Enhanced perfect forwarding eliminates unnecessary copies
-<strong>Binary Size:</strong> Reduced ~2-3% from streamlined builder implementation
-<strong>Memory Usage:</strong> No change - zero-overhead runtime guarantees maintained</p>
-<hr />
-<h2 id="future-compatibility">Future Compatibility<a class="headerlink" href="#future-compatibility" title="Permanent link">&para;</a></h2>
-<p>This release strengthens the API foundation while maintaining core functionality compatibility. The new termination semantics provide a more robust and expressive pattern matching experience, with clear migration paths for existing code.</p>
-<p>The enhanced perfect forwarding and compact syntax additions represent additive improvements that don't affect existing patterns, ensuring smooth evolution of the API ecosystem.</p>
-<hr />
-<p><strong>Note:</strong> This release focuses on API refinement and enhanced developer experience. The core pattern matching engine maintains full backward compatibility for existing pattern definitions and matching logic.</p>
+<h2 id="historical-note">Historical Note<a class="headerlink" href="#historical-note" title="Permanent link">&para;</a></h2>
+<p>The original v0.6.1 page covered removed termination helpers and the removed
+compact direct-entry form. Those APIs have been removed from the current
+repository. The underlying semantics now appear only through pipeline matching.</p>
 
 
 

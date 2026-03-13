@@ -12,9 +12,13 @@
         <meta name="author" content="Y.F. Guo">
       
       
-        <link rel="canonical" href="https://sentomk.github.io/patternia/changelog/v0.7.6/">
+        <link rel="canonical" href="https://sentomk.github.io/patternia/changelog/v0.8.5/">
       
       
+        <link rel="prev" href="../v0.9.0/">
+      
+      
+        <link rel="next" href="../v0.8.3/">
       
       
         
@@ -25,7 +29,7 @@
     
     
       
-        <title>Patternia v0.7.6 Release Note - Patternia</title>
+        <title>v0.8.5 - Patternia</title>
       
     
     
@@ -78,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#patternia-v076-release-note" class="md-skip">
+        <a href="#patternia-v085-release-note" class="md-skip">
           Skip to content
         </a>
       
@@ -111,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Patternia v0.7.6 Release Note
+              v0.8.5
             
           </span>
         </div>
@@ -312,10 +316,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../releases/" class="md-tabs__link">
           
   
@@ -949,26 +955,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
             
   
   
@@ -986,7 +997,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1057,10 +1068,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../v0.8.5/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.5
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1076,6 +1114,109 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#highlights" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Highlights
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Highlights">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#variant-pattern-naming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variant Pattern Naming
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#callable-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Callable $() Binding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#structural-validation-without-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structural Validation Without Binding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historical-note" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Historical Note
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1192,73 +1333,81 @@
   
 
 
-<h1 id="patternia-v076-release-note">Patternia v0.7.6 Release Note<a class="headerlink" href="#patternia-v076-release-note" title="Permanent link">&para;</a></h1>
-<p><strong>Release Date:</strong> February 21, 2026<br />
-<strong>Version:</strong> 0.7.6</p>
+<h1 id="patternia-v085-release-note">Patternia v0.8.5 Release Note<a class="headerlink" href="#patternia-v085-release-note" title="Permanent link">&para;</a></h1>
+<p><strong>Release Date:</strong> March 10, 2026
+<strong>Version:</strong> 0.8.5</p>
 <hr />
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Patternia v0.7.6 is a performance and benchmarking release focused on variant
-dispatch internals, practical benchmark coverage, and easier benchmark result
-visualization.</p>
-<p>Compared with v0.7.5, this version adds targeted fast paths for variant
-matching (including mixed simple + guarded patterns), introduces real-world
-benchmark scenarios, and streamlines single-file benchmark reporting.</p>
+<p>Patternia v0.8.5 was an API modernization release focused on explicit binding,
+variant pattern naming, and guarded structural validation.</p>
+<p>This page has been normalized to the current API surface. The original release
+note mixed these changes with chained examples and older namespace-qualified
+variant names.</p>
 <hr />
 <h2 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h2>
-<h3 id="variant-dispatch-performance-core">Variant Dispatch Performance (Core)<a class="headerlink" href="#variant-dispatch-performance-core" title="Permanent link">&para;</a></h3>
+<h3 id="variant-pattern-naming">Variant Pattern Naming<a class="headerlink" href="#variant-pattern-naming" title="Permanent link">&para;</a></h3>
+<p>Type-based variant matching uses the short public forms:</p>
 <ul>
-<li>Added a single-dispatch fast path for simple variant cases.</li>
-<li>Specialized simple dispatch by active variant index to reduce per-case
-  matching overhead.</li>
-<li>Added prefiltering for mixed simple + guarded variant patterns so guarded
-  branches can skip irrelevant alternatives early.</li>
-<li>Simplified internal index-resolution flow for typed variant dispatch.</li>
+<li><code>is&lt;T&gt;()</code> for type-based dispatch</li>
+<li><code>alt&lt;I&gt;()</code> for index-based dispatch</li>
+<li><code>$(is&lt;T&gt;())</code> when the matched alternative must be bound</li>
 </ul>
-<h3 id="real-world-variant-benchmarks">Real-World Variant Benchmarks<a class="headerlink" href="#real-world-variant-benchmarks" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;int&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">text</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;str:&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">text</span><span class="p">;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="callable-binding">Callable <code>$()</code> Binding<a class="headerlink" href="#callable-binding" title="Permanent link">&para;</a></h3>
+<p>The binding shorthand is uniform across literal, structural, and variant
+patterns.</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">Point</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">sum</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Point</span><span class="w"> </span><span class="o">&amp;</span><span class="n">point</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">point</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="structural-validation-without-binding">Structural Validation Without Binding<a class="headerlink" href="#structural-validation-without-binding" title="Permanent link">&para;</a></h3>
+<p>Structural patterns can be guarded directly when a handler only needs a yes or
+no decision.</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="nf">balanced</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Point</span><span class="w"> </span><span class="o">&amp;</span><span class="n">point</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">point</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">()[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nb">false</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="migration-notes">Migration Notes<a class="headerlink" href="#migration-notes" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Added protocol-router scenario benchmarks.</li>
-<li>Added command-parser scenario benchmarks.</li>
-<li>For each scenario, included side-by-side implementations for:</li>
-<li>Patternia</li>
-<li>if-else</li>
-<li>switch-case</li>
-<li>std::visit</li>
-</ul>
-<h3 id="benchmark-tooling-and-visualization">Benchmark Tooling and Visualization<a class="headerlink" href="#benchmark-tooling-and-visualization" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Added <code>scripts/bench_single_report.py</code> for single-JSON visualization across
-  multiple implementations in the same scenario.</li>
-<li>The script outputs chart + markdown + csv summaries to simplify local
-  analysis and sharing.</li>
-</ul>
-<h3 id="documentation-refresh">Documentation Refresh<a class="headerlink" href="#documentation-refresh" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Moved latest benchmark snapshot to the top of README for faster
-  performance-oriented access.</li>
-<li>Updated benchmark workflow docs with single-file visualization commands.</li>
+<li>Older namespace-qualified variant spellings have been retired in favor of
+  <code>is&lt;T&gt;()</code> and <code>alt&lt;I&gt;()</code>.</li>
+<li>Binding a selected variant alternative should use <code>$(is&lt;T&gt;())</code>.</li>
+<li>Binding structural members should use <code>$(has&lt;...&gt;())</code> or <code>bind(has&lt;...&gt;())</code>.</li>
 </ul>
 <hr />
-<h2 id="compatibility-notes">Compatibility Notes<a class="headerlink" href="#compatibility-notes" title="Permanent link">&para;</a></h2>
-<ul>
-<li>API surface: unchanged for 0.7.x users.</li>
-<li>Source compatibility: unchanged.</li>
-<li>Runtime semantics: unchanged externally; optimizations are internal to
-  variant evaluation and benchmark tooling.</li>
-</ul>
-<hr />
-<h2 id="implementation-notes">Implementation Notes<a class="headerlink" href="#implementation-notes" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>include/ptn/core/common/eval.hpp</code></li>
-<li>Added and refined variant fast paths for simple and mixed-guarded cases.</li>
-<li><code>bench/bench_match_variant.cpp</code></li>
-<li>Added protocol-router and command-parser practical benchmark scenarios.</li>
-<li><code>scripts/bench_single_report.py</code></li>
-<li>Added single-JSON benchmark report generation utility.</li>
-<li><code>README.md</code></li>
-<li>Updated benchmark snapshot placement and workflow guidance.</li>
-<li><code>docs/index.md</code></li>
-<li>Synced benchmark tooling entry points for docs navigation.</li>
-</ul>
+<h2 id="historical-note">Historical Note<a class="headerlink" href="#historical-note" title="Permanent link">&para;</a></h2>
+<p>The original v0.8.5 note introduced the same direction through a mixture of
+chained examples and older variant naming. Current code should use pipeline
+matching exclusively.</p>
 
 
 
@@ -1289,6 +1438,44 @@ benchmark scenarios, and streamlines single-file benchmark reporting.</p>
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../v0.9.0/" class="md-footer__link md-footer__link--prev" aria-label="Previous: v0.9.0">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                v0.9.0
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../v0.8.3/" class="md-footer__link md-footer__link--next" aria-label="Next: v0.8.3">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                v0.8.3
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">

@@ -21,11 +21,11 @@
       
       
       <link rel="icon" href="../assets/favicon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
-        <title>Patternia Matching Semantics Overview - Patternia</title>
+        <title>Design Overview - Patternia</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#patternia-matching-semantics-overview" class="md-skip">
+        <a href="#design-overview" class="md-skip">
           Skip to content
         </a>
       
@@ -111,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Patternia Matching Semantics Overview
+              Design Overview
             
           </span>
         </div>
@@ -1032,6 +1032,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../changelog/v0.9.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/v0.8.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/v0.8.3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../changelog/v0.8.2/" class="md-nav__link">
         
   
@@ -1040,6 +1124,34 @@
     
   
     v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
   
 
     
@@ -1080,379 +1192,123 @@
   
 
 
-<h1 id="patternia-matching-semantics-overview">Patternia Matching Semantics Overview<a class="headerlink" href="#patternia-matching-semantics-overview" title="Permanent link">&para;</a></h1>
-<p>(<code>__</code>, <code>.end()</code>, <code>.otherwise()</code> and Destructuring Patterns)</p>
-<h2 id="0-core-objectives">0. Core Objectives<a class="headerlink" href="#0-core-objectives" title="Permanent link">&para;</a></h2>
-<p>Patternia's DSL is designed to satisfy three key principles:</p>
+<h1 id="design-overview">Design Overview<a class="headerlink" href="#design-overview" title="Permanent link">&para;</a></h1>
+<p>Patternia treats pattern matching as an expression over a concrete subject:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">case_1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">case_2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">fallback</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>The library is built around four ideas:</p>
 <ol>
-<li><strong>Semantic Clarity</strong>:</li>
-<li>Clear separation between "pattern-level" and "match-level" responsibilities.</li>
-<li><strong>Predictable Behavior</strong>:</li>
-<li>Consistent with Rust and the C++ standard proposal P1371R1 <code>inspect</code> mechanism in spirit.</li>
-<li><strong>User-Friendly</strong>:</li>
-<li>Minimal API coverage for both "statement-style matching" and "expression-style matching" requirements.</li>
-</ol>
-<p>Around these three principles, the entire system can be abstracted into three levels:</p>
-<ol>
-<li><strong>Pattern Level</strong>: <code>lit(...)</code>, <code>type::is&lt;T&gt;</code>, destructuring, <code>bind(...)</code>, <code>__</code>, etc.</li>
-<li><strong>Case Level</strong>: <code>.when(pattern &gt;&gt; handler)</code>.</li>
-<li><strong>Match Finalizer Level</strong>: <code>.end()</code> / <code>.otherwise(...)</code>.</li>
-</ol>
-<p>All discussions below revolve around these three levels.</p>
-<hr />
-<h2 id="1-formal-definitions-of-core-concepts">1. Formal Definitions of Core Concepts<a class="headerlink" href="#1-formal-definitions-of-core-concepts" title="Permanent link">&para;</a></h2>
-<h3 id="11-__-wildcard-pattern">1.1 <code>__</code> (Wildcard Pattern)<a class="headerlink" href="#11-__-wildcard-pattern" title="Permanent link">&para;</a></h3>
-<ul>
-<li><code>__</code> is a <strong>pattern</strong> used to match "any value".</li>
-<li>It exists only at the <strong>Pattern Level</strong> and does not control the entire match lifecycle.</li>
-<li>
-<p>It plays different roles in different contexts:</p>
-</li>
-<li>
-<p>In <strong>literal matching</strong>: Serves as a "fallback case".</p>
-</li>
-<li>In <strong>enum/variant-like matching</strong>: Serves as a "fallback for remaining constructors".</li>
-<li>In <strong>struct destructuring</strong>:
-    Used for "field-level ignoring", similar to Rust's <code>_</code> / <code>..</code>.</li>
-</ul>
-<h3 id="12-end-match-finalizer-for-__">1.2 <code>.end()</code> (Match Finalizer for <code>__</code>)<a class="headerlink" href="#12-end-match-finalizer-for-__" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p><code>.end()</code> finalizes a match that uses the <code>__</code> pattern fallback:</p>
-</li>
-<li>
-<p>The entire <code>match(...)</code> expression may return a value or be <code>void</code>.</p>
-</li>
-<li>Used for exhaustive-style matches where <code>__</code> is a regular case.</li>
-<li>Corresponds to the <strong>statement form</strong> in the standard proposal's <code>inspect</code>
-  when handlers are <code>void</code>-returning.</li>
-<li>
-<p>Constraints:</p>
-</li>
-<li>
-<p>All case handlers must return compatible types (or all <code>void</code>).</p>
-</li>
-<li>
-<p>For exhaustible types (enum, bool, variant-like), future <strong>exhaustiveness checking</strong> will be performed:</p>
-<ul>
-<li>Compile-time diagnostics when not all enum values or alternatives are covered.</li>
-</ul>
-</li>
-</ul>
-<h3 id="13-otherwise-expression-style-match-finalizer">1.3 <code>.otherwise(...)</code> (Expression-style Match Finalizer)<a class="headerlink" href="#13-otherwise-expression-style-match-finalizer" title="Permanent link">&para;</a></h3>
-<ul>
-<li>
-<p><code>.otherwise(fallback)</code> transforms the builder into <strong>expression-style matching</strong>:</p>
-</li>
-<li>
-<p>The entire <code>match(...)</code> has a unified return value.</p>
-</li>
-<li>Similar to Rust's <code>let r = match x { ... };</code></li>
-<li>
-<p>Corresponds to the <strong>expression form</strong> in the standard proposal's <code>inspect</code>:</p>
-</li>
-<li>
-<p><code>pattern =&gt; expression,</code></p>
-</li>
-<li>
-<p>Constraints:</p>
-</li>
-<li>
-<p>All <code>.when(pattern &gt;&gt; handler)</code> handlers must return compatible types (or all <code>void</code>).</p>
-</li>
-<li>
-<p><code>.otherwise(...)</code> provides the final fallback value:</p>
-<ul>
-<li>Used when no branches match.</li>
-<li><code>.otherwise(...)</code> terminates the builder and determines the return type.</li>
-</ul>
-</li>
-</ul>
-<hr />
-<h2 id="2-semantic-levels-pattern-vs-match-finalizer">2. Semantic Levels: Pattern vs Match Finalizer<a class="headerlink" href="#2-semantic-levels-pattern-vs-match-finalizer" title="Permanent link">&para;</a></h2>
-<p>Always remember:</p>
-<blockquote>
-<p><strong><code>__</code> is a Pattern-level object;
-<code>.end()</code> and <code>.otherwise()</code> are Match Finalizer-level objects.</strong></p>
-</blockquote>
-<p>They solve completely different problems:</p>
-<table>
-<thead>
-<tr>
-<th>Role</th>
-<th>Level</th>
-<th>Problem Solved</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>__</code></td>
-<td>Pattern Level</td>
-<td>How current case matches "any/remaining forms"</td>
-</tr>
-<tr>
-<td><code>.end()</code></td>
-<td>Match Level</td>
-<td>Finalizes a match that uses <code>__</code> as a case</td>
-</tr>
-<tr>
-<td><code>.otherwise</code></td>
-<td>Match Level</td>
-<td>Entire match "as expression" with final return value</td>
-</tr>
-</tbody>
-</table>
-<p>Therefore:</p>
-<ul>
-<li><code>__</code> cannot replace <code>.otherwise()</code>:
-  It doesn't terminate the builder, nor determine return type.</li>
-<li><code>.otherwise()</code> cannot replace <code>__</code>:
-  It cannot express "fallback for remaining constructors/fields in pattern tree".</li>
-</ul>
-<hr />
-<h2 id="3-end-vs-otherwise-two-modes">3. <code>.end()</code> vs <code>.otherwise()</code>: Two Modes<a class="headerlink" href="#3-end-vs-otherwise-two-modes" title="Permanent link">&para;</a></h2>
-<h3 id="31-end-__-finalized-matching">3.1 <code>.end()</code> - <code>__</code>-Finalized Matching<a class="headerlink" href="#31-end-__-finalized-matching" title="Permanent link">&para;</a></h3>
-<p><strong>Use Cases:</strong></p>
-<ul>
-<li>Want to use <code>__</code> as a regular case.</li>
-<li>Want exhaustiveness checking for enum/variant-like types.</li>
-</ul>
-<p><strong>Semantic Characteristics:</strong></p>
-<ul>
-<li>All handlers must return compatible types (or all <code>void</code>).</li>
-<li>Return type is deduced from the cases.</li>
-<li>Exhaustible types will be checked for "complete coverage".</li>
-</ul>
-<p><strong>Example (enum):</strong></p>
-<div class="highlight"><pre><span></span><code><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Status</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Pending</span><span class="p">,</span><span class="w"> </span><span class="n">Running</span><span class="p">,</span><span class="w"> </span><span class="n">Failed</span><span class="w"> </span><span class="p">};</span>
-
-<span class="n">match</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Pending</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Pending&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Running</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Running&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Other&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// pattern-level fallback</span>
-<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span><span class="w">                            </span><span class="c1">// match finalizer for `__`</span>
-</code></pre></div>
-<p><strong>Rust Analogy:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="k">match</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">Status</span><span class="p">::</span><span class="n">Pending</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Pending&quot;</span><span class="p">),</span>
-<span class="w">    </span><span class="n">Status</span><span class="p">::</span><span class="n">Running</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Running&quot;</span><span class="p">),</span>
-<span class="w">    </span><span class="n">_</span><span class="w">               </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Other&quot;</span><span class="p">),</span>
-<span class="p">};</span>
-</code></pre></div>
-<h3 id="32-otherwise-expression-style-matching">3.2 <code>.otherwise(...)</code> - Expression-style Matching<a class="headerlink" href="#32-otherwise-expression-style-matching" title="Permanent link">&para;</a></h3>
-<p><strong>Use Cases:</strong></p>
-<ul>
-<li>Need to <strong>compute a value</strong> from match:</li>
-<li>Generate labels for enum/variant;</li>
-<li>Calculate results, map strings, etc.</li>
-</ul>
-<p><strong>Semantic Characteristics:</strong></p>
-<ul>
-<li>All handlers return the same type (or commonly convertible).</li>
-<li><code>.otherwise(fallback)</code> provides the final value.</li>
-<li>The entire <code>match(...)</code> expression has a concrete type.</li>
-</ul>
-<p><strong>Example (Rust counterpart):</strong></p>
-<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
-
-<span class="k">auto</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;Other&quot;</span><span class="p">);</span>
-
-<span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">res</span><span class="p">;</span>
-</code></pre></div>
-<p><strong>Corresponding Rust:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
-<span class="kd">let</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">match</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="mi">1</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="mi">2</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&quot;Other&quot;</span><span class="p">,</span>
-<span class="p">};</span>
-<span class="fm">println!</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">res</span><span class="p">);</span>
-</code></pre></div>
-<hr />
-<h2 id="4-__-roles-in-different-scenarios">4. <code>__</code> Roles in Different Scenarios<a class="headerlink" href="#4-__-roles-in-different-scenarios" title="Permanent link">&para;</a></h2>
-<h3 id="41-as-case-fallback-wildcard">4.1 As "Case Fallback" Wildcard<a class="headerlink" href="#41-as-case-fallback-wildcard" title="Permanent link">&para;</a></h3>
-<p>Simplest literal scenario:</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* one */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* two */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* other */</span><span class="w"> </span><span class="p">})</span><span class="w">    </span><span class="c1">// __ is pattern-level fallback here</span>
-<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
-</code></pre></div>
-<ul>
-<li><code>__ &gt;&gt; ...</code>: Represents "all other values".</li>
-</ul>
-<h3 id="42-remaining-branch-in-enumvariant-like-matching">4.2 Remaining Branch in Enum/Variant-like Matching<a class="headerlink" href="#42-remaining-branch-in-enumvariant-like-matching" title="Permanent link">&para;</a></h3>
-<p>For variant-like types (including future kind/alternative patterns):</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span><span class="w">         </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* int */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* string */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w">                       </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* other-kind */</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
-</code></pre></div>
-<p>Here:</p>
-<ul>
-<li><code>__</code> represents "all alternatives except int and string".</li>
-</ul>
-<h3 id="43-field-wildcard-in-struct-destructuring">4.3 Field Wildcard in Struct Destructuring<a class="headerlink" href="#43-field-wildcard-in-struct-destructuring" title="Permanent link">&para;</a></h3>
-<p><strong>Corresponding Rust:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="k">match</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">Point</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">..</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">),</span>
-<span class="p">}</span>
-</code></pre></div>
-<p><strong>Patternia ideal DSL example:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Point</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">z</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
-
-<span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">Point</span><span class="p">{</span><span class="w"> </span><span class="n">bind</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="w"> </span><span class="n">__</span><span class="p">,</span><span class="w"> </span><span class="n">__</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
-<span class="w">    </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
-</code></pre></div>
-<p><strong>Meaning:</strong></p>
-<ul>
-<li>Matches object of type <code>Point</code>.</li>
-<li>Only binds first field <code>x</code>.</li>
-<li>Other fields (<code>y</code>, <code>z</code>) are ignored with <code>__</code>.</li>
-</ul>
-<p><code>__</code> here is <strong>field-level wildcard</strong>, not a fallback case.
-Future named field versions could also be extended:</p>
-<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">Point</span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bind</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="w"> </span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">...)</span>
-</code></pre></div>
-<hr />
-<h2 id="5-__-and-otherwise-are-mutually-exclusive">5. <code>__</code> and <code>.otherwise()</code> Are Mutually Exclusive<a class="headerlink" href="#5-__-and-otherwise-are-mutually-exclusive" title="Permanent link">&para;</a></h2>
-<p><code>__</code> is a pattern-level fallback, while <code>.otherwise()</code> is a match-level fallback.
-Patternia rejects <code>.otherwise()</code> if a wildcard case is present. Use either:</p>
-<ul>
-<li><code>__</code> with <code>.end()</code> for pattern-level fallback, or</li>
-<li><code>.otherwise(...)</code> without <code>__</code> for match-level fallback.</li>
-</ul>
-<hr />
-<h2 id="6-when-to-use-end-and-otherwise">6. When to Use <code>.end()</code> and <code>.otherwise()</code><a class="headerlink" href="#6-when-to-use-end-and-otherwise" title="Permanent link">&para;</a></h2>
-<p>Use this decision table to directly guide user usage.</p>
-<h3 id="61-decision-table">6.1 Decision Table<a class="headerlink" href="#61-decision-table" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Requirement</th>
-<th>Recommended Usage</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Use <code>__</code> as a case fallback</td>
-<td>Use <code>.end()</code></td>
-</tr>
-<tr>
-<td>Need a value without <code>__</code></td>
-<td>Use <code>.otherwise(...)</code></td>
-</tr>
-<tr>
-<td>Want exhaustiveness checking for enum/variant</td>
-<td>Use <code>.end()</code></td>
-</tr>
-<tr>
-<td>Express "all remaining matching forms"</td>
-<td>Use <code>__</code> in pattern</td>
-</tr>
-<tr>
-<td>Express "entire match fallback return value"</td>
-<td>Use <code>.otherwise(...)</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="62-typical-patterns">6.2 Typical Patterns<a class="headerlink" href="#62-typical-patterns" title="Permanent link">&para;</a></h3>
-<ol>
-<li><strong><code>__</code>-finalized with fallback:</strong></li>
-</ol>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Pending</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="n">Status</span><span class="o">::</span><span class="n">Running</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="c1">// fallback</span>
-<span class="w">    </span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
-</code></pre></div>
-<ol>
-<li><strong>Expression-style, Rust counterpart:</strong></li>
-</ol>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;Other&quot;</span><span class="p">);</span>
-</code></pre></div>
-<ol>
-<li><strong>Struct destructuring + field wildcard:</strong></li>
-</ol>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">Point</span><span class="p">{</span><span class="w"> </span><span class="n">bind</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="w"> </span><span class="n">__</span><span class="p">,</span><span class="w"> </span><span class="n">__</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="p">})</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-</code></pre></div>
-<ol>
-<li><strong>Variant-like + type matching + pattern fallback:</strong></li>
-</ol>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">info</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w">         </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;int&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">type</span><span class="o">::</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;string&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span><span class="n">__</span><span class="w">                     </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other-kind&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;panic&quot;</span><span class="p">);</span>
-</code></pre></div>
-<hr />
-<h2 id="7-implementation-details">7. Implementation Details<a class="headerlink" href="#7-implementation-details" title="Permanent link">&para;</a></h2>
-<h3 id="71-builder-execution-flow">7.1 Builder Execution Flow<a class="headerlink" href="#71-builder-execution-flow" title="Permanent link">&para;</a></h3>
-<p>The builder pattern ensures that matches are only executed when properly terminated:</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// Without .end() or .otherwise():</span>
-<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* handler */</span><span class="w"> </span><span class="p">});</span>
-<span class="c1">// Result: Nothing is executed - builder remains unterminated</span>
-
-<span class="c1">// With .end():</span>
-<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* handler */</span><span class="w"> </span><span class="p">}).</span><span class="n">end</span><span class="p">();</span>
-<span class="c1">// Result: match_impl::eval(subject_, cases_, std::move(dummy_fallback));</span>
-
-<span class="c1">// With .otherwise():</span>
-<span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">).</span><span class="n">when</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* handler */</span><span class="w"> </span><span class="p">}).</span><span class="n">otherwise</span><span class="p">(</span><span class="n">fallback</span><span class="p">);</span>
-<span class="c1">// Result: match_impl::eval(subject_, cases_, std::move(final_handler));</span>
-</code></pre></div>
-<p><strong>Key Points:</strong></p>
-<ul>
-<li>Without <code>.end()</code> or <code>.otherwise()</code>, the builder never triggers execution.</li>
-<li><code>.end()</code> creates an empty fallback handler for <code>__</code>-finalized execution.</li>
-<li><code>.otherwise()</code> uses the provided handler as the final fallback for expression-style execution.</li>
-</ul>
-<h3 id="72-type-safety-guarantees">7.2 Type Safety Guarantees<a class="headerlink" href="#72-type-safety-guarantees" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong><code>.end()</code></strong>: All handlers must return compatible types (or all <code>void</code>)</li>
-<li><strong>Expression-style (<code>.otherwise()</code>)</strong>: All handlers must return compatible types</li>
-<li><strong>Pattern matching</strong>: Type-safe heterogeneous comparisons</li>
-<li><strong>Binding</strong>: Compile-time type deduction for bound values</li>
-</ul>
-<hr />
-<h2 id="8-future-roadmap">8. Future Roadmap<a class="headerlink" href="#8-future-roadmap" title="Permanent link">&para;</a></h2>
-<p>To make these semantics truly user-friendly, Patternia's future plans include:</p>
-<ol>
-<li><strong>Exhaustiveness Checking for <code>.end()</code></strong>:</li>
-<li>Enum/bool: Static checking for complete enum value coverage.</li>
-<li>Variant-like: Check for complete alternative coverage.</li>
-<li>
-<p>Provide "missing case" and "useless case" hints.</p>
-</li>
-<li>
-<p><strong>Formal Struct Destructuring DSL</strong>:</p>
-</li>
-<li>Positional: <code>Point{ bind(x), __, __ }</code></li>
-<li>Named: <code>Point{ .x = bind(x), .y = __, .z = __ }</code></li>
-<li>
-<p>Support guard/bind/nested patterns.</p>
-</li>
-<li>
-<p><strong>Improved Error Messages</strong>:</p>
-</li>
-<li>Incompatible handler return types under <code>.end()</code> - clear error.</li>
-<li>Handler return type inconsistency under <code>.otherwise()</code> - clear type diagnostics.</li>
-<li>Wildcard + <code>.otherwise()</code> redundancy - hint "potentially redundant patterns".</li>
+<li>Subject flow is explicit.</li>
+<li>Binding is explicit.</li>
+<li>Cases are ordered and first-match-wins.</li>
+<li>The public syntax stays small.</li>
 </ol>
 <hr />
-<p>This comprehensive design ensures that Patternia provides clear, predictable, and user-friendly pattern matching semantics while maintaining type safety and performance guarantees.</p>
+<h2 id="subject-first-matching">Subject-First Matching<a class="headerlink" href="#subject-first-matching" title="Permanent link">&para;</a></h2>
+<p>Patternia does not hide the matched value inside an implicit control-flow form.
+You always start with the subject:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>This makes the match expression read as data flow rather than as a block-level
+statement form.</p>
+<hr />
+<h2 id="immediate-evaluation">Immediate Evaluation<a class="headerlink" href="#immediate-evaluation" title="Permanent link">&para;</a></h2>
+<p><code>match(subject)</code> by itself is only the left side of the pipeline.
+Evaluation happens when the <code>on(...)</code> case pack is supplied:</p>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">-1</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>There is no separate chained builder API.</p>
+<hr />
+<h2 id="explicit-binding">Explicit Binding<a class="headerlink" href="#explicit-binding" title="Permanent link">&para;</a></h2>
+<p>Matching and binding are deliberately separate.
+Patterns answer "does this match?"
+Binding answers "what values are exposed to the handler?"</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>This separation keeps handler signatures predictable and keeps data flow local.</p>
+<hr />
+<h2 id="guards-refine-a-bound-case">Guards Refine a Bound Case<a class="headerlink" href="#guards-refine-a-bound-case" title="Permanent link">&para;</a></h2>
+<p>Guards apply after a binding pattern succeeds.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">PTN_LET</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;small&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>The evaluation model is:</p>
+<ol>
+<li>Match the pattern.</li>
+<li>Bind values.</li>
+<li>Evaluate the guard.</li>
+<li>Run the handler on success.</li>
+</ol>
+<p>If the guard fails, matching continues with the next case.</p>
+<hr />
+<h2 id="wildcard-fallback">Wildcard Fallback<a class="headerlink" href="#wildcard-fallback" title="Permanent link">&para;</a></h2>
+<p>Patternia requires an explicit fallback case in <code>on(...)</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;int&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>This keeps the terminal behavior visible inside the case list itself.</p>
+<hr />
+<h2 id="structural-and-variant-matching-share-one-core">Structural and Variant Matching Share One Core<a class="headerlink" href="#structural-and-variant-matching-share-one-core" title="Permanent link">&para;</a></h2>
+<p>Literal matching, structural matching, guarded binding, and variant dispatch all
+lower through the same ordered case model.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;literal&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;point&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;origin-side&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">PTN_LET</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>That shared model is what keeps the DSL small without giving up expressive
+power.</p>
+<hr />
+<h2 id="performance-direction">Performance Direction<a class="headerlink" href="#performance-direction" title="Permanent link">&para;</a></h2>
+<p>Patternia aims at zero-overhead abstractions:</p>
+<ul>
+<li>no virtual dispatch</li>
+<li>no RTTI</li>
+<li>no heap allocation</li>
+<li>aggressive inlining and compile-time validation</li>
+</ul>
+<p>For repeated hot paths, users can cache case packs with <code>static_on(...)</code> or
+<code>PTN_ON(...)</code>.</p>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>Patternia is intentionally narrow:</p>
+<ul>
+<li>one subject-first entry</li>
+<li>one case-pack terminal form</li>
+<li>explicit binding</li>
+<li>explicit wildcard fallback</li>
+</ul>
+<p>That constraint is part of the design.</p>
 
 
 

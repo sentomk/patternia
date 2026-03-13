@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -643,10 +643,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#from-numeric-conditions-to-declarative-shape-constraints" class="md-nav__link">
+  <a href="#name-the-predicate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        From Numeric Conditions to Declarative Shape Constraints
+        Name the Predicate
       
     </span>
   </a>
@@ -654,10 +654,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#choosing-the-subject-of-the-match" class="md-nav__link">
+  <a href="#use-it-as-a-guard" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Choosing the Subject of the Match
+        Use It as a Guard
       
     </span>
   </a>
@@ -665,65 +665,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#binding-structure-before-reasoning-about-constraints" class="md-nav__link">
+  <a href="#refining-the-constraint" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Binding Structure Before Reasoning About Constraints
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#writing-the-constraint-as-a-predicate" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Writing the Constraint as a Predicate
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#attaching-a-multi-value-guard-correctly" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Attaching a Multi-Value Guard Correctly
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#adding-additional-constraints-without-confusing-semantics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Adding Additional Constraints Without Confusing Semantics
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-this-structure-matters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why This Structure Matters
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#constraints-as-patterns-not-conditions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Constraints as Patterns, Not Conditions
+        Refining the Constraint
       
     </span>
   </a>
@@ -1178,6 +1123,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../../changelog/v0.9.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.8.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.8.3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../changelog/v0.8.2/" class="md-nav__link">
         
   
@@ -1186,6 +1215,34 @@
     
   
     v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
   
 
     
@@ -1227,94 +1284,43 @@
 
 
 <h1 id="geometric-constraint-matching">Geometric Constraint Matching<a class="headerlink" href="#geometric-constraint-matching" title="Permanent link">&para;</a></h1>
-<h2 id="from-numeric-conditions-to-declarative-shape-constraints">From Numeric Conditions to Declarative Shape Constraints<a class="headerlink" href="#from-numeric-conditions-to-declarative-shape-constraints" title="Permanent link">&para;</a></h2>
-<p>Geometric constraints are a good stress test for any control-flow abstraction. They are simple to state mathematically, yet often awkward to express clearly in code. A classic example is the unit sphere: a point lies inside the sphere if and only if
-<code>x² + y² + z² &lt; 1</code>.</p>
-<p>In traditional C++, this condition is usually written as a boolean expression embedded directly inside an <code>if</code> statement. The code is compact, but the intent tends to blur once additional decisions are layered on top.</p>
-<div class="highlight"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">inside_unit_sphere</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec3</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="n">z</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
-<p>Patternia approaches the same problem from a different angle. Instead of asking “is this condition true?”, it asks “does this value belong to a case defined by this constraint?”. That shift becomes more visible as the example grows.</p>
-<hr />
-<h2 id="choosing-the-subject-of-the-match">Choosing the Subject of the Match<a class="headerlink" href="#choosing-the-subject-of-the-match" title="Permanent link">&para;</a></h2>
-<p>The subject of the decision is the point itself:</p>
+<p>Geometric rules are often clearer as named constraints than as inline <code>if</code>
+statements.</p>
 <div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Vec3</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
 <span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
 <span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">z</span><span class="p">;</span>
 <span class="p">};</span>
 </code></pre></div>
-<p>There is no finite set of values to enumerate, so this is not a <code>cases()</code> problem. We are dealing with constraints, not value dispatch, which means we move directly to the <code>when(...)</code> form.</p>
-<hr />
-<h2 id="binding-structure-before-reasoning-about-constraints">Binding Structure Before Reasoning About Constraints<a class="headerlink" href="#binding-structure-before-reasoning-about-constraints" title="Permanent link">&para;</a></h2>
-<p>The geometric constraint depends on the coordinates of the point. Rather than accessing those fields inside a handler, Patternia encourages binding them explicitly as part of the case definition.</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">    </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">z</span><span class="o">&gt;</span><span class="p">())</span>
-<span class="w">      </span><span class="cm">/* guard */</span>
-<span class="w">      </span><span class="o">&gt;&gt;</span>
-<span class="w">    </span><span class="cm">/* handler */</span>
-<span class="w">  </span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="cm">/* fallback */</span><span class="p">);</span>
-</code></pre></div>
-<p>At this stage, nothing has been “checked” yet. The code simply states that this case is about points for which <code>x</code>, <code>y</code>, and <code>z</code> are relevant. Binding defines <em>what data the case operates on</em> before any constraint is applied.</p>
-<hr />
-<h2 id="writing-the-constraint-as-a-predicate">Writing the Constraint as a Predicate<a class="headerlink" href="#writing-the-constraint-as-a-predicate" title="Permanent link">&para;</a></h2>
-<p>The constraint <code>x² + y² + z² &lt; 1</code> is not a simple relational check. It involves arithmetic across multiple values. This is exactly the point where Patternia expects you to step out of expression-based guards and write a predicate.</p>
+<h2 id="name-the-predicate">Name the Predicate<a class="headerlink" href="#name-the-predicate" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">inside_unit_sphere</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[](</span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">z</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
 <span class="p">};</span>
 </code></pre></div>
-<p>This predicate is ordinary C++. It can be tested independently and reused elsewhere. Patternia does not attempt to encode this kind of logic into operator overloads, because doing so would obscure intent rather than clarify it.</p>
-<hr />
-<h2 id="attaching-a-multi-value-guard-correctly">Attaching a Multi-Value Guard Correctly<a class="headerlink" href="#attaching-a-multi-value-guard-correctly" title="Permanent link">&para;</a></h2>
-<p>With multiple bound values, the guard operates over <strong>all bindings at once</strong>. In this context, it is important to be precise:</p>
-<p><strong>There is no <code>_</code> in multi-value guards.</strong></p>
-<p>The placeholder <code>_</code> exists only for single-value bindings. Once a pattern binds more than one value, guards must refer to bound values explicitly—either via <code>arg&lt;N&gt;</code> or by using a callable that consumes all bound values.</p>
-<p>In this case, the lambda form is the most natural:</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">classify</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec3</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">      </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">z</span><span class="o">&gt;</span><span class="p">())</span>
-<span class="w">        </span><span class="p">[</span><span class="n">inside_unit_sphere</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">      </span><span class="s">&quot;inside&quot;</span>
-<span class="w">    </span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;outside&quot;</span><span class="p">);</span>
+<h2 id="use-it-as-a-guard">Use It as a Guard<a class="headerlink" href="#use-it-as-a-guard" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="nf">classify</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec3</span><span class="w"> </span><span class="o">&amp;</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">z</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">inside_unit_sphere</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;inside&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;outside&quot;</span>
+<span class="w">  </span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>The guard is evaluated only after binding succeeds. If the predicate returns false, the case does not apply and matching continues. The handler itself contains no geometric logic; it simply represents the outcome of a satisfied constraint.</p>
-<hr />
-<h2 id="adding-additional-constraints-without-confusing-semantics">Adding Additional Constraints Without Confusing Semantics<a class="headerlink" href="#adding-additional-constraints-without-confusing-semantics" title="Permanent link">&para;</a></h2>
-<p>Suppose we want to refine the rule: the point must be inside the unit sphere <em>and</em> lie in the upper half-space (<code>z ≥ 0</code>). This introduces a simple relational constraint alongside the existing geometric one.</p>
-<p>Because this is a <strong>multi-value guard</strong>, <code>_</code> is still not available. We must express the additional constraint explicitly in terms of bound values.</p>
-<p>One option is to extend the predicate:</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">inside_upper_unit_sphere</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[](</span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">z</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">z</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
-<span class="p">};</span>
-</code></pre></div>
-<p>Another option is to combine predicates using <code>arg&lt;N&gt;</code> for the simple part:</p>
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">classify</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec3</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
-<span class="w">      </span><span class="n">bind</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">z</span><span class="o">&gt;</span><span class="p">())</span>
-<span class="w">        </span><span class="p">[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">inside_unit_sphere</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span>
-<span class="w">      </span><span class="s">&quot;inside&quot;</span>
-<span class="w">    </span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="n">otherwise</span><span class="p">(</span><span class="s">&quot;outside&quot;</span><span class="p">);</span>
+<h2 id="refining-the-constraint">Refining the Constraint<a class="headerlink" href="#refining-the-constraint" title="Permanent link">&para;</a></h2>
+<p>You can combine a named predicate with <code>arg&lt;N&gt;</code> for simple extra checks:</p>
+<div class="highlight"><pre><span></span><code><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="nf">classify_upper</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec3</span><span class="w"> </span><span class="o">&amp;</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">z</span><span class="o">&gt;</span><span class="p">())[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">inside_unit_sphere</span><span class="p">]</span>
+<span class="w">        </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;inside&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;outside&quot;</span>
+<span class="w">  </span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Here, <code>arg&lt;2&gt;</code> refers to the third bound value (<code>z</code>), following binding order. The guard reads as a clear composition: a simple relational check combined with a domain-specific predicate.</p>
-<p>The important rule remains intact: <strong>multi-value guards are explicit</strong>. Nothing is implicit, and no placeholder stands in for “the value” when there are multiple values involved.</p>
-<hr />
-<h2 id="why-this-structure-matters">Why This Structure Matters<a class="headerlink" href="#why-this-structure-matters" title="Permanent link">&para;</a></h2>
-<p>At this point, the benefit over a raw <code>if</code> statement becomes clear. The match expression does not merely compute a boolean; it describes a <em>case</em> defined by a geometric constraint. Binding declares which data the case depends on. The guard declares why the case applies. The handler declares what happens when it does.</p>
-<p>As constraints grow—more dimensions, more regions, more classifications—the match grows by adding or refining cases, not by nesting conditionals. This is the same scaling property that makes pattern matching attractive in other languages, applied here to geometric reasoning.</p>
-<hr />
-<h2 id="constraints-as-patterns-not-conditions">Constraints as Patterns, Not Conditions<a class="headerlink" href="#constraints-as-patterns-not-conditions" title="Permanent link">&para;</a></h2>
-<p>The lesson of this example is not how to encode <code>x² + y² + z² &lt; 1</code>. It is how to recognize constraints as patterns. Once a constraint is treated as a case boundary rather than an inline check, it becomes composable, testable, and readable.</p>
-<p>Patternia’s rules around guards—especially the strict separation between single-value placeholders and multi-value bindings—exist to preserve that clarity. They prevent ambiguity and make the structure of a decision visible in the code itself.</p>
-<p>This is the purpose of worked examples in Patternia: to show how simple rules, applied consistently, scale to real problems without collapsing back into ad-hoc control flow.</p>
+<p>For multi-value guards, prefer explicit <code>arg&lt;N&gt;</code> references or a callable that
+accepts all bound values.</p>
 
 
 

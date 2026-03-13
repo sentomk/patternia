@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -1032,6 +1032,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../v0.9.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../v0.8.2/" class="md-nav__link">
         
   
@@ -1040,6 +1124,34 @@
     
   
     v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
   
 
     
@@ -1086,7 +1198,7 @@
 <hr />
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>Patternia v0.7.0 focuses on variant matching and diagnostics. This release
-unifies the type-pattern implementation (<code>type::is/as/alt</code>), improves variant
+unifies the type-pattern implementation (<code>is</code> / <code>$</code> / <code>alt</code>), improves variant
 alternative lookup, and tightens compile-time validation with clearer error
 messages. Documentation is updated to reflect the refined variant API and
 binding/guard semantics.</p>
@@ -1094,12 +1206,12 @@ binding/guard semantics.</p>
 <h2 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h2>
 <h3 id="variant-matching">Variant Matching<a class="headerlink" href="#variant-matching" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Unified type-pattern implementation (<code>type::is</code>, <code>type::as</code>, <code>type::alt</code>) with
-  optional subpatterns.</li>
-<li>Added <code>type::alt&lt;I&gt;</code> for index-based variant matching.</li>
-<li>Improved variant alternative lookup using a meta type list (reduced reliance
-  on <code>std::variant</code> helper types).</li>
-<li><code>type::as&lt;T&gt;</code> sugar for binding the selected alternative.</li>
+<li>Unified type-pattern implementation around <code>is&lt;T&gt;()</code>, <code>alt&lt;I&gt;()</code>, and
+  explicit binding via <code>$(is&lt;T&gt;())</code>.</li>
+<li>Added <code>alt&lt;I&gt;()</code> for index-based variant matching.</li>
+<li>Improved variant alternative lookup using a meta type list.</li>
+<li>Explicit binding of the selected alternative is expressed through <code>$()</code>
+  rather than a separate <code>as&lt;T&gt;()</code> surface.</li>
 </ul>
 <h3 id="guards-and-bindings">Guards and Bindings<a class="headerlink" href="#guards-and-bindings" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1109,27 +1221,29 @@ binding/guard semantics.</p>
 <h3 id="diagnostics-and-validation">Diagnostics and Validation<a class="headerlink" href="#diagnostics-and-validation" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Centralized and shortened static-assert diagnostics for clearer compiler output.</li>
-<li>Wildcard (<code>__</code>) unreachable-case detection and validation improved.</li>
+<li>Wildcard (<code>_</code>) unreachable-case detection and validation improved.</li>
 <li>Structural <code>has&lt;&gt;</code> members are validated at match-time for accessibility.</li>
 </ul>
 <hr />
 <h2 id="api-changes">API Changes<a class="headerlink" href="#api-changes" title="Permanent link">&para;</a></h2>
-<h3 id="cases-restrictions-behavioral-tightening"><code>cases(...)</code> Restrictions (Behavioral Tightening)<a class="headerlink" href="#cases-restrictions-behavioral-tightening" title="Permanent link">&para;</a></h3>
-<p><code>cases(...)</code> now enforces non-binding patterns only, with explicit diagnostics.
-Use <code>.when(...)</code> for binding and guard logic.</p>
+<h3 id="legacy-compact-case-pack-restrictions">Legacy Compact Case-Pack Restrictions<a class="headerlink" href="#legacy-compact-case-pack-restrictions" title="Permanent link">&para;</a></h3>
+<p>The removed compact case-pack form enforced non-binding patterns only, with
+explicit diagnostics. For binding and guard logic, use the pipeline form with
+explicit binding patterns.</p>
 <hr />
 <h2 id="documentation-updates">Documentation Updates<a class="headerlink" href="#documentation-updates" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Variant matching documentation reorganized and expanded.</li>
-<li><code>.end()</code> semantics clarified with respect to <code>__</code> fallback.</li>
-<li>Binding/guard and <code>as&lt;T&gt;()</code> shorthand documented more clearly.</li>
+<li>Fallback semantics clarified around the final <code>_</code> case.</li>
+<li>Binding and guard behavior for variant alternatives documented more clearly.</li>
 <li>Navigation and link consistency fixes across docs.</li>
 </ul>
 <hr />
 <h2 id="compatibility-notes">Compatibility Notes<a class="headerlink" href="#compatibility-notes" title="Permanent link">&para;</a></h2>
 <ul>
-<li>If you relied on <code>cases(...)</code> with bindings or guards, migrate to <code>.when(...)</code>.</li>
-<li>If you used duplicate types in <code>std::variant</code>, prefer <code>type::alt&lt;I&gt;</code> for
+<li>If you relied on the removed compact case-pack form with bindings or guards,
+  migrate to the pipeline form.</li>
+<li>If you used duplicate types in <code>std::variant</code>, prefer <code>alt&lt;I&gt;()</code> for
   unambiguous matching.</li>
 </ul>
 <hr />
@@ -1140,6 +1254,9 @@ Use <code>.when(...)</code> for binding and guard logic.</p>
 <li>Variant alternative indexing now uses meta utilities (<code>index_t</code>) for stronger
   compile-time reasoning.</li>
 </ul>
+<h2 id="historical-note">Historical Note<a class="headerlink" href="#historical-note" title="Permanent link">&para;</a></h2>
+<p>The original v0.7.0 note used earlier namespace-qualified variant pattern
+names. Current code should use <code>is&lt;T&gt;()</code>, <code>$(is&lt;T&gt;())</code>, and <code>alt&lt;I&gt;()</code>.</p>
 
 
 
