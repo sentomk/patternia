@@ -28,6 +28,10 @@
 **Patternia** is a header-only pattern matching library for modern C++.
 It keeps matching expression-oriented, explicit, and zero-overhead.
 
+> **Upcoming in next release:** `lit<V>()` will be replaced by `val<V>` and
+> `has<Ms...>()` will become `has<Ms...>` (variable templates).
+> See [Roadmap](https://patternia.tech/roadmap/) for details.
+
 ## Syntax
 
 ```cpp
