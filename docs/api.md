@@ -63,7 +63,7 @@ This is the core case-expression form.
 
 ```cpp
 lit(1) >> 42
-$(is<int>()) >> [](int v) { return v * 2; }
+$(is<int>) >> [](int v) { return v * 2; }
 $(has<&Point::x, &Point::y>()) >> [](int x, int y) { return x + y; }
 ```
 
@@ -153,7 +153,7 @@ match(x) | on(
 
 ```cpp
 match(v) | on(
-  $(is<std::string>()) >> [](const std::string &s) {
+  $(is<std::string>) >> [](const std::string &s) {
     return s.size();
   },
   _ >> 0
@@ -281,38 +281,38 @@ Properties:
 
 ---
 
-## Variant Matching `is<T>()` and `alt<I>()` {#variant-matching}
+## Variant Matching `is<T>` and `alt<I>` {#variant-matching}
 
-### `is<T>()`
+### `is<T>`
 
 Type-based `std::variant` match.
 
 ```cpp
 match(v) | on(
-  is<int>() >> "int",
-  $(is<std::string>()) >> [](const std::string &s) {
+  is<int> >> "int",
+  $(is<std::string>) >> [](const std::string &s) {
     return "str:" + s;
   },
   _ >> [] { return std::string("other"); }
 );
 ```
 
-### `alt<I>()`
+### `alt<I>`
 
 Index-based `std::variant` match.
 
 ```cpp
 match(v) | on(
-  alt<0>() >> "first",
-  alt<1>() >> "second",
+  alt<0> >> "first",
+  alt<1> >> "second",
   _ >> "other"
 );
 ```
 
 Rules:
 
-- `is<T>()` requires `T` to appear exactly once.
-- `alt<I>()` requires `I` to be in range.
+- `is<T>` requires `T` to appear exactly once.
+- `alt<I>` requires `I` to be in range.
 - Use `$(...)` when you want the alternative value bound into the handler.
 
 ---

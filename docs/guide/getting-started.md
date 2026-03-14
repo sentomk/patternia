@@ -162,7 +162,7 @@ int sum(const Point &p) {
 
 ## Variant Matching
 
-Use `is<T>()` for type-based dispatch and `alt<I>()` for index-based dispatch.
+Use `is<T>` for type-based dispatch and `alt<I>` for index-based dispatch.
 
 ```cpp
 using namespace ptn;
@@ -171,8 +171,8 @@ using Value = std::variant<int, std::string>;
 
 std::string describe(const Value &v) {
   return match(v) | on(
-    is<int>() >> "int",
-    $(is<std::string>()) >> [](const std::string &s) {
+    is<int> >> "int",
+    $(is<std::string>) >> [](const std::string &s) {
       return "str:" + s;
     },
     _ >> [] { return std::string("other"); }

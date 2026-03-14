@@ -107,8 +107,8 @@ Patternia requires an explicit fallback case in `on(...)`.
 
 ```cpp
 match(v) | on(
-  is<int>() >> "int",
-  is<std::string>() >> "string",
+  is<int> >> "int",
+  is<std::string> >> "string",
   _ >> "other"
 );
 ```
@@ -128,7 +128,7 @@ match(value) | on(
   $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
     return x + y > 0 ? "point" : "origin-side";
   },
-  $(is<std::string>())[PTN_LET(text, text != "")] >> "string",
+  $(is<std::string>)[PTN_LET(text, text != "")] >> "string",
   _ >> "other"
 );
 ```

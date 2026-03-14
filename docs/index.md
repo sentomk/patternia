@@ -4,10 +4,6 @@
 
 Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic clear, expressive, and type-safe - without sacrificing performance or compilation efficiency.
 
-
-Literal matching is split intentionally:
-- `lit(value)` and `lit_ci(value)` are the runtime forms for general values and strings.
-- `lit<value>()` is the compile-time form for static integral/enum literals that can feed the lowering engine.
 ---
 
 ## Navigation

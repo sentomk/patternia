@@ -99,8 +99,8 @@ using Value = std::variant<int, std::string>;
 
 std::string describe(const Value &v) {
   return match(v) | on(
-    is<int>() >> "int",
-    $(is<std::string>()) >> [](const std::string &s) {
+    is<int> >> "int",
+    $(is<std::string>) >> [](const std::string &s) {
       return "str:" + s;
     },
     _ >> [] { return std::string("other"); }
