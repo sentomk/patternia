@@ -1688,8 +1688,8 @@ metadata and plan selection.</p>
 </table>
 <p>In code, this lives in:</p>
 <ul>
-<li><a href="C:/Users/SentoMK/code/patternia/include/ptn/core/common/optimize.hpp">optimize.hpp</a></li>
-<li><a href="C:/Users/SentoMK/code/patternia/include/ptn/core/common/eval.hpp">eval.hpp</a></li>
+<li><a href="../../include/ptn/core/common/optimize.hpp">optimize.hpp</a></li>
+<li><a href="../../include/ptn/core/common/eval.hpp">eval.hpp</a></li>
 </ul>
 <hr />
 <h2 id="algorithms-and-principles">Algorithms and Principles<a class="headerlink" href="#algorithms-and-principles" title="Permanent link">&para;</a></h2>
@@ -1781,8 +1781,8 @@ pattern replay loop.</p>
 </ul>
 <p>The <code>full</code> case is straightforward:</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
 <span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
 <span class="p">);</span>
 </code></pre></div>
@@ -1791,9 +1791,9 @@ needed.</p>
 <p>The <code>bucketed</code> case appears when the alternative is still useful, but one key
 maps to multiple residual checks:</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()[</span><span class="n">_0</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
-<span class="w">  </span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span><span class="w">          </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">  </span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w">  </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">_0</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">  </span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w">              </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w">      </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
 <span class="w">  </span><span class="n">_</span><span class="w">                       </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
 <span class="p">);</span>
 </code></pre></div>

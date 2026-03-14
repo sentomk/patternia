@@ -1075,19 +1075,19 @@
   <a href="#variant-matching" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Variant Matching is&lt;T&gt;() and alt&lt;I&gt;()
+        Variant Matching is&lt;T&gt; and alt&lt;I&gt;
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Variant Matching is&lt;T&gt;() and alt&lt;I&gt;()">
+    <nav class="md-nav" aria-label="Variant Matching is&lt;T&gt; and alt&lt;I&gt;">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#ist" class="md-nav__link">
     <span class="md-ellipsis">
       
-        is&lt;T&gt;()
+        is&lt;T&gt;
       
     </span>
   </a>
@@ -1098,7 +1098,7 @@
   <a href="#alti" class="md-nav__link">
     <span class="md-ellipsis">
       
-        alt&lt;I&gt;()
+        alt&lt;I&gt;
       
     </span>
   </a>
@@ -1622,7 +1622,7 @@ There is no deferred builder stage.</p>
 <h2 id="pattern-handler"><code>pattern &gt;&gt; handler</code><a class="headerlink" href="#pattern-handler" title="Permanent link">&para;</a></h2>
 <p>This is the core case-expression form.</p>
 <div class="highlight"><pre><span></span><code><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">42</span>
-<span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 <span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <p>Handler forms:</p>
@@ -1680,7 +1680,7 @@ consider static dispatch.</p>
 <span class="p">);</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
@@ -1769,29 +1769,29 @@ Wrap it with <code>$(...)</code> to extract values.</p>
 <li>Validation happens at compile time.</li>
 </ul>
 <hr />
-<h2 id="variant-matching">Variant Matching <code>is&lt;T&gt;()</code> and <code>alt&lt;I&gt;()</code><a class="headerlink" href="#variant-matching" title="Permanent link">&para;</a></h2>
-<h3 id="ist"><code>is&lt;T&gt;()</code><a class="headerlink" href="#ist" title="Permanent link">&para;</a></h3>
+<h2 id="variant-matching">Variant Matching <code>is&lt;T&gt;</code> and <code>alt&lt;I&gt;</code><a class="headerlink" href="#variant-matching" title="Permanent link">&para;</a></h2>
+<h3 id="ist"><code>is&lt;T&gt;</code><a class="headerlink" href="#ist" title="Permanent link">&para;</a></h3>
 <p>Type-based <code>std::variant</code> match.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;int&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;int&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;str:&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
 <span class="p">);</span>
 </code></pre></div>
-<h3 id="alti"><code>alt&lt;I&gt;()</code><a class="headerlink" href="#alti" title="Permanent link">&para;</a></h3>
+<h3 id="alti"><code>alt&lt;I&gt;</code><a class="headerlink" href="#alti" title="Permanent link">&para;</a></h3>
 <p>Index-based <code>std::variant</code> match.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;first&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;second&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;first&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;second&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
 <span class="p">);</span>
 </code></pre></div>
 <p>Rules:</p>
 <ul>
-<li><code>is&lt;T&gt;()</code> requires <code>T</code> to appear exactly once.</li>
-<li><code>alt&lt;I&gt;()</code> requires <code>I</code> to be in range.</li>
+<li><code>is&lt;T&gt;</code> requires <code>T</code> to appear exactly once.</li>
+<li><code>alt&lt;I&gt;</code> requires <code>I</code> to be in range.</li>
 <li>Use <code>$(...)</code> when you want the alternative value bound into the handler.</li>
 </ul>
 <hr />
