@@ -178,7 +178,7 @@ namespace ptn::pat {
   // This allows $ to work in multiple ways:
   //   $ >> handler                    // direct binding
   //   $[_0 > 0] >> handler            // binding with guard
-  //   $(has<&T::x>()) >> handler      // binding with subpattern
+  //   $(has<&T::x>) >> handler      // binding with subpattern
   //   $(is<T>()) >> handler           // binding variant type
   struct bind_factory : base::pattern_base<bind_factory>,
                         base::binding_pattern_base<bind_factory> {
@@ -220,7 +220,7 @@ namespace ptn::pat {
   // Usage:
   //   $ >> handler                    // bind whole subject
   //   $[_0 > 0] >> handler            // bind with guard
-  //   $(has<&T::x, &T::y>()) >> handler  // bind structural members
+  //   $(has<&T::x, &T::y>) >> handler  // bind structural members
   //   $(is<T>()) >> handler           // bind variant alternative
   inline constexpr bind_factory $;
 

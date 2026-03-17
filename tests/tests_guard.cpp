@@ -53,7 +53,7 @@ TEST(Guard, MultiArgExpressionPredicate) {
   Point p{3, 4};
 
   int result = ptn::match(p)
-               | ptn::on(ptn::$(ptn::has<&Point::x, &Point::y>())
+               | ptn::on(ptn::$(ptn::has<&Point::x, &Point::y>)
                              [ptn::arg<0> * ptn::arg<0>
                                   + ptn::arg<1> * ptn::arg<1>
                               == 25]
@@ -67,7 +67,7 @@ TEST(Guard, MultiArgCallablePredicate) {
   Point p{2, 5};
 
   int result = ptn::match(p)
-               | ptn::on(ptn::$(ptn::has<&Point::x, &Point::y>())[(
+               | ptn::on(ptn::$(ptn::has<&Point::x, &Point::y>)[(
                              [](int x, int y) { return x < y; })]
                              >> 1,
                          ptn::__ >> 0);
@@ -96,7 +96,7 @@ TEST(Guard, MultiArgWithPlaceholderAliases) {
   Point p{3, 4};
 
   int result = match(p)
-               | on($(has<&Point::x, &Point::y>())[_0 * _0
+               | on($(has<&Point::x, &Point::y>)[_0 * _0
                                                    + arg<1> * arg<1>
                                                == 25] >> 1,
                     _ >> 0);
@@ -108,10 +108,10 @@ TEST(Guard, PlaceholderAliasEquivalentToArg) {
   Point p{2, 5};
 
   int r1 = match(p)
-           | on($(has<&Point::x, &Point::y>())[_0 + arg<1> == 7] >> 1, _ >> 0);
+           | on($(has<&Point::x, &Point::y>)[_0 + arg<1> == 7] >> 1, _ >> 0);
 
   int r2 = match(p)
-           | on($(has<&Point::x, &Point::y>())[arg<0> + arg<1> == 7] >> 1,
+           | on($(has<&Point::x, &Point::y>)[arg<0> + arg<1> == 7] >> 1,
                 _ >> 0);
 
   EXPECT_EQ(r1, r2);
@@ -155,7 +155,7 @@ TEST(Guard, NamedMultiArgGuardMacro) {
   Point p{2, 5};
 
   int result =
-      match(p) | on($(has<&Point::x, &Point::y>())
+      match(p) | on($(has<&Point::x, &Point::y>)
                         [PTN_WHERE((x, y), x < y)] >> 1,
                     _ >> 0);
 
@@ -178,7 +178,7 @@ TEST(Guard, NamedFiveArgGuardMacro) {
                           &Record::b,
                           &Record::c,
                           &Record::d,
-                          &Record::e>())
+                          &Record::e>)
                         [PTN_WHERE((a, b, c, d, e), a + b + c + d == e)] >> 1,
                     _ >> 0);
 

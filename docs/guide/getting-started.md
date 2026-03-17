@@ -116,7 +116,7 @@ struct Point {
 
 bool on_unit_circle(const Point &p) {
   return match(p) | on(
-    $(has<&Point::x, &Point::y>())[arg<0> * arg<0> + arg<1> * arg<1> == 1]
+    $(has<&Point::x, &Point::y>)[arg<0> * arg<0> + arg<1> * arg<1> == 1]
         >> true,
     _ >> false
   );
@@ -128,7 +128,7 @@ using namespace ptn;
 
 bool on_diagonal(const Point &p) {
   return match(p) | on(
-    $(has<&Point::x, &Point::y>())[PTN_WHERE((x, y), x == y)] >> true,
+    $(has<&Point::x, &Point::y>)[PTN_WHERE((x, y), x == y)] >> true,
     _ >> false
   );
 }
@@ -150,7 +150,7 @@ struct Point {
 
 int sum(const Point &p) {
   return match(p) | on(
-    $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+    $(has<&Point::x, &Point::y>) >> [](int x, int y) {
       return x + y;
     },
     _ >> 0

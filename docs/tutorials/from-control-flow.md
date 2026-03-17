@@ -51,8 +51,8 @@ auto label(const User &u) {
   using namespace ptn;
 
   return match(u) | on(
-    $(has<&User::active>())[arg<0> == false] >> "inactive",
-    $(has<&User::age>())[arg<0> < 18] >> "minor",
+    $(has<&User::active>)[arg<0> == false] >> "inactive",
+    $(has<&User::age>)[arg<0> < 18] >> "minor",
     _ >> "adult"
   );
 }

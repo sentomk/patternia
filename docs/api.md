@@ -64,7 +64,7 @@ This is the core case-expression form.
 ```cpp
 lit(1) >> 42
 $(is<int>) >> [](int v) { return v * 2; }
-$(has<&Point::x, &Point::y>()) >> [](int x, int y) { return x + y; }
+$(has<&Point::x, &Point::y>) >> [](int x, int y) { return x + y; }
 ```
 
 Handler forms:
@@ -208,7 +208,7 @@ explicit name.
 Indexed placeholder for general multi-binding guards.
 
 ```cpp
-$(has<&Point::x, &Point::y>())[arg<0> * arg<0> + arg<1> * arg<1> == 25]
+$(has<&Point::x, &Point::y>)[arg<0> * arg<0> + arg<1> * arg<1> == 25]
 ```
 
 ### `rng(lo, hi, mode)`
@@ -230,7 +230,7 @@ The macro currently supports 1 to 5 names.
 
 ```cpp
 match(p) | on(
-  $(has<&Point::x, &Point::y>())[PTN_WHERE((x, y), x == y)] >> "diagonal",
+  $(has<&Point::x, &Point::y>)[PTN_WHERE((x, y), x == y)] >> "diagonal",
   _ >> "other"
 );
 ```
@@ -254,7 +254,7 @@ match(x) | on(
 
 ---
 
-## Structural Matching `has<&T::member...>()` {#structural-matching}
+## Structural Matching `has<&T::member...>` {#structural-matching}
 
 `has<>` describes structure.
 Wrap it with `$(...)` to extract values.
@@ -266,7 +266,7 @@ struct Point {
 };
 
 match(p) | on(
-  $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+  $(has<&Point::x, &Point::y>) >> [](int x, int y) {
     return x + y;
   },
   _ >> 0

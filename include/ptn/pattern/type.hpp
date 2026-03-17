@@ -32,7 +32,7 @@ namespace ptn::pat::detail {
     // selected alt.
     //
     // Important: when SubPattern is a binding pattern (e.g. $(),
-    // $(has<...>())), this type pattern itself becomes a binding
+    // $(has<...>)), this type pattern itself becomes a binding
     // pattern, enabling guard syntax:
     //   $(is<T>())[predicate]   // equivalent to
     //   is<T>($[predicate])

@@ -68,7 +68,7 @@ match(x) | on(
 
 ```cpp
 match(p) | on(
-  $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+  $(has<&Point::x, &Point::y>) >> [](int x, int y) {
     return x + y;
   },
   _ >> 0
@@ -125,7 +125,7 @@ lower through the same ordered case model.
 ```cpp
 match(value) | on(
   lit(1) >> "literal",
-  $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+  $(has<&Point::x, &Point::y>) >> [](int x, int y) {
     return x + y > 0 ? "point" : "origin-side";
   },
   $(is<std::string>)[PTN_LET(text, text != "")] >> "string",

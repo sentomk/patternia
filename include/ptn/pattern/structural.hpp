@@ -1,8 +1,8 @@
 #pragma once
 
-// Structural (decomposition) pattern: `has<...>()`.
+// Structural (decomposition) pattern: `has<...>`.
 //
-// Provides `has<&T::field...>()` to destructure aggregates / records
+// Provides `has<&T::field...>` to destructure aggregates / records
 // by direct non-static data member pointers.
 
 #include <cstddef>
@@ -83,7 +83,7 @@ namespace ptn::pat {
       // not bind any values to the handler.
       //
       // Usage:
-      //   has<&Pkt::type, &Pkt::len>()[_0 == 0x01 && arg<1> == 0]
+      //   has<&Pkt::type, &Pkt::len>[_0 == 0x01 && arg<1> == 0]
       //       >> [] { handle_ping(); }
       template <typename Pred>
       constexpr auto operator[](Pred &&pred) const;
@@ -142,9 +142,7 @@ namespace ptn::pat {
 
   // Public API.
   template <auto... Ms>
-  constexpr auto has() {
-    return detail::has_pattern<Ms...>{};
-  }
+  inline constexpr detail::has_pattern<Ms...> has{};
 
 } // namespace ptn::pat
 

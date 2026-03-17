@@ -51,7 +51,7 @@ struct Point {
 };
 
 match(p) | on(
-  $(has<&Point::x, &Point::y>())[arg<0> == arg<1>] >> "diagonal",
+  $(has<&Point::x, &Point::y>)[arg<0> == arg<1>] >> "diagonal",
   _ >> "other"
 );
 ```
@@ -60,7 +60,7 @@ If you prefer named guard parameters, use `PTN_WHERE((...), expr)`:
 
 ```cpp
 match(p) | on(
-  $(has<&Point::x, &Point::y>())[PTN_WHERE((x, y), x == y)] >> "diagonal",
+  $(has<&Point::x, &Point::y>)[PTN_WHERE((x, y), x == y)] >> "diagonal",
   _ >> "other"
 );
 ```

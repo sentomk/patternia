@@ -245,7 +245,7 @@ TEST(PipelineMatch, DollarHasBindsStructuralMembers) {
   Point p{3, 4};
 
   int result = match(p)
-               | on($(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+               | on($(has<&Point::x, &Point::y>) >> [](int x, int y) {
                     return x + y;
                   },
                     _ >> 0);
@@ -261,9 +261,9 @@ TEST(PipelineMatch, DollarHasWithGuard) {
   Point p{3, 4};
 
   int result = match(p)
-               | on($(has<&Point::x, &Point::y>())[arg<0> + arg<1> > 10]
+               | on($(has<&Point::x, &Point::y>)[arg<0> + arg<1> > 10]
                          >> [](int x, int y) { return x + y; },
-                    $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+                    $(has<&Point::x, &Point::y>) >> [](int x, int y) {
                       return x * y;
                     },
                     _ >> 0);
@@ -279,13 +279,13 @@ TEST(PipelineMatch, DollarHasMatchesStructuralBinding) {
   Point p{5, 6};
 
   int r1 = match(p)
-           | on($(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+           | on($(has<&Point::x, &Point::y>) >> [](int x, int y) {
                 return x + y;
               },
                 _ >> 0);
 
   int r2 = match(p)
-           | on($(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+           | on($(has<&Point::x, &Point::y>) >> [](int x, int y) {
                 return x + y;
               },
                 _ >> 0);

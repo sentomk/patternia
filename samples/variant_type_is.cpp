@@ -18,7 +18,7 @@ describe(const std::variant<int, std::string, Point> &v) {
              is<int>() >> "int",
              $(is<std::string>()) >>
                  [](const std::string &s) { return "str:" + s; },
-             is<Point>($(has<&Point::x, &Point::y>())) >>
+             is<Point>($(has<&Point::x, &Point::y>)) >>
                  [](int x, int y) { return "pt:" + std::to_string(x + y); },
              __ >> [] { return std::string("other"); });
 }
@@ -26,9 +26,9 @@ describe(const std::variant<int, std::string, Point> &v) {
 std::string
 describe_as(const std::variant<int, std::string, Point> &v) {
   // Same as describe(...), but uses the binding sugar
-  // `$(is<T>())` and `$(has<...>())`.
+  // `$(is<T>())` and `$(has<...>)`.
   //
-  // For destructuring, use `is<T>()` with `$(has<...>())` to
+  // For destructuring, use `is<T>()` with `$(has<...>)` to
   // bind the extracted fields.
   //
   // Guards can be attached directly to binding patterns.
@@ -37,7 +37,7 @@ describe_as(const std::variant<int, std::string, Point> &v) {
              is<int>() >> "int",
              $(is<std::string>())[_0 != ""] >>
                  [](const std::string &s) { return "str:" + s; },
-             is<Point>($(has<&Point::x, &Point::y>()))[arg<0> > 0
+             is<Point>($(has<&Point::x, &Point::y>))[arg<0> > 0
                                                        && arg<1> > 0]
                  >>
                  [](int x, int y) { return "pt:" + std::to_string(x + y); },

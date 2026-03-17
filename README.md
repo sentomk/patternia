@@ -28,8 +28,7 @@
 **Patternia** is a header-only pattern matching library for modern C++.
 It keeps matching expression-oriented, explicit, and zero-overhead.
 
-> **Upcoming in next release:** `lit<V>()` will be replaced by `val<V>` and
-> `has<Ms...>()` will become `has<Ms...>` (variable templates).
+> **Upcoming in next release:** `lit<V>()` will be replaced by `val<V>`.
 > See [Roadmap](https://patternia.tech/roadmap/) for details.
 
 ## Syntax
@@ -86,7 +85,7 @@ struct Point { int x; int y; };
 
 int magnitude2(const Point &p) {
   return match(p) | on(
-    $(has<&Point::x, &Point::y>()) >> [](int x, int y) {
+    $(has<&Point::x, &Point::y>) >> [](int x, int y) {
       return x * x + y * y;
     },
     _ >> 0

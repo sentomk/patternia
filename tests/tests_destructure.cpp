@@ -18,13 +18,13 @@ struct Packet {
   std::string payload;
 };
 
-// -- $(has<>()) destructure binding --
+// -- $(has<>) destructure binding --
 
 TEST(Destructure, BasicMemberBinding) {
   Point p{3, 4};
 
   int result = match(p)
-               | on($(has<&Point::x, &Point::y>()) >>
+               | on($(has<&Point::x, &Point::y>) >>
                         [](int x, int y) { return x + y; },
                     _ >> 0);
 
@@ -35,7 +35,7 @@ TEST(Destructure, WithGuard) {
   Point p{5, 10};
 
   int result = match(p)
-               | on($(has<&Point::x, &Point::y>())[_0 > 0 && arg<1> > 0]
+               | on($(has<&Point::x, &Point::y>)[_0 > 0 && arg<1> > 0]
                         >> [](int x, int y) { return x * y; },
                     _ >> -1);
 
@@ -46,7 +46,7 @@ TEST(Destructure, GuardRejects) {
   Point p{-1, 10};
 
   int result = match(p)
-               | on($(has<&Point::x, &Point::y>())[_0 > 0 && arg<1> > 0]
+               | on($(has<&Point::x, &Point::y>)[_0 > 0 && arg<1> > 0]
                         >> [](int x, int y) { return x * y; },
                     _ >> -1);
 
@@ -56,7 +56,7 @@ TEST(Destructure, GuardRejects) {
 TEST(Destructure, SingleMember) {
   Point p{42, 0};
 
-  int result = match(p) | on($(has<&Point::x>()) >> [](int x) { return x; }, _ >> 0);
+  int result = match(p) | on($(has<&Point::x>) >> [](int x) { return x; }, _ >> 0);
 
   EXPECT_EQ(result, 42);
 }
@@ -65,12 +65,12 @@ TEST(Destructure, StructuralBindingProducesMemberValues) {
   Point p{3, 4};
 
   int r1 = match(p)
-           | on($(has<&Point::x, &Point::y>()) >>
+           | on($(has<&Point::x, &Point::y>) >>
                     [](int x, int y) { return x + y; },
                 _ >> 0);
 
   int r2 = match(p)
-           | on($(has<&Point::x, &Point::y>()) >>
+           | on($(has<&Point::x, &Point::y>) >>
                     [](int x, int y) { return x + y; },
                 _ >> 0);
 
@@ -81,7 +81,7 @@ TEST(Destructure, ThreeMembers) {
   Packet pkt{1, 0, "hello"};
 
   auto result = match(pkt)
-                | on($(has<&Packet::type, &Packet::length, &Packet::payload>())
+                | on($(has<&Packet::type, &Packet::length, &Packet::payload>)
                          >>
                          [](int t, int l, const std::string &p) {
                            return t + l + static_cast<int>(p.size());
@@ -91,13 +91,13 @@ TEST(Destructure, ThreeMembers) {
   EXPECT_EQ(result, 6); // 1 + 0 + 5
 }
 
-// -- has<>()[guard] structural verification --
+// -- has<>[guard] structural verification --
 
 TEST(HasGuard, BasicGuardAccepts) {
   Packet pkt{0x01, 0, ""};
 
   int result = match(pkt)
-               | on(has<&Packet::type>()[_0 == 0x01] >> [] { return 1; },
+               | on(has<&Packet::type>[_0 == 0x01] >> [] { return 1; },
                     _ >> 0);
 
   EXPECT_EQ(result, 1);
@@ -107,7 +107,7 @@ TEST(HasGuard, BasicGuardRejects) {
   Packet pkt{0x02, 0, ""};
 
   int result = match(pkt)
-               | on(has<&Packet::type>()[_0 == 0x01] >> [] { return 1; },
+               | on(has<&Packet::type>[_0 == 0x01] >> [] { return 1; },
                     _ >> 0);
 
   EXPECT_EQ(result, 0);
@@ -118,7 +118,7 @@ TEST(HasGuard, MultiMemberGuard) {
 
   int result =
       match(pkt)
-      | on(has<&Packet::type, &Packet::length>()[_0 == 0x01 && arg<1> == 0]
+      | on(has<&Packet::type, &Packet::length>[_0 == 0x01 && arg<1> == 0]
                >> [] { return 1; },
            _ >> 0);
 
@@ -129,7 +129,7 @@ TEST(HasGuard, DoesNotBindToHandler) {
   Packet pkt{0x01, 0, ""};
 
   int result = match(pkt)
-               | on(has<&Packet::type>()[_0 == 0x01] >> [] { return 42; },
+               | on(has<&Packet::type>[_0 == 0x01] >> [] { return 42; },
                     _ >> 0);
 
   // Handler takes no arguments — has<> does not bind.
@@ -140,8 +140,8 @@ TEST(HasGuard, FallsThroughOnGuardFail) {
   Packet pkt{0x02, 10, "data"};
 
   int result = match(pkt)
-               | on(has<&Packet::type>()[_0 == 0x01] >> [] { return 1; },
-                    has<&Packet::type>()[_0 == 0x02] >> [] { return 2; },
+               | on(has<&Packet::type>[_0 == 0x01] >> [] { return 1; },
+                    has<&Packet::type>[_0 == 0x02] >> [] { return 2; },
                     _ >> 0);
 
   EXPECT_EQ(result, 2);

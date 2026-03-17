@@ -178,10 +178,9 @@ namespace {
     using ptn::pat::is;
 
     return match(v)
-        .when(is<int>() >> 1)
-        .when(is<std::string>() >> 2)
-        .when(__ >> 0)
-        .end();
+           | on(is<int>() >> 1,
+                is<std::string>() >> 2,
+                __ >> 0);
   }
 
   static int patternia_pipe_variant_route(const V &v) {
@@ -394,12 +393,11 @@ namespace {
     };
 
     return match(v)
-        .when($(is<int>())[_0 > 100] >> 10)
-        .when(is<int>() >> 1)
-        .when($(is<std::string>())[long_string] >> 20)
-        .when(is<std::string>() >> 2)
-        .when(__ >> 0)
-        .end();
+           | on($(is<int>())[_0 > 100] >> 10,
+                is<int>() >> 1,
+                $(is<std::string>())[long_string] >> 20,
+                is<std::string>() >> 2,
+                __ >> 0);
   }
 
   static int patternia_pipe_variant_guarded_route(const V &v) {
@@ -490,16 +488,15 @@ namespace {
     };
 
     return match(msg)
-        .when($(is<ProtoPing>())[urgent_ping] >> 11)
-        .when(is<ProtoPing>() >> 1)
-        .when($(is<ProtoData>())[heavy_data] >> 22)
-        .when(is<ProtoData>() >> 2)
-        .when($(is<ProtoError>())[fatal_error] >> 33)
-        .when(is<ProtoError>() >> 3)
-        .when($(is<ProtoControl>())[control_ack] >> 44)
-        .when(is<ProtoControl>() >> 4)
-        .when(__ >> 0)
-        .end();
+           | on($(is<ProtoPing>())[urgent_ping] >> 11,
+                is<ProtoPing>() >> 1,
+                $(is<ProtoData>())[heavy_data] >> 22,
+                is<ProtoData>() >> 2,
+                $(is<ProtoError>())[fatal_error] >> 33,
+                is<ProtoError>() >> 3,
+                $(is<ProtoControl>())[control_ack] >> 44,
+                is<ProtoControl>() >> 4,
+                __ >> 0);
   }
 
   static int patternia_pipe_protocol_router(const ProtocolMsg &msg) {
@@ -615,16 +612,15 @@ namespace {
     auto wide_scan = [](const CmdScan &c) { return c.limit >= 128; };
 
     return match(msg)
-        .when($(is<CmdSet>())[persistent_set] >> 101)
-        .when(is<CmdSet>() >> 100)
-        .when($(is<CmdGet>())[hot_get] >> 201)
-        .when(is<CmdGet>() >> 200)
-        .when($(is<CmdDel>())[deep_del] >> 301)
-        .when(is<CmdDel>() >> 300)
-        .when($(is<CmdScan>())[wide_scan] >> 401)
-        .when(is<CmdScan>() >> 400)
-        .when(__ >> 0)
-        .end();
+           | on($(is<CmdSet>())[persistent_set] >> 101,
+                is<CmdSet>() >> 100,
+                $(is<CmdGet>())[hot_get] >> 201,
+                is<CmdGet>() >> 200,
+                $(is<CmdDel>())[deep_del] >> 301,
+                is<CmdDel>() >> 300,
+                $(is<CmdScan>())[wide_scan] >> 401,
+                is<CmdScan>() >> 400,
+                __ >> 0);
   }
 
   static int patternia_pipe_command_parser(const CommandMsg &msg) {
@@ -747,16 +743,15 @@ namespace {
     using namespace ptn;
 
     return match(x)
-        .when(lit(1) >> 1)
-        .when(lit(2) >> 2)
-        .when(lit(3) >> 3)
-        .when(lit(4) >> 4)
-        .when(lit(5) >> 5)
-        .when(lit(6) >> 6)
-        .when(lit(7) >> 7)
-        .when(lit(8) >> 8)
-        .when(__ >> 0)
-        .end();
+           | on(lit(1) >> 1,
+                lit(2) >> 2,
+                lit(3) >> 3,
+                lit(4) >> 4,
+                lit(5) >> 5,
+                lit(6) >> 6,
+                lit(7) >> 7,
+                lit(8) >> 8,
+                __ >> 0);
   }
 
   static int if_else_literal_match_route(int x) {
@@ -1000,15 +995,15 @@ namespace {
     };
 
     return match(pkt)
-        .when(bind(has<&Packet::type,
-                       &Packet::length>())[is_ping_packet]
-              >> 1)
-        .when(bind(has<&Packet::type,
-                       &Packet::length,
-                       &Packet::flags>())[is_valid_data_packet]
-              >> 2)
-        .when(bind(has<&Packet::type>())[is_error_packet] >> 3)
-        .otherwise(0);
+           | on($(has<&Packet::type,
+                      &Packet::length>)[is_ping_packet]
+                    >> 1,
+                $(has<&Packet::type,
+                      &Packet::length,
+                      &Packet::flags>)[is_valid_data_packet]
+                    >> 2,
+                $(has<&Packet::type>)[is_error_packet] >> 3,
+                __ >> 0);
   }
 
   static int patternia_pipe_packet_route(const Packet &pkt) {
@@ -1031,14 +1026,14 @@ namespace {
     };
 
     return match(pkt)
-           | on(bind(has<&Packet::type,
-                         &Packet::length>())[is_ping_packet]
+           | on($(has<&Packet::type,
+                      &Packet::length>)[is_ping_packet]
                     >> 1,
-                bind(has<&Packet::type,
-                         &Packet::length,
-                         &Packet::flags>())[is_valid_data_packet]
+                $(has<&Packet::type,
+                      &Packet::length,
+                      &Packet::flags>)[is_valid_data_packet]
                     >> 2,
-                bind(has<&Packet::type>())[is_error_packet] >> 3,
+                $(has<&Packet::type>)[is_error_packet] >> 3,
                 __ >> 0);
   }
 
@@ -1091,18 +1086,18 @@ namespace {
         };
 
     return match(pkt)
-        .when(bind(has<&Packet::type,
-                       &Packet::length>())[is_ping_packet]
-              >> 1)
-        .when(bind(has<&Packet::type,
-                       &Packet::length,
-                       &Packet::flags,
-                       &Packet::payload>())[is_valid_data_packet]
-              >> 2)
-        .when(bind(has<&Packet::type,
-                       &Packet::payload>())[is_error_packet]
-              >> 3)
-        .otherwise(0);
+           | on($(has<&Packet::type,
+                      &Packet::length>)[is_ping_packet]
+                    >> 1,
+                $(has<&Packet::type,
+                      &Packet::length,
+                      &Packet::flags,
+                      &Packet::payload>)[is_valid_data_packet]
+                    >> 2,
+                $(has<&Packet::type,
+                      &Packet::payload>)[is_error_packet]
+                    >> 3,
+                __ >> 0);
   }
 
   static int
@@ -1131,16 +1126,16 @@ namespace {
         };
 
     return match(pkt)
-           | on(bind(has<&Packet::type,
-                         &Packet::length>())[is_ping_packet]
+           | on($(has<&Packet::type,
+                      &Packet::length>)[is_ping_packet]
                     >> 1,
-                bind(has<&Packet::type,
-                         &Packet::length,
-                         &Packet::flags,
-                         &Packet::payload>())[is_valid_data_packet]
+                $(has<&Packet::type,
+                      &Packet::length,
+                      &Packet::flags,
+                      &Packet::payload>)[is_valid_data_packet]
                     >> 2,
-                bind(has<&Packet::type,
-                         &Packet::payload>())[is_error_packet]
+                $(has<&Packet::type,
+                      &Packet::payload>)[is_error_packet]
                     >> 3,
                 __ >> 0);
   }
