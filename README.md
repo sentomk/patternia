@@ -28,8 +28,8 @@
 **Patternia** is a header-only pattern matching library for modern C++.
 It keeps matching expression-oriented, explicit, and zero-overhead.
 
-> **Upcoming in next release:** `lit<V>()` will be replaced by `val<V>`.
-> See [Roadmap](https://patternia.tech/roadmap/) for details.
+> Compile-time literal matching uses `val<V>`.
+> Runtime literal matching remains `lit(value)` and `lit_ci(value)`.
 
 ## Syntax
 
@@ -167,8 +167,8 @@ using namespace ptn;
 
 int fast_classify(int x) {
   return match(x) | PTN_ON(
-    lit<1>() >> 1,
-    lit<2>() >> 2,
+    val<1> >> 1,
+    val<2> >> 2,
     _ >> 0
   );
 }

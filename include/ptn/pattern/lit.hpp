@@ -1,7 +1,7 @@
 #pragma once
 
 // Public API and implementation for literal value patterns (`lit()`,
-// `lit<>()`, and `lit_ci()`).
+// `val<>`, and `lit_ci()`).
 //
 // This file provides factory functions to create patterns that match against
 // specific literal values. It includes both public API and internal
@@ -141,13 +141,12 @@ namespace ptn::pat {
   }
 
   template <auto V>
-  constexpr auto lit() {
+  inline constexpr auto val = [] {
     using store_t =
         typename detail::static_literal_value_traits<V>::store_t;
     ptn::core::common::static_assert_literal_store_type<store_t>();
-
     return detail::static_literal_pattern<V>{};
-  }
+  }();
 
   template <typename V>
   constexpr auto lit_ci(V &&v) {

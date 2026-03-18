@@ -19,8 +19,8 @@ TEST(PublicApi, FullyQualifiedPipelinePtnOnWorksWithoutUsingDirective) {
 
   int result = ptn::match(x)
                | PTN_ON(
-                   ptn::lit<1>() >> 1,
-                   ptn::lit<2>() >> 2,
+                   ptn::val<1> >> 1,
+                   ptn::val<2> >> 2,
                    ptn::__ >> 0
                );
 

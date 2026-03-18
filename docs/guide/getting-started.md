@@ -191,8 +191,8 @@ using namespace ptn;
 
 int classify_fast(int x) {
   return match(x) | PTN_ON(
-    lit<1>() >> 1,
-    lit<2>() >> 2,
+    val<1> >> 1,
+    val<2> >> 2,
     _ >> 0
   );
 }
@@ -206,8 +206,8 @@ using namespace ptn;
 int classify_fast(int x) {
   return match(x) | static_on([] {
     return on(
-      lit<1>() >> 1,
-      lit<2>() >> 2,
+      val<1> >> 1,
+      val<2> >> 2,
       _ >> 0
     );
   });

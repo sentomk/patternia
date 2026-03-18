@@ -30,7 +30,7 @@ TEST(PipelineMatch, LitMultipleCasesSelectsCorrect) {
 
 TEST(PipelineMatch, CompileTimeLitMatchesValue) {
   int x      = 2;
-  int result = match(x) | on(lit<1>() >> 10, lit<2>() >> 20, __ >> 0);
+  int result = match(x) | on(val<1> >> 10, val<2> >> 20, __ >> 0);
 
   EXPECT_EQ(result, 20);
 }

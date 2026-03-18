@@ -9,7 +9,7 @@ int main() {
   auto r = match(x)
            | static_on([base] {
                return on(
-                   lit<1>() >> base,
+                   val<1> >> base,
                    __ >> 0
                );
              });

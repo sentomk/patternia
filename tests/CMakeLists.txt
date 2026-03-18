@@ -43,9 +43,16 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/bind_function_removed.cpp
   compile_fail/guard_placeholder_alias_removed.cpp
   compile_fail/lit_v_factory_removed.cpp
+  compile_fail/lit_factory_removed.cpp
   compile_fail/static_on_with_capture.cpp
   compile_fail/on_pipeline_without_wildcard.cpp
 )
+
+if(CMAKE_CXX_STANDARD LESS 20)
+  list(APPEND PTN_COMPILE_FAIL_CASES
+    compile_fail/val_float_requires_cpp20.cpp
+  )
+endif()
 
 function(ptn_add_compile_fail_test SOURCE_REL)
   get_filename_component(_name "${SOURCE_REL}" NAME_WE)

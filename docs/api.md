@@ -104,7 +104,7 @@ match(x) | on(
 );
 ```
 
-### `lit<value>()`
+### `val<value>`
 
 Compile-time literal match.
 Useful when the literal is known at compile time and the lowering engine can
@@ -112,8 +112,8 @@ consider static dispatch.
 
 ```cpp
 match(x) | on(
-  lit<1>() >> 1,
-  lit<2>() >> 2,
+  val<1> >> 1,
+  val<2> >> 2,
   _ >> 0
 );
 ```
@@ -326,8 +326,8 @@ Cache a stateless `on(...)` factory.
 ```cpp
 match(x) | static_on([] {
   return on(
-    lit<1>() >> 1,
-    lit<2>() >> 2,
+    val<1> >> 1,
+    val<2> >> 2,
     _ >> 0
   );
 });
@@ -339,8 +339,8 @@ Convenience macro over `static_on(...)`.
 
 ```cpp
 match(x) | PTN_ON(
-  lit<1>() >> 1,
-  lit<2>() >> 2,
+  val<1> >> 1,
+  val<2> >> 2,
   _ >> 0
 );
 ```
@@ -355,7 +355,7 @@ The public surface is re-exported through `namespace ptn`:
 
 - `match`
 - `on`
-- `lit`, `lit_ci`
+- `lit`, `val`, `lit_ci`
 - `$`
 - `_`
 - `_0`, `arg`, `rng`

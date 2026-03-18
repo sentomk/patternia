@@ -805,7 +805,7 @@ namespace {
     }
   }
 
-#define PTN_LIT_CASE_128(n) ptn::lit<n>() >> (n)
+#define PTN_LIT_CASE_128(n) ptn::val<n> >> (n)
 #define PTN_SWITCH_CASE_128(n)                                      \
   case (n):                                                         \
     return (n)

@@ -36,23 +36,23 @@ TEST(LiteralPattern, LitStringOtherwiseFallback) {
 
 TEST(LiteralPattern, LitMatchesCompileTimeValue) {
   int x      = 5;
-  int result = ptn::match(x) | ptn::on(ptn::lit<5>() >> 42, ptn::__ >> -1);
+  int result = ptn::match(x) | ptn::on(ptn::val<5> >> 42, ptn::__ >> -1);
 
   EXPECT_EQ(result, 42);
 }
 
 TEST(LiteralPattern, LitCompileTimeOtherwiseFallback) {
   int x      = 3;
-  int result = ptn::match(x) | ptn::on(ptn::lit<5>() >> 42, ptn::__ >> -1);
+  int result = ptn::match(x) | ptn::on(ptn::val<5> >> 42, ptn::__ >> -1);
 
   EXPECT_EQ(result, -1);
 }
 
 TEST(LiteralPattern, LitSelectsSparseDenseCases) {
   auto cases = on(
-      ptn::lit<1>() >> 1,
-      ptn::lit<2>() >> 2,
-      ptn::lit<10>() >> 10,
+      ptn::val<1> >> 1,
+      ptn::val<2> >> 2,
+      ptn::val<10> >> 10,
       __ >> 0
   );
 
@@ -74,23 +74,23 @@ TEST(LiteralPattern, LitInlineOnSelectsDenseCases) {
 
   int one_result = ptn::match(one)
                    | on(
-                       ptn::lit<1>() >> 1,
-                       ptn::lit<2>() >> 2,
-                       ptn::lit<10>() >> 10,
+                       ptn::val<1> >> 1,
+                       ptn::val<2> >> 2,
+                       ptn::val<10> >> 10,
                        __ >> 0
                    );
   int ten_result = ptn::match(ten)
                    | on(
-                       ptn::lit<1>() >> 1,
-                       ptn::lit<2>() >> 2,
-                       ptn::lit<10>() >> 10,
+                       ptn::val<1> >> 1,
+                       ptn::val<2> >> 2,
+                       ptn::val<10> >> 10,
                        __ >> 0
                    );
   int other_result = ptn::match(other)
                      | on(
-                         ptn::lit<1>() >> 1,
-                         ptn::lit<2>() >> 2,
-                         ptn::lit<10>() >> 10,
+                         ptn::val<1> >> 1,
+                         ptn::val<2> >> 2,
+                         ptn::val<10> >> 10,
                          __ >> 0
                      );
 
@@ -107,27 +107,27 @@ TEST(LiteralPattern, LitStaticOnFactorySelectsDenseCases) {
   int one_result = ptn::match(one)
                    | ptn::static_on([] {
                        return on(
-                           ptn::lit<1>() >> 1,
-                           ptn::lit<2>() >> 2,
-                           ptn::lit<10>() >> 10,
+                           ptn::val<1> >> 1,
+                           ptn::val<2> >> 2,
+                           ptn::val<10> >> 10,
                            __ >> 0
                        );
                      });
   int ten_result = ptn::match(ten)
                    | ptn::static_on([] {
                        return on(
-                           ptn::lit<1>() >> 1,
-                           ptn::lit<2>() >> 2,
-                           ptn::lit<10>() >> 10,
+                           ptn::val<1> >> 1,
+                           ptn::val<2> >> 2,
+                           ptn::val<10> >> 10,
                            __ >> 0
                        );
                      });
   int other_result = ptn::match(other)
                      | ptn::static_on([] {
                          return on(
-                             ptn::lit<1>() >> 1,
-                             ptn::lit<2>() >> 2,
-                             ptn::lit<10>() >> 10,
+                             ptn::val<1> >> 1,
+                             ptn::val<2> >> 2,
+                             ptn::val<10> >> 10,
                              __ >> 0
                          );
                        });
@@ -144,21 +144,21 @@ TEST(LiteralPattern, LitPtnOnMacroSelectsDenseCases) {
 
   int one_result = ptn::match(one)
                    | PTN_ON(
-                       ptn::lit<1>() >> 1,
-                       ptn::lit<2>() >> 2,
-                       ptn::lit<10>() >> 10,
+                       ptn::val<1> >> 1,
+                       ptn::val<2> >> 2,
+                       ptn::val<10> >> 10,
                        __ >> 0);
   int ten_result = ptn::match(ten)
                    | PTN_ON(
-                       ptn::lit<1>() >> 1,
-                       ptn::lit<2>() >> 2,
-                       ptn::lit<10>() >> 10,
+                       ptn::val<1> >> 1,
+                       ptn::val<2> >> 2,
+                       ptn::val<10> >> 10,
                        __ >> 0);
   int other_result = ptn::match(other)
                      | PTN_ON(
-                         ptn::lit<1>() >> 1,
-                         ptn::lit<2>() >> 2,
-                         ptn::lit<10>() >> 10,
+                         ptn::val<1> >> 1,
+                         ptn::val<2> >> 2,
+                         ptn::val<10> >> 10,
                          __ >> 0);
 
   EXPECT_EQ(one_result, 1);
@@ -172,4 +172,13 @@ TEST(LiteralPattern, LitCiMatchesAsciiCaseInsensitive) {
 
   EXPECT_EQ(result, 1);
 }
+
+#if (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L) || __cplusplus >= 202002L
+TEST(LiteralPattern, ValSupportsFloatingPointInCpp20) {
+  double x   = 3.25;
+  int    hit = ptn::match(x) | ptn::on(ptn::val<3.25> >> 7, ptn::__ >> -1);
+
+  EXPECT_EQ(hit, 7);
+}
+#endif
 
