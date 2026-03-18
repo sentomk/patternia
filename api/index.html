@@ -942,10 +942,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#litvalue_1" class="md-nav__link">
+  <a href="#valvalue" class="md-nav__link">
     <span class="md-ellipsis">
       
-        lit&lt;value&gt;()
+        val&lt;value&gt;
       
     </span>
   </a>
@@ -1695,13 +1695,13 @@ There is no deferred builder stage.</p>
 <span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">-1</span>
 <span class="p">);</span>
 </code></pre></div>
-<h3 id="litvalue_1"><code>lit&lt;value&gt;()</code><a class="headerlink" href="#litvalue_1" title="Permanent link">&para;</a></h3>
+<h3 id="valvalue"><code>val&lt;value&gt;</code><a class="headerlink" href="#valvalue" title="Permanent link">&para;</a></h3>
 <p>Compile-time literal match.
 Useful when the literal is known at compile time and the lowering engine can
 consider static dispatch.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
 <span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
 <span class="p">);</span>
 </code></pre></div>
@@ -1846,8 +1846,8 @@ Wrap it with <code>$(...)</code> to extract values.</p>
 <p>Cache a stateless <code>on(...)</code> factory.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">static_on</span><span class="p">([]</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">    </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">    </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
 <span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
 <span class="w">  </span><span class="p">);</span>
 <span class="p">});</span>
@@ -1855,8 +1855,8 @@ Wrap it with <code>$(...)</code> to extract values.</p>
 <h3 id="ptn_on"><code>PTN_ON(...)</code><a class="headerlink" href="#ptn_on" title="Permanent link">&para;</a></h3>
 <p>Convenience macro over <code>static_on(...)</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PTN_ON</span><span class="p">(</span>
-<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
 <span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
 <span class="p">);</span>
 </code></pre></div>
@@ -1867,7 +1867,7 @@ Wrap it with <code>$(...)</code> to extract values.</p>
 <ul>
 <li><code>match</code></li>
 <li><code>on</code></li>
-<li><code>lit</code>, <code>lit_ci</code></li>
+<li><code>lit</code>, <code>val</code>, <code>lit_ci</code></li>
 <li><code>$</code></li>
 <li><code>_</code></li>
 <li><code>_0</code>, <code>arg</code>, <code>rng</code></li>
