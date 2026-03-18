@@ -1055,6 +1055,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../changelog/v0.9.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../changelog/v0.9.0/" class="md-nav__link">
         
   
@@ -1262,45 +1290,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#next-minor-release" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next Minor Release
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Next Minor Release">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#valv-static-literal-variable-template" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        val&lt;V&gt; — static literal variable template
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#c20-floating-point-valv-support" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        C++20 floating-point val&lt;V&gt; support
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#future-considerations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1401,40 +1390,9 @@
 
 
 <h1 id="roadmap">Roadmap<a class="headerlink" href="#roadmap" title="Permanent link">&para;</a></h1>
-<p>Planned changes for upcoming releases.
-Items listed here are confirmed design decisions, not speculative ideas.</p>
-<hr />
-<h2 id="next-minor-release">Next Minor Release<a class="headerlink" href="#next-minor-release" title="Permanent link">&para;</a></h2>
-<h3 id="valv-static-literal-variable-template"><code>val&lt;V&gt;</code> — static literal variable template<a class="headerlink" href="#valv-static-literal-variable-template" title="Permanent link">&para;</a></h3>
-<p>Replace <code>lit&lt;V&gt;()</code> with <code>val&lt;V&gt;</code> as the compile-time literal pattern entry.</p>
-<p><code>val&lt;V&gt;</code> is a variable template, consistent with <code>is&lt;T&gt;</code> and <code>alt&lt;I&gt;</code>.</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// current</span>
-<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PTN_ON</span><span class="p">(</span>
-<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
-<span class="p">);</span>
-
-<span class="c1">// planned</span>
-<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PTN_ON</span><span class="p">(</span>
-<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
-<span class="p">);</span>
-</code></pre></div>
-<p><code>lit(value)</code>, <code>lit_ci(value)</code> remain unchanged as runtime forms.</p>
-<h3 id="c20-floating-point-valv-support">C++20 floating-point <code>val&lt;V&gt;</code> support<a class="headerlink" href="#c20-floating-point-valv-support" title="Permanent link">&para;</a></h3>
-<p>When compiled in C++20 or later mode, <code>val&lt;V&gt;</code> will accept floating-point
-non-type template parameters, enabling static dispatch for floating-point
-literals.</p>
-<div class="highlight"><pre><span></span><code><span class="c1">// C++20 only</span>
-<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mf">3.14</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;pi&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
-<span class="p">);</span>
-</code></pre></div>
-<p>C++17 builds are unaffected. Floating-point matching continues to use
-<code>lit(3.14)</code>.</p>
+<p>This page tracks future API directions that have not landed yet.</p>
+<p>The <code>val&lt;V&gt;</code> static literal entry point and C++20 floating-point static
+literals shipped in <a href="../changelog/v0.9.1/">v0.9.1</a>.</p>
 <hr />
 <h2 id="future-considerations">Future Considerations<a class="headerlink" href="#future-considerations" title="Permanent link">&para;</a></h2>
 <p>Ideas under consideration for later releases. These are not yet confirmed

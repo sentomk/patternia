@@ -12,9 +12,13 @@
         <meta name="author" content="Y.F. Guo">
       
       
-        <link rel="canonical" href="https://sentomk.github.io/patternia/changelog/v0.7.6/">
+        <link rel="canonical" href="https://sentomk.github.io/patternia/changelog/v0.9.1/">
       
       
+        <link rel="prev" href="../releases/">
+      
+      
+        <link rel="next" href="../v0.9.0/">
       
       
         
@@ -25,7 +29,7 @@
     
     
       
-        <title>Patternia v0.7.6 Release Note - Patternia</title>
+        <title>v0.9.1 - Patternia</title>
       
     
     
@@ -78,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#patternia-v076-release-note" class="md-skip">
+        <a href="#patternia-v091-release-note" class="md-skip">
           Skip to content
         </a>
       
@@ -111,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Patternia v0.7.6 Release Note
+              v0.9.1
             
           </span>
         </div>
@@ -312,10 +316,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../releases/" class="md-tabs__link">
           
   
@@ -968,26 +974,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
             
   
   
@@ -1005,7 +1016,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1048,10 +1059,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../v0.9.1/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.1
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1067,6 +1105,159 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Features
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="New Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#valv-replaces-litv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        val&lt;V&gt; Replaces lit&lt;V&gt;()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c20-floating-point-static-literals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C++20 Floating-Point Static Literals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#has-is-now-the-canonical-structural-entry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        has&lt;...&gt; Is Now the Canonical Structural Entry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vcpkg-packaging-follow-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vcpkg Packaging Follow-Up
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration Notes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#litv-valv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        lit&lt;V&gt;() -&gt; val&lt;V&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#has-has" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        has&lt;...&gt;() -&gt; has&lt;...&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c17-vs-c20-static-floating-point-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C++17 vs C++20 Static Floating-Point Matching
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1266,72 +1457,109 @@
   
 
 
-<h1 id="patternia-v076-release-note">Patternia v0.7.6 Release Note<a class="headerlink" href="#patternia-v076-release-note" title="Permanent link">&para;</a></h1>
-<p><strong>Release Date:</strong> February 21, 2026<br />
-<strong>Version:</strong> 0.7.6</p>
+<h1 id="patternia-v091-release-note">Patternia v0.9.1 Release Note<a class="headerlink" href="#patternia-v091-release-note" title="Permanent link">&para;</a></h1>
+<p><strong>Release Date:</strong> March 18, 2026
+<strong>Version:</strong> 0.9.1</p>
 <hr />
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Patternia v0.7.6 is a performance and benchmarking release focused on variant
-dispatch internals, practical benchmark coverage, and easier benchmark result
-visualization.</p>
-<p>Compared with v0.7.5, this version adds targeted fast paths for variant
-matching (including mixed simple + guarded patterns), introduces real-world
-benchmark scenarios, and streamlines single-file benchmark reporting.</p>
+<p>Patternia v0.9.1 is an API refinement and packaging stabilization release.</p>
+<p>Compared with v0.9.0, this version finishes the roadmap transition from
+function-style static patterns to variable-template entry points, promotes the
+new structural and literal forms across the public docs, and tightens the vcpkg
+packaging flow for clean installs.</p>
 <hr />
-<h2 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h2>
-<h3 id="variant-dispatch-performance-core">Variant Dispatch Performance (Core)<a class="headerlink" href="#variant-dispatch-performance-core" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Added a single-dispatch fast path for simple variant cases.</li>
-<li>Specialized simple dispatch by active variant index to reduce per-case
-  matching overhead.</li>
-<li>Added prefiltering for mixed simple + guarded variant patterns so guarded
-  branches can skip irrelevant alternatives early.</li>
-<li>Simplified internal index-resolution flow for typed variant dispatch.</li>
-</ul>
-<h3 id="real-world-variant-benchmarks">Real-World Variant Benchmarks<a class="headerlink" href="#real-world-variant-benchmarks" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Added protocol-router scenario benchmarks.</li>
-<li>Added command-parser scenario benchmarks.</li>
-<li>For each scenario, included side-by-side implementations for:</li>
-<li>Patternia</li>
-<li>if-else</li>
-<li>switch-case</li>
-<li>std::visit</li>
-</ul>
-<h3 id="benchmark-tooling-and-visualization">Benchmark Tooling and Visualization<a class="headerlink" href="#benchmark-tooling-and-visualization" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Added <code>scripts/bench_single_report.py</code> for single-JSON visualization across
-  multiple implementations in the same scenario.</li>
-<li>The script outputs chart + markdown + csv summaries to simplify local
-  analysis and sharing.</li>
-</ul>
-<h3 id="documentation-refresh">Documentation Refresh<a class="headerlink" href="#documentation-refresh" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Moved latest benchmark snapshot to the top of README for faster
-  performance-oriented access.</li>
-<li>Updated benchmark workflow docs with single-file visualization commands.</li>
-</ul>
+<h2 id="new-features">New Features<a class="headerlink" href="#new-features" title="Permanent link">&para;</a></h2>
+<h3 id="valv-replaces-litv"><code>val&lt;V&gt;</code> Replaces <code>lit&lt;V&gt;()</code><a class="headerlink" href="#valv-replaces-litv" title="Permanent link">&para;</a></h3>
+<p>Compile-time literal matching now uses <code>val&lt;V&gt;</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PTN_ON</span><span class="p">(</span>
+<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>This aligns static literal patterns with the existing variable-template style
+used by <code>is&lt;T&gt;</code> and <code>alt&lt;I&gt;</code>.</p>
+<p>Runtime literal patterns are unchanged:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
+<h3 id="c20-floating-point-static-literals">C++20 Floating-Point Static Literals<a class="headerlink" href="#c20-floating-point-static-literals" title="Permanent link">&para;</a></h3>
+<p>When you compile Patternia in C++20 or later mode, <code>val&lt;V&gt;</code> now accepts
+floating-point non-type template parameters:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mf">3.25</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;three-point-two-five&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>In C++17 builds, floating-point static literals remain unavailable by design.
+Use <code>lit(3.25)</code> there.</p>
+<h3 id="has-is-now-the-canonical-structural-entry"><code>has&lt;...&gt;</code> Is Now the Canonical Structural Entry<a class="headerlink" href="#has-is-now-the-canonical-structural-entry" title="Permanent link">&para;</a></h3>
+<p>Structural matching continues the same DSL direction as <code>val&lt;V&gt;</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>The old <code>has&lt;...&gt;()</code> factory-style spelling is no longer part of the public
+surface.</p>
+<h3 id="vcpkg-packaging-follow-up">vcpkg Packaging Follow-Up<a class="headerlink" href="#vcpkg-packaging-follow-up" title="Permanent link">&para;</a></h3>
+<p>This release keeps the vcpkg port aligned with the upstream install layout and
+documents vcpkg as the primary installation path. It also includes the cleanup
+needed for a clean package install after the initial v0.9.0 port landing.</p>
 <hr />
-<h2 id="compatibility-notes">Compatibility Notes<a class="headerlink" href="#compatibility-notes" title="Permanent link">&para;</a></h2>
-<ul>
-<li>API surface: unchanged for 0.7.x users.</li>
-<li>Source compatibility: unchanged.</li>
-<li>Runtime semantics: unchanged externally; optimizations are internal to
-  variant evaluation and benchmark tooling.</li>
-</ul>
+<h2 id="migration-notes">Migration Notes<a class="headerlink" href="#migration-notes" title="Permanent link">&para;</a></h2>
+<h3 id="litv-valv"><code>lit&lt;V&gt;()</code> -&gt; <code>val&lt;V&gt;</code><a class="headerlink" href="#litv-valv" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// Before</span>
+<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">lit</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+
+<span class="c1">// After</span>
+<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<h3 id="has-has"><code>has&lt;...&gt;()</code> -&gt; <code>has&lt;...&gt;</code><a class="headerlink" href="#has-has" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// Before</span>
+<span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// After</span>
+<span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="c17-vs-c20-static-floating-point-matching">C++17 vs C++20 Static Floating-Point Matching<a class="headerlink" href="#c17-vs-c20-static-floating-point-matching" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// C++17</span>
+<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mf">3.25</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;three-point-two-five&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
+
+<span class="c1">// C++20+</span>
+<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mf">3.25</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;three-point-two-five&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
 <hr />
-<h2 id="implementation-notes">Implementation Notes<a class="headerlink" href="#implementation-notes" title="Permanent link">&para;</a></h2>
+<h2 id="internal">Internal<a class="headerlink" href="#internal" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>include/ptn/core/common/eval.hpp</code></li>
-<li>Added and refined variant fast paths for simple and mixed-guarded cases.</li>
-<li><code>bench/bench_match_variant.cpp</code></li>
-<li>Added protocol-router and command-parser practical benchmark scenarios.</li>
-<li><code>scripts/bench_single_report.py</code></li>
-<li>Added single-JSON benchmark report generation utility.</li>
-<li><code>README.md</code></li>
-<li>Updated benchmark snapshot placement and workflow guidance.</li>
-<li><code>docs/index.md</code></li>
-<li>Synced benchmark tooling entry points for docs navigation.</li>
+<li><code>include/ptn/pattern/lit.hpp</code>: replaced the compile-time literal factory
+  function with the <code>val&lt;V&gt;</code> variable template.</li>
+<li><code>include/ptn/patternia.hpp</code>: re-exported <code>val</code> through the umbrella header.</li>
+<li><code>tests/compile_fail/</code>: added regression coverage for removed <code>lit&lt;V&gt;()</code> and
+  <code>has&lt;...&gt;()</code> forms, plus pre-C++20 floating-point static literals.</li>
+<li><code>packaging/vcpkg/</code>: version metadata updated for the 0.9.1 release cycle.</li>
 </ul>
 
 
@@ -1363,6 +1591,44 @@ benchmark scenarios, and streamlines single-file benchmark reporting.</p>
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../releases/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Releases">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Releases
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../v0.9.0/" class="md-footer__link md-footer__link--next" aria-label="Next: v0.9.0">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                v0.9.0
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">
