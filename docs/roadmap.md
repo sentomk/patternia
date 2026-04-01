@@ -1,16 +1,28 @@
 # Roadmap
 
-This page tracks future API directions that have not landed yet.
+This page tracks API direction and current implementation status.
 
-The `val<V>` static literal entry point and C++20 floating-point static
-literals shipped in [v0.9.1](changelog/v0.9.1.md).
+Status labels:
+- `FINISHED`: already shipped and documented.
+- `WIP`: currently being designed or prepared.
+- `NEXT`: future consideration, not yet committed.
 
 ---
 
-## Future Considerations
+## FINISHED
 
-Ideas under consideration for later releases. These are not yet confirmed
-and may change in scope or form.
+Completed in [v0.9.1](changelog/v0.9.1.md):
+
+- `val<V>` static literal entry point.
+- C++20 floating-point static literals through `val<V>`.
+- Canonical structural entry `has<...>` (factory-style `has<...>()` removed
+  from public API).
+
+---
+
+## WIP
+
+Current workstream for upcoming releases.
 
 ### `any(ps...)`, `all(ps...)` — pattern combinators
 
@@ -49,6 +61,12 @@ match(x) | on(
   _ >> "odd"
 );
 ```
+
+---
+
+## NEXT
+
+Potential follow-up items after current WIP scope is stabilized.
 
 ### `some` / `none` — `std::optional` patterns
 

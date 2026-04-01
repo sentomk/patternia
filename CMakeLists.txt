@@ -113,6 +113,7 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/pattern/type.hpp
   include/ptn/pattern/wildcard.hpp
   include/ptn/pattern/structural.hpp
+  include/ptn/pattern/combinator.hpp
   include/ptn/pattern/modifiers/guard.hpp
   include/ptn/pattern/modifiers/fwd.h
 )

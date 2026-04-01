@@ -32,6 +32,7 @@
 #include "ptn/pattern/wildcard.hpp"        // wildcard
 #include "ptn/pattern/modifiers/guard.hpp" // guard
 #include "ptn/pattern/structural.hpp"      // has
+#include "ptn/pattern/combinator.hpp"      // any/all
 #include "ptn/pattern/type.hpp" // is<T>, alt<I>
 
 namespace ptn {
@@ -58,6 +59,8 @@ namespace ptn {
   // Structural matching utilities.
   using ptn::pat::_ign;
   using ptn::pat::has;
+  using ptn::pat::all;
+  using ptn::pat::any;
 
   // Type-pattern utilities (variable templates).
   using ptn::pat::alt;

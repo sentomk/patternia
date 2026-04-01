@@ -18,6 +18,7 @@ add_executable(ptn_tests
   tests_destructure.cpp
   tests_guard.cpp
   tests_literal_pattern.cpp
+  tests_combinator.cpp
   tests_match_flow.cpp
   tests_pipeline_match.cpp
   tests_public_api.cpp
@@ -45,6 +46,9 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/has_factory_removed.cpp
   compile_fail/lit_v_factory_removed.cpp
   compile_fail/lit_factory_removed.cpp
+  compile_fail/any_requires_subpattern.cpp
+  compile_fail/all_requires_subpattern.cpp
+  compile_fail/any_requires_pattern_args.cpp
   compile_fail/static_on_with_capture.cpp
   compile_fail/on_pipeline_without_wildcard.cpp
 )
