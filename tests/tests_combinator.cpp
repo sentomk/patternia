@@ -10,6 +10,10 @@ struct ProbePattern : ptn::pat::base::pattern_base<ProbePattern> {
   bool should_match;
   int *calls;
 
+  constexpr ProbePattern(bool should_match, int *calls) noexcept
+      : should_match(should_match), calls(calls) {
+  }
+
   template <typename Subject>
   constexpr bool match(const Subject &) const noexcept {
     ++(*calls);
