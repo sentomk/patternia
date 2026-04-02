@@ -17,6 +17,8 @@ namespace ptn::pat {
 
   namespace detail {
 
+    // Matches when any sub-pattern matches. This combinator never
+    // contributes bindings; it is used only for control flow.
     template <typename... Patterns>
     struct any_pattern : base::pattern_base<any_pattern<Patterns...>> {
       std::tuple<Patterns...> patterns;
@@ -31,7 +33,8 @@ namespace ptn::pat {
       constexpr bool match(const Subject &subject) const {
         return std::apply(
             [&](const auto &...ps) {
-              // Left-to-right short-circuit OR.
+              // Fold over || to preserve left-to-right short-circuit
+              // evaluation.
               return (ps.match(subject) || ...);
             },
             patterns);
@@ -43,6 +46,8 @@ namespace ptn::pat {
       }
     };
 
+    // Matches only when every sub-pattern matches. Like any_pattern,
+    // this combinator is non-binding.
     template <typename... Patterns>
     struct all_pattern : base::pattern_base<all_pattern<Patterns...>> {
       std::tuple<Patterns...> patterns;
@@ -57,7 +62,8 @@ namespace ptn::pat {
       constexpr bool match(const Subject &subject) const {
         return std::apply(
             [&](const auto &...ps) {
-              // Left-to-right short-circuit AND.
+              // Fold over && to preserve left-to-right short-circuit
+              // evaluation.
               return (ps.match(subject) && ...);
             },
             patterns);
@@ -71,6 +77,8 @@ namespace ptn::pat {
 
   } // namespace detail
 
+  // Returns a pattern that succeeds on the first matching
+  // sub-pattern.
   template <typename... Patterns>
   constexpr auto any(Patterns &&...patterns) {
     static_assert(
@@ -84,6 +92,8 @@ namespace ptn::pat {
         std::forward<Patterns>(patterns)...);
   }
 
+  // Returns a pattern that succeeds only when every sub-pattern
+  // matches.
   template <typename... Patterns>
   constexpr auto all(Patterns &&...patterns) {
     static_assert(
