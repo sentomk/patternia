@@ -1130,6 +1130,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#pattern-combinators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern Combinators
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pattern Combinators">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anyps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        any(ps...)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#allps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        all(ps...)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cached-case-packs" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1869,6 +1908,38 @@ Wrap it with <code>$(...)</code> to extract values.</p>
 <li>Use <code>$(...)</code> when you want the alternative value bound into the handler.</li>
 </ul>
 <hr />
+<h2 id="pattern-combinators">Pattern Combinators<a class="headerlink" href="#pattern-combinators" title="Permanent link">&para;</a></h2>
+<h3 id="anyps"><code>any(ps...)</code><a class="headerlink" href="#anyps" title="Permanent link">&para;</a></h3>
+<p>Matches when at least one sub-pattern matches (OR semantics). Short-circuits
+on the first matching sub-pattern.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">any</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">3</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;1, 2, or 3&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>Properties:</p>
+<ul>
+<li>Non-binding: handlers receive zero arguments.</li>
+<li>Sub-patterns are evaluated left-to-right; evaluation stops at the first
+  match.</li>
+<li>Requires at least one sub-pattern; every argument must be a pattern object.</li>
+</ul>
+<h3 id="allps"><code>all(ps...)</code><a class="headerlink" href="#allps" title="Permanent link">&para;</a></h3>
+<p>Matches only when every sub-pattern matches (AND semantics). Short-circuits
+on the first mismatch.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">all</span><span class="p">(</span><span class="n">any</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;2&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>Properties:</p>
+<ul>
+<li>Non-binding: handlers receive zero arguments.</li>
+<li>Sub-patterns are evaluated left-to-right; evaluation stops at the first
+  mismatch.</li>
+<li>Requires at least one sub-pattern; every argument must be a pattern object.</li>
+</ul>
+<hr />
 <h2 id="cached-case-packs">Cached Case Packs<a class="headerlink" href="#cached-case-packs" title="Permanent link">&para;</a></h2>
 <h3 id="static_on"><code>static_on(...)</code><a class="headerlink" href="#static_on" title="Permanent link">&para;</a></h3>
 <p>Cache a stateless <code>on(...)</code> factory.</p>
@@ -1901,6 +1972,7 @@ Wrap it with <code>$(...)</code> to extract values.</p>
 <li><code>_0</code>, <code>arg</code>, <code>rng</code></li>
 <li><code>has</code></li>
 <li><code>is</code>, <code>alt</code></li>
+<li><code>any</code>, <code>all</code></li>
 </ul>
 <hr />
 <h2 id="minimal-example">Minimal Example<a class="headerlink" href="#minimal-example" title="Permanent link">&para;</a></h2>
