@@ -49,6 +49,7 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/any_requires_subpattern.cpp
   compile_fail/all_requires_subpattern.cpp
   compile_fail/any_requires_pattern_args.cpp
+  compile_fail/all_requires_pattern_args.cpp
   compile_fail/static_on_with_capture.cpp
   compile_fail/on_pipeline_without_wildcard.cpp
 )

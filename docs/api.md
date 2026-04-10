@@ -317,6 +317,48 @@ Rules:
 
 ---
 
+## Pattern Combinators {#pattern-combinators}
+
+### `any(ps...)`
+
+Matches when at least one sub-pattern matches (OR semantics). Short-circuits
+on the first matching sub-pattern.
+
+```cpp
+match(x) | on(
+  any(val<1>, val<2>, val<3>) >> "1, 2, or 3",
+  _ >> "other"
+);
+```
+
+Properties:
+
+- Non-binding: handlers receive zero arguments.
+- Sub-patterns are evaluated left-to-right; evaluation stops at the first
+  match.
+- Requires at least one sub-pattern; every argument must be a pattern object.
+
+### `all(ps...)`
+
+Matches only when every sub-pattern matches (AND semantics). Short-circuits
+on the first mismatch.
+
+```cpp
+match(x) | on(
+  all(any(val<1>, val<2>), val<2>) >> "2",
+  _ >> "other"
+);
+```
+
+Properties:
+
+- Non-binding: handlers receive zero arguments.
+- Sub-patterns are evaluated left-to-right; evaluation stops at the first
+  mismatch.
+- Requires at least one sub-pattern; every argument must be a pattern object.
+
+---
+
 ## Cached Case Packs {#cached-case-packs}
 
 ### `static_on(...)`
@@ -361,6 +403,7 @@ The public surface is re-exported through `namespace ptn`:
 - `_0`, `arg`, `rng`
 - `has`
 - `is`, `alt`
+- `any`, `all`
 
 ---
 
