@@ -11,6 +11,10 @@ Status labels:
 
 ## FINISHED
 
+Completed in [v0.9.2](changelog/v0.9.2.md):
+
+- `any(ps...)`, `all(ps...)` pattern combinators with OR/AND semantics.
+
 Completed in [v0.9.1](changelog/v0.9.1.md):
 
 - `val<V>` static literal entry point.
@@ -23,21 +27,6 @@ Completed in [v0.9.1](changelog/v0.9.1.md):
 ## WIP
 
 Current workstream for upcoming releases.
-
-### `any(ps...)`, `all(ps...)` — pattern combinators
-
-Combine multiple patterns with or/and semantics in a single case arm.
-
-```cpp
-match(x) | on(
-  any(val<1>, val<2>, val<3>) >> "1, 2, or 3",
-  all(pred(is_positive), pred(is_even)) >> "positive and even",
-  _ >> "other"
-);
-```
-
-Function template form because the arguments are pattern objects, which
-may carry runtime state (e.g., `lit(x)`, `pred(f)`).
 
 ### `neg(p)` — negation pattern
 
