@@ -34,6 +34,7 @@
 #include "ptn/pattern/structural.hpp"      // has
 #include "ptn/pattern/combinator.hpp"      // any/all
 #include "ptn/pattern/type.hpp" // is<T>, alt<I>
+#include "ptn/pattern/pred.hpp" // pred
 
 namespace ptn {
   // Imports DSL operators.
@@ -65,6 +66,9 @@ namespace ptn {
   // Type-pattern utilities (variable templates).
   using ptn::pat::alt;
   using ptn::pat::is;
+
+  // Predicate pattern utility.
+  using ptn::pat::pred;
 
 } // namespace ptn
 

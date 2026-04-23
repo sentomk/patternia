@@ -21,6 +21,7 @@ add_executable(ptn_tests
   tests_combinator.cpp
   tests_match_flow.cpp
   tests_pipeline_match.cpp
+  tests_pred_pattern.cpp
   tests_public_api.cpp
   tests_terminal_semantics.cpp
   tests_type_pattern.cpp
