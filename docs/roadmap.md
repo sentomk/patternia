@@ -11,6 +11,10 @@ Status labels:
 
 ## FINISHED
 
+Completed in [v0.9.3](changelog/v0.9.3.md):
+
+- `pred(callable)` predicate pattern for lifting arbitrary unary predicates into first-class patterns.
+
 Completed in [v0.9.2](changelog/v0.9.2.md):
 
 - `any(ps...)`, `all(ps...)` pattern combinators with OR/AND semantics.
@@ -36,18 +40,6 @@ Invert the result of a sub-pattern.
 match(x) | on(
   neg(val<0>) >> "non-zero",
   _ >> "zero"
-);
-```
-
-### `pred(callable)` — predicate pattern
-
-Lift an arbitrary unary predicate into a first-class pattern, evaluated
-during the match phase rather than as a post-bind guard.
-
-```cpp
-match(x) | on(
-  pred([](int v) { return v % 2 == 0; }) >> "even",
-  _ >> "odd"
 );
 ```
 
