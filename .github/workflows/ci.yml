@@ -49,3 +49,69 @@ jobs:
         with:
           name: test-log
           path: build/Testing/Temporary/LastTest.log
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install lcov
+        run: sudo apt-get install -y lcov
+
+      - name: Configure
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_FLAGS="--coverage" \
+            -DPTN_BUILD_TESTS=ON \
+            -DPTN_BUILD_BENCHMARKS=OFF \
+            -DPTN_SKIP_COMPILER_CHECK=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Run Tests
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Capture coverage
+        run: |
+          lcov --capture --directory build --output-file coverage.info
+          lcov --remove coverage.info '/usr/*' '*/_deps/*' '*/tests/*' --output-file coverage.info
+          lcov --list coverage.info
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.info
+          fail_ci_if_error: false
+
+  benchmark:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPTN_BUILD_TESTS=OFF \
+            -DPTN_BUILD_BENCHMARKS=ON \
+            -DPTN_SKIP_COMPILER_CHECK=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Run all benchmarks
+        run: |
+          mkdir -p bench_results
+          for bench in build/bench/ptn_bench*; do
+            name=$(basename "$bench")
+            "$bench" --benchmark_format=json > "bench_results/${name}.json"
+          done
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: bench_results/
