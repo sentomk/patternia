@@ -33,8 +33,8 @@
 #include "ptn/pattern/modifiers/guard.hpp" // guard
 #include "ptn/pattern/structural.hpp"      // has
 #include "ptn/pattern/combinator.hpp"      // any/all
-#include "ptn/pattern/type.hpp" // is<T>, alt<I>
-#include "ptn/pattern/pred.hpp" // pred
+#include "ptn/pattern/type.hpp"            // is<T>, alt<I>
+#include "ptn/pattern/pred.hpp"            // pred
 
 namespace ptn {
   // Imports DSL operators.
@@ -59,9 +59,9 @@ namespace ptn {
 
   // Structural matching utilities.
   using ptn::pat::_ign;
-  using ptn::pat::has;
   using ptn::pat::all;
   using ptn::pat::any;
+  using ptn::pat::has;
 
   // Type-pattern utilities (variable templates).
   using ptn::pat::alt;
@@ -79,11 +79,12 @@ namespace ptn {
 #endif
 
 #define PTN_DETAIL_WHERE_CAT_IMPL(a, b) a##b
-#define PTN_DETAIL_WHERE_CAT(a, b) PTN_DETAIL_WHERE_CAT_IMPL(a, b)
+#define PTN_DETAIL_WHERE_CAT(a, b)      PTN_DETAIL_WHERE_CAT_IMPL(a, b)
 // Extra indirection so MSVC's traditional preprocessor splits
 // __VA_ARGS__ into separate arguments before forwarding.
 #define PTN_DETAIL_WHERE_EXPAND(...) __VA_ARGS__
-// Counts the number of names supplied in PTN_WHERE((a, b, ...), expr).
+// Counts the number of names supplied in PTN_WHERE((a, b, ...),
+// expr).
 #define PTN_DETAIL_WHERE_COUNT_IMPL(a1, a2, a3, a4, a5, n, ...) n
 #define PTN_DETAIL_WHERE_COUNT(...)                                 \
   PTN_DETAIL_WHERE_EXPAND(                                          \
@@ -91,10 +92,10 @@ namespace ptn {
 #define PTN_DETAIL_WHERE_COUNT_TUPLE(args)                          \
   PTN_DETAIL_WHERE_COUNT args
 // Picks the Nth identifier from the `(a, b, ...)` parameter list.
-#define PTN_DETAIL_WHERE_NAME_1(a, ...) a
-#define PTN_DETAIL_WHERE_NAME_2(a, b, ...) b
-#define PTN_DETAIL_WHERE_NAME_3(a, b, c, ...) c
-#define PTN_DETAIL_WHERE_NAME_4(a, b, c, d, ...) d
+#define PTN_DETAIL_WHERE_NAME_1(a, ...)             a
+#define PTN_DETAIL_WHERE_NAME_2(a, b, ...)          b
+#define PTN_DETAIL_WHERE_NAME_3(a, b, c, ...)       c
+#define PTN_DETAIL_WHERE_NAME_4(a, b, c, d, ...)    d
 #define PTN_DETAIL_WHERE_NAME_5(a, b, c, d, e, ...) e
 #define PTN_DETAIL_WHERE_SELECT(n)                                  \
   PTN_DETAIL_WHERE_CAT(PTN_DETAIL_WHERE_, n)
@@ -102,9 +103,9 @@ namespace ptn {
   PTN_DETAIL_WHERE_EXPAND(                                          \
       PTN_DETAIL_WHERE_SELECT(n)(args, __VA_ARGS__))
 
-// Expands a named guard expression into a stateless predicate object.
-// The tuple of bound values is mapped to lambda parameters by position.
-// This macro currently supports 1 to 5 names.
+// Expands a named guard expression into a stateless predicate
+// object. The tuple of bound values is mapped to lambda parameters
+// by position. This macro currently supports 1 to 5 names.
 #define PTN_DETAIL_WHERE_1(args, ...)                               \
   (::ptn::pat::mod::make_callable_guard(                            \
       [](auto &&PTN_DETAIL_WHERE_NAME_1 args) -> bool {             \
@@ -149,15 +150,12 @@ namespace ptn {
 // Creates a named guard predicate from 1 to 5 parameter names.
 #define PTN_WHERE(args, ...)                                        \
   PTN_DETAIL_WHERE_INVOKE(                                          \
-      PTN_DETAIL_WHERE_COUNT_TUPLE(args),                           \
-      args,                                                         \
-      __VA_ARGS__)
+      PTN_DETAIL_WHERE_COUNT_TUPLE(args), args, __VA_ARGS__)
 #endif
 
 #ifndef PTN_LET
 // Single-value shorthand for PTN_WHERE((name), expr).
-#define PTN_LET(name, ...)                                          \
-  PTN_WHERE((name), __VA_ARGS__)
+#define PTN_LET(name, ...) PTN_WHERE((name), __VA_ARGS__)
 #endif
 
 // IWYU pragma: end_exports
