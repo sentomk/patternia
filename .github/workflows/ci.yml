@@ -105,15 +105,15 @@ jobs:
             -DPTN_SKIP_COMPILER_CHECK=ON
 
       - name: Build
-        run: cmake --build build --parallel
+        run: cmake --build build --target ptn_bench --parallel
 
-      - name: Run all benchmarks
+      - name: Run benchmarks
         run: |
           mkdir -p bench_results
-          for bench in build/bench/ptn_bench*; do
-            name=$(basename "$bench")
-            "$bench" --benchmark_format=json > "bench_results/${name}.json"
-          done
+          build/bench/ptn_bench \
+            --benchmark_filter="_VariantMixed/|_ProtocolRouter/|_CommandParser/|_LiteralMatch/|_PacketMixed/" \
+            --benchmark_format=json \
+            > bench_results/ptn_bench.json
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4
