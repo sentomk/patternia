@@ -253,6 +253,7 @@ def _plot(
 
     color_map = {
         "Patternia": "#0ea5e9",
+        "PatterniaPipe": "#0ea5e9",
         "IfElse": "#f59e0b",
         "Switch": "#10b981",
         "SwitchIndex": "#22c55e",

@@ -19,6 +19,7 @@
 [![Build](https://github.com/SentoMK/patternia/actions/workflows/ci.yml/badge.svg?branch=main&style=flat-square)](https://github.com/SentoMK/patternia/actions)
 [![License](https://img.shields.io/github/license/SentoMK/patternia?style=flat-square)](LICENSE)
 [![Version](https://img.shields.io/github/v/release/SentoMK/patternia?style=flat-square&color=orange)](https://github.com/SentoMK/patternia/releases)
+[![Coverage](https://img.shields.io/codecov/c/github/SentoMK/patternia?style=flat-square&branch=main)](https://codecov.io/gh/SentoMK/patternia)
 [![Docs](https://img.shields.io/badge/docs-online-blue?style=flat-square)](https://patternia.tech)
 
 </div>
@@ -157,6 +158,16 @@ cmake -S . -B build -DPTN_BUILD_TESTS=ON
 cmake --build build --target ptn_tests
 ctest --test-dir build --output-on-failure
 ```
+
+## Benchmarks
+
+<p align="center">
+  <img src="docs/assets/bench/latest.png" alt="Patternia benchmark comparison" width="90%">
+</p>
+
+<p align="center"><em>Mean CPU time across key scenarios — lower is better.</em></p>
+
+See [Performance Notes](https://patternia.tech/performance/) for full reports and methodology.
 
 ## Performance-Oriented Usage
 
