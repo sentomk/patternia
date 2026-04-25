@@ -133,7 +133,7 @@ jobs:
         run: |
           python scripts/bench_single_report.py \
             --input bench_results/ptn_bench.json \
-            --include "_VariantMixed$|_ProtocolRouter$|_CommandParser$|_LiteralMatch$|_PacketMixed$" \
+            --include "_VariantMixed/|_ProtocolRouter/|_CommandParser/|_LiteralMatch/|_PacketMixed/" \
             --outdir docs/assets/bench \
             --prefix latest \
             --title "Patternia vs Standard C++"
