@@ -96,7 +96,7 @@ def _split_impl_and_scenario(base_name: str) -> Tuple[str, str]:
 
 
 def _default_impl_order(impls: Iterable[str]) -> List[str]:
-    preferred = ["Patternia", "IfElse", "Switch", "SwitchIndex", "StdVisit"]
+    preferred = ["Patternia", "PatterniaPipe", "IfElse", "Switch", "SwitchIndex", "StdVisit"]
     found = set(impls)
     ordered = [x for x in preferred if x in found]
     others = sorted(found - set(ordered))
@@ -179,28 +179,62 @@ def _save_markdown(
         "",
         f"- Source: `{json_path}`",
         "",
+        "## Summary",
+        "",
+        "| Scenario | Fastest | Mean (ns) | Patternia vs fastest |",
+        "|---|---:|---:|---:|",
     ]
+
+    patternia_names = {"Patternia", "PatterniaPipe"}
+    for scenario in scenarios:
+        row = nested[scenario]
+        fastest = min(row.values(), key=lambda x: x.mean_ns)
+        # Show best Patternia result
+        pat_best = min(
+            (v for k, v in row.items() if k in patternia_names),
+            key=lambda x: x.mean_ns, default=None,
+        )
+        ratio = (
+            f"{pat_best.mean_ns / fastest.mean_ns:.3f}x"
+            if pat_best and fastest.mean_ns > 0
+            else "-"
+        )
+        lines.append(
+            f"| {scenario} | {fastest.impl} | {fastest.mean_ns:.3f} | {ratio} |"
+        )
+
+    lines += ["", "---", "", "## Per-Scenario Details"]
 
     for scenario in scenarios:
         row = nested[scenario]
         fastest = min(row.values(), key=lambda x: x.mean_ns)
-        lines.append(f"## {scenario}")
+        lines.append(f"### {scenario}")
         lines.append("")
-        lines.append("| Impl | Mean (ns) | Delta vs fastest | CV % |")
-        lines.append("|---|---:|---:|---:|")
+        lines.append("| Impl | Mean (ns) | vs fastest | vs Patternia | CV % |")
+        lines.append("|---|---:|---:|---:|---:|")
 
+        pat_ref = None
         for impl in impl_order:
             p = row.get(impl)
             if p is None:
                 continue
+            if impl in patternia_names and pat_ref is None:
+                pat_ref = p
             delta = (
                 ((p.mean_ns - fastest.mean_ns) / fastest.mean_ns) * 100.0
                 if fastest.mean_ns > 0
                 else math.nan
             )
+            delta_vs_pat = (
+                f"{(p.mean_ns / pat_ref.mean_ns - 1.0) * 100.0:+.2f}%"
+                if pat_ref and pat_ref is not p and pat_ref.mean_ns > 0
+                else "-"
+            ) if pat_ref else "-"
             cv = "-" if p.cv_pct is None else f"{p.cv_pct:.2f}"
-            delta_s = "+0.00%" if p is fastest else f"{delta:+.2f}%"
-            lines.append(f"| {impl} | {p.mean_ns:.3f} | {delta_s} | {cv} |")
+            delta_s = "fastest" if p is fastest else f"{delta:+.2f}%"
+            lines.append(
+                f"| {impl} | {p.mean_ns:.3f} | {delta_s} | {delta_vs_pat} | {cv} |"
+            )
         lines.append("")
 
     out_md.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -252,12 +286,15 @@ def _plot(
         ax.set_facecolor("#ffffff")
 
     color_map = {
-        "Patternia": "#0ea5e9",
-        "PatterniaPipe": "#0ea5e9",
-        "IfElse": "#f59e0b",
-        "Switch": "#10b981",
-        "SwitchIndex": "#22c55e",
-        "StdVisit": "#8b5cf6",
+        "Patternia": "#0284c7",       # deep sky blue — main Patternia
+        "PatterniaPipe": "#7dd3fc",    # light sky blue — pipe variant
+        "IfElse": "#f59e0b",          # amber
+        "Switch": "#10b981",          # emerald
+        "SwitchIndex": "#22c55e",     # lighter emerald
+        "StdVisit": "#8b5cf6",        # violet
+    }
+    hatch_map = {
+        "PatterniaPipe": "///",
     }
     fallback_palette = ["#64748b", "#ef4444", "#14b8a6", "#f97316", "#6366f1"]
 
@@ -270,7 +307,8 @@ def _plot(
         means_by_impl[impl] = means
         offset = (idx - (len(impls) - 1) / 2.0) * width
         color = color_map.get(impl, fallback_palette[idx % len(fallback_palette)])
-        ax1.bar(
+        hatch = hatch_map.get(impl, None)
+        bars = ax1.bar(
             [i + offset for i in x],
             means,
             width=width,
@@ -281,6 +319,24 @@ def _plot(
             alpha=0.96,
             zorder=3,
         )
+        if hatch:
+            for bar in bars:
+                bar.set_hatch(hatch)
+                bar.set_edgecolor(color_map["Patternia"])
+                bar.set_linewidth(0.5)
+
+        # Value labels on top of bars (skip NaN, only if tall enough)
+        for xi, v in enumerate(means):
+            if math.isnan(v):
+                continue
+            bar_x = xi + offset
+            ax1.text(
+                bar_x, v + max(means_by_impl[impls[0]]) * 0.01,
+                f"{v:.1f}",
+                ha="center", va="bottom",
+                fontsize=5.5, rotation=90,
+                color="#1e293b", alpha=0.85,
+            )
 
     # Relative slowdown (%) vs fastest implementation per scenario.
     for idx, impl in enumerate(impls):
@@ -324,18 +380,31 @@ def _plot(
         )
 
     def _label(s: str) -> str:
-        return re.sub(r"(?<!^)(?=[A-Z])", " ", s).replace("_", " ")
+        # Insert space before uppercase letters following lowercase/digits
+        s = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", s)
+        # Insert space before digits following letters
+        s = re.sub(r"(?<=[a-zA-Z])(?=\d)", " ", s)
+        # Clean up common abbreviations
+        s = s.replace("Std ", "std::")
+        # Remove trailing/extra whitespace
+        return s.strip().replace("_", " ")
 
     labels = [_label(s) for s in scenarios]
 
-    ax1.set_title(f"{title} - Mean CPU Time (lower is better)", fontweight="bold", pad=10)
-    ax1.set_ylabel("ns")
+    ax1.set_title(
+        f"{title}\nMean CPU Time — lower is better",
+        fontweight="bold", pad=14, fontsize=14,
+    )
+    ax1.set_ylabel("Time (ns)")
     ax1.grid(axis="y", alpha=0.23, zorder=0)
     ax1.set_xticks(x)
     ax1.set_xticklabels(labels, rotation=14, ha="right")
 
-    ax2.set_title("Relative Slowdown vs Fastest in Scenario (%)", fontweight="bold", pad=8)
-    ax2.set_ylabel("%")
+    ax2.set_title(
+        "Relative Slowdown vs Fastest in Scenario (%)",
+        fontweight="bold", pad=8,
+    )
+    ax2.set_ylabel("Slower %")
     ax2.axhline(0.0, color="#111827", linewidth=0.8, alpha=0.7)
     ax2.grid(axis="y", alpha=0.23, zorder=0)
     ax2.set_xticks(x)
@@ -350,7 +419,18 @@ def _plot(
         frameon=False,
         bbox_to_anchor=(0.5, 0.985),
     )
-    fig.tight_layout(rect=(0, 0, 1, 0.93))
+
+    # Footnote explaining PatterniaPipe
+    fig.text(
+        0.5, 0.005,
+        "PatterniaPipe = match(subject) >> on(...) syntax;  "
+        "Patternia = match(subject) | on(...) syntax.  "
+        "Hatched bars = PatterniaPipe variant.",
+        ha="center", va="bottom",
+        fontsize=7.5, color="#64748b",
+    )
+
+    fig.tight_layout(rect=(0, 0.025, 1, 0.93))
     fig.savefig(out_png, bbox_inches="tight")
     plt.close(fig)
 
