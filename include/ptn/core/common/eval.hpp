@@ -649,6 +649,10 @@ namespace ptn::core::common {
       }
     }
 
+    // Dispatches to the offset-specific handler through a dense jump
+    // table.  The switch is kept small because the lowering analysis
+    // already limits range_size to 512, and the compiler turns a dense
+    // integer switch into a jump table with no call overhead.
     template <typename Plan,
               typename Result,
               typename Subject,
@@ -722,9 +726,10 @@ namespace ptn::core::common {
       using key_t = typename Plan::key_t;
 
       const key_t value = static_cast<key_t>(subject);
-      if (value >= Plan::min_value && value <= Plan::max_value) {
-        const auto offset = static_cast<std::size_t>(
-            value - Plan::min_value);
+      const auto offset = static_cast<std::size_t>(value)
+                        - static_cast<std::size_t>(Plan::min_value);
+
+      if (offset < Plan::range_size) {
         return dispatch_static_literal_offset<Plan, Result>(
             offset,
             subject,
