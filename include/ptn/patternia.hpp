@@ -73,9 +73,16 @@ namespace ptn {
 } // namespace ptn
 
 // Optional sugar for the statically cached `on(...)` factory form.
+//
+// Expands to an immediately-invoked lambda that caches the matcher
+// in a function-local static. This avoids both the matcher construction
+// cost on every evaluation and the function-call boundary of `static_on`.
 #ifndef PTN_ON
 #define PTN_ON(...)                                                 \
-  (::ptn::static_on([] { return ::ptn::on(__VA_ARGS__); }))
+  ([]() -> auto& {                                                  \
+      static auto _ptn_cases = ::ptn::on(__VA_ARGS__);              \
+      return _ptn_cases;                                            \
+  }())
 #endif
 
 #define PTN_DETAIL_WHERE_CAT_IMPL(a, b) a##b
