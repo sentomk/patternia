@@ -2,45 +2,58 @@
 
 - Source: `/home/runner/work/patternia/patternia/bench_results/ptn_bench.json`
 
-## CommandParser
+## Summary
 
-| Impl | Mean (ns) | Delta vs fastest | CV % |
+| Scenario | Fastest | Mean (ns) | Patternia vs fastest |
 |---|---:|---:|---:|
-| IfElse | 1.818 | +34.43% | 1.67 |
-| Switch | 1.352 | +0.00% | 0.57 |
-| StdVisit | 1.629 | +20.45% | 0.70 |
-| PatterniaPipe | 1.772 | +31.07% | 0.13 |
+| CommandParser | Switch | 1.343 | 1.321x |
+| LiteralMatch | Switch | 0.901 | 1.997x |
+| PacketMixed | PatterniaPipe | 1.405 | 1.000x |
+| ProtocolRouter | StdVisit | 1.492 | 1.120x |
+| VariantMixed | PatterniaPipe | 1.069 | 1.000x |
 
-## LiteralMatch
+---
 
-| Impl | Mean (ns) | Delta vs fastest | CV % |
-|---|---:|---:|---:|
-| IfElse | 0.827 | +0.93% | 1.53 |
-| Switch | 0.819 | +0.00% | 0.45 |
-| PatterniaPipe | 1.390 | +69.72% | 0.28 |
+## Per-Scenario Details
+### CommandParser
 
-## PacketMixed
+| Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
+|---|---:|---:|---:|---:|
+| PatterniaPipe | 1.774 | +32.09% | - | 0.46 |
+| IfElse | 1.898 | +41.37% | +7.02% | 3.70 |
+| Switch | 1.343 | fastest | -24.29% | 0.69 |
+| StdVisit | 2.015 | +50.08% | +13.62% | 0.51 |
 
-| Impl | Mean (ns) | Delta vs fastest | CV % |
-|---|---:|---:|---:|
-| Switch | 1.643 | +13.03% | 1.63 |
-| PatterniaPipe | 1.453 | +0.00% | 5.51 |
+### LiteralMatch
 
-## ProtocolRouter
+| Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
+|---|---:|---:|---:|---:|
+| PatterniaPipe | 1.800 | +99.74% | - | 0.10 |
+| IfElse | 0.908 | +0.75% | -49.56% | 0.25 |
+| Switch | 0.901 | fastest | -49.94% | 1.45 |
 
-| Impl | Mean (ns) | Delta vs fastest | CV % |
-|---|---:|---:|---:|
-| IfElse | 1.888 | +26.94% | 0.28 |
-| Switch | 1.723 | +15.83% | 0.38 |
-| StdVisit | 1.488 | +0.00% | 0.53 |
-| PatterniaPipe | 1.650 | +10.91% | 0.30 |
+### PacketMixed
 
-## VariantMixed
+| Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
+|---|---:|---:|---:|---:|
+| PatterniaPipe | 1.405 | fastest | - | 3.48 |
+| Switch | 1.436 | +2.25% | +2.25% | 1.47 |
 
-| Impl | Mean (ns) | Delta vs fastest | CV % |
-|---|---:|---:|---:|
-| SwitchIndex | 0.997 | +7.31% | 1.59 |
-| StdVisit | 1.107 | +19.05% | 0.20 |
-| PatterniaPipe | 0.930 | +0.00% | 0.60 |
-| Sequential | 1.145 | +23.19% | 0.28 |
+### ProtocolRouter
+
+| Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
+|---|---:|---:|---:|---:|
+| PatterniaPipe | 1.671 | +12.02% | - | 1.03 |
+| IfElse | 1.888 | +26.59% | +13.01% | 0.65 |
+| Switch | 1.723 | +15.49% | +3.10% | 0.22 |
+| StdVisit | 1.492 | fastest | -10.73% | 0.28 |
+
+### VariantMixed
+
+| Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
+|---|---:|---:|---:|---:|
+| PatterniaPipe | 1.069 | fastest | - | 0.72 |
+| SwitchIndex | 1.086 | +1.60% | +1.60% | 0.73 |
+| StdVisit | 1.071 | +0.14% | +0.14% | 0.81 |
+| Sequential | 1.233 | +15.31% | +15.31% | 0.26 |
 
