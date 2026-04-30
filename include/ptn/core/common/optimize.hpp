@@ -102,6 +102,11 @@ namespace ptn::core::common {
     constexpr std::size_t k_static_literal_dense_dispatch_max_span = 512;
     constexpr std::size_t k_static_literal_dense_dispatch_max_density = 4;
 
+    constexpr std::size_t k_runtime_literal_dense_dispatch_max_cases = 256;
+    constexpr std::size_t k_runtime_literal_dense_dispatch_max_span = 512;
+    constexpr std::size_t k_runtime_literal_dense_dispatch_max_density = 8;
+    constexpr std::size_t k_runtime_literal_dense_dispatch_min_cases = 4;
+
     enum class variant_dispatch_tier {
       hot_inline,
       warm_segmented,
@@ -1138,6 +1143,19 @@ namespace ptn::core::common {
           && range_size
                  <= literal_case_count
                         * k_static_literal_dense_dispatch_max_density;
+
+      // Runtime dense dispatch relaxes the density heuristic for cases
+      // where the span is still manageable but the static density check
+      // would reject a worthwhile O(1) table.
+      static constexpr bool use_runtime_dense_table =
+          has_literal_cases
+          && literal_case_count
+                 >= k_runtime_literal_dense_dispatch_min_cases
+          && case_count <= k_runtime_literal_dense_dispatch_max_cases
+          && range_size <= k_runtime_literal_dense_dispatch_max_span
+          && range_size
+                 <= literal_case_count
+                        * k_runtime_literal_dense_dispatch_max_density;
     };
 
     template <typename Subject, typename CasesTuple, bool Eligible>
@@ -1148,6 +1166,17 @@ namespace ptn::core::common {
         : std::bool_constant<
               static_literal_dispatch_metadata<Subject, CasesTuple>::
                   use_dense_table> {};
+
+    template <typename Subject, typename CasesTuple, bool Eligible>
+    struct is_runtime_literal_dense_dispatch_enabled : std::false_type {};
+
+    template <typename Subject, typename CasesTuple>
+    struct is_runtime_literal_dense_dispatch_enabled<Subject,
+                                                      CasesTuple,
+                                                      true>
+        : std::bool_constant<
+              static_literal_dispatch_metadata<Subject, CasesTuple>::
+                  use_runtime_dense_table> {};
 
     // Summarizes the three lowering rules discussed for the engine.
     // `full` means direct keyed dispatch is legal, `bucketed` means keyed
@@ -1165,6 +1194,7 @@ namespace ptn::core::common {
       sequential,
       literal_linear,
       static_literal_dense,
+      literal_runtime_dense,
       variant_simple,
       variant_alt_bucketed
     };
@@ -1212,6 +1242,18 @@ namespace ptn::core::common {
                        supports_static_literal_dispatch
                    && ...))>::value;
 
+      // Rule 1: literal cases that satisfy the relaxed density heuristic
+      // can use O(1) array-based dispatch even when the stricter static
+      // dense check fails.
+      static constexpr bool can_use_runtime_literal_dense_dispatch =
+          is_runtime_literal_dense_dispatch_enabled<
+              subject_t,
+              std::tuple<Cases...>,
+              ((std::is_integral_v<subject_t> || std::is_enum_v<subject_t>)
+               && (case_analysis<Cases, Subject>::
+                       supports_static_literal_dispatch
+                   && ...))>::value;
+
       // Rule 1: every case participates in direct runtime literal dispatch.
       // This is the older linear literal lowering. It stays available when
       // dense static-literal dispatch is not legal or not profitable.
@@ -1240,7 +1282,9 @@ namespace ptn::core::common {
       // - Otherwise a variant subject may still use `bucketed`.
       // - Everything else falls back to sequential evaluation.
       static constexpr lowering_legality legality =
-          can_use_static_literal_dispatch || can_use_simple_literal_dispatch
+          can_use_static_literal_dispatch
+                  || can_use_runtime_literal_dense_dispatch
+                  || can_use_simple_literal_dispatch
                   || can_use_simple_variant_dispatch
               ? lowering_legality::full
               : (can_use_variant_alt_dispatch ? lowering_legality::bucketed
@@ -1258,6 +1302,8 @@ namespace ptn::core::common {
       // Re-exports the sequence IR in the shape expected by plan selection.
       static constexpr bool can_use_static_literal_dispatch =
           ir_t::can_use_static_literal_dispatch;
+      static constexpr bool can_use_runtime_literal_dense_dispatch =
+          ir_t::can_use_runtime_literal_dense_dispatch;
       static constexpr bool can_use_simple_literal_dispatch =
           ir_t::can_use_simple_literal_dispatch;
       static constexpr bool can_use_simple_variant_dispatch =
@@ -1428,6 +1474,39 @@ namespace ptn::core::common {
 
     template <typename Subject,
               typename CasesTuple,
+              typename SubjectValue =
+                  std::remove_cv_t<std::remove_reference_t<Subject>>>
+    struct literal_runtime_dense_dispatch_plan {
+      using subject_t     = SubjectValue;
+      using cases_tuple_t = std::remove_reference_t<CasesTuple>;
+      using metadata_t =
+          static_literal_dispatch_metadata<Subject, CasesTuple, SubjectValue>;
+      using key_t        = typename metadata_t::key_t;
+      using case_index_t = typename metadata_t::case_index_t;
+
+      static constexpr dispatch_plan_kind kind =
+          dispatch_plan_kind::literal_runtime_dense;
+      static constexpr lowering_legality legality =
+          lowering_legality::full;
+
+      static constexpr std::size_t case_count =
+          metadata_t::case_count;
+      static constexpr std::size_t literal_case_count =
+          metadata_t::literal_case_count;
+      static constexpr std::size_t range_size =
+          metadata_t::range_size;
+      static constexpr bool has_default_case =
+          metadata_t::has_default_case;
+      static constexpr key_t min_value = metadata_t::min_value;
+      static constexpr key_t max_value = metadata_t::max_value;
+      static constexpr case_index_t default_case_index =
+          metadata_t::default_case_index;
+      static constexpr case_index_t k_invalid_case_index =
+          metadata_t::k_invalid_case_index;
+    };
+
+    template <typename Subject,
+              typename CasesTuple,
               dispatch_plan_kind Kind>
     struct dispatch_plan_for_kind;
 
@@ -1455,6 +1534,14 @@ namespace ptn::core::common {
     template <typename Subject, typename CasesTuple>
     struct dispatch_plan_for_kind<Subject,
                                   CasesTuple,
+                                  dispatch_plan_kind::literal_runtime_dense> {
+      using type =
+          literal_runtime_dense_dispatch_plan<Subject, CasesTuple>;
+    };
+
+    template <typename Subject, typename CasesTuple>
+    struct dispatch_plan_for_kind<Subject,
+                                  CasesTuple,
                                   dispatch_plan_kind::variant_simple> {
       using type = variant_simple_dispatch_plan<Subject, CasesTuple>;
     };
@@ -1476,13 +1563,17 @@ namespace ptn::core::common {
       static constexpr dispatch_plan_kind kind =
           analysis_t::can_use_static_literal_dispatch
               ? dispatch_plan_kind::static_literal_dense
-              : (analysis_t::can_use_simple_literal_dispatch
-                     ? dispatch_plan_kind::literal_linear
-                     : (analysis_t::can_use_simple_variant_dispatch
-                            ? dispatch_plan_kind::variant_simple
-                            : (analysis_t::can_use_variant_alt_dispatch
-                                   ? dispatch_plan_kind::variant_alt_bucketed
-                                   : dispatch_plan_kind::sequential)));
+              : (analysis_t::can_use_runtime_literal_dense_dispatch
+                     ? dispatch_plan_kind::literal_runtime_dense
+                     : (analysis_t::can_use_simple_literal_dispatch
+                            ? dispatch_plan_kind::literal_linear
+                            : (analysis_t::can_use_simple_variant_dispatch
+                                   ? dispatch_plan_kind::variant_simple
+                                   : (analysis_t::
+                                              can_use_variant_alt_dispatch
+                                          ? dispatch_plan_kind::
+                                                variant_alt_bucketed
+                                          : dispatch_plan_kind::sequential))));
 
       using type = typename dispatch_plan_for_kind<Subject,
                                                    CasesTuple,

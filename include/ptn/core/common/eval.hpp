@@ -1137,7 +1137,9 @@ namespace ptn::core::common {
                                   CasesTuple &&cases,
                                   Otherwise  &&otherwise_handler) {
       if constexpr (Plan::kind
-                    == dispatch_plan_kind::static_literal_dense) {
+                    == dispatch_plan_kind::static_literal_dense
+                    || Plan::kind
+                           == dispatch_plan_kind::literal_runtime_dense) {
         return eval_cases_impl_static_literal_dispatch<Plan, Result>(
             subject,
             std::forward<CasesTuple>(cases),

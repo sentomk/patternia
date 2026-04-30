@@ -56,6 +56,10 @@
 #define PTN_BENCH_ENABLE_SUITE_LITERAL_MATCH_64 1
 #endif
 
+#ifndef PTN_BENCH_ENABLE_SUITE_LITERAL_MATCH_RDENSE
+#define PTN_BENCH_ENABLE_SUITE_LITERAL_MATCH_RDENSE 1
+#endif
+
 #ifndef PTN_BENCH_ENABLE_SUITE_PACKET
 #define PTN_BENCH_ENABLE_SUITE_PACKET 1
 #endif
@@ -945,6 +949,64 @@ namespace {
     }
   }
 
+  // 15 literal values spanning [0, 98] → density ≈ 0.15
+  // (between 1/8 and 1/4), designed to exercise the
+  // literal_runtime_dense dispatch tier.
+
+  static int patternia_pipe_literal_match_rdense_route(int x) {
+    using namespace ptn;
+    return match(x)
+           | on(ptn::lit(0)  >> 0,  ptn::lit(7)  >> 7,
+                ptn::lit(14) >> 14, ptn::lit(21) >> 21,
+                ptn::lit(28) >> 28, ptn::lit(35) >> 35,
+                ptn::lit(42) >> 42, ptn::lit(49) >> 49,
+                ptn::lit(56) >> 56, ptn::lit(63) >> 63,
+                ptn::lit(70) >> 70, ptn::lit(77) >> 77,
+                ptn::lit(84) >> 84, ptn::lit(91) >> 91,
+                ptn::lit(98) >> 98,
+                __ >> 0);
+  }
+
+  static int if_else_literal_match_rdense_route(int x) {
+    if (x == 0)  return 0;
+    if (x == 7)  return 7;
+    if (x == 14) return 14;
+    if (x == 21) return 21;
+    if (x == 28) return 28;
+    if (x == 35) return 35;
+    if (x == 42) return 42;
+    if (x == 49) return 49;
+    if (x == 56) return 56;
+    if (x == 63) return 63;
+    if (x == 70) return 70;
+    if (x == 77) return 77;
+    if (x == 84) return 84;
+    if (x == 91) return 91;
+    if (x == 98) return 98;
+    return 0;
+  }
+
+  static int switch_literal_match_rdense_route(int x) {
+    switch (x) {
+      case 0:  return 0;
+      case 7:  return 7;
+      case 14: return 14;
+      case 21: return 21;
+      case 28: return 28;
+      case 35: return 35;
+      case 42: return 42;
+      case 49: return 49;
+      case 56: return 56;
+      case 63: return 63;
+      case 70: return 70;
+      case 77: return 77;
+      case 84: return 84;
+      case 91: return 91;
+      case 98: return 98;
+      default: return 0;
+    }
+  }
+
 #define PTN_LIT_CASE_128(n) ptn::val<n> >> (n)
 #define PTN_SWITCH_CASE_128(n)                                      \
   case (n):                                                         \
@@ -1515,6 +1577,18 @@ namespace {
     return literal_workload();
   }
 
+  static const std::vector<int> &literal_rdense_workload() {
+    static const std::vector<int> data = {
+        0,  7,  14, 21, 28, 35, 42, 49, 56, 63,
+        70, 77, 84, 91, 98,         // all 15 sparse values
+        3,  10, 17, 31, 55, 99,     // misses
+        -1, 100,                    // out-of-range
+        98, 91, 84, 77, 70, 63, 56, 49, 42, 35,
+        28, 21, 14, 7,  0,          // reverse hits
+    };
+    return data;
+  }
+
   template <typename T, typename F>
   static void run_workload(benchmark::State     &state,
                            const std::vector<T> &workload,
@@ -1898,6 +1972,25 @@ namespace {
                  switch_literal_match_128_route);
   }
 
+  static void
+  BM_PatterniaPipe_LiteralMatchRDense(benchmark::State &state) {
+    run_workload(state,
+                 literal_rdense_workload(),
+                 patternia_pipe_literal_match_rdense_route);
+  }
+
+  static void BM_IfElse_LiteralMatchRDense(benchmark::State &state) {
+    run_workload(state,
+                 literal_rdense_workload(),
+                 if_else_literal_match_rdense_route);
+  }
+
+  static void BM_Switch_LiteralMatchRDense(benchmark::State &state) {
+    run_workload(state,
+                 literal_rdense_workload(),
+                 switch_literal_match_rdense_route);
+  }
+
 } // namespace
 
 #define PTN_REGISTER_STABLE_BENCH(name)                             \
@@ -1983,6 +2076,12 @@ PTN_REGISTER_STABLE_BENCH(BM_IfElse_LiteralMatch64);
 PTN_REGISTER_STABLE_BENCH(BM_Switch_LiteralMatch64);
 #endif
 
+#if PTN_BENCH_ENABLE_SUITE_LITERAL_MATCH_RDENSE
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_LiteralMatchRDense);
+PTN_REGISTER_STABLE_BENCH(BM_IfElse_LiteralMatchRDense);
+PTN_REGISTER_STABLE_BENCH(BM_Switch_LiteralMatchRDense);
+#endif
+
 #if PTN_BENCH_ENABLE_SUITE_LITERAL_MATCH_128
 PTN_REGISTER_STABLE_BENCH(
     BM_PatterniaPipe_LiteralMatch128StaticCases);
@@ -2061,6 +2160,12 @@ PTN_REGISTER_STABLE_BENCH(BM_Switch_LiteralMatch32);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_LiteralMatch64);
 PTN_REGISTER_STABLE_BENCH(BM_IfElse_LiteralMatch64);
 PTN_REGISTER_STABLE_BENCH(BM_Switch_LiteralMatch64);
+#endif
+
+#if PTN_BENCH_ENABLE_SUITE_LITERAL_MATCH_RDENSE
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_LiteralMatchRDense);
+PTN_REGISTER_STABLE_BENCH(BM_IfElse_LiteralMatchRDense);
+PTN_REGISTER_STABLE_BENCH(BM_Switch_LiteralMatchRDense);
 #endif
 
 #if PTN_BENCH_ENABLE_SUITE_PACKET
