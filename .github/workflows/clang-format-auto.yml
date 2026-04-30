@@ -2,7 +2,7 @@ name: clang-format Auto Format
 
 on:
   pull_request:
-    branches: [main, dev-main]
+    branches: [main]
     paths:
       - "**/*.h"
       - "**/*.hpp"

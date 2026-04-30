@@ -2,7 +2,7 @@ name: patternia PR Check (Ubuntu)
 
 on:
   pull_request:
-    branches: [main, dev-main]
+    branches: [main]
     types: [opened, synchronize, reopened, ready_for_review]
 
 concurrency:
@@ -45,3 +45,34 @@ jobs:
         with:
           name: test-log
           path: build/Testing/Temporary/LastTest.log
+
+  ct-bench-build:
+    name: Ubuntu / Clang / Compile-Time Bench Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Clang
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang
+          echo "CXX=clang++" >> $GITHUB_ENV
+          clang++ --version
+
+      - name: Configure compile-time benchmarks
+        run: |
+          cmake -S . -B build_ct \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=${{ env.CXX }} \
+            -DPTN_BUILD_TESTS=OFF \
+            -DPTN_BUILD_BENCHMARKS=ON \
+            -DPTN_SKIP_COMPILER_CHECK=ON
+
+      - name: Build compile-time benchmarks
+        run: cmake --build build_ct --target ptn_bench_ct --parallel
+
+      - name: Report build time
+        if: always()
+        run: |
+          echo "Compile-time benchmarks built successfully."
