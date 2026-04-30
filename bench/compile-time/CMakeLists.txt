@@ -82,6 +82,18 @@ else()
   target_compile_options(ptn_ct_compound PRIVATE -O3)
 endif()
 
+# ── runtime-dense compile-time bench ───────────────────────────
+# 15 sparse literal values (density ≈ 0.15) to exercise the
+# literal_runtime_dense dispatch tier at compile time.
+add_library(ptn_ct_lit_rdense OBJECT ct_bench_lit_rdense.cpp)
+target_link_libraries(ptn_ct_lit_rdense PRIVATE patternia Threads::Threads)
+target_compile_features(ptn_ct_lit_rdense PRIVATE cxx_std_17)
+if(MSVC)
+  target_compile_options(ptn_ct_lit_rdense PRIVATE /O2)
+else()
+  target_compile_options(ptn_ct_lit_rdense PRIVATE -O3)
+endif()
+
 # ── aggregate convenience target ──────────────────────────────
 # `cmake --build build --target ptn_bench_ct` compiles every TU.
 add_custom_target(ptn_bench_ct)
@@ -90,4 +102,5 @@ add_dependencies(ptn_bench_ct
   ptn_ct_lit_64  ptn_ct_lit_128
   ptn_ct_variant_32
   ptn_ct_compound
+  ptn_ct_lit_rdense
 )

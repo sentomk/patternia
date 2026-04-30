@@ -342,7 +342,8 @@ namespace ptn::core::common {
         return static_cast<bool>(guarded.pred(bound));
       }
       else {
-        return static_cast<bool>(invoke_from_tuple(guarded.pred, bound));
+        return static_cast<bool>(
+            invoke_from_tuple(guarded.pred, bound));
       }
     }
 
@@ -651,8 +652,8 @@ namespace ptn::core::common {
 
     // Dispatches to the offset-specific handler through a dense jump
     // table.  The switch is kept small because the lowering analysis
-    // already limits range_size to 512, and the compiler turns a dense
-    // integer switch into a jump table with no call overhead.
+    // already limits range_size to 512, and the compiler turns a
+    // dense integer switch into a jump table with no call overhead.
     template <typename Plan,
               typename Result,
               typename Subject,
@@ -725,9 +726,10 @@ namespace ptn::core::common {
         Otherwise  &&otherwise_handler) {
       using key_t = typename Plan::key_t;
 
-      const key_t value = static_cast<key_t>(subject);
-      const auto offset = static_cast<std::size_t>(value)
-                        - static_cast<std::size_t>(Plan::min_value);
+      const key_t value  = static_cast<key_t>(subject);
+      const auto  offset = static_cast<std::size_t>(value)
+                          - static_cast<std::size_t>(
+                              Plan::min_value);
 
       if (offset < Plan::range_size) {
         return dispatch_static_literal_offset<Plan, Result>(
@@ -1137,7 +1139,10 @@ namespace ptn::core::common {
                                   CasesTuple &&cases,
                                   Otherwise  &&otherwise_handler) {
       if constexpr (Plan::kind
-                    == dispatch_plan_kind::static_literal_dense) {
+                        == dispatch_plan_kind::static_literal_dense
+                    || Plan::kind
+                           == dispatch_plan_kind::
+                               literal_runtime_dense) {
         return eval_cases_impl_static_literal_dispatch<Plan, Result>(
             subject,
             std::forward<CasesTuple>(cases),
