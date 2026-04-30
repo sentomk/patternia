@@ -190,9 +190,7 @@ namespace {
     using ptn::pat::is;
 
     return match(v)
-           | on(is<int>() >> 1,
-                is<std::string>() >> 2,
-                __ >> 0);
+           | on(is<int>() >> 1, is<std::string>() >> 2, __ >> 0);
   }
 
   static int patternia_pipe_variant_route(const V &v) {
@@ -817,62 +815,65 @@ namespace {
     }
   }
 
-  // ---------- 16 / 32 / 64 case literal match macros ----------------
-  // Runtime-literal variants (lit(n) >> n) for P1-C tier benchmarking.
-  // Kept separate from the existing val<n> (static literal) macros.
+  // ---------- 16 / 32 / 64 case literal match macros
+  // ---------------- Runtime-literal variants (lit(n) >> n) for P1-C
+  // tier benchmarking. Kept separate from the existing val<n>
+  // (static literal) macros.
 
 #define PTN_RT_LIT_CASE(n) ptn::lit(n) >> (n)
 
-#define PTN_RT_LIT_BLOCK_4(base)                                       \
-  PTN_RT_LIT_CASE((base) + 0), PTN_RT_LIT_CASE((base) + 1),            \
+#define PTN_RT_LIT_BLOCK_4(base)                                    \
+  PTN_RT_LIT_CASE((base) + 0), PTN_RT_LIT_CASE((base) + 1),         \
       PTN_RT_LIT_CASE((base) + 2), PTN_RT_LIT_CASE((base) + 3)
 
-#define PTN_RT_LIT_BLOCK_8(base)                                       \
+#define PTN_RT_LIT_BLOCK_8(base)                                    \
   PTN_RT_LIT_BLOCK_4((base) + 0), PTN_RT_LIT_BLOCK_4((base) + 4)
 
-#define PTN_RT_LIT_BLOCK_16(base)                                      \
+#define PTN_RT_LIT_BLOCK_16(base)                                   \
   PTN_RT_LIT_BLOCK_8((base) + 0), PTN_RT_LIT_BLOCK_8((base) + 8)
 
-#define PTN_IFELSE_LIT_CASE(n)                                         \
-  if (x == (n)) {                                                      \
-    return (n);                                                        \
+#define PTN_IFELSE_LIT_CASE(n)                                      \
+  if (x == (n)) {                                                   \
+    return (n);                                                     \
   }
 
-#define PTN_IFELSE_LIT_BLOCK_4(base)                                   \
-  PTN_IFELSE_LIT_CASE((base) + 0); PTN_IFELSE_LIT_CASE((base) + 1);    \
-  PTN_IFELSE_LIT_CASE((base) + 2); PTN_IFELSE_LIT_CASE((base) + 3)
+#define PTN_IFELSE_LIT_BLOCK_4(base)                                \
+  PTN_IFELSE_LIT_CASE((base) + 0);                                  \
+  PTN_IFELSE_LIT_CASE((base) + 1);                                  \
+  PTN_IFELSE_LIT_CASE((base) + 2);                                  \
+  PTN_IFELSE_LIT_CASE((base) + 3)
 
-#define PTN_IFELSE_LIT_BLOCK_8(base)                                   \
-  PTN_IFELSE_LIT_BLOCK_4((base) + 0); PTN_IFELSE_LIT_BLOCK_4((base) + 4)
+#define PTN_IFELSE_LIT_BLOCK_8(base)                                \
+  PTN_IFELSE_LIT_BLOCK_4((base) + 0);                               \
+  PTN_IFELSE_LIT_BLOCK_4((base) + 4)
 
-#define PTN_IFELSE_LIT_BLOCK_16(base)                                  \
-  PTN_IFELSE_LIT_BLOCK_8((base) + 0); PTN_IFELSE_LIT_BLOCK_8((base) + 8)
+#define PTN_IFELSE_LIT_BLOCK_16(base)                               \
+  PTN_IFELSE_LIT_BLOCK_8((base) + 0);                               \
+  PTN_IFELSE_LIT_BLOCK_8((base) + 8)
 
-#define PTN_SWITCH_LIT_CASE(n)                                         \
-  case (n):                                                            \
+#define PTN_SWITCH_LIT_CASE(n)                                      \
+  case (n):                                                         \
     return (n)
 
-#define PTN_SWITCH_LIT_BLOCK_4(base)                                   \
-  PTN_SWITCH_LIT_CASE((base) + 0);                                     \
-  PTN_SWITCH_LIT_CASE((base) + 1);                                     \
-  PTN_SWITCH_LIT_CASE((base) + 2);                                     \
+#define PTN_SWITCH_LIT_BLOCK_4(base)                                \
+  PTN_SWITCH_LIT_CASE((base) + 0);                                  \
+  PTN_SWITCH_LIT_CASE((base) + 1);                                  \
+  PTN_SWITCH_LIT_CASE((base) + 2);                                  \
   PTN_SWITCH_LIT_CASE((base) + 3)
 
-#define PTN_SWITCH_LIT_BLOCK_8(base)                                   \
-  PTN_SWITCH_LIT_BLOCK_4((base) + 0);                                  \
+#define PTN_SWITCH_LIT_BLOCK_8(base)                                \
+  PTN_SWITCH_LIT_BLOCK_4((base) + 0);                               \
   PTN_SWITCH_LIT_BLOCK_4((base) + 4)
 
-#define PTN_SWITCH_LIT_BLOCK_16(base)                                  \
-  PTN_SWITCH_LIT_BLOCK_8((base) + 0);                                  \
+#define PTN_SWITCH_LIT_BLOCK_16(base)                               \
+  PTN_SWITCH_LIT_BLOCK_8((base) + 0);                               \
   PTN_SWITCH_LIT_BLOCK_8((base) + 8)
 
   // ---- 16-case (lit runtime) ----
 
   static int patternia_pipe_literal_match_16_route(int x) {
     using namespace ptn;
-    return match(x) | on(
-      PTN_RT_LIT_BLOCK_16(1),
-      __ >> 0);
+    return match(x) | on(PTN_RT_LIT_BLOCK_16(1), __ >> 0);
   }
 
   static int if_else_literal_match_16_route(int x) {
@@ -892,10 +893,10 @@ namespace {
 
   static int patternia_pipe_literal_match_32_route(int x) {
     using namespace ptn;
-    return match(x) | on(
-      PTN_RT_LIT_BLOCK_16(1),
-      PTN_RT_LIT_BLOCK_16(17),
-      __ >> 0);
+    return match(x)
+           | on(PTN_RT_LIT_BLOCK_16(1),
+                PTN_RT_LIT_BLOCK_16(17),
+                __ >> 0);
   }
 
   static int if_else_literal_match_32_route(int x) {
@@ -917,12 +918,12 @@ namespace {
 
   static int patternia_pipe_literal_match_64_route(int x) {
     using namespace ptn;
-    return match(x) | on(
-      PTN_RT_LIT_BLOCK_16(1),
-      PTN_RT_LIT_BLOCK_16(17),
-      PTN_RT_LIT_BLOCK_16(33),
-      PTN_RT_LIT_BLOCK_16(49),
-      __ >> 0);
+    return match(x)
+           | on(PTN_RT_LIT_BLOCK_16(1),
+                PTN_RT_LIT_BLOCK_16(17),
+                PTN_RT_LIT_BLOCK_16(33),
+                PTN_RT_LIT_BLOCK_16(49),
+                __ >> 0);
   }
 
   static int if_else_literal_match_64_route(int x) {
@@ -1134,15 +1135,14 @@ namespace {
     };
 
     return match(pkt)
-           | on($(has<&Packet::type,
-                      &Packet::length>)[is_ping_packet]
-                    >> 1,
-                $(has<&Packet::type,
-                      &Packet::length,
-                      &Packet::flags>)[is_valid_data_packet]
-                    >> 2,
-                $(has<&Packet::type>)[is_error_packet] >> 3,
-                __ >> 0);
+           | on(
+               $(has<&Packet::type, &Packet::length>)[is_ping_packet]
+                   >> 1,
+               $(has<&Packet::type, &Packet::length, &Packet::flags>)
+                       [is_valid_data_packet]
+                   >> 2,
+               $(has<&Packet::type>)[is_error_packet] >> 3,
+               __ >> 0);
   }
 
   static int patternia_pipe_packet_route(const Packet &pkt) {
@@ -1165,15 +1165,14 @@ namespace {
     };
 
     return match(pkt)
-           | on($(has<&Packet::type,
-                      &Packet::length>)[is_ping_packet]
-                    >> 1,
-                $(has<&Packet::type,
-                      &Packet::length,
-                      &Packet::flags>)[is_valid_data_packet]
-                    >> 2,
-                $(has<&Packet::type>)[is_error_packet] >> 3,
-                __ >> 0);
+           | on(
+               $(has<&Packet::type, &Packet::length>)[is_ping_packet]
+                   >> 1,
+               $(has<&Packet::type, &Packet::length, &Packet::flags>)
+                       [is_valid_data_packet]
+                   >> 2,
+               $(has<&Packet::type>)[is_error_packet] >> 3,
+               __ >> 0);
   }
 
   static int switch_packet_route(const Packet &pkt) {
@@ -1225,18 +1224,18 @@ namespace {
         };
 
     return match(pkt)
-           | on($(has<&Packet::type,
-                      &Packet::length>)[is_ping_packet]
-                    >> 1,
-                $(has<&Packet::type,
-                      &Packet::length,
-                      &Packet::flags,
-                      &Packet::payload>)[is_valid_data_packet]
-                    >> 2,
-                $(has<&Packet::type,
-                      &Packet::payload>)[is_error_packet]
-                    >> 3,
-                __ >> 0);
+           | on(
+               $(has<&Packet::type, &Packet::length>)[is_ping_packet]
+                   >> 1,
+               $(has<&Packet::type,
+                     &Packet::length,
+                     &Packet::flags,
+                     &Packet::payload>)[is_valid_data_packet]
+                   >> 2,
+               $(has<&Packet::type,
+                     &Packet::payload>)[is_error_packet]
+                   >> 3,
+               __ >> 0);
   }
 
   static int
@@ -1265,18 +1264,18 @@ namespace {
         };
 
     return match(pkt)
-           | on($(has<&Packet::type,
-                      &Packet::length>)[is_ping_packet]
-                    >> 1,
-                $(has<&Packet::type,
-                      &Packet::length,
-                      &Packet::flags,
-                      &Packet::payload>)[is_valid_data_packet]
-                    >> 2,
-                $(has<&Packet::type,
-                      &Packet::payload>)[is_error_packet]
-                    >> 3,
-                __ >> 0);
+           | on(
+               $(has<&Packet::type, &Packet::length>)[is_ping_packet]
+                   >> 1,
+               $(has<&Packet::type,
+                     &Packet::length,
+                     &Packet::flags,
+                     &Packet::payload>)[is_valid_data_packet]
+                   >> 2,
+               $(has<&Packet::type,
+                     &Packet::payload>)[is_error_packet]
+                   >> 3,
+               __ >> 0);
   }
 
   static int switch_packet_heavy_bind_route(const Packet &pkt) {
@@ -1821,15 +1820,13 @@ namespace {
                  patternia_pipe_literal_match_16_route);
   }
 
-  static void
-  BM_IfElse_LiteralMatch16(benchmark::State &state) {
+  static void BM_IfElse_LiteralMatch16(benchmark::State &state) {
     run_workload(state,
                  literal_n_workload<16>(),
                  if_else_literal_match_16_route);
   }
 
-  static void
-  BM_Switch_LiteralMatch16(benchmark::State &state) {
+  static void BM_Switch_LiteralMatch16(benchmark::State &state) {
     run_workload(state,
                  literal_n_workload<16>(),
                  switch_literal_match_16_route);
@@ -1842,15 +1839,13 @@ namespace {
                  patternia_pipe_literal_match_32_route);
   }
 
-  static void
-  BM_IfElse_LiteralMatch32(benchmark::State &state) {
+  static void BM_IfElse_LiteralMatch32(benchmark::State &state) {
     run_workload(state,
                  literal_n_workload<32>(),
                  if_else_literal_match_32_route);
   }
 
-  static void
-  BM_Switch_LiteralMatch32(benchmark::State &state) {
+  static void BM_Switch_LiteralMatch32(benchmark::State &state) {
     run_workload(state,
                  literal_n_workload<32>(),
                  switch_literal_match_32_route);
@@ -1863,15 +1858,13 @@ namespace {
                  patternia_pipe_literal_match_64_route);
   }
 
-  static void
-  BM_IfElse_LiteralMatch64(benchmark::State &state) {
+  static void BM_IfElse_LiteralMatch64(benchmark::State &state) {
     run_workload(state,
                  literal_n_workload<64>(),
                  if_else_literal_match_64_route);
   }
 
-  static void
-  BM_Switch_LiteralMatch64(benchmark::State &state) {
+  static void BM_Switch_LiteralMatch64(benchmark::State &state) {
     run_workload(state,
                  literal_n_workload<64>(),
                  switch_literal_match_64_route);
