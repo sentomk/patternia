@@ -47,3 +47,5 @@ foreach(_ptn_bench_target IN ITEMS ptn_bench ptn_bench_lit ptn_bench_evolution p
   endif()
 endforeach()
 
+add_subdirectory(compile-time)
+

@@ -120,3 +120,50 @@ jobs:
         run: |
           echo "Benchmark regression gate failed."
           exit 1
+
+  ct-compare:
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Checkout baseline
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.baseline_ref }}
+          path: baseline
+
+      - name: Checkout current
+        uses: actions/checkout@v4
+        with:
+          path: current
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Run baseline compile-time benchmark
+        run: |
+          python current/scripts/bench_ct_compare.py \
+            --source-dir baseline \
+            --build-dir baseline/build_ct \
+            --json-out baseline/build_ct/ct_result.json
+
+      - name: Run current compile-time benchmark
+        run: |
+          python current/scripts/bench_ct_compare.py \
+            --source-dir current \
+            --build-dir current/build_ct \
+            --baseline-json baseline/build_ct/ct_result.json \
+            --json-out current/build_ct/ct_result.json \
+            --fail-if-regress-pct "${{ inputs.fail_if_regress_pct }}" \
+            --fail-if-mean-regress-pct "${{ inputs.fail_if_mean_regress_pct }}"
+
+      - name: Upload compile-time benchmark artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-ct-compare-${{ github.run_id }}
+          path: |
+            baseline/build_ct/ct_result.json
+            current/build_ct/ct_result.json
