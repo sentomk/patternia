@@ -819,12 +819,12 @@ namespace {
     }
   }
 
-  // ---------- 16 / 32 / 64 case literal match macros
-  // ---------------- Runtime-literal variants (lit(n) >> n) for P1-C
-  // tier benchmarking. Kept separate from the existing val<n>
-  // (static literal) macros.
+  // 16 / 32 / 64 case literal match macros.
+  // Uses ptn::val<N> (static literal) so the dense dispatch
+  // machinery recognizes the compile-time values and produces
+  // O(1) jump-table dispatch.
 
-#define PTN_RT_LIT_CASE(n) ptn::lit(n) >> (n)
+#define PTN_RT_LIT_CASE(n) ptn::val<n> >> (n)
 
 #define PTN_RT_LIT_BLOCK_4(base)                                    \
   PTN_RT_LIT_CASE((base) + 0), PTN_RT_LIT_CASE((base) + 1),         \
