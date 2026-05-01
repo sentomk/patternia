@@ -1297,10 +1297,10 @@
 <h1 id="patternia-benchmark-report">Patternia Benchmark Report<a class="headerlink" href="#patternia-benchmark-report" title="Permanent link">&para;</a></h1>
 <ul>
 <li>Source: <code>bench_results/ptn_bench.json</code></li>
-<li>Scenarios: <code>13</code></li>
-<li>Patternia fastest: <code>4/13</code></li>
-<li>Average Patternia gap vs fastest: <code>+37.17%</code></li>
-<li>Largest Patternia gap: <code>LiteralMatchRDense</code> <code>+79.48%</code> vs <code>IfElse</code></li>
+<li>Scenarios: <code>4</code></li>
+<li>Patternia fastest: <code>1/4</code></li>
+<li>Average Patternia gap vs fastest: <code>+9.80%</code></li>
+<li>Largest Patternia gap: <code>PacketMixed</code> <code>+35.69%</code> vs <code>Switch</code></li>
 </ul>
 <h2 id="patternia-focus">Patternia Focus<a class="headerlink" href="#patternia-focus" title="Permanent link">&para;</a></h2>
 <table>
@@ -1319,369 +1319,53 @@
 </thead>
 <tbody>
 <tr>
-<td>LiteralMatchRDense</td>
-<td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">3/3</td>
-<td style="text-align: right;">2.849</td>
-<td style="text-align: right;">IfElse</td>
-<td style="text-align: right;">1.587</td>
-<td style="text-align: right;">+79.48%</td>
-<td style="text-align: right;">0.22</td>
-<td style="text-align: right;">slow</td>
-</tr>
-<tr>
-<td>LiteralMatch64</td>
-<td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">3/3</td>
-<td style="text-align: right;">2.715</td>
-<td style="text-align: right;">Switch</td>
-<td style="text-align: right;">1.615</td>
-<td style="text-align: right;">+68.12%</td>
-<td style="text-align: right;">0.24</td>
-<td style="text-align: right;">slow</td>
-</tr>
-<tr>
-<td>LiteralMatch16</td>
-<td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">3/3</td>
-<td style="text-align: right;">2.420</td>
-<td style="text-align: right;">Switch</td>
-<td style="text-align: right;">1.470</td>
-<td style="text-align: right;">+64.61%</td>
-<td style="text-align: right;">0.04</td>
-<td style="text-align: right;">slow</td>
-</tr>
-<tr>
-<td>LiteralMatch</td>
-<td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">3/3</td>
-<td style="text-align: right;">2.460</td>
-<td style="text-align: right;">Switch</td>
-<td style="text-align: right;">1.501</td>
-<td style="text-align: right;">+63.91%</td>
-<td style="text-align: right;">0.12</td>
-<td style="text-align: right;">slow</td>
-</tr>
-<tr>
-<td>VariantMixed</td>
-<td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">4/4</td>
-<td style="text-align: right;">1.457</td>
-<td style="text-align: right;">SwitchIndex</td>
-<td style="text-align: right;">0.936</td>
-<td style="text-align: right;">+55.66%</td>
-<td style="text-align: right;">0.28</td>
-<td style="text-align: right;">slow</td>
-</tr>
-<tr>
-<td>LiteralMatch32</td>
-<td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">3/3</td>
-<td style="text-align: right;">2.687</td>
-<td style="text-align: right;">IfElse</td>
-<td style="text-align: right;">1.820</td>
-<td style="text-align: right;">+47.63%</td>
-<td style="text-align: right;">0.03</td>
-<td style="text-align: right;">slow</td>
-</tr>
-<tr>
 <td>PacketMixed</td>
 <td style="text-align: right;">PatterniaPipe</td>
 <td style="text-align: right;">2/2</td>
-<td style="text-align: right;">2.055</td>
+<td style="text-align: right;">2.080</td>
 <td style="text-align: right;">Switch</td>
-<td style="text-align: right;">1.454</td>
-<td style="text-align: right;">+41.28%</td>
-<td style="text-align: right;">0.87</td>
+<td style="text-align: right;">1.533</td>
+<td style="text-align: right;">+35.69%</td>
+<td style="text-align: right;">0.97</td>
 <td style="text-align: right;">slow</td>
 </tr>
 <tr>
 <td>CommandParser</td>
 <td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">4/4</td>
-<td style="text-align: right;">1.981</td>
+<td style="text-align: right;">2/2</td>
+<td style="text-align: right;">1.983</td>
+<td style="text-align: right;">Switch</td>
+<td style="text-align: right;">1.917</td>
+<td style="text-align: right;">+3.44%</td>
+<td style="text-align: right;">0.64</td>
+<td style="text-align: right;">close</td>
+</tr>
+<tr>
+<td>VariantMixed</td>
+<td style="text-align: right;">PatterniaPipe</td>
+<td style="text-align: right;">2/2</td>
+<td style="text-align: right;">1.455</td>
 <td style="text-align: right;">StdVisit</td>
-<td style="text-align: right;">1.579</td>
-<td style="text-align: right;">+25.41%</td>
-<td style="text-align: right;">0.86</td>
-<td style="text-align: right;">slow</td>
-</tr>
-<tr>
-<td>LiteralMatch128On</td>
-<td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">1/1</td>
-<td style="text-align: right;">2.748</td>
-<td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">2.748</td>
-<td style="text-align: right;">+0.00%</td>
-<td style="text-align: right;">2.77</td>
-<td style="text-align: right;">fastest</td>
-</tr>
-<tr>
-<td>LiteralMatch128OnMacro</td>
-<td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">1/1</td>
-<td style="text-align: right;">5.144</td>
-<td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">5.144</td>
-<td style="text-align: right;">+0.00%</td>
-<td style="text-align: right;">3.37</td>
-<td style="text-align: right;">fastest</td>
-</tr>
-<tr>
-<td>LiteralMatch128StaticCases</td>
-<td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">1/1</td>
-<td style="text-align: right;">5.495</td>
-<td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">5.495</td>
-<td style="text-align: right;">+0.00%</td>
-<td style="text-align: right;">2.90</td>
-<td style="text-align: right;">fastest</td>
+<td style="text-align: right;">1.455</td>
+<td style="text-align: right;">+0.05%</td>
+<td style="text-align: right;">0.13</td>
+<td style="text-align: right;">close</td>
 </tr>
 <tr>
 <td>ProtocolRouter</td>
 <td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">1/4</td>
-<td style="text-align: right;">1.695</td>
+<td style="text-align: right;">1/2</td>
+<td style="text-align: right;">1.753</td>
 <td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">1.695</td>
+<td style="text-align: right;">1.753</td>
 <td style="text-align: right;">+0.00%</td>
-<td style="text-align: right;">1.46</td>
+<td style="text-align: right;">4.12</td>
 <td style="text-align: right;">fastest</td>
-</tr>
-<tr>
-<td>LiteralMatch128</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">Switch</td>
-<td style="text-align: right;">1.633</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">missing</td>
 </tr>
 </tbody>
 </table>
 <hr />
 <h2 id="per-scenario-details">Per-Scenario Details<a class="headerlink" href="#per-scenario-details" title="Permanent link">&para;</a></h2>
-<h3 id="literalmatchrdense">LiteralMatchRDense<a class="headerlink" href="#literalmatchrdense" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Impl</th>
-<th style="text-align: right;">Mean (ns)</th>
-<th style="text-align: right;">vs fastest</th>
-<th style="text-align: right;">vs Patternia</th>
-<th style="text-align: right;">CV %</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>IfElse</td>
-<td style="text-align: right;">1.587</td>
-<td style="text-align: right;">fastest</td>
-<td style="text-align: right;">-44.28%</td>
-<td style="text-align: right;">0.58</td>
-</tr>
-<tr>
-<td>Switch</td>
-<td style="text-align: right;">1.625</td>
-<td style="text-align: right;">+2.37%</td>
-<td style="text-align: right;">-42.96%</td>
-<td style="text-align: right;">0.33</td>
-</tr>
-<tr>
-<td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">2.849</td>
-<td style="text-align: right;">+79.48%</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">0.22</td>
-</tr>
-</tbody>
-</table>
-<h3 id="literalmatch64">LiteralMatch64<a class="headerlink" href="#literalmatch64" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Impl</th>
-<th style="text-align: right;">Mean (ns)</th>
-<th style="text-align: right;">vs fastest</th>
-<th style="text-align: right;">vs Patternia</th>
-<th style="text-align: right;">CV %</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Switch</td>
-<td style="text-align: right;">1.615</td>
-<td style="text-align: right;">fastest</td>
-<td style="text-align: right;">-40.52%</td>
-<td style="text-align: right;">0.72</td>
-</tr>
-<tr>
-<td>IfElse</td>
-<td style="text-align: right;">1.647</td>
-<td style="text-align: right;">+2.01%</td>
-<td style="text-align: right;">-39.32%</td>
-<td style="text-align: right;">2.27</td>
-</tr>
-<tr>
-<td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">2.715</td>
-<td style="text-align: right;">+68.12%</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">0.24</td>
-</tr>
-</tbody>
-</table>
-<h3 id="literalmatch16">LiteralMatch16<a class="headerlink" href="#literalmatch16" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Impl</th>
-<th style="text-align: right;">Mean (ns)</th>
-<th style="text-align: right;">vs fastest</th>
-<th style="text-align: right;">vs Patternia</th>
-<th style="text-align: right;">CV %</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Switch</td>
-<td style="text-align: right;">1.470</td>
-<td style="text-align: right;">fastest</td>
-<td style="text-align: right;">-39.25%</td>
-<td style="text-align: right;">0.09</td>
-</tr>
-<tr>
-<td>IfElse</td>
-<td style="text-align: right;">1.563</td>
-<td style="text-align: right;">+6.34%</td>
-<td style="text-align: right;">-35.40%</td>
-<td style="text-align: right;">0.51</td>
-</tr>
-<tr>
-<td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">2.420</td>
-<td style="text-align: right;">+64.61%</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">0.04</td>
-</tr>
-</tbody>
-</table>
-<h3 id="literalmatch">LiteralMatch<a class="headerlink" href="#literalmatch" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Impl</th>
-<th style="text-align: right;">Mean (ns)</th>
-<th style="text-align: right;">vs fastest</th>
-<th style="text-align: right;">vs Patternia</th>
-<th style="text-align: right;">CV %</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Switch</td>
-<td style="text-align: right;">1.501</td>
-<td style="text-align: right;">fastest</td>
-<td style="text-align: right;">-38.99%</td>
-<td style="text-align: right;">0.12</td>
-</tr>
-<tr>
-<td>IfElse</td>
-<td style="text-align: right;">1.595</td>
-<td style="text-align: right;">+6.32%</td>
-<td style="text-align: right;">-35.14%</td>
-<td style="text-align: right;">0.45</td>
-</tr>
-<tr>
-<td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">2.460</td>
-<td style="text-align: right;">+63.91%</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">0.12</td>
-</tr>
-</tbody>
-</table>
-<h3 id="variantmixed">VariantMixed<a class="headerlink" href="#variantmixed" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Impl</th>
-<th style="text-align: right;">Mean (ns)</th>
-<th style="text-align: right;">vs fastest</th>
-<th style="text-align: right;">vs Patternia</th>
-<th style="text-align: right;">CV %</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>SwitchIndex</td>
-<td style="text-align: right;">0.936</td>
-<td style="text-align: right;">fastest</td>
-<td style="text-align: right;">-35.76%</td>
-<td style="text-align: right;">0.17</td>
-</tr>
-<tr>
-<td>Sequential</td>
-<td style="text-align: right;">1.051</td>
-<td style="text-align: right;">+12.25%</td>
-<td style="text-align: right;">-27.88%</td>
-<td style="text-align: right;">0.50</td>
-</tr>
-<tr>
-<td>StdVisit</td>
-<td style="text-align: right;">1.455</td>
-<td style="text-align: right;">+55.44%</td>
-<td style="text-align: right;">-0.14%</td>
-<td style="text-align: right;">0.07</td>
-</tr>
-<tr>
-<td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">1.457</td>
-<td style="text-align: right;">+55.66%</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">0.28</td>
-</tr>
-</tbody>
-</table>
-<h3 id="literalmatch32">LiteralMatch32<a class="headerlink" href="#literalmatch32" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Impl</th>
-<th style="text-align: right;">Mean (ns)</th>
-<th style="text-align: right;">vs fastest</th>
-<th style="text-align: right;">vs Patternia</th>
-<th style="text-align: right;">CV %</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>IfElse</td>
-<td style="text-align: right;">1.820</td>
-<td style="text-align: right;">fastest</td>
-<td style="text-align: right;">-32.26%</td>
-<td style="text-align: right;">2.06</td>
-</tr>
-<tr>
-<td>Switch</td>
-<td style="text-align: right;">1.861</td>
-<td style="text-align: right;">+2.22%</td>
-<td style="text-align: right;">-30.76%</td>
-<td style="text-align: right;">3.09</td>
-</tr>
-<tr>
-<td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">2.687</td>
-<td style="text-align: right;">+47.63%</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">0.03</td>
-</tr>
-</tbody>
-</table>
 <h3 id="packetmixed">PacketMixed<a class="headerlink" href="#packetmixed" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -1696,17 +1380,17 @@
 <tbody>
 <tr>
 <td>Switch</td>
-<td style="text-align: right;">1.454</td>
+<td style="text-align: right;">1.533</td>
 <td style="text-align: right;">fastest</td>
-<td style="text-align: right;">-29.22%</td>
-<td style="text-align: right;">0.71</td>
+<td style="text-align: right;">-26.30%</td>
+<td style="text-align: right;">4.87</td>
 </tr>
 <tr>
 <td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">2.055</td>
-<td style="text-align: right;">+41.28%</td>
+<td style="text-align: right;">2.080</td>
+<td style="text-align: right;">+35.69%</td>
 <td style="text-align: right;">-</td>
-<td style="text-align: right;">0.87</td>
+<td style="text-align: right;">0.97</td>
 </tr>
 </tbody>
 </table>
@@ -1723,36 +1407,22 @@
 </thead>
 <tbody>
 <tr>
-<td>StdVisit</td>
-<td style="text-align: right;">1.579</td>
-<td style="text-align: right;">fastest</td>
-<td style="text-align: right;">-20.26%</td>
-<td style="text-align: right;">1.31</td>
-</tr>
-<tr>
-<td>IfElse</td>
-<td style="text-align: right;">1.908</td>
-<td style="text-align: right;">+20.78%</td>
-<td style="text-align: right;">-3.69%</td>
-<td style="text-align: right;">0.67</td>
-</tr>
-<tr>
 <td>Switch</td>
-<td style="text-align: right;">1.923</td>
-<td style="text-align: right;">+21.74%</td>
-<td style="text-align: right;">-2.92%</td>
-<td style="text-align: right;">0.63</td>
+<td style="text-align: right;">1.917</td>
+<td style="text-align: right;">fastest</td>
+<td style="text-align: right;">-3.33%</td>
+<td style="text-align: right;">0.21</td>
 </tr>
 <tr>
 <td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">1.981</td>
-<td style="text-align: right;">+25.41%</td>
+<td style="text-align: right;">1.983</td>
+<td style="text-align: right;">+3.44%</td>
 <td style="text-align: right;">-</td>
-<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">0.64</td>
 </tr>
 </tbody>
 </table>
-<h3 id="literalmatch128on">LiteralMatch128On<a class="headerlink" href="#literalmatch128on" title="Permanent link">&para;</a></h3>
+<h3 id="variantmixed">VariantMixed<a class="headerlink" href="#variantmixed" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -1765,53 +1435,18 @@
 </thead>
 <tbody>
 <tr>
-<td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">2.748</td>
+<td>StdVisit</td>
+<td style="text-align: right;">1.455</td>
 <td style="text-align: right;">fastest</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">2.77</td>
+<td style="text-align: right;">-0.05%</td>
+<td style="text-align: right;">0.16</td>
 </tr>
-</tbody>
-</table>
-<h3 id="literalmatch128onmacro">LiteralMatch128OnMacro<a class="headerlink" href="#literalmatch128onmacro" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Impl</th>
-<th style="text-align: right;">Mean (ns)</th>
-<th style="text-align: right;">vs fastest</th>
-<th style="text-align: right;">vs Patternia</th>
-<th style="text-align: right;">CV %</th>
-</tr>
-</thead>
-<tbody>
 <tr>
 <td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">5.144</td>
-<td style="text-align: right;">fastest</td>
+<td style="text-align: right;">1.455</td>
+<td style="text-align: right;">+0.05%</td>
 <td style="text-align: right;">-</td>
-<td style="text-align: right;">3.37</td>
-</tr>
-</tbody>
-</table>
-<h3 id="literalmatch128staticcases">LiteralMatch128StaticCases<a class="headerlink" href="#literalmatch128staticcases" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Impl</th>
-<th style="text-align: right;">Mean (ns)</th>
-<th style="text-align: right;">vs fastest</th>
-<th style="text-align: right;">vs Patternia</th>
-<th style="text-align: right;">CV %</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">5.495</td>
-<td style="text-align: right;">fastest</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">2.90</td>
+<td style="text-align: right;">0.13</td>
 </tr>
 </tbody>
 </table>
@@ -1829,52 +1464,17 @@
 <tbody>
 <tr>
 <td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">1.695</td>
+<td style="text-align: right;">1.753</td>
 <td style="text-align: right;">fastest</td>
 <td style="text-align: right;">-</td>
-<td style="text-align: right;">1.46</td>
-</tr>
-<tr>
-<td>StdVisit</td>
-<td style="text-align: right;">1.752</td>
-<td style="text-align: right;">+3.38%</td>
-<td style="text-align: right;">+3.38%</td>
-<td style="text-align: right;">1.11</td>
-</tr>
-<tr>
-<td>Switch</td>
-<td style="text-align: right;">1.998</td>
-<td style="text-align: right;">+17.91%</td>
-<td style="text-align: right;">+17.91%</td>
-<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">4.12</td>
 </tr>
 <tr>
 <td>IfElse</td>
-<td style="text-align: right;">2.575</td>
-<td style="text-align: right;">+51.95%</td>
-<td style="text-align: right;">+51.95%</td>
-<td style="text-align: right;">0.45</td>
-</tr>
-</tbody>
-</table>
-<h3 id="literalmatch128">LiteralMatch128<a class="headerlink" href="#literalmatch128" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Impl</th>
-<th style="text-align: right;">Mean (ns)</th>
-<th style="text-align: right;">vs fastest</th>
-<th style="text-align: right;">vs Patternia</th>
-<th style="text-align: right;">CV %</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Switch</td>
-<td style="text-align: right;">1.633</td>
-<td style="text-align: right;">fastest</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">1.65</td>
+<td style="text-align: right;">2.564</td>
+<td style="text-align: right;">+46.25%</td>
+<td style="text-align: right;">+46.25%</td>
+<td style="text-align: right;">0.67</td>
 </tr>
 </tbody>
 </table>
