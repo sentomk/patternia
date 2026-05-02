@@ -25,9 +25,6 @@ add_executable(ptn_tests
   tests_public_api.cpp
   tests_terminal_semantics.cpp
   tests_type_pattern.cpp
-  test_on_auto_cache_multi_tu.cpp
-  test_on_auto_cache_multi_tu_helper.cpp
-  test_on_auto_cache_identity.cpp
 )
 
 target_link_libraries(ptn_tests PRIVATE
@@ -35,10 +32,6 @@ target_link_libraries(ptn_tests PRIVATE
   GTest::gtest
   GTest::gtest_main
 )
-
-if(PTN_BUILD_TESTING_HOOKS)
-  target_compile_definitions(ptn_tests PRIVATE PTN_TESTING)
-endif()
 
 include(GoogleTest)
 gtest_discover_tests(ptn_tests)
@@ -91,30 +84,3 @@ endfunction()
 foreach(_case IN LISTS PTN_COMPILE_FAIL_CASES)
   ptn_add_compile_fail_test("${_case}")
 endforeach()
-
-# ========== Codegen golden snapshot test ==========
-# Gated behind PTN_CODEGEN_GOLDEN_ENABLED (OFF by default).
-# Pinned to Linux+Clang18/19; gracefully skips on other platforms via the
-# cmake script (verify_golden.cmake checks CMAKE_HOST_SYSTEM_NAME).
-if(PTN_CODEGEN_GOLDEN_ENABLED)
-  if(NOT PTN_BUILD_BENCHMARKS)
-    message(WARNING
-      "[patternia] PTN_CODEGEN_GOLDEN_ENABLED=ON requires PTN_BUILD_BENCHMARKS=ON "
-      "to build ptn_bench_lit. The codegen golden test will be registered but may "
-      "fail if the binary is absent.")
-  endif()
-  # Note: ptn_bench_lit is defined in bench/ which is added after tests/.
-  # We use a deferred generator expression $<TARGET_FILE:ptn_bench_lit> so the
-  # path is resolved at build time, not configure time.
-  add_test(
-    NAME codegen.lm128_on_stateless_golden
-    COMMAND
-      ${CMAKE_COMMAND}
-      -DBENCH_BINARY=${CMAKE_BINARY_DIR}/bench/ptn_bench_lit
-      -DGOLDEN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/codegen/lm128_on.s.expected
-      -P ${CMAKE_CURRENT_SOURCE_DIR}/codegen/verify_golden.cmake
-  )
-  set_tests_properties(codegen.lm128_on_stateless_golden PROPERTIES
-    LABELS "codegen;golden"
-  )
-endif()

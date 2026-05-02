@@ -2,9 +2,9 @@
 
 // Core type traits used by the matching engine.
 //
-// This header provides fundamental type traits and utilities for
-// pattern matching, including case expression detection, handler
-// invocability checks, and result type deduction.
+// This header provides fundamental type traits and utilities for pattern
+// matching, including case expression detection, handler invocability checks,
+// and result type deduction.
 
 #include "ptn/pattern/base/fwd.h"
 #include <cstddef>
@@ -81,56 +81,31 @@ namespace ptn::core::traits {
   };
 
   // Pattern-level fallback: wildcard pattern '__'
-  // NOTE: adjust the wildcard type name if your wildcard type lives
-  // elsewhere.
+  // NOTE: adjust the wildcard type name if your wildcard type lives elsewhere.
   template <>
   struct fallback_semantics<pat::detail::wildcard_t> {
     static constexpr fallback_level level = fallback_level::pattern;
   };
 
   template <typename T>
-  inline constexpr bool
-      is_pattern_fallback_v = fallback_semantics<
-                                  std::decay_t<T>>::level
-                              == fallback_level::pattern;
+  inline constexpr bool is_pattern_fallback_v =
+      fallback_semantics<std::decay_t<T>>::level == fallback_level::pattern;
 
   template <typename T>
-  inline constexpr bool
-      is_match_fallback_v = fallback_semantics<
-                                std::decay_t<T>>::level
-                            == fallback_level::match;
+  inline constexpr bool is_match_fallback_v =
+      fallback_semantics<std::decay_t<T>>::level == fallback_level::match;
 
-  // Case-level helper: does this case's pattern act as pattern-level
-  // fallback?
+  // Case-level helper: does this case's pattern act as pattern-level fallback?
   template <typename Case>
-  inline constexpr bool is_fallback_case_v = is_pattern_fallback_v<
-      case_pattern_t<Case>>;
-
-  // All-stateless check: true iff every case has stateless Pattern
-  // AND empty Handler. Pattern check uses sizeof <= 1 (rather than
-  // std::is_empty_v) because patterns like static_literal_pattern
-  // have [[no_unique_address]] empty Cmp members that make
-  // std::is_empty_v false but carry zero meaningful state — all
-  // instances of static_literal_pattern<42> are identical. sizeof <=
-  // 1 is the reliable signal. Handler check uses strict
-  // std::is_empty_v: value_handler<int> must NOT pass.
-  template <typename... Cases>
-  inline constexpr bool
-      all_stateless_v = sizeof...(Cases) == 0
-                        || (((std::is_empty_v<case_pattern_t<Cases>>
-                              || sizeof(case_pattern_t<Cases>) <= 1)
-                             && ...)
-                            && (std::is_empty_v<
-                                    case_handler_t<Cases>>
-                                && ...));
+  inline constexpr bool is_fallback_case_v =
+      is_pattern_fallback_v<case_pattern_t<Case>>;
 
   // Handler Invocability Check (C++17)
 
   namespace detail {
     template <typename H, typename Tuple>
     static constexpr std::true_type is_applicable_impl(
-        decltype(std::apply(std::declval<H>(),
-                            std::declval<Tuple>())) *);
+        decltype(std::apply(std::declval<H>(), std::declval<Tuple>())) *);
 
     template <typename H, typename Tuple>
     static constexpr std::false_type is_applicable_impl(...);
@@ -142,33 +117,27 @@ namespace ptn::core::traits {
       using D = std::decay_t<T>;
 
       template <typename U>
-      static auto test_op(int) -> decltype(&U::operator(),
-                                           std::true_type{});
+      static auto test_op(int) -> decltype(&U::operator(), std::true_type{});
 
-      // Generic lambdas have a templated operator(). Taking the
-      // address of `U::operator()` is ill-formed in that case, so we
-      // probe a few common template arities explicitly. This allows
-      // us to correctly classify generic lambdas (e.g. [](auto
-      // x){...}) as handler-like.
+      // Generic lambdas have a templated operator(). Taking the address of
+      // `U::operator()` is ill-formed in that case, so we probe a few common
+      // template arities explicitly. This allows us to correctly classify
+      // generic lambdas (e.g. [](auto x){...}) as handler-like.
       template <typename U>
-      static auto
-      test_op_t1(int) -> decltype(&U::template operator()<int>,
-                                  std::true_type{});
+      static auto test_op_t1(int)
+          -> decltype(&U::template operator()<int>, std::true_type{});
 
       template <typename U>
-      static auto
-      test_op_t2(int) -> decltype(&U::template operator()<int, int>,
-                                  std::true_type{});
+      static auto test_op_t2(int)
+          -> decltype(&U::template operator()<int, int>, std::true_type{});
 
       template <typename U>
       static auto test_op_t3(int)
-          -> decltype(&U::template operator()<int, int, int>,
-                      std::true_type{});
+          -> decltype(&U::template operator()<int, int, int>, std::true_type{});
 
       template <typename U>
       static auto test_op_t4(int)
-          -> decltype(&U::template operator()<int, int, int, int>,
-                      std::true_type{});
+          -> decltype(&U::template operator()<int, int, int, int>, std::true_type{});
 
       template <typename>
       static auto test_op(...) -> std::false_type;
@@ -185,43 +154,36 @@ namespace ptn::core::traits {
       template <typename>
       static auto test_op_t4(...) -> std::false_type;
 
-      static constexpr bool
-          has_call_operator = decltype(test_op<D>(0))::value
-                              || decltype(test_op_t1<D>(0))::value
-                              || decltype(test_op_t2<D>(0))::value
-                              || decltype(test_op_t3<D>(0))::value
-                              || decltype(test_op_t4<D>(0))::value;
+      static constexpr bool has_call_operator =
+          decltype(test_op<D>(0))::value || decltype(test_op_t1<D>(0))::value ||
+          decltype(test_op_t2<D>(0))::value ||
+          decltype(test_op_t3<D>(0))::value ||
+          decltype(test_op_t4<D>(0))::value;
 
       static constexpr bool is_function_type = std::is_function_v<D>;
 
-      static constexpr bool
-          is_function_pointer = std::is_pointer_v<D>
-                                && std::is_function_v<
-                                    std::remove_pointer_t<D>>;
+      static constexpr bool is_function_pointer =
+          std::is_pointer_v<D> && std::is_function_v<std::remove_pointer_t<D>>;
 
-      static constexpr bool
-          is_function_reference = std::is_reference_v<T>
-                                  && std::is_function_v<
-                                      std::remove_reference_t<T>>;
+      static constexpr bool is_function_reference =
+          std::is_reference_v<T> &&
+          std::is_function_v<std::remove_reference_t<T>>;
 
     public:
-      static constexpr bool value = has_call_operator
-                                    || is_function_type
-                                    || is_function_pointer
-                                    || is_function_reference;
+      static constexpr bool value = has_call_operator || is_function_type ||
+                                    is_function_pointer ||
+                                    is_function_reference;
     };
 
     template <typename T>
-    inline constexpr bool
-        is_handler_like_v = is_handler_like_impl<T>::value;
+    inline constexpr bool is_handler_like_v = is_handler_like_impl<T>::value;
 
     // "Value-like" is everything that is not "handler-like".
     template <typename T>
     inline constexpr bool is_value_like_v = !is_handler_like_v<T>;
   } // namespace detail
 
-  // Checks whether a case's handler is invocable for a given subject
-  // type.
+  // Checks whether a case's handler is invocable for a given subject type.
   //
   // NOTE (Design A):
   //   Handler arguments are exactly the pattern's bound values:
@@ -232,25 +194,22 @@ namespace ptn::core::traits {
   private:
     using handler_type     = case_handler_t<Case>;
     using pattern_type     = case_pattern_t<Case>;
-    using bound_args_tuple = pat::base::binding_args_t<pattern_type,
-                                                       Subject>;
+    using bound_args_tuple = pat::base::binding_args_t<pattern_type, Subject>;
 
-    // Under Design A, the full argument tuple is exactly the bound
-    // args tuple.
+    // Under Design A, the full argument tuple is exactly the bound args tuple.
     using full_invoke_args_tuple = bound_args_tuple;
 
   public:
-    static constexpr bool
-        value = decltype(detail::is_applicable_impl<
-                         handler_type,
-                         full_invoke_args_tuple>(nullptr))::value
-                || std::is_invocable_v<handler_type>;
+    static constexpr bool value =
+        decltype(detail::
+                     is_applicable_impl<handler_type, full_invoke_args_tuple>(
+                         nullptr))::value ||
+        std::is_invocable_v<handler_type>;
   };
 
   template <typename Case, typename Subject>
-  inline constexpr bool
-      is_handler_invocable_v = is_handler_invocable<Case,
-                                                    Subject>::value;
+  inline constexpr bool is_handler_invocable_v =
+      is_handler_invocable<Case, Subject>::value;
 
   // Case and Match Result Types
 
@@ -263,29 +222,23 @@ namespace ptn::core::traits {
     using pattern_type = case_pattern_t<Case>;
 
     // Get the tuple of bound arguments from pattern matching.
-    using bound_args_tuple = pat::base::binding_args_t<pattern_type,
-                                                       Subject>;
+    using bound_args_tuple = pat::base::binding_args_t<pattern_type, Subject>;
 
-    // Under Design A, handler is invoked with exactly the bound
-    // arguments.
+    // Under Design A, handler is invoked with exactly the bound arguments.
     using full_invoke_args_tuple = bound_args_tuple;
 
   public:
     // Helper to deduce the result type of a case handler.
     //
     // Design note:
-    //   - If the handler is invocable with the bound arguments, use
-    //   that.
-    //   - Otherwise, if it is invocable with no arguments, treat it
-    //   as
+    //   - If the handler is invocable with the bound arguments, use that.
+    //   - Otherwise, if it is invocable with no arguments, treat it as
     //     intentionally ignoring bound values.
-    //   - Otherwise, let diagnostics/static-asserts report the
-    //   mismatch.
+    //   - Otherwise, let diagnostics/static-asserts report the mismatch.
     template <typename H, typename Tuple, std::size_t... Is>
-    static constexpr auto invoke_result_with_tuple_impl(
-        std::index_sequence<Is...>)
-        -> std::invoke_result_t<H,
-                                std::tuple_element_t<Is, Tuple>...>;
+    static constexpr auto
+        invoke_result_with_tuple_impl(std::index_sequence<Is...>)
+            -> std::invoke_result_t<H, std::tuple_element_t<Is, Tuple>...>;
 
     template <typename H, typename Tuple>
     using invoke_result_with_tuple_t =
@@ -297,14 +250,12 @@ namespace ptn::core::traits {
         -> invoke_result_with_tuple_t<H, Tuple>;
 
     template <typename H, typename Tuple>
-    static constexpr auto
-    get_case_result_impl(...) -> std::invoke_result_t<H>;
+    static constexpr auto get_case_result_impl(...) -> std::invoke_result_t<H>;
 
   public:
     // The result type when the handler is invoked.
-    using type = decltype(get_case_result_impl<
-                          handler_type,
-                          full_invoke_args_tuple>(0));
+    using type =
+        decltype(get_case_result_impl<handler_type, full_invoke_args_tuple>(0));
   };
 
   template <typename Subject, typename Case>
@@ -320,12 +271,12 @@ namespace ptn::core::traits {
 
     // Second overload: handler takes no parameters.
     template <typename O, typename S>
-    static constexpr auto
-    get_otherwise_result_impl(...) -> decltype(std::declval<O>()());
+    static constexpr auto get_otherwise_result_impl(...)
+        -> decltype(std::declval<O>()());
 
     // A marker type used for "logically unreachable" fallback paths.
-    // It participates in std::common_type so that it never pollutes
-    // the final match result type computation.
+    // It participates in std::common_type so that it never pollutes the final
+    // match result type computation.
     struct unreachable_t {
       template <typename T>
       [[noreturn]] constexpr operator T() const noexcept {
@@ -344,8 +295,7 @@ namespace ptn::core::traits {
 
   template <typename Otherwise, typename Subject>
   using otherwise_result_t =
-      decltype(detail::get_otherwise_result_impl<Otherwise, Subject>(
-          0));
+      decltype(detail::get_otherwise_result_impl<Otherwise, Subject>(0));
 
   // Computes the common result type of the entire match expression.
   template <typename Subject, typename Otherwise, typename... Cases>
@@ -356,29 +306,24 @@ namespace ptn::core::traits {
     using otherwise_result = otherwise_result_t<Otherwise, Subject>;
 
     // Tuple containing result types of all case expressions.
-    using cases_result_tuple = std::tuple<
-        case_result_t<Subject, Cases>...>;
+    using cases_result_tuple = std::tuple<case_result_t<Subject, Cases>...>;
 
     // Helper function to check if all case results are void type.
     template <typename Tuple, std::size_t... Is>
-    static constexpr bool
-    all_cases_void_impl(std::index_sequence<Is...>) {
-      return (std::is_void_v<std::tuple_element_t<Is, Tuple>>
-              && ...);
+    static constexpr bool all_cases_void_impl(std::index_sequence<Is...>) {
+      return (std::is_void_v<std::tuple_element_t<Is, Tuple>> && ...);
     }
 
     // Check if all case handlers return void.
-    static constexpr bool
-        all_cases_void = all_cases_void_impl<cases_result_tuple>(
+    static constexpr bool all_cases_void =
+        all_cases_void_impl<cases_result_tuple>(
             std::make_index_sequence<sizeof...(Cases)>{});
 
     // Check if the otherwise handler returns void.
-    static constexpr bool
-        otherwise_is_void = std::is_void_v<otherwise_result>;
+    static constexpr bool otherwise_is_void = std::is_void_v<otherwise_result>;
 
-    // Helper to select result type without instantiating
-    // std::common_type_t on void-returning (statement-style)
-    // matches.
+    // Helper to select result type without instantiating std::common_type_t
+    // on void-returning (statement-style) matches.
     template <bool AllVoid, typename Dummy = void>
     struct match_result_impl;
 
@@ -389,30 +334,26 @@ namespace ptn::core::traits {
 
     template <typename Dummy>
     struct match_result_impl<false, Dummy> {
-      using type = std::common_type_t<
-          case_result_t<Subject, Cases>...,
-          otherwise_result>;
+      using type = std::
+          common_type_t<case_result_t<Subject, Cases>..., otherwise_result>;
     };
 
   public:
     // Determine the common result type:
-    // - If all handlers return void, the match expression returns
-    // void.
+    // - If all handlers return void, the match expression returns void.
     // - Otherwise, use the common type of all handler results.
-    using type = typename match_result_impl<
-        all_cases_void && otherwise_is_void>::type;
+    using type =
+        typename match_result_impl<all_cases_void && otherwise_is_void>::type;
   };
 
   template <typename Subject, typename Otherwise, typename... Cases>
-  using match_result_t = typename match_result<Subject,
-                                               Otherwise,
-                                               Cases...>::type;
+  using match_result_t =
+      typename match_result<Subject, Otherwise, Cases...>::type;
 
   // Type trait to detect if a type should be treated as void-like.
   //
-  // This is used to determine if a type should be considered
-  // equivalent to void for the purposes of return type deduction and
-  // validation.
+  // This is used to determine if a type should be considered equivalent
+  // to void for the purposes of return type deduction and validation.
   template <typename T>
   struct is_void_like : std::false_type {};
 
@@ -435,8 +376,9 @@ namespace ptn::core::traits {
 namespace std {
 
   template <>
-  struct common_type<ptn::core::traits::detail::unreachable_t,
-                     ptn::core::traits::detail::unreachable_t> {
+  struct common_type<
+      ptn::core::traits::detail::unreachable_t,
+      ptn::core::traits::detail::unreachable_t> {
     using type = ptn::core::traits::detail::unreachable_t;
   };
 

@@ -94,16 +94,6 @@ else()
   target_compile_options(ptn_ct_lit_rdense PRIVATE -O3)
 endif()
 
-# ── all_stateless_v correctness probe ────────────────────────
-add_library(ptn_ct_all_stateless OBJECT ct_bench_all_stateless.cpp)
-target_link_libraries(ptn_ct_all_stateless PRIVATE patternia Threads::Threads)
-target_compile_features(ptn_ct_all_stateless PRIVATE cxx_std_17)
-if(MSVC)
-  target_compile_options(ptn_ct_all_stateless PRIVATE /O2)
-else()
-  target_compile_options(ptn_ct_all_stateless PRIVATE -O3)
-endif()
-
 # ── aggregate convenience target ──────────────────────────────
 # `cmake --build build --target ptn_bench_ct` compiles every TU.
 add_custom_target(ptn_bench_ct)
@@ -113,5 +103,4 @@ add_dependencies(ptn_bench_ct
   ptn_ct_variant_32
   ptn_ct_compound
   ptn_ct_lit_rdense
-  ptn_ct_all_stateless
 )
