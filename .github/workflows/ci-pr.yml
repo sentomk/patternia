@@ -30,6 +30,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Debug \
             -DCMAKE_CXX_COMPILER=${{ env.CXX }} \
             -DPTN_BUILD_TESTS=ON \
+            -DPTN_BUILD_TESTING_HOOKS=ON \
             -DPTN_BUILD_BENCHMARKS=OFF \
             -DPTN_SKIP_COMPILER_CHECK=ON
 
