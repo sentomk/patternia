@@ -1,9 +1,9 @@
 base_name,scenario,impl,mean_ns,median_ns,stddev_ns,cv_pct,is_patternia,fastest_impl,fastest_mean_ns,impl_vs_fastest_pct,impl_vs_patternia_pct,patternia_impl,patternia_mean_ns,patternia_rank,patternia_vs_fastest_pct,patternia_status
-BM_IfElse_ProtocolRouter/min_time:0.500/repeats:20,ProtocolRouter,IfElse,1.885614,1.884125,0.004570,0.2424,no,PatterniaPipe,1.620109,16.3881,16.3881,PatterniaPipe,1.620109,1,0.0000,fastest
-BM_PatterniaPipe_CommandParser/min_time:0.500/repeats:20,CommandParser,PatterniaPipe,1.662001,1.660664,0.006491,0.3906,yes,PatterniaPipe,1.662001,0.0000,0.0000,PatterniaPipe,1.662001,1,0.0000,fastest
-BM_PatterniaPipe_PacketMixed/min_time:0.500/repeats:20,PacketMixed,PatterniaPipe,1.516605,1.469247,0.075696,4.9911,yes,Switch,1.477090,2.6752,0.0000,PatterniaPipe,1.516605,2,2.6752,close
-BM_PatterniaPipe_ProtocolRouter/min_time:0.500/repeats:20,ProtocolRouter,PatterniaPipe,1.620109,1.618700,0.009219,0.5690,yes,PatterniaPipe,1.620109,0.0000,0.0000,PatterniaPipe,1.620109,1,0.0000,fastest
-BM_PatterniaPipe_VariantMixed/min_time:0.500/repeats:20,VariantMixed,PatterniaPipe,0.935753,0.928723,0.018022,1.9259,yes,PatterniaPipe,0.935753,0.0000,0.0000,PatterniaPipe,0.935753,1,0.0000,fastest
-BM_StdVisit_VariantMixed/min_time:0.500/repeats:20,VariantMixed,StdVisit,1.992315,1.989311,0.009798,0.4918,no,PatterniaPipe,0.935753,112.9103,112.9103,PatterniaPipe,0.935753,1,0.0000,fastest
-BM_Switch_CommandParser/min_time:0.500/repeats:20,CommandParser,Switch,2.496227,2.491038,0.013406,0.5371,no,PatterniaPipe,1.662001,50.1941,50.1941,PatterniaPipe,1.662001,1,0.0000,fastest
-BM_Switch_PacketMixed/min_time:0.500/repeats:20,PacketMixed,Switch,1.477090,1.477867,0.022192,1.5024,no,Switch,1.477090,0.0000,-2.6055,PatterniaPipe,1.516605,2,2.6752,close
+BM_IfElse_ProtocolRouter/min_time:0.500/repeats:20,ProtocolRouter,IfElse,1.865621,1.864463,0.004144,0.2221,no,PatterniaPipe,1.627777,14.6116,14.6116,PatterniaPipe,1.627777,1,0.0000,fastest
+BM_PatterniaPipe_CommandParser/min_time:0.500/repeats:20,CommandParser,PatterniaPipe,1.789604,1.772125,0.033945,1.8968,yes,PatterniaPipe,1.789604,0.0000,0.0000,PatterniaPipe,1.789604,1,0.0000,fastest
+BM_PatterniaPipe_PacketMixed/min_time:0.500/repeats:20,PacketMixed,PatterniaPipe,1.624916,1.622921,0.006101,0.3755,yes,Switch,1.450978,11.9876,0.0000,PatterniaPipe,1.624916,2,11.9876,watch
+BM_PatterniaPipe_ProtocolRouter/min_time:0.500/repeats:20,ProtocolRouter,PatterniaPipe,1.627777,1.622330,0.025171,1.5463,yes,PatterniaPipe,1.627777,0.0000,0.0000,PatterniaPipe,1.627777,1,0.0000,fastest
+BM_PatterniaPipe_VariantMixed/min_time:0.500/repeats:20,VariantMixed,PatterniaPipe,1.997225,1.995365,0.004396,0.2201,yes,StdVisit,1.991105,0.3074,0.0000,PatterniaPipe,1.997225,2,0.3074,close
+BM_StdVisit_VariantMixed/min_time:0.500/repeats:20,VariantMixed,StdVisit,1.991105,1.990863,0.001484,0.0746,no,StdVisit,1.991105,0.0000,-0.3065,PatterniaPipe,1.997225,2,0.3074,close
+BM_Switch_CommandParser/min_time:0.500/repeats:20,CommandParser,Switch,2.257860,2.254394,0.014060,0.6227,no,PatterniaPipe,1.789604,26.1654,26.1654,PatterniaPipe,1.789604,1,0.0000,fastest
+BM_Switch_PacketMixed/min_time:0.500/repeats:20,PacketMixed,Switch,1.450978,1.447675,0.027576,1.9005,no,Switch,1.450978,0.0000,-10.7044,PatterniaPipe,1.624916,2,11.9876,watch
