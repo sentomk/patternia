@@ -106,12 +106,14 @@ jobs:
             cmake -S . -B build -G "Visual Studio 17 2022" -A x64 `
               -DCMAKE_CXX_STANDARD=${{ matrix.std }} `
               -DPTN_BUILD_TESTS=ON `
+              -DPTN_BUILD_TESTING_HOOKS=ON `
               -DPTN_BUILD_BENCHMARKS=OFF `
               -DPTN_SKIP_COMPILER_CHECK=ON
           } else {
             cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -T ClangCL `
               -DCMAKE_CXX_STANDARD=${{ matrix.std }} `
               -DPTN_BUILD_TESTS=ON `
+              -DPTN_BUILD_TESTING_HOOKS=ON `
               -DPTN_BUILD_BENCHMARKS=OFF `
               -DPTN_SKIP_COMPILER_CHECK=ON
           }
@@ -123,6 +125,7 @@ jobs:
           cmake -S . -B build \
             -DCMAKE_CXX_STANDARD=${{ matrix.std }} \
             -DPTN_BUILD_TESTS=ON \
+            -DPTN_BUILD_TESTING_HOOKS=ON \
             -DPTN_BUILD_BENCHMARKS=OFF \
             -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
             -DPTN_SKIP_COMPILER_CHECK=ON

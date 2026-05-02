@@ -73,6 +73,8 @@ option(PTN_BUILD_BENCHMARKS "Build benchmarks" ${PTN_MASTER_PROJECT})
 option(PTN_BUILD_SAMPLES "Build sample programs" ${PTN_MASTER_PROJECT})
 option(PTN_DEV_INDEX "Create local indexable target for IDEs (not installed)" ON)
 option(PTN_SKIP_COMPILER_CHECK "Skip compiler version check" OFF)
+option(PTN_BUILD_TESTING_HOOKS "Enable testing-only hooks for cache-identity verification (default OFF; never ship to users)" OFF)
+option(PTN_CODEGEN_GOLDEN_ENABLED "Enable codegen golden snapshot test (Linux+Clang18/19 only)" OFF)
 
 # ========== Public headers ==========
 PTN_JOIN_HEADERS(PTN_HEADERS
