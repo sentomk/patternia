@@ -1110,6 +1110,33 @@ namespace {
                 __ >> 0);
   }
 
+#define PTN_SL_LIT_CASE_128(n) ptn::val<n> >> [] { return (n); }
+
+#define PTN_SL_LIT_BLOCK_16(base)                                     \
+  PTN_SL_LIT_CASE_128((base) + 0), PTN_SL_LIT_CASE_128((base) + 1),  \
+      PTN_SL_LIT_CASE_128((base) + 2), PTN_SL_LIT_CASE_128((base) + 3), \
+      PTN_SL_LIT_CASE_128((base) + 4), PTN_SL_LIT_CASE_128((base) + 5), \
+      PTN_SL_LIT_CASE_128((base) + 6), PTN_SL_LIT_CASE_128((base) + 7), \
+      PTN_SL_LIT_CASE_128((base) + 8), PTN_SL_LIT_CASE_128((base) + 9), \
+      PTN_SL_LIT_CASE_128((base) + 10), PTN_SL_LIT_CASE_128((base) + 11), \
+      PTN_SL_LIT_CASE_128((base) + 12), PTN_SL_LIT_CASE_128((base) + 13), \
+      PTN_SL_LIT_CASE_128((base) + 14), PTN_SL_LIT_CASE_128((base) + 15)
+
+  static int patternia_pipe_literal_match_128_on_stateless_route(int x) {
+    using namespace ptn;
+
+    return match(x)
+           | on(PTN_SL_LIT_BLOCK_16(1),
+                PTN_SL_LIT_BLOCK_16(17),
+                PTN_SL_LIT_BLOCK_16(33),
+                PTN_SL_LIT_BLOCK_16(49),
+                PTN_SL_LIT_BLOCK_16(65),
+                PTN_SL_LIT_BLOCK_16(81),
+                PTN_SL_LIT_BLOCK_16(97),
+                PTN_SL_LIT_BLOCK_16(113),
+                __ >> [] { return 0; });
+  }
+
   static int patternia_pipe_literal_match_128_on_macro_route(int x) {
     using namespace ptn;
 
@@ -1998,6 +2025,13 @@ namespace {
   }
 
   static void
+  BM_PatterniaPipe_LiteralMatch128On_Stateless(benchmark::State &state) {
+    run_workload(state,
+                 literal_128_workload(),
+                 patternia_pipe_literal_match_128_on_stateless_route);
+  }
+
+  static void
   BM_PatterniaPipe_LiteralMatch128OnMacro(benchmark::State &state) {
     run_workload(state,
                  literal_128_workload(),
@@ -2124,6 +2158,7 @@ PTN_REGISTER_STABLE_BENCH(BM_Switch_LiteralMatchRDense);
 PTN_REGISTER_STABLE_BENCH(
     BM_PatterniaPipe_LiteralMatch128StaticCases);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_LiteralMatch128On);
+PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_LiteralMatch128On_Stateless);
 PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_LiteralMatch128OnMacro);
 PTN_REGISTER_STABLE_BENCH(BM_Switch_LiteralMatch128);
 #endif
@@ -2221,6 +2256,8 @@ PTN_REGISTER_STABLE_BENCH(BM_PatterniaPipe_PacketMixedHeavyBind);
 #endif
 
 #undef PTN_REGISTER_STABLE_BENCH
+#undef PTN_SL_LIT_BLOCK_16
+#undef PTN_SL_LIT_CASE_128
 #undef PTN_SWITCH_BLOCK_16
 #undef PTN_LIT_BLOCK_16
 #undef PTN_SWITCH_CASE_128

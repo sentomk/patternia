@@ -11,6 +11,7 @@
 #include <utility>
 
 #include "ptn/core/common/common_traits.hpp"
+#include "ptn/core/common/is_constant_evaluated.hpp"
 #include "ptn/core/common/diagnostics.hpp"
 #include "ptn/core/dsl/detail/case_expr_impl.hpp"
 #include "ptn/core/engine/detail/match_impl.hpp"
@@ -21,6 +22,10 @@ namespace ptn::core::dsl::detail {
 } // namespace ptn::core::dsl::detail
 
 namespace ptn::core::engine::detail {
+
+#ifdef PTN_TESTING
+  inline const void* ptn_testing_last_cached_addr = nullptr;
+#endif
 
   template <typename TV>
   class [[nodiscard("[Patternia.match]: incomplete match expression. "
@@ -86,6 +91,19 @@ namespace ptn::core::engine::detail {
       }
     }
 
+    // NON-constexpr helper — function-local static is forbidden in
+    // C++17 constexpr functions. The rvalue operator| dispatches here
+    // only at runtime via if constexpr + is_constant_evaluated gating.
+    template <typename... Cases>
+    decltype(auto)
+    eval_cached_on_cases(core::dsl::detail::on<Cases...> &&p) && {
+      static auto cached = std::move(p);
+#ifdef PTN_TESTING
+      ptn_testing_last_cached_addr = &cached;
+#endif
+      return std::move(*this).template eval_on_cases<Cases...>(cached.cases);
+    }
+
   public:
     static constexpr auto create(subject_type subject) {
       return pipeline_match_context{std::forward<subject_type>(subject)};
@@ -104,6 +122,14 @@ namespace ptn::core::engine::detail {
     template <typename... Cases>
     constexpr decltype(auto)
     operator|(core::dsl::detail::on<Cases...> &&on_cases) && {
+      if constexpr (traits::all_stateless_v<Cases...>) {
+        if (PTN_DETAIL_IS_CONSTANT_EVALUATED()) {
+          return std::move(*this).template eval_on_cases<Cases...>(
+              std::move(on_cases.cases));
+        }
+        return std::move(*this).template eval_cached_on_cases<Cases...>(
+            std::move(on_cases));
+      }
       return std::move(*this).template eval_on_cases<Cases...>(
           std::move(on_cases.cases));
     }

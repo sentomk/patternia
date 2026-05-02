@@ -100,6 +100,20 @@ namespace ptn::core::traits {
   inline constexpr bool is_fallback_case_v =
       is_pattern_fallback_v<case_pattern_t<Case>>;
 
+  // All-stateless check: true iff every case has stateless Pattern AND empty Handler.
+  // Pattern check uses sizeof <= 1 (rather than std::is_empty_v) because patterns
+  // like static_literal_pattern have [[no_unique_address]] empty Cmp members that
+  // make std::is_empty_v false but carry zero meaningful state — all instances of
+  // static_literal_pattern<42> are identical. sizeof <= 1 is the reliable signal.
+  // Handler check uses strict std::is_empty_v: value_handler<int> must NOT pass.
+  template <typename... Cases>
+  inline constexpr bool all_stateless_v =
+      sizeof...(Cases) == 0 ||
+      (((std::is_empty_v<case_pattern_t<Cases>> ||
+         sizeof(case_pattern_t<Cases>) <= 1) &&
+        ...) &&
+       (std::is_empty_v<case_handler_t<Cases>> && ...));
+
   // Handler Invocability Check (C++17)
 
   namespace detail {
