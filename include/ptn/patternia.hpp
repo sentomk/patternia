@@ -35,6 +35,7 @@
 #include "ptn/pattern/combinator.hpp"      // any/all
 #include "ptn/pattern/type.hpp"            // is<T>, alt<I>
 #include "ptn/pattern/pred.hpp"            // pred
+#include "ptn/pattern/negation.hpp"       // neg
 
 namespace ptn {
   // Imports DSL operators.
@@ -69,6 +70,9 @@ namespace ptn {
 
   // Predicate pattern utility.
   using ptn::pat::pred;
+
+  // Negation pattern utility.
+  using ptn::pat::neg;
 
 } // namespace ptn
 

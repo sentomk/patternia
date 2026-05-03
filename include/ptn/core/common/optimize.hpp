@@ -101,7 +101,7 @@ namespace ptn::core::common {
         std::remove_cv_t<std::remove_reference_t<T>>>::value;
 
     constexpr std::size_t
-        k_variant_inline_dispatch_alt_threshold = 16;
+        k_variant_inline_dispatch_alt_threshold = 8;
     constexpr std::size_t
         k_variant_segmented_dispatch_alt_threshold        = 64;
     constexpr std::size_t k_variant_dispatch_segment_size = 16;
