@@ -112,6 +112,18 @@ std::string describe(const Value &v) {
 }
 ```
 
+### Negation match
+
+```cpp
+// Negation: match values NOT equal to specific literals
+int status = 404;
+auto msg = match(status) | on(
+    neg(val<200>) >> []{ return std::string("error"); },
+    _             >> []{ return std::string("ok"); }
+);
+// msg == "error" — status isn't 200
+```
+
 ## Installation
 
 Patternia is header-only with no external dependencies.
