@@ -3,17 +3,17 @@
 - Source: `bench_results/ptn_bench.json`
 - Scenarios: `4`
 - Patternia fastest: `2/4`
-- Average Patternia gap vs fastest: `+3.07%`
-- Largest Patternia gap: `PacketMixed` `+11.99%` vs `Switch`
+- Average Patternia gap vs fastest: `+2.59%`
+- Largest Patternia gap: `PacketMixed` `+10.18%` vs `Switch`
 
 ## Patternia Focus
 
 | Scenario | Patternia impl | Rank | Patternia mean (ns) | Fastest | Fastest mean (ns) | Gap vs fastest | Patternia CV % | Status |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| PacketMixed | PatterniaPipe | 2/2 | 1.625 | Switch | 1.451 | +11.99% | 0.38 | watch |
-| VariantMixed | PatterniaPipe | 2/2 | 1.997 | StdVisit | 1.991 | +0.31% | 0.22 | close |
-| CommandParser | PatterniaPipe | 1/2 | 1.790 | PatterniaPipe | 1.790 | +0.00% | 1.90 | fastest |
-| ProtocolRouter | PatterniaPipe | 1/2 | 1.628 | PatterniaPipe | 1.628 | +0.00% | 1.55 | fastest |
+| PacketMixed | PatterniaPipe | 2/2 | 1.625 | Switch | 1.475 | +10.18% | 0.31 | watch |
+| VariantMixed | PatterniaPipe | 2/2 | 1.995 | StdVisit | 1.992 | +0.17% | 0.14 | close |
+| CommandParser | PatterniaPipe | 1/2 | 1.772 | PatterniaPipe | 1.772 | +0.00% | 0.07 | fastest |
+| ProtocolRouter | PatterniaPipe | 1/2 | 1.622 | PatterniaPipe | 1.622 | +0.00% | 0.19 | fastest |
 
 ---
 
@@ -22,27 +22,27 @@
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| Switch | 1.451 | fastest | -10.70% | 1.90 |
-| **PatterniaPipe** | 1.625 | +11.99% | - | 0.38 |
+| Switch | 1.475 | fastest | -9.24% | 1.64 |
+| **PatterniaPipe** | 1.625 | +10.18% | - | 0.31 |
 
 ### VariantMixed
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| StdVisit | 1.991 | fastest | -0.31% | 0.07 |
-| **PatterniaPipe** | 1.997 | +0.31% | - | 0.22 |
+| StdVisit | 1.992 | fastest | -0.17% | 0.22 |
+| **PatterniaPipe** | 1.995 | +0.17% | - | 0.14 |
 
 ### CommandParser
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| **PatterniaPipe** | 1.790 | fastest | - | 1.90 |
-| Switch | 2.258 | +26.17% | +26.17% | 0.62 |
+| **PatterniaPipe** | 1.772 | fastest | - | 0.07 |
+| Switch | 2.255 | +27.29% | +27.29% | 0.23 |
 
 ### ProtocolRouter
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| **PatterniaPipe** | 1.628 | fastest | - | 1.55 |
-| IfElse | 1.866 | +14.61% | +14.61% | 0.22 |
+| **PatterniaPipe** | 1.622 | fastest | - | 0.19 |
+| IfElse | 2.004 | +23.54% | +23.54% | 5.52 |
 
