@@ -42,12 +42,13 @@ TEST(CombinatorPattern, AnyShortCircuitsAfterFirstHit) {
   int c2 = 0;
   int c3 = 0;
 
-  int x = 7;
-  int result = match(x) | on(any(ProbePattern{false, &c1},
-                                 ProbePattern{true, &c2},
-                                 ProbePattern{true, &c3})
-                                 >> 1,
-                             __ >> 0);
+  int x      = 7;
+  int result = match(x)
+               | on(any(ProbePattern{false, &c1},
+                        ProbePattern{true, &c2},
+                        ProbePattern{true, &c3})
+                        >> 1,
+                    __ >> 0);
 
   EXPECT_EQ(result, 1);
   EXPECT_EQ(c1, 1);
@@ -59,11 +60,12 @@ TEST(CombinatorPattern, AnyFallsBackWhenAllMiss) {
   int c1 = 0;
   int c2 = 0;
 
-  int x = 7;
-  int result = match(x) | on(any(ProbePattern{false, &c1},
-                                 ProbePattern{false, &c2})
-                                 >> 1,
-                             __ >> 0);
+  int x      = 7;
+  int result = match(x)
+               | on(any(ProbePattern{false, &c1},
+                        ProbePattern{false, &c2})
+                        >> 1,
+                    __ >> 0);
 
   EXPECT_EQ(result, 0);
   EXPECT_EQ(c1, 1);
@@ -75,12 +77,13 @@ TEST(CombinatorPattern, AllMatchesOnlyWhenAllHit) {
   int c2 = 0;
   int c3 = 0;
 
-  int x = 7;
-  int result = match(x) | on(all(ProbePattern{true, &c1},
-                                 ProbePattern{true, &c2},
-                                 ProbePattern{true, &c3})
-                                 >> 1,
-                             __ >> 0);
+  int x      = 7;
+  int result = match(x)
+               | on(all(ProbePattern{true, &c1},
+                        ProbePattern{true, &c2},
+                        ProbePattern{true, &c3})
+                        >> 1,
+                    __ >> 0);
 
   EXPECT_EQ(result, 1);
   EXPECT_EQ(c1, 1);
@@ -93,12 +96,13 @@ TEST(CombinatorPattern, AllShortCircuitsOnFirstMiss) {
   int c2 = 0;
   int c3 = 0;
 
-  int x = 7;
-  int result = match(x) | on(all(ProbePattern{true, &c1},
-                                 ProbePattern{false, &c2},
-                                 ProbePattern{true, &c3})
-                                 >> 1,
-                             __ >> 0);
+  int x      = 7;
+  int result = match(x)
+               | on(all(ProbePattern{true, &c1},
+                        ProbePattern{false, &c2},
+                        ProbePattern{true, &c3})
+                        >> 1,
+                    __ >> 0);
 
   EXPECT_EQ(result, 0);
   EXPECT_EQ(c1, 1);
@@ -109,40 +113,46 @@ TEST(CombinatorPattern, AllShortCircuitsOnFirstMiss) {
 TEST(CombinatorPattern, AnyAndAllWorkWithZeroBindHandlers) {
   int x = 2;
 
-  int any_result = match(x) | on(any(lit(1), lit(2)) >> [] { return 11; },
-                                 __ >> 0);
+  int any_result = match(x)
+                   | on(
+                       any(lit(1), lit(2)) >> [] { return 11; },
+                       __ >> 0);
 
-  int all_result = match(x) | on(all(any(lit(2), lit(3)), lit(2))
-                                     >> [] { return 22; },
-                                 __ >> 0);
+  int all_result = match(x)
+                   | on(
+                       all(any(lit(2), lit(3)), lit(2)) >>
+                           [] { return 22; },
+                       __ >> 0);
 
   EXPECT_EQ(any_result, 11);
   EXPECT_EQ(all_result, 22);
 }
 
 TEST(CombinatorPattern, AnyWithValStaticLiterals) {
-  int x = 2;
-  int result = match(x) | on(any(val<1>, val<2>, val<3>) >> 1, __ >> 0);
+  int x      = 2;
+  int result = match(x)
+               | on(any(val<1>, val<2>, val<3>) >> 1, __ >> 0);
 
   EXPECT_EQ(result, 1);
 }
 
 TEST(CombinatorPattern, AnyWithValStaticLiteralsMiss) {
-  int x = 5;
-  int result = match(x) | on(any(val<1>, val<2>, val<3>) >> 1, __ >> 0);
+  int x      = 5;
+  int result = match(x)
+               | on(any(val<1>, val<2>, val<3>) >> 1, __ >> 0);
 
   EXPECT_EQ(result, 0);
 }
 
 TEST(CombinatorPattern, AllWithValStaticLiterals) {
-  int x = 2;
+  int x      = 2;
   int result = match(x) | on(all(val<2>, val<2>) >> 1, __ >> 0);
 
   EXPECT_EQ(result, 1);
 }
 
 TEST(CombinatorPattern, AllWithValStaticLiteralsMiss) {
-  int x = 2;
+  int x      = 2;
   int result = match(x) | on(all(val<1>, val<2>) >> 1, __ >> 0);
 
   EXPECT_EQ(result, 0);
@@ -171,50 +181,52 @@ TEST(CombinatorPattern, AnyMatchesVariantType) {
 }
 
 TEST(CombinatorPattern, SingleSubPatternAny) {
-  int x = 7;
+  int x      = 7;
   int result = match(x) | on(any(lit(7)) >> 1, __ >> 0);
 
   EXPECT_EQ(result, 1);
 }
 
 TEST(CombinatorPattern, SingleSubPatternAll) {
-  int x = 7;
+  int x      = 7;
   int result = match(x) | on(all(lit(7)) >> 1, __ >> 0);
 
   EXPECT_EQ(result, 1);
 }
 
 TEST(CombinatorPattern, NestedAnyInsideAll) {
-  int x = 4;
+  int x      = 4;
   int result = match(x)
-               | on(all(any(lit(1), lit(2), lit(3), lit(4)), val<4>) >> 42,
-                   __ >> 0);
+               | on(all(any(lit(1), lit(2), lit(3), lit(4)), val<4>)
+                        >> 42,
+                    __ >> 0);
 
   EXPECT_EQ(result, 42);
 }
 
 TEST(CombinatorPattern, NestedAllInsideAny) {
-  int x = 5;
+  int x      = 5;
   int result = match(x)
-               | on(any(all(val<5>, val<5>), all(val<6>, val<6>)) >> 99,
-                   __ >> 0);
+               | on(any(all(val<5>, val<5>), all(val<6>, val<6>))
+                        >> 99,
+                    __ >> 0);
 
   EXPECT_EQ(result, 99);
 }
 
 TEST(CombinatorPattern, NestedAnyMissOuterAllHit) {
-  int x = 10;
+  int x      = 10;
   int result = match(x)
-               | on(all(any(lit(1), lit(2)), val<10>) >> 1,
-                   __ >> 0);
+               | on(all(any(lit(1), lit(2)), val<10>) >> 1, __ >> 0);
 
   EXPECT_EQ(result, 0);
 }
 
 TEST(CombinatorPattern, AnyWithLitCi) {
-  std::string s = "HeLLo";
-  int result = match(s)
-               | on(any(lit_ci("hello"), lit_ci("world")) >> 1, __ >> 0);
+  std::string s      = "HeLLo";
+  int         result = match(s)
+               | on(any(lit_ci("hello"), lit_ci("world")) >> 1,
+                    __ >> 0);
 
   EXPECT_EQ(result, 1);
 }
@@ -247,9 +259,8 @@ TEST(CombinatorPattern, AnyInsidePtnOnMacro) {
   int c = 5;
 
   auto run = [](int x) {
-    return match(x) | PTN_ON(
-        any(val<1>, val<2>, val<3>) >> 1,
-        __ >> 0);
+    return match(x)
+           | PTN_ON(any(val<1>, val<2>, val<3>) >> 1, __ >> 0);
   };
 
   EXPECT_EQ(run(a), 1);
@@ -262,9 +273,8 @@ TEST(CombinatorPattern, AllInsidePtnOnMacro) {
   int b = 3;
 
   auto run = [](int x) {
-    return match(x) | PTN_ON(
-        all(any(val<1>, val<2>), val<2>) >> 1,
-        __ >> 0);
+    return match(x)
+           | PTN_ON(all(any(val<1>, val<2>), val<2>) >> 1, __ >> 0);
   };
 
   EXPECT_EQ(run(a), 1);
@@ -275,33 +285,54 @@ TEST(CombinatorPattern, AllInsidePtnOnMacro) {
 
 TEST(NegationPattern, BasicNegation) {
   int a = 1, b = 2;
-  EXPECT_EQ(match(a) | on(neg(val<1>) >> []{ return 0; },
-                           _           >> []{ return 1; }),  1);
-  EXPECT_EQ(match(b) | on(neg(val<1>) >> []{ return 0; },
-                           _           >> []{ return 1; }),  0);
+  EXPECT_EQ(match(a)
+                | on(
+                    neg(val<1>) >> [] { return 0; },
+                    _ >> [] { return 1; }),
+            1);
+  EXPECT_EQ(match(b)
+                | on(
+                    neg(val<1>) >> [] { return 0; },
+                    _ >> [] { return 1; }),
+            0);
 }
 
 TEST(NegationPattern, NegWildcardNeverMatches) {
   int x = 42;
   // neg(_) matches nothing — no subject fails the wildcard
-  EXPECT_EQ(match(x) | on(neg(_) >> []{ return 0; },
-                           _     >> []{ return 1; }),  1);
+  EXPECT_EQ(
+      match(x)
+          | on(
+              neg(_) >> [] { return 0; }, _ >> [] { return 1; }),
+      1);
 }
 
 TEST(NegationPattern, NegWithPred) {
-  int a = 3, b = 4;
+  int  a = 3, b = 4;
   auto is_even = [](int x) { return x % 2 == 0; };
-  EXPECT_EQ(match(a) | on(neg(pred(is_even)) >> []{ return 0; },
-                           _                  >> []{ return 1; }),  0);
-  EXPECT_EQ(match(b) | on(neg(pred(is_even)) >> []{ return 0; },
-                           _                  >> []{ return 1; }),  1);
+  EXPECT_EQ(match(a)
+                | on(
+                    neg(pred(is_even)) >> [] { return 0; },
+                    _ >> [] { return 1; }),
+            0);
+  EXPECT_EQ(match(b)
+                | on(
+                    neg(pred(is_even)) >> [] { return 0; },
+                    _ >> [] { return 1; }),
+            1);
 }
 
 TEST(NegationPattern, NegNegIsIdentity) {
   int a = 1, b = 2;
   // double negation: neg(neg(p)) matches iff p matches
-  EXPECT_EQ(match(a) | on(neg(neg(val<1>)) >> []{ return 42; },
-                           _               >> []{ return 0; }),   42);
-  EXPECT_EQ(match(b) | on(neg(neg(val<2>)) >> []{ return 42; },
-                           _               >> []{ return 0; }),   42);
+  EXPECT_EQ(match(a)
+                | on(
+                    neg(neg(val<1>)) >> [] { return 42; },
+                    _ >> [] { return 0; }),
+            42);
+  EXPECT_EQ(match(b)
+                | on(
+                    neg(neg(val<2>)) >> [] { return 42; },
+                    _ >> [] { return 0; }),
+            42);
 }
