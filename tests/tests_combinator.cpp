@@ -270,3 +270,38 @@ TEST(CombinatorPattern, AllInsidePtnOnMacro) {
   EXPECT_EQ(run(a), 1);
   EXPECT_EQ(run(b), 0);
 }
+
+// ===== neg(p) negation pattern =====
+
+TEST(NegationPattern, BasicNegation) {
+  int a = 1, b = 2;
+  EXPECT_EQ(match(a) | on(neg(val<1>) >> []{ return 0; },
+                           _           >> []{ return 1; }),  1);
+  EXPECT_EQ(match(b) | on(neg(val<1>) >> []{ return 0; },
+                           _           >> []{ return 1; }),  0);
+}
+
+TEST(NegationPattern, NegWildcardNeverMatches) {
+  int x = 42;
+  // neg(_) matches nothing — no subject fails the wildcard
+  EXPECT_EQ(match(x) | on(neg(_) >> []{ return 0; },
+                           _     >> []{ return 1; }),  1);
+}
+
+TEST(NegationPattern, NegWithPred) {
+  int a = 3, b = 4;
+  auto is_even = [](int x) { return x % 2 == 0; };
+  EXPECT_EQ(match(a) | on(neg(pred(is_even)) >> []{ return 0; },
+                           _                  >> []{ return 1; }),  0);
+  EXPECT_EQ(match(b) | on(neg(pred(is_even)) >> []{ return 0; },
+                           _                  >> []{ return 1; }),  1);
+}
+
+TEST(NegationPattern, NegNegIsIdentity) {
+  int a = 1, b = 2;
+  // double negation: neg(neg(p)) matches iff p matches
+  EXPECT_EQ(match(a) | on(neg(neg(val<1>)) >> []{ return 42; },
+                           _               >> []{ return 0; }),   42);
+  EXPECT_EQ(match(b) | on(neg(neg(val<2>)) >> []{ return 42; },
+                           _               >> []{ return 0; }),   42);
+}
