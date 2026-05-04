@@ -1163,6 +1163,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#negp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        neg(p)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1967,6 +1978,20 @@ on the first mismatch.</p>
   mismatch.</li>
 <li>Requires at least one sub-pattern; every argument must be a pattern object.</li>
 </ul>
+<h3 id="negp"><code>neg(p)</code><a class="headerlink" href="#negp" title="Permanent link">&para;</a></h3>
+<p>Negates the match result of a sub-pattern. <code>neg(p)</code> matches when <code>p</code> does
+not match, and vice versa.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">neg</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;non-zero&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>Properties:</p>
+<ul>
+<li>Non-binding: handlers receive zero arguments.</li>
+<li>Accepts exactly one sub-pattern (no zero- or multi-argument form).</li>
+<li><code>neg(neg(p))</code> restores the original match behavior (double negation cancels).</li>
+</ul>
 <hr />
 <h2 id="cached-case-packs">Cached Case Packs<a class="headerlink" href="#cached-case-packs" title="Permanent link">&para;</a></h2>
 <h3 id="static_on"><code>static_on(...)</code><a class="headerlink" href="#static_on" title="Permanent link">&para;</a></h3>
@@ -2000,7 +2025,7 @@ on the first mismatch.</p>
 <li><code>_0</code>, <code>arg</code>, <code>rng</code></li>
 <li><code>has</code></li>
 <li><code>is</code>, <code>alt</code></li>
-<li><code>any</code>, <code>all</code></li>
+<li><code>any</code>, <code>all</code>, <code>neg</code></li>
 </ul>
 <hr />
 <h2 id="minimal-example">Minimal Example<a class="headerlink" href="#minimal-example" title="Permanent link">&para;</a></h2>

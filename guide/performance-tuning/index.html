@@ -12,31 +12,27 @@
         <meta name="author" content="Y.F. Guo">
       
       
-        <link rel="canonical" href="https://sentomk.github.io/patternia/performance/">
+        <link rel="canonical" href="https://sentomk.github.io/patternia/guide/performance-tuning/">
       
       
-        <link rel="prev" href="../api/">
-      
-      
-        <link rel="next" href="v0.8.2/">
       
       
         
       
       
-      <link rel="icon" href="../assets/favicon.svg">
+      <link rel="icon" href="../../assets/favicon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Overview - Patternia</title>
+        <title>Performance tuning - Patternia</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -55,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="../overrides/styles.css">
+      <link rel="stylesheet" href="../../overrides/styles.css">
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -82,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#performance-notes" class="md-skip">
+        <a href="#performance-tuning" class="md-skip">
           Skip to content
         </a>
       
@@ -96,9 +92,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Patternia" class="md-header__button md-logo" aria-label="Patternia" data-md-component="logo">
+    <a href="../.." title="Patternia" class="md-header__button md-logo" aria-label="Patternia" data-md-component="logo">
       
-  <img src="../assets/favicon.svg" alt="logo">
+  <img src="../../assets/favicon.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -115,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Overview
+              Performance tuning
             
           </span>
         </div>
@@ -219,7 +215,7 @@
   
   
     <li class="md-tabs__item">
-      <a href=".." class="md-tabs__link">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -240,7 +236,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../tutorials/from-control-flow/" class="md-tabs__link">
+        <a href="../../tutorials/from-control-flow/" class="md-tabs__link">
           
   
   
@@ -260,7 +256,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../guide/getting-started/" class="md-tabs__link">
+        <a href="../getting-started/" class="md-tabs__link">
           
   
   
@@ -280,7 +276,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../api/" class="md-tabs__link">
+        <a href="../../api/" class="md-tabs__link">
           
   
   
@@ -296,13 +292,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../performance/" class="md-tabs__link">
           
   
   
@@ -322,7 +316,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../changelog/releases/" class="md-tabs__link">
+        <a href="../../changelog/releases/" class="md-tabs__link">
           
   
   
@@ -340,7 +334,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../roadmap/" class="md-tabs__link">
+      <a href="../../roadmap/" class="md-tabs__link">
         
   
   
@@ -377,9 +371,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Patternia" class="md-nav__button md-logo" aria-label="Patternia" data-md-component="logo">
+    <a href="../.." title="Patternia" class="md-nav__button md-logo" aria-label="Patternia" data-md-component="logo">
       
-  <img src="../assets/favicon.svg" alt="logo">
+  <img src="../../assets/favicon.svg" alt="logo">
 
     </a>
     Patternia
@@ -406,7 +400,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -485,7 +479,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorials/from-control-flow/" class="md-nav__link">
+      <a href="../../tutorials/from-control-flow/" class="md-nav__link">
         
   
   
@@ -513,7 +507,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorials/other-languages/" class="md-nav__link">
+      <a href="../../tutorials/other-languages/" class="md-nav__link">
         
   
   
@@ -541,7 +535,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorials/predicate-guards/" class="md-nav__link">
+      <a href="../../tutorials/predicate-guards/" class="md-nav__link">
         
   
   
@@ -569,7 +563,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorials/policy-constraint/" class="md-nav__link">
+      <a href="../../tutorials/policy-constraint/" class="md-nav__link">
         
   
   
@@ -597,7 +591,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorials/sphere-constraint/" class="md-nav__link">
+      <a href="../../tutorials/sphere-constraint/" class="md-nav__link">
         
   
   
@@ -684,7 +678,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guide/getting-started/" class="md-nav__link">
+      <a href="../getting-started/" class="md-nav__link">
         
   
   
@@ -712,7 +706,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guide/installation/" class="md-nav__link">
+      <a href="../installation/" class="md-nav__link">
         
   
   
@@ -799,7 +793,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/" class="md-nav__link">
+      <a href="../../api/" class="md-nav__link">
         
   
   
@@ -831,31 +825,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -873,7 +862,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -888,37 +877,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Overview
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../performance/" class="md-nav__link">
         
   
   
@@ -934,59 +896,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#current-version" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Current Version
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#version-index" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Version Index
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#scope" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scope
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -999,7 +908,7 @@
   
   
     <li class="md-nav__item">
-      <a href="v0.8.2/" class="md-nav__link">
+      <a href="../../performance/v0.8.2/" class="md-nav__link">
         
   
   
@@ -1027,7 +936,7 @@
   
   
     <li class="md-nav__item">
-      <a href="v0.8.0/" class="md-nav__link">
+      <a href="../../performance/v0.8.0/" class="md-nav__link">
         
   
   
@@ -1114,7 +1023,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../changelog/releases/" class="md-nav__link">
+      <a href="../../changelog/releases/" class="md-nav__link">
         
   
   
@@ -1142,7 +1051,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../changelog/v0.9.2/" class="md-nav__link">
+      <a href="../../changelog/v0.9.2/" class="md-nav__link">
         
   
   
@@ -1170,7 +1079,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../changelog/v0.9.1/" class="md-nav__link">
+      <a href="../../changelog/v0.9.1/" class="md-nav__link">
         
   
   
@@ -1198,7 +1107,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../changelog/v0.9.0/" class="md-nav__link">
+      <a href="../../changelog/v0.9.0/" class="md-nav__link">
         
   
   
@@ -1226,7 +1135,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../changelog/v0.8.5/" class="md-nav__link">
+      <a href="../../changelog/v0.8.5/" class="md-nav__link">
         
   
   
@@ -1254,7 +1163,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../changelog/v0.8.3/" class="md-nav__link">
+      <a href="../../changelog/v0.8.3/" class="md-nav__link">
         
   
   
@@ -1282,7 +1191,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../changelog/v0.8.2/" class="md-nav__link">
+      <a href="../../changelog/v0.8.2/" class="md-nav__link">
         
   
   
@@ -1310,7 +1219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../changelog/v0.8.0/" class="md-nav__link">
+      <a href="../../changelog/v0.8.0/" class="md-nav__link">
         
   
   
@@ -1345,7 +1254,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../roadmap/" class="md-nav__link">
+      <a href="../../roadmap/" class="md-nav__link">
         
   
   
@@ -1385,36 +1294,52 @@
   
 
 
-<h1 id="performance-notes">Performance Notes<a class="headerlink" href="#performance-notes" title="Permanent link">&para;</a></h1>
-<p>This section tracks performance-oriented algorithm evolution by version.</p>
-<hr />
-<h2 id="current-version">Current Version<a class="headerlink" href="#current-version" title="Permanent link">&para;</a></h2>
-<p><strong>v0.9.3</strong> tuned the variant inline dispatch threshold for common workloads.
-See <a href="v0.9.3/">v0.9.3 performance note</a> for details.</p>
-<p>v0.8.2 established the lowering engine baseline.
-See <a href="v0.8.2/">v0.8.2 performance note</a> for benchmark data and algorithm details.</p>
-<p>Releases from v0.8.3 to v0.9.2 focused on guard fixes, API ergonomics, and
-compiler compatibility. No new dispatch algorithms were introduced.</p>
-<hr />
-<h2 id="version-index">Version Index<a class="headerlink" href="#version-index" title="Permanent link">&para;</a></h2>
+  <h1>Performance tuning</h1>
+
+<h2 id="performance-tuning">Performance Tuning<a class="headerlink" href="#performance-tuning" title="Permanent link">&para;</a></h2>
+<h3 id="when-to-use-ptn_on-macro">When to use <code>PTN_ON(...)</code> macro<a class="headerlink" href="#when-to-use-ptn_on-macro" title="Permanent link">&para;</a></h3>
+<p>The <code>PTN_ON</code> macro caches the case pack in a function-local static. This ensures zero construction overhead on hot paths, as the matcher object is only built once during the first execution.</p>
+<p>Use this when the same case pack is called repeatedly in a loop or a frequently invoked function. It provides the best performance for local, repeated matching logic.</p>
+<p>Example:
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="nf">classify</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PTN_ON</span><span class="p">(</span>
+<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">-1</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Caveat:</strong> Lambdas inside <code>PTN_ON</code> must be stateless (no captures), as they are stored in a static context.</p>
+<h3 id="when-to-use-static_onfactory">When to use <code>static_on(factory)</code><a class="headerlink" href="#when-to-use-static_onfactory" title="Permanent link">&para;</a></h3>
+<p>The <code>static_on</code> function creates a persistent static match object from a factory lambda. It serves as a more explicit version of the caching mechanism used by <code>PTN_ON</code>.</p>
+<p>Use this when you need to store the match object separately from a single call site, such as pre-computing a matcher object at initialization time and then calling it from multiple different locations.</p>
+<p>Example:
+<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">get_matcher</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">static_on</span><span class="p">([]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">      </span><span class="n">lit</span><span class="p">(</span><span class="s">&quot;start&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Action</span><span class="o">::</span><span class="n">Start</span><span class="p">,</span>
+<span class="w">      </span><span class="n">lit</span><span class="p">(</span><span class="s">&quot;stop&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Action</span><span class="o">::</span><span class="n">Stop</span><span class="p">,</span>
+<span class="w">      </span><span class="n">__</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Action</span><span class="o">::</span><span class="n">Unknown</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">process</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">cmd</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">get_matcher</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<h3 id="when-raw-matchx-on-is-fine">When raw <code>match(x) | on(...)</code> is fine<a class="headerlink" href="#when-raw-matchx-on-is-fine" title="Permanent link">&para;</a></h3>
+<p>The raw pipeline form constructs the case objects on every call. While this adds a small amount of overhead, Patternia's dispatch system is highly optimized and fast enough for most scenarios without explicit caching.</p>
+<p>Use the raw form when:
+- The call is not on a hot path.
+- The overhead is negligible (small case packs or infrequent calls).
+- You need to capture local variables in your handlers.</p>
+<h3 id="dispatch-tiers-and-their-effect">Dispatch tiers and their effect<a class="headerlink" href="#dispatch-tiers-and-their-effect" title="Permanent link">&para;</a></h3>
+<p>Patternia uses different dispatch strategies based on the patterns provided:</p>
 <ul>
-<li><a href="v0.9.3/">v0.9.3</a> (variant dispatch threshold tuning)</li>
-<li><a href="v0.8.2/">v0.8.2</a> (lowering engine baseline)</li>
-<li><a href="v0.8.0/">v0.8.0</a> (tiered variant dispatch)</li>
+<li><strong>Literal Dense/Runtime Dense:</strong> Used for contiguous literal values. These are lowered to efficient jump tables or direct indexing.</li>
+<li><strong>Variant Inline/Segmented/Compact:</strong> Optimized strategies for <code>std::variant</code>. Inline dispatch is used for small variants, while segmented or compact forms handle larger or more complex type distributions.</li>
 </ul>
-<hr />
-<h2 id="scope">Scope<a class="headerlink" href="#scope" title="Permanent link">&para;</a></h2>
-<p>Performance notes focus on:</p>
-<ul>
-<li>dispatch strategy evolution</li>
-<li>fast-path and cold-path behavior</li>
-<li>algorithm-level tradeoffs and applicability</li>
-</ul>
-<p>For API compatibility and migration notes, see:</p>
-<ul>
-<li><a href="../changelog/releases/">Changelog Releases</a></li>
-<li><a href="../api/">API Reference</a></li>
-</ul>
+<p>According to <code>docs/assets/bench/latest.md</code>, Patternia is the fastest in 3 out of 4 tested scenarios. It is particularly efficient in <code>VariantMixed</code> tests (~0.94ns per call). The slowest scenario is <code>PacketMixed</code>, where Patternia is +2.68% vs a manual Switch statement, primarily due to structural binding overhead. Literal-only scenarios typically run at approximately 1.1ns per call.</p>
 
 
 
@@ -1446,44 +1371,6 @@ compiler compatibility. No new dispatch algorithms were introduced.</p>
         <footer class="md-footer">
   
     
-      
-      <nav class="md-footer__inner md-grid" aria-label="Footer" >
-        
-          
-          <a href="../api/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Patternia API Reference">
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-            </div>
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              <div class="md-ellipsis">
-                Patternia API Reference
-              </div>
-            </div>
-          </a>
-        
-        
-          
-          <a href="v0.8.2/" class="md-footer__link md-footer__link--next" aria-label="Next: v0.8.2">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                v0.8.2
-              </div>
-            </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
-            </div>
-          </a>
-        
-      </nav>
-    
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -1510,10 +1397,10 @@ compiler compatibility. No new dispatch algorithms were introduced.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "search.share", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "search.share", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
