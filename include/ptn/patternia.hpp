@@ -35,6 +35,7 @@
 #include "ptn/pattern/combinator.hpp"      // any/all
 #include "ptn/pattern/type.hpp"            // is<T>, alt<I>
 #include "ptn/pattern/pred.hpp"            // pred
+#include "ptn/pattern/negation.hpp"        // neg
 
 namespace ptn {
   // Imports DSL operators.
@@ -70,18 +71,22 @@ namespace ptn {
   // Predicate pattern utility.
   using ptn::pat::pred;
 
+  // Negation pattern utility.
+  using ptn::pat::neg;
+
 } // namespace ptn
 
 // Optional sugar for the statically cached `on(...)` factory form.
 //
 // Expands to an immediately-invoked lambda that caches the matcher
-// in a function-local static. This avoids both the matcher construction
-// cost on every evaluation and the function-call boundary of `static_on`.
+// in a function-local static. This avoids both the matcher
+// construction cost on every evaluation and the function-call
+// boundary of `static_on`.
 #ifndef PTN_ON
 #define PTN_ON(...)                                                 \
-  ([]() -> auto& {                                                  \
-      static auto _ptn_cases = ::ptn::on(__VA_ARGS__);              \
-      return _ptn_cases;                                            \
+  ([]() -> auto & {                                                 \
+    static auto _ptn_cases = ::ptn::on(__VA_ARGS__);                \
+    return _ptn_cases;                                              \
   }())
 #endif
 
