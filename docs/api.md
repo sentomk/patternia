@@ -357,6 +357,24 @@ Properties:
   mismatch.
 - Requires at least one sub-pattern; every argument must be a pattern object.
 
+### `neg(p)`
+
+Negates the match result of a sub-pattern. `neg(p)` matches when `p` does
+not match, and vice versa.
+
+```cpp
+match(x) | on(
+  neg(val<0>) >> "non-zero",
+  _ >> "zero"
+);
+```
+
+Properties:
+
+- Non-binding: handlers receive zero arguments.
+- Accepts exactly one sub-pattern (no zero- or multi-argument form).
+- `neg(neg(p))` restores the original match behavior (double negation cancels).
+
 ---
 
 ## Cached Case Packs {#cached-case-packs}
@@ -403,7 +421,7 @@ The public surface is re-exported through `namespace ptn`:
 - `_0`, `arg`, `rng`
 - `has`
 - `is`, `alt`
-- `any`, `all`
+- `any`, `all`, `neg`
 
 ---
 

@@ -53,6 +53,7 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/all_requires_pattern_args.cpp
   compile_fail/static_on_with_capture.cpp
   compile_fail/on_pipeline_without_wildcard.cpp
+  compile_fail/val_requires_compile_time_constant.cpp
 )
 
 if(CMAKE_CXX_STANDARD LESS 20)
