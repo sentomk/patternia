@@ -1,0 +1,170 @@
+name: Validate PR
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  commit-style:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate PR title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9/._-]+\))?!?: .+'
+          if echo "$TITLE" | grep -qE "$pattern"; then
+            echo "✓ PR title is valid: $TITLE"
+          else
+            echo "✗ PR title does not follow conventional commits format."
+            echo "  Expected: type(scope): description"
+            echo "  Example:  feat(patterns): add rel_ops combinator"
+            echo "  Got:      $TITLE"
+            exit 1
+          fi
+
+      - name: Validate PR body
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if [ -z "$BODY" ]; then
+            echo "✗ PR body is empty."
+            echo "  A description with the following sections is required:"
+            echo ""
+            echo "    **Summary**"
+            echo "    <overview of the change>"
+            echo ""
+            echo "    **Changes**"
+            echo "    - <change 1>"
+            echo "    - <change 2>"
+            echo ""
+            echo "    **Testing**"
+            echo "    <how the change was verified>"
+            exit 1
+          fi
+
+          body_len=$(printf '%s' "$BODY" | wc -c)
+          if [ "$body_len" -lt 50 ]; then
+            echo "✗ PR body is too short ($body_len chars, minimum 50 chars)."
+            echo "  A meaningful description helps reviewers and produces"
+            echo "  a readable squash merge commit message."
+            exit 1
+          fi
+
+          missing=""
+          if ! echo "$BODY" | grep -qi '^\*\*[Ss]ummary\*\*'; then
+            missing="$missing  **Summary**\n"
+          fi
+          if ! echo "$BODY" | grep -qi '^\*\*[Cc]hanges\*\*'; then
+            missing="$missing  **Changes**\n"
+          fi
+          if ! echo "$BODY" | grep -qi '^\*\*[Tt]esting\*\*'; then
+            missing="$missing  **Testing**\n"
+          fi
+
+          if [ -n "$missing" ]; then
+            echo "✗ PR body is missing required section(s):"
+            printf '%b' "$missing"
+            echo ""
+            echo "  Expected format:"
+            echo ""
+            echo "    **Summary**"
+            echo "    <overview of the change>"
+            echo ""
+            echo "    **Changes**"
+            echo "    - <change 1>"
+            echo "    - <change 2>"
+            echo ""
+            echo "    **Testing**"
+            echo "    <how the change was verified>"
+            exit 1
+          fi
+
+          echo "✓ PR body is valid ($body_len chars, all sections present)."
+
+      - name: Validate single commit
+        run: |
+          base_ref="${{ github.event.pull_request.base.sha }}"
+          count=$(git rev-list --count --no-merges "$base_ref..HEAD")
+
+          if [ "$count" -ne 1 ]; then
+            echo "✗ PR has $count commits; exactly 1 is required."
+            echo ""
+            echo "  Squash merge produces a brand-new commit object, so a"
+            echo "  multi-commit PR gets flattened anyway — but the merge"
+            echo "  commit then has no ancestor relationship with any of"
+            echo "  your original commits. Keeping the branch at one commit"
+            echo "  makes the squash result predictable and reviewable."
+            echo ""
+            echo "  Squash your branch into one commit before pushing:"
+            echo "    git reset --soft \$(git merge-base HEAD $base_ref)"
+            echo "    git commit -m 'type(scope): description'"
+            echo "    git push --force-with-lease"
+            exit 1
+          fi
+
+          echo "✓ PR has exactly 1 commit."
+
+      - name: Validate commit messages
+        run: |
+          base_ref="${{ github.event.pull_request.base.sha }}"
+          checker="scripts/check_commit_msg.py"
+
+          bad=0
+          count=0
+          tmp="$(mktemp)"
+          while IFS= read -r sha; do
+            count=$((count + 1))
+            # Feed the full message so the checker sees the subject line.
+            git log --format=%B --no-merges "$sha" -1 > "$tmp"
+            if ! python3 "$checker" "$tmp"; then
+              echo "  ↳ commit ${sha:0:9}"
+              bad=$((bad + 1))
+            fi
+          done < <(git log --format=%H --no-merges "$base_ref..HEAD")
+          rm -f "$tmp"
+
+          if [ "$bad" -ne 0 ]; then
+            echo ""
+            echo "✗ $bad of $count commit message(s) failed the style check."
+            echo "  See CONTRIBUTING.md → Commit messages for the rules."
+            exit 1
+          fi
+
+          echo "✓ All $count commit messages pass the style check."
+
+      - name: Validate commit body line length
+        run: |
+          base_ref="${{ github.event.pull_request.base.sha }}"
+          max_len=72
+          bad=""
+
+          while IFS= read -r hash; do
+            while IFS=: read -r lineno line; do
+              stripped="${line# }"  # strip leading ' ' that git log indents
+              if [ "${#stripped}" -gt "$max_len" ]; then
+                bad="${bad}\\n  ${hash:0:7} L${lineno}: ${stripped:0:80}..."
+              fi
+            done < <(
+              git log --format=%B --no-merges "$hash" -1 \
+                | awk 'NR>1 && length>'"$max_len"' && !/^[-*]/ && !/^  / {print NR": "$0}'
+            )
+          done < <(git log --format=%H --no-merges "$base_ref..HEAD")
+
+          if [ -n "$bad" ]; then
+            echo "✗ Commit body lines exceed $max_len characters:"
+            echo -e "$bad"
+            echo ""
+            echo "  Prose lines should wrap at $max_len chars."
+            echo "  Run: git commit --amend  (the commit-msg hook rewraps automatically)"
+            exit 1
+          fi
+
+          echo "✓ All commit body lines are ≤ $max_len characters."
