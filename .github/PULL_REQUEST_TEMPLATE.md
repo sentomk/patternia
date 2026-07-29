@@ -1,18 +1,12 @@
-## Summary
+**Summary**
 
+<overview of the change>
 
-## Changes
+**Changes**
 
+- <change 1>
+- <change 2>
 
-## Tests
+**Testing**
 
-
-## Risk
-
-
-## Checklist
-
-- [ ] Tests added or updated when behavior changed
-- [ ] Documentation updated when public API or behavior changed
-- [ ] Commit messages follow `CONTRIBUTING.md`
-- [ ] PR targets `main` and passes required CI
+<how the change was verified>
