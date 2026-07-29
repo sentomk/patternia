@@ -68,13 +68,17 @@ jobs:
             std: 26
 
           # ===== Windows: clang-cl =====
-          - os: windows-latest
+          # Pinned to windows-2022: the windows-2025-vs2026 image bundles
+          # Clang 22, which cmake < 4.2 cannot configure ("no known features
+          # for CXX compiler Clang"). windows-2022 pairs VS2022 with a
+          # cmake that still understands its clang-cl.
+          - os: windows-2022
             compiler: clang-cl
             std: 20
-          - os: windows-latest
+          - os: windows-2022
             compiler: clang-cl
             std: 23
-          - os: windows-latest
+          - os: windows-2022
             compiler: clang-cl
             std: 26
 
@@ -102,14 +106,22 @@ jobs:
       - name: Configure CMake (Windows)
         if: runner.os == 'Windows'
         run: |
+          # windows-latest moved to windows-2025-vs2026, which ships only
+          # Visual Studio 2026 (generator "Visual Studio 18 2026"); the old
+          # VS 17 2022 instance no longer exists on the image.
+          $generator = if (& cmake --version | Select-String "4\.") {
+            "Visual Studio 18 2026"
+          } else {
+            "Visual Studio 17 2022"
+          }
           if ("${{ matrix.compiler }}" -eq "msvc") {
-            cmake -S . -B build -G "Visual Studio 17 2022" -A x64 `
+            cmake -S . -B build -G "$generator" -A x64 `
               -DCMAKE_CXX_STANDARD=${{ matrix.std }} `
               -DPTN_BUILD_TESTS=ON `
               -DPTN_BUILD_BENCHMARKS=OFF `
               -DPTN_SKIP_COMPILER_CHECK=ON
           } else {
-            cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -T ClangCL `
+            cmake -S . -B build -G "$generator" -A x64 -T ClangCL `
               -DCMAKE_CXX_STANDARD=${{ matrix.std }} `
               -DPTN_BUILD_TESTS=ON `
               -DPTN_BUILD_BENCHMARKS=OFF `
