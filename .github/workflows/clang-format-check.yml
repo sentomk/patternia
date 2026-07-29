@@ -1,0 +1,93 @@
+name: clang-format Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "**/*.h"
+      - "**/*.hpp"
+      - "**/*.hh"
+      - "**/*.hxx"
+      - "**/*.c"
+      - "**/*.cc"
+      - "**/*.cpp"
+      - "**/*.cxx"
+      - "**/*.ipp"
+      - ".clang-format"
+  push:
+    branches: [main]
+    paths:
+      - "**/*.h"
+      - "**/*.hpp"
+      - "**/*.hh"
+      - "**/*.hxx"
+      - "**/*.c"
+      - "**/*.cc"
+      - "**/*.cpp"
+      - "**/*.cxx"
+      - "**/*.ipp"
+      - ".clang-format"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format
+          clang-format --version
+
+      - name: Check formatting of changed C/C++ files
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base_sha="${{ github.event.pull_request.base.sha }}"
+            head_sha="${{ github.event.pull_request.head.sha }}"
+          else
+            base_sha="${{ github.event.before }}"
+            head_sha="${{ github.sha }}"
+            # A brand-new branch push reports an all-zero before sha.
+            if [ "$base_sha" = "0000000000000000000000000000000000000000" ]; then
+              base_sha="$(git rev-list --max-parents=0 "$head_sha" | tail -1)"
+            fi
+          fi
+
+          mapfile -t files < <(
+            git diff --name-only --diff-filter=ACMR "$base_sha" "$head_sha" -- \
+              '*.h' '*.hpp' '*.hh' '*.hxx' '*.c' '*.cc' '*.cpp' '*.cxx' '*.ipp'
+          )
+
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No changed C/C++ files to check."
+            exit 0
+          fi
+
+          clang-format -i -style=file "${files[@]}"
+
+          if git diff --quiet; then
+            echo "✓ All changed files are clang-format clean."
+            exit 0
+          fi
+
+          echo "✗ The following files are not clang-format clean:"
+          git diff --name-only
+          echo ""
+          echo "Run clang-format locally (the pre-commit hook in .githooks/"
+          echo "does this automatically), then amend and force-push:"
+          echo "  clang-format -i -style=file <files>"
+          echo "  git commit --amend --no-edit"
+          echo "  git push --force-with-lease"
+          exit 1
