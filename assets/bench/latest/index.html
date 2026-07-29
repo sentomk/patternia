@@ -1327,8 +1327,8 @@
 <li>Source: <code>bench_results/ptn_bench.json</code></li>
 <li>Scenarios: <code>4</code></li>
 <li>Patternia fastest: <code>2/4</code></li>
-<li>Average Patternia gap vs fastest: <code>+2.84%</code></li>
-<li>Largest Patternia gap: <code>PacketMixed</code> <code>+11.07%</code> vs <code>Switch</code></li>
+<li>Average Patternia gap vs fastest: <code>+8.26%</code></li>
+<li>Largest Patternia gap: <code>PacketMixed</code> <code>+20.56%</code> vs <code>Switch</code></li>
 </ul>
 <h2 id="patternia-focus">Patternia Focus<a class="headerlink" href="#patternia-focus" title="Permanent link">&para;</a></h2>
 <table>
@@ -1350,44 +1350,44 @@
 <td>PacketMixed</td>
 <td style="text-align: right;">PatterniaPipe</td>
 <td style="text-align: right;">2/2</td>
-<td style="text-align: right;">1.604</td>
+<td style="text-align: right;">1.817</td>
 <td style="text-align: right;">Switch</td>
-<td style="text-align: right;">1.445</td>
-<td style="text-align: right;">+11.07%</td>
-<td style="text-align: right;">0.16</td>
-<td style="text-align: right;">watch</td>
-</tr>
-<tr>
-<td>VariantMixed</td>
-<td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">2/2</td>
-<td style="text-align: right;">1.997</td>
-<td style="text-align: right;">StdVisit</td>
-<td style="text-align: right;">1.991</td>
-<td style="text-align: right;">+0.31%</td>
-<td style="text-align: right;">0.29</td>
-<td style="text-align: right;">close</td>
+<td style="text-align: right;">1.507</td>
+<td style="text-align: right;">+20.56%</td>
+<td style="text-align: right;">0.12</td>
+<td style="text-align: right;">slow</td>
 </tr>
 <tr>
 <td>CommandParser</td>
 <td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">1/2</td>
-<td style="text-align: right;">1.772</td>
-<td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">1.772</td>
-<td style="text-align: right;">+0.00%</td>
-<td style="text-align: right;">0.17</td>
-<td style="text-align: right;">fastest</td>
+<td style="text-align: right;">2/2</td>
+<td style="text-align: right;">2.025</td>
+<td style="text-align: right;">Switch</td>
+<td style="text-align: right;">1.800</td>
+<td style="text-align: right;">+12.49%</td>
+<td style="text-align: right;">1.82</td>
+<td style="text-align: right;">watch</td>
 </tr>
 <tr>
 <td>ProtocolRouter</td>
 <td style="text-align: right;">PatterniaPipe</td>
 <td style="text-align: right;">1/2</td>
-<td style="text-align: right;">1.618</td>
+<td style="text-align: right;">1.694</td>
 <td style="text-align: right;">PatterniaPipe</td>
-<td style="text-align: right;">1.618</td>
+<td style="text-align: right;">1.694</td>
 <td style="text-align: right;">+0.00%</td>
-<td style="text-align: right;">0.38</td>
+<td style="text-align: right;">0.49</td>
+<td style="text-align: right;">fastest</td>
+</tr>
+<tr>
+<td>VariantMixed</td>
+<td style="text-align: right;">PatterniaPipe</td>
+<td style="text-align: right;">1/2</td>
+<td style="text-align: right;">2.126</td>
+<td style="text-align: right;">PatterniaPipe</td>
+<td style="text-align: right;">2.126</td>
+<td style="text-align: right;">+0.00%</td>
+<td style="text-align: right;">0.07</td>
 <td style="text-align: right;">fastest</td>
 </tr>
 </tbody>
@@ -1408,45 +1408,17 @@
 <tbody>
 <tr>
 <td>Switch</td>
-<td style="text-align: right;">1.445</td>
+<td style="text-align: right;">1.507</td>
 <td style="text-align: right;">fastest</td>
-<td style="text-align: right;">-9.97%</td>
-<td style="text-align: right;">1.37</td>
+<td style="text-align: right;">-17.05%</td>
+<td style="text-align: right;">4.24</td>
 </tr>
 <tr>
 <td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">1.604</td>
-<td style="text-align: right;">+11.07%</td>
+<td style="text-align: right;">1.817</td>
+<td style="text-align: right;">+20.56%</td>
 <td style="text-align: right;">-</td>
-<td style="text-align: right;">0.16</td>
-</tr>
-</tbody>
-</table>
-<h3 id="variantmixed">VariantMixed<a class="headerlink" href="#variantmixed" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Impl</th>
-<th style="text-align: right;">Mean (ns)</th>
-<th style="text-align: right;">vs fastest</th>
-<th style="text-align: right;">vs Patternia</th>
-<th style="text-align: right;">CV %</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>StdVisit</td>
-<td style="text-align: right;">1.991</td>
-<td style="text-align: right;">fastest</td>
-<td style="text-align: right;">-0.31%</td>
-<td style="text-align: right;">0.08</td>
-</tr>
-<tr>
-<td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">1.997</td>
-<td style="text-align: right;">+0.31%</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">0.29</td>
+<td style="text-align: right;">0.12</td>
 </tr>
 </tbody>
 </table>
@@ -1463,18 +1435,18 @@
 </thead>
 <tbody>
 <tr>
-<td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">1.772</td>
+<td>Switch</td>
+<td style="text-align: right;">1.800</td>
 <td style="text-align: right;">fastest</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">0.17</td>
+<td style="text-align: right;">-11.10%</td>
+<td style="text-align: right;">0.62</td>
 </tr>
 <tr>
-<td>Switch</td>
-<td style="text-align: right;">2.247</td>
-<td style="text-align: right;">+26.79%</td>
-<td style="text-align: right;">+26.79%</td>
-<td style="text-align: right;">0.20</td>
+<td><strong>PatterniaPipe</strong></td>
+<td style="text-align: right;">2.025</td>
+<td style="text-align: right;">+12.49%</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">1.82</td>
 </tr>
 </tbody>
 </table>
@@ -1492,17 +1464,45 @@
 <tbody>
 <tr>
 <td><strong>PatterniaPipe</strong></td>
-<td style="text-align: right;">1.618</td>
+<td style="text-align: right;">1.694</td>
 <td style="text-align: right;">fastest</td>
 <td style="text-align: right;">-</td>
-<td style="text-align: right;">0.38</td>
+<td style="text-align: right;">0.49</td>
 </tr>
 <tr>
 <td>IfElse</td>
-<td style="text-align: right;">1.865</td>
-<td style="text-align: right;">+15.30%</td>
-<td style="text-align: right;">+15.30%</td>
-<td style="text-align: right;">0.24</td>
+<td style="text-align: right;">2.166</td>
+<td style="text-align: right;">+27.83%</td>
+<td style="text-align: right;">+27.83%</td>
+<td style="text-align: right;">1.86</td>
+</tr>
+</tbody>
+</table>
+<h3 id="variantmixed">VariantMixed<a class="headerlink" href="#variantmixed" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Impl</th>
+<th style="text-align: right;">Mean (ns)</th>
+<th style="text-align: right;">vs fastest</th>
+<th style="text-align: right;">vs Patternia</th>
+<th style="text-align: right;">CV %</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PatterniaPipe</strong></td>
+<td style="text-align: right;">2.126</td>
+<td style="text-align: right;">fastest</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">0.07</td>
+</tr>
+<tr>
+<td>StdVisit</td>
+<td style="text-align: right;">2.890</td>
+<td style="text-align: right;">+35.93%</td>
+<td style="text-align: right;">+35.93%</td>
+<td style="text-align: right;">16.31</td>
 </tr>
 </tbody>
 </table>
