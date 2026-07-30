@@ -56,14 +56,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install lcov
-        run: sudo apt-get install -y lcov
+      - name: Install LLVM tools
+        run: |
+          wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo add-apt-repository -y 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main'
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq llvm-18 clang-18
 
-      - name: Configure
+      - name: Configure (Clang + source-based coverage)
         run: |
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Debug \
-            -DCMAKE_CXX_FLAGS="--coverage" \
+            -DCMAKE_C_COMPILER=clang-18 \
+            -DCMAKE_CXX_COMPILER=clang++-18 \
+            -DCMAKE_CXX_FLAGS="-fprofile-instr-generate -fcoverage-mapping -O0" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fprofile-instr-generate" \
             -DPTN_BUILD_TESTS=ON \
             -DPTN_BUILD_BENCHMARKS=OFF \
             -DPTN_SKIP_COMPILER_CHECK=ON
@@ -76,9 +83,27 @@ jobs:
 
       - name: Capture coverage
         run: |
-          lcov --capture --directory build --output-file coverage.info --ignore-errors mismatch
-          lcov --remove coverage.info '/usr/*' '*/_deps/*' '*/tests/*' --output-file coverage.info
-          lcov --list coverage.info
+          # Merge raw profiles from all test runs.
+          find build -name '*.profraw' > profraw_list.txt
+          llvm-profdata-18 merge \
+            -input-files profraw_list.txt \
+            -output coverage.profdata \
+            -sparse
+
+          # Export lcov-format text for Codecov.
+          llvm-cov-18 export \
+            -format=lcov \
+            -instr-profile=coverage.profdata \
+            -ignore-filename-regex='(_deps|/usr/|tests/)' \
+            build/tests/ptn_tests \
+            > coverage.info
+
+          # Summary for the CI log.
+          llvm-cov-18 report \
+            -instr-profile=coverage.profdata \
+            -use-color \
+            -ignore-filename-regex='(_deps|/usr/|tests/)' \
+            build/tests/ptn_tests
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@v5
@@ -113,7 +138,7 @@ jobs:
         run: |
           mkdir -p bench_results
           build/bench/ptn_bench \
-            --benchmark_filter="(PatterniaPipe|StdVisit)_VariantMixed/|(PatterniaPipe|IfElse)_ProtocolRouter/|(PatterniaPipe|Switch)_CommandParser/|(PatterniaPipe|Switch)_PacketMixed/" \
+            --benchmark_filter="VariantMixed$|VariantAltHot$|VariantMixedGuarded$|VariantAltHotGuarded$|ProtocolRouter$|CommandParser$|PacketMixed$|PacketMixedHeavyBind$|LiteralMatch$|LiteralMatchRDense$" \
             --benchmark_format=json \
             > bench_results/ptn_bench.json
 
@@ -135,7 +160,7 @@ jobs:
         run: |
           python scripts/bench_single_report.py \
             --input bench_results/ptn_bench.json \
-            --include "(PatterniaPipe|StdVisit)_VariantMixed/|(PatterniaPipe|IfElse)_ProtocolRouter/|(PatterniaPipe|Switch)_CommandParser/|(PatterniaPipe|Switch)_PacketMixed/" \
+            --include "VariantMixed$|VariantAltHot$|VariantMixedGuarded$|VariantAltHotGuarded$|ProtocolRouter$|CommandParser$|PacketMixed$|PacketMixedHeavyBind$|LiteralMatch$|LiteralMatchRDense$" \
             --outdir docs/assets/bench \
             --prefix latest \
             --title "Patternia vs Standard C++"
