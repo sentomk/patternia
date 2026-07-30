@@ -170,4 +170,82 @@ namespace ptn {
 #define PTN_LET(name, ...) PTN_WHERE((name), __VA_ARGS__)
 #endif
 
+// PTN_BIND(Type, member0, member1, ...)
+//
+// Declares named placeholder objects for use in guard expressions.
+// Each name is an inline constexpr arg_t<N> where N is the
+// zero-based position of the member in the argument list. These
+// placeholders integrate directly with the existing
+// expression-template machinery (operators, eval, max_arg_index) and
+// replace positional placeholders
+// (_0, arg<1>, etc.) with readable identifiers.
+//
+// Example:
+//   struct Point { int x; int y; };
+//   PTN_BIND(Point, x, y);
+//
+//   match(p) | PTN_ON(
+//       $(has<&Point::x, &Point::y>)[x*x + y*y == 25]
+//           >> [](auto& p) { return dist(p); }
+//   );
+//
+// NOTE: The Type argument is currently unused by the generated code.
+// It serves as documentation: the names are expected to correspond
+// to the members of Type, listed in the same order as in has<...>.
+// A future reflection-based variant may validate this at compile
+// time.
+//
+// Supports 1 to 5 member names.
+#define PTN_BIND_1(Type, m0)                                        \
+  inline constexpr ::ptn::pat::mod::arg_t<0> m0 {                   \
+  }
+
+#define PTN_BIND_2(Type, m0, m1)                                    \
+  inline constexpr ::ptn::pat::mod::arg_t<0> m0{};                  \
+  inline constexpr ::ptn::pat::mod::arg_t<1> m1 {                   \
+  }
+
+#define PTN_BIND_3(Type, m0, m1, m2)                                \
+  inline constexpr ::ptn::pat::mod::arg_t<0> m0{};                  \
+  inline constexpr ::ptn::pat::mod::arg_t<1> m1{};                  \
+  inline constexpr ::ptn::pat::mod::arg_t<2> m2 {                   \
+  }
+
+#define PTN_BIND_4(Type, m0, m1, m2, m3)                            \
+  inline constexpr ::ptn::pat::mod::arg_t<0> m0{};                  \
+  inline constexpr ::ptn::pat::mod::arg_t<1> m1{};                  \
+  inline constexpr ::ptn::pat::mod::arg_t<2> m2{};                  \
+  inline constexpr ::ptn::pat::mod::arg_t<3> m3 {                   \
+  }
+
+#define PTN_BIND_5(Type, m0, m1, m2, m3, m4)                        \
+  inline constexpr ::ptn::pat::mod::arg_t<0> m0{};                  \
+  inline constexpr ::ptn::pat::mod::arg_t<1> m1{};                  \
+  inline constexpr ::ptn::pat::mod::arg_t<2> m2{};                  \
+  inline constexpr ::ptn::pat::mod::arg_t<3> m3{};                  \
+  inline constexpr ::ptn::pat::mod::arg_t<4> m4 {                   \
+  }
+
+#define PTN_BIND_PICK(_1, _2, _3, _4, _5, NAME, ...) NAME
+
+// Extra indirection layers for MSVC traditional preprocessor
+// compatibility. Without these, MSVC treats __VA_ARGS__ as a single
+// token when forwarding between macros, breaking the count dispatch
+// and the final macro invocation.
+#define PTN_BIND_EXPAND(...) __VA_ARGS__
+#define PTN_BIND_DISPATCH(Macro, Type, ...)                         \
+  PTN_BIND_EXPAND(Macro(Type, __VA_ARGS__))
+
+#ifndef PTN_BIND
+#define PTN_BIND(Type, ...)                                         \
+  PTN_BIND_DISPATCH(PTN_BIND_EXPAND(PTN_BIND_PICK(__VA_ARGS__,      \
+                                                  PTN_BIND_5,       \
+                                                  PTN_BIND_4,       \
+                                                  PTN_BIND_3,       \
+                                                  PTN_BIND_2,       \
+                                                  PTN_BIND_1)),     \
+                    Type,                                           \
+                    __VA_ARGS__)
+#endif
+
 // IWYU pragma: end_exports

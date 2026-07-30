@@ -25,6 +25,7 @@ add_executable(ptn_tests
   tests_public_api.cpp
   tests_terminal_semantics.cpp
   tests_type_pattern.cpp
+  tests_named_placeholder.cpp
 )
 
 target_link_libraries(ptn_tests PRIVATE
