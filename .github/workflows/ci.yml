@@ -139,8 +139,8 @@ jobs:
           mkdir -p bench_results
           build/bench/ptn_bench \
             --benchmark_filter="VariantMixed$|VariantAltHot$|VariantMixedGuarded$|VariantAltHotGuarded$|ProtocolRouter$|CommandParser$|PacketMixed$|PacketMixedHeavyBind$|LiteralMatch$|LiteralMatchRDense$" \
-            --benchmark_format=json \
-            > bench_results/ptn_bench.json
+            --benchmark_out=bench_results/ptn_bench.json \
+            --benchmark_out_format=json
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4
