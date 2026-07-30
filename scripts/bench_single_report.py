@@ -475,11 +475,15 @@ def _plot(
         max_ratio = max(max_ratio, *(p.mean_ns / fastest for p in nested[scenario].values()))
 
     x_max = max(1.35, max_ratio * 1.14)
-    fig_h = max(6.0, len(scenarios) * 0.68 + 2.7)
+    n = len(scenarios)
+    fig_h = max(6.0, n * 0.72 + 3.2)
     fig, ax = plt.subplots(figsize=(14.2, fig_h), dpi=220)
     fig.patch.set_facecolor("#f4f1ea")
     ax.set_facecolor("#fffdf8")
-    ax.set_position([0.14, 0.26, 0.80, 0.46])
+    # Dynamically size the axes area to the figure height.
+    ax_bottom = 0.26
+    ax_height = min(0.64, max(0.40, n * 0.052))
+    ax.set_position([0.14, ax_bottom, 0.80, ax_height])
 
     # Reading bands turn relative performance into a quick visual filter.
     ax.axvspan(1.0, min(1.05, x_max), color="#dcfce7", alpha=0.75, zorder=0)
@@ -581,8 +585,9 @@ def _plot(
         )
 
     labels = [_label(s) for s in scenarios]
+    label_size = 11.5 if len(scenarios) <= 6 else 10.0
     ax.set_yticks(list(range(len(scenarios))))
-    ax.set_yticklabels(labels, fontsize=11.5, color="#0f172a")
+    ax.set_yticklabels(labels, fontsize=label_size, color="#0f172a")
     ax.invert_yaxis()
     ax.set_ylim(len(scenarios) - 0.25, -0.55)
     ax.set_xlim(0.97, x_max)

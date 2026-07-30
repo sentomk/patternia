@@ -3,30 +3,8 @@ name: clang-format Check
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "**/*.h"
-      - "**/*.hpp"
-      - "**/*.hh"
-      - "**/*.hxx"
-      - "**/*.c"
-      - "**/*.cc"
-      - "**/*.cpp"
-      - "**/*.cxx"
-      - "**/*.ipp"
-      - ".clang-format"
   push:
     branches: [main]
-    paths:
-      - "**/*.h"
-      - "**/*.hpp"
-      - "**/*.hh"
-      - "**/*.hxx"
-      - "**/*.c"
-      - "**/*.cc"
-      - "**/*.cpp"
-      - "**/*.cxx"
-      - "**/*.ipp"
-      - ".clang-format"
 
 permissions:
   contents: read
