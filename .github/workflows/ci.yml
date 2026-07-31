@@ -132,14 +132,18 @@ jobs:
             -DPTN_SKIP_COMPILER_CHECK=ON
 
       - name: Build
-        run: cmake --build build --target ptn_bench --parallel
+        run: cmake --build build --target ptn_bench ptn_bench_scale --parallel
 
       - name: Run benchmarks
         run: |
           mkdir -p bench_results
           build/bench/ptn_bench \
-            --benchmark_filter="VariantMixed$|VariantAltHot$|VariantMixedGuarded$|VariantAltHotGuarded$|ProtocolRouter$|CommandParser$|PacketMixed$|PacketMixedHeavyBind$|LiteralMatch$|LiteralMatchRDense$" \
+            --benchmark_filter="VariantMixed|VariantAltHot|VariantMixedGuarded|VariantAltHotGuarded|ProtocolRouter|CommandParser|PacketMixed|PacketMixedHeavyBind" \
             --benchmark_out=bench_results/ptn_bench.json \
+            --benchmark_out_format=json
+          build/bench/ptn_bench_scale \
+            --benchmark_filter="ScaleN" \
+            --benchmark_out=bench_results/ptn_bench_scale.json \
             --benchmark_out_format=json
 
       - name: Upload benchmark results
@@ -160,10 +164,16 @@ jobs:
         run: |
           python scripts/bench_single_report.py \
             --input bench_results/ptn_bench.json \
-            --include "VariantMixed$|VariantAltHot$|VariantMixedGuarded$|VariantAltHotGuarded$|ProtocolRouter$|CommandParser$|PacketMixed$|PacketMixedHeavyBind$|LiteralMatch$|LiteralMatchRDense$" \
+            --include "VariantMixed|VariantAltHot|VariantMixedGuarded|VariantAltHotGuarded|ProtocolRouter|CommandParser|PacketMixed|PacketMixedHeavyBind" \
             --outdir docs/assets/bench \
             --prefix latest \
             --title "Patternia vs Standard C++"
+          python scripts/bench_single_report.py \
+            --input bench_results/ptn_bench_scale.json \
+            --include "ScaleN" \
+            --outdir docs/assets/bench \
+            --prefix scale \
+            --title "Variant Dispatch Scalability (4-32 alternatives)"
 
       - name: Commit and push chart update
         run: |
