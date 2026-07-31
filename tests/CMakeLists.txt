@@ -45,6 +45,11 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/direct_match_removed.cpp
   compile_fail/bind_function_removed.cpp
   compile_fail/guard_placeholder_alias_removed.cpp
+  compile_fail/zero_placeholder_removed.cpp
+  compile_fail/indexed_placeholder_removed.cpp
+  compile_fail/ptn_let_removed.cpp
+  compile_fail/ptn_where_removed.cpp
+  compile_fail/double_wildcard_alias_removed.cpp
   compile_fail/has_factory_removed.cpp
   compile_fail/lit_v_factory_removed.cpp
   compile_fail/lit_factory_removed.cpp

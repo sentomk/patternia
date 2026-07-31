@@ -49,13 +49,10 @@ namespace ptn {
   using ptn::pat::$;
 
   using ptn::pat::_;
-  using ptn::pat::__;
 
   // Guard utilities.
-  using ptn::pat::mod::_0;
   using ptn::pat::mod::operator&&;
   using ptn::pat::mod::operator||;
-  using ptn::pat::mod::arg;
   using ptn::pat::mod::rng;
 
   // Structural matching utilities.
@@ -90,95 +87,13 @@ namespace ptn {
   }())
 #endif
 
-#define PTN_DETAIL_WHERE_CAT_IMPL(a, b) a##b
-#define PTN_DETAIL_WHERE_CAT(a, b)      PTN_DETAIL_WHERE_CAT_IMPL(a, b)
-// Extra indirection so MSVC's traditional preprocessor splits
-// __VA_ARGS__ into separate arguments before forwarding.
-#define PTN_DETAIL_WHERE_EXPAND(...) __VA_ARGS__
-// Counts the number of names supplied in PTN_WHERE((a, b, ...),
-// expr).
-#define PTN_DETAIL_WHERE_COUNT_IMPL(a1, a2, a3, a4, a5, n, ...) n
-#define PTN_DETAIL_WHERE_COUNT(...)                                 \
-  PTN_DETAIL_WHERE_EXPAND(                                          \
-      PTN_DETAIL_WHERE_COUNT_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1))
-#define PTN_DETAIL_WHERE_COUNT_TUPLE(args)                          \
-  PTN_DETAIL_WHERE_COUNT args
-// Picks the Nth identifier from the `(a, b, ...)` parameter list.
-#define PTN_DETAIL_WHERE_NAME_1(a, ...)             a
-#define PTN_DETAIL_WHERE_NAME_2(a, b, ...)          b
-#define PTN_DETAIL_WHERE_NAME_3(a, b, c, ...)       c
-#define PTN_DETAIL_WHERE_NAME_4(a, b, c, d, ...)    d
-#define PTN_DETAIL_WHERE_NAME_5(a, b, c, d, e, ...) e
-#define PTN_DETAIL_WHERE_SELECT(n)                                  \
-  PTN_DETAIL_WHERE_CAT(PTN_DETAIL_WHERE_, n)
-#define PTN_DETAIL_WHERE_INVOKE(n, args, ...)                       \
-  PTN_DETAIL_WHERE_EXPAND(                                          \
-      PTN_DETAIL_WHERE_SELECT(n)(args, __VA_ARGS__))
-
-// Expands a named guard expression into a stateless predicate
-// object. The tuple of bound values is mapped to lambda parameters
-// by position. This macro currently supports 1 to 5 names.
-#define PTN_DETAIL_WHERE_1(args, ...)                               \
-  (::ptn::pat::mod::make_callable_guard(                            \
-      [](auto &&PTN_DETAIL_WHERE_NAME_1 args) -> bool {             \
-        return static_cast<bool>(__VA_ARGS__);                      \
-      }))
-
-#define PTN_DETAIL_WHERE_2(args, ...)                               \
-  (::ptn::pat::mod::make_callable_guard(                            \
-      [](auto &&PTN_DETAIL_WHERE_NAME_1 args,                       \
-         auto &&PTN_DETAIL_WHERE_NAME_2 args) -> bool {             \
-        return static_cast<bool>(__VA_ARGS__);                      \
-      }))
-
-#define PTN_DETAIL_WHERE_3(args, ...)                               \
-  (::ptn::pat::mod::make_callable_guard(                            \
-      [](auto &&PTN_DETAIL_WHERE_NAME_1 args,                       \
-         auto &&PTN_DETAIL_WHERE_NAME_2 args,                       \
-         auto &&PTN_DETAIL_WHERE_NAME_3 args) -> bool {             \
-        return static_cast<bool>(__VA_ARGS__);                      \
-      }))
-
-#define PTN_DETAIL_WHERE_4(args, ...)                               \
-  (::ptn::pat::mod::make_callable_guard(                            \
-      [](auto &&PTN_DETAIL_WHERE_NAME_1 args,                       \
-         auto &&PTN_DETAIL_WHERE_NAME_2 args,                       \
-         auto &&PTN_DETAIL_WHERE_NAME_3 args,                       \
-         auto &&PTN_DETAIL_WHERE_NAME_4 args) -> bool {             \
-        return static_cast<bool>(__VA_ARGS__);                      \
-      }))
-
-#define PTN_DETAIL_WHERE_5(args, ...)                               \
-  (::ptn::pat::mod::make_callable_guard(                            \
-      [](auto &&PTN_DETAIL_WHERE_NAME_1 args,                       \
-         auto &&PTN_DETAIL_WHERE_NAME_2 args,                       \
-         auto &&PTN_DETAIL_WHERE_NAME_3 args,                       \
-         auto &&PTN_DETAIL_WHERE_NAME_4 args,                       \
-         auto &&PTN_DETAIL_WHERE_NAME_5 args) -> bool {             \
-        return static_cast<bool>(__VA_ARGS__);                      \
-      }))
-
-#ifndef PTN_WHERE
-// Creates a named guard predicate from 1 to 5 parameter names.
-#define PTN_WHERE(args, ...)                                        \
-  PTN_DETAIL_WHERE_INVOKE(                                          \
-      PTN_DETAIL_WHERE_COUNT_TUPLE(args), args, __VA_ARGS__)
-#endif
-
-#ifndef PTN_LET
-// Single-value shorthand for PTN_WHERE((name), expr).
-#define PTN_LET(name, ...) PTN_WHERE((name), __VA_ARGS__)
-#endif
-
 // PTN_BIND(Type, member0, member1, ...)
 //
 // Declares named placeholder objects for use in guard expressions.
-// Each name is an inline constexpr arg_t<N> where N is the
-// zero-based position of the member in the argument list. These
-// placeholders integrate directly with the existing
-// expression-template machinery (operators, eval, max_arg_index) and
-// replace positional placeholders
-// (_0, arg<1>, etc.) with readable identifiers.
+// Each name is a constexpr arg_t<N> where N is the zero-based
+// position of the member in the argument list. Declarations are
+// valid at namespace or block scope, so names can stay close to a
+// match.
 //
 // Example:
 //   struct Point { int x; int y; };
@@ -197,33 +112,33 @@ namespace ptn {
 //
 // Supports 1 to 5 member names.
 #define PTN_BIND_1(Type, m0)                                        \
-  inline constexpr ::ptn::pat::mod::arg_t<0> m0 {                   \
+  constexpr ::ptn::pat::mod::arg_t<0> m0 {                          \
   }
 
 #define PTN_BIND_2(Type, m0, m1)                                    \
-  inline constexpr ::ptn::pat::mod::arg_t<0> m0{};                  \
-  inline constexpr ::ptn::pat::mod::arg_t<1> m1 {                   \
+  constexpr ::ptn::pat::mod::arg_t<0> m0{};                         \
+  constexpr ::ptn::pat::mod::arg_t<1> m1 {                          \
   }
 
 #define PTN_BIND_3(Type, m0, m1, m2)                                \
-  inline constexpr ::ptn::pat::mod::arg_t<0> m0{};                  \
-  inline constexpr ::ptn::pat::mod::arg_t<1> m1{};                  \
-  inline constexpr ::ptn::pat::mod::arg_t<2> m2 {                   \
+  constexpr ::ptn::pat::mod::arg_t<0> m0{};                         \
+  constexpr ::ptn::pat::mod::arg_t<1> m1{};                         \
+  constexpr ::ptn::pat::mod::arg_t<2> m2 {                          \
   }
 
 #define PTN_BIND_4(Type, m0, m1, m2, m3)                            \
-  inline constexpr ::ptn::pat::mod::arg_t<0> m0{};                  \
-  inline constexpr ::ptn::pat::mod::arg_t<1> m1{};                  \
-  inline constexpr ::ptn::pat::mod::arg_t<2> m2{};                  \
-  inline constexpr ::ptn::pat::mod::arg_t<3> m3 {                   \
+  constexpr ::ptn::pat::mod::arg_t<0> m0{};                         \
+  constexpr ::ptn::pat::mod::arg_t<1> m1{};                         \
+  constexpr ::ptn::pat::mod::arg_t<2> m2{};                         \
+  constexpr ::ptn::pat::mod::arg_t<3> m3 {                          \
   }
 
 #define PTN_BIND_5(Type, m0, m1, m2, m3, m4)                        \
-  inline constexpr ::ptn::pat::mod::arg_t<0> m0{};                  \
-  inline constexpr ::ptn::pat::mod::arg_t<1> m1{};                  \
-  inline constexpr ::ptn::pat::mod::arg_t<2> m2{};                  \
-  inline constexpr ::ptn::pat::mod::arg_t<3> m3{};                  \
-  inline constexpr ::ptn::pat::mod::arg_t<4> m4 {                   \
+  constexpr ::ptn::pat::mod::arg_t<0> m0{};                         \
+  constexpr ::ptn::pat::mod::arg_t<1> m1{};                         \
+  constexpr ::ptn::pat::mod::arg_t<2> m2{};                         \
+  constexpr ::ptn::pat::mod::arg_t<3> m3{};                         \
+  constexpr ::ptn::pat::mod::arg_t<4> m4 {                          \
   }
 
 #define PTN_BIND_PICK(_1, _2, _3, _4, _5, NAME, ...) NAME

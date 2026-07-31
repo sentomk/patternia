@@ -38,7 +38,7 @@ constexpr int ct_lit_32(int v) noexcept {
               ptn::lit(29) >> 29,
               ptn::lit(30) >> 30,
               ptn::lit(31) >> 31,
-              __ >> 0);
+              _ >> 0);
 }
 
 static_assert(ct_lit_32(0) == 0, "");

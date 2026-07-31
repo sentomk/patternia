@@ -32,26 +32,28 @@ void reject_packet() {
 
 // Protocol parser.
 void parse_packet(const Packet &pkt) {
+  PTN_BIND(Packet, type, length);
 
   // Predicate for valid data payload packets.
-  auto is_valid_payload = [&pkt](const std::vector<std::uint8_t> &payload) {
-    return pkt.type == 0x02 && pkt.length == payload.size() &&
-           (pkt.flags & FLAG_VALID);
-  };
+  auto is_valid_payload =
+      [&pkt](const std::vector<std::uint8_t> &payload) {
+        return pkt.type == 0x02 && pkt.length == payload.size()
+               && (pkt.flags & FLAG_VALID);
+      };
 
   // Predicate for error packets carrying payload bytes.
-  auto is_error_packet = [](std::uint8_t                     type,
-                            const std::vector<std::uint8_t> &payload) {
-    return type == 0xFF && !payload.empty();
-  };
+  auto is_error_packet =
+      [](std::uint8_t                     type,
+         const std::vector<std::uint8_t> &payload) {
+        return type == 0xFF && !payload.empty();
+      };
 
   match(pkt)
       | on(
           // Handles ping packets.
-          $(
-              has<&Packet::type,
-                  &Packet::length>)[arg<0> == 0x01 && arg<1> == 0] >>
-              [](auto &&...) { handle_ping(); },
+          $(has<&Packet::type, &Packet::length>)[type == 0x01
+                                                 && length == 0]
+              >> [](auto &&...) { handle_ping(); },
 
           // Handles data packets.
           $(has<&Packet::payload>)[is_valid_payload] >>
@@ -61,12 +63,13 @@ void parse_packet(const Packet &pkt) {
 
           // Handles error packets.
           $(has<&Packet::type, &Packet::payload>)[is_error_packet] >>
-              [](std::uint8_t, const std::vector<std::uint8_t> &payload) {
+              [](std::uint8_t,
+                 const std::vector<std::uint8_t> &payload) {
                 handle_error(payload[0]);
               },
 
           // Handles unmatched packets.
-          __ >> [] { reject_packet(); });
+          _ >> [] { reject_packet(); });
 }
 
 int main() {

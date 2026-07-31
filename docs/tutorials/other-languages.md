@@ -48,7 +48,7 @@ Patternia guards refine a bound case:
 
 ```cpp
 auto label = match(x) | on(
-  $[PTN_LET(value, value > 0 && value < 10)] >> "small",
+  $[_ > 0 && _ < 10] >> "small",
   _ >> "other"
 );
 ```
@@ -58,8 +58,10 @@ auto label = match(x) | on(
 Without native language destructuring, Patternia uses explicit member pointers:
 
 ```cpp
+PTN_BIND(User, age, active);
+
 auto label = match(user) | on(
-  $(has<&User::age, &User::active>)[arg<0> < 18 && arg<1> == true]
+  $(has<&User::age, &User::active>)[age < 18 && active == true]
       >> "minor",
   _ >> "adult"
 );

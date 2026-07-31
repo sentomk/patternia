@@ -1,6 +1,7 @@
 #pragma once
 
-// Public API and implementation for binding patterns (`$` and `$()`).
+// Public API and implementation for binding patterns (`$` and
+// `$()`).
 //
 // This file provides factory functions to create patterns that
 // capture and bind subject values for later use in pattern matching.
@@ -144,7 +145,7 @@ namespace ptn::pat {
       }
 
       // Extract member fields for all member-ptr Ms...; ignore
-      // wildcard (__).
+      // wildcard (_).
       template <auto M, typename Subject>
       static constexpr auto bind_one(const Subject &subject) {
         if constexpr (std::is_member_object_pointer_v<decltype(M)>) {
@@ -177,7 +178,7 @@ namespace ptn::pat {
   //
   // This allows $ to work in multiple ways:
   //   $ >> handler                    // direct binding
-  //   $[_0 > 0] >> handler            // binding with guard
+  //   $[_ > 0] >> handler             // binding with guard
   //   $(has<&T::x>) >> handler      // binding with subpattern
   //   $(is<T>()) >> handler           // binding variant type
   struct bind_factory : base::pattern_base<bind_factory>,
@@ -219,7 +220,7 @@ namespace ptn::pat {
   //
   // Usage:
   //   $ >> handler                    // bind whole subject
-  //   $[_0 > 0] >> handler            // bind with guard
+  //   $[_ > 0] >> handler             // bind with guard
   //   $(has<&T::x, &T::y>) >> handler  // bind structural members
   //   $(is<T>()) >> handler           // bind variant alternative
   inline constexpr bind_factory $;

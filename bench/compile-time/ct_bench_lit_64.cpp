@@ -70,7 +70,7 @@ constexpr int ct_lit_64(int v) noexcept {
               ptn::lit(61) >> 61,
               ptn::lit(62) >> 62,
               ptn::lit(63) >> 63,
-              __ >> 0);
+              _ >> 0);
 }
 
 static_assert(ct_lit_64(0) == 0, "");

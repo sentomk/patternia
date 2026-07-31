@@ -14,7 +14,7 @@ constexpr int ct_lit_8(int v) noexcept {
               ptn::lit(5) >> 5,
               ptn::lit(6) >> 6,
               ptn::lit(7) >> 7,
-              __ >> 0);
+              _ >> 0);
 }
 
 static_assert(ct_lit_8(0) == 0, "");

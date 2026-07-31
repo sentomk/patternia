@@ -194,7 +194,7 @@ namespace {
     using ptn::pat::is;
 
     return match(v)
-           | on(is<int>() >> 1, is<std::string>() >> 2, __ >> 0);
+           | on(is<int>() >> 1, is<std::string>() >> 2, _ >> 0);
   }
 
   static int patternia_pipe_variant_route(const V &v) {
@@ -202,13 +202,13 @@ namespace {
     using ptn::pat::is;
 
     return match(v)
-           | on(is<int>() >> 1, is<std::string>() >> 2, __ >> 0);
+           | on(is<int>() >> 1, is<std::string>() >> 2, _ >> 0);
   }
 
   static int patternia_pipe_variant_alt_route(const V &v) {
     using namespace ptn;
 
-    return match(v) | on(alt<0>() >> 1, alt<1>() >> 2, __ >> 0);
+    return match(v) | on(alt<0>() >> 1, alt<1>() >> 2, _ >> 0);
   }
 
   static int patternia_pipe_variant_alt_32_route(const VAlt32 &v) {
@@ -247,7 +247,7 @@ namespace {
                 alt<29>() >> 30,
                 alt<30>() >> 31,
                 alt<31>() >> 32,
-                __ >> 0);
+                _ >> 0);
   }
 
   static int
@@ -286,7 +286,7 @@ namespace {
                            alt<29>() >> 30,
                            alt<30>() >> 31,
                            alt<31>() >> 32,
-                           __ >> 0);
+                           _ >> 0);
 
     return match(v) | cases;
   }
@@ -407,11 +407,11 @@ namespace {
     };
 
     return match(v)
-           | on($(is<int>())[_0 > 100] >> 10,
+           | on($(is<int>())[_ > 100] >> 10,
                 is<int>() >> 1,
                 $(is<std::string>())[long_string] >> 20,
                 is<std::string>() >> 2,
-                __ >> 0);
+                _ >> 0);
   }
 
   static int patternia_pipe_variant_guarded_route(const V &v) {
@@ -421,11 +421,11 @@ namespace {
     };
 
     return match(v)
-           | on($(is<int>())[_0 > 100] >> 10,
+           | on($(is<int>())[_ > 100] >> 10,
                 is<int>() >> 1,
                 $(is<std::string>())[long_string] >> 20,
                 is<std::string>() >> 2,
-                __ >> 0);
+                _ >> 0);
   }
 
   static int std_visit_variant_guarded_route(const V &v) {
@@ -510,7 +510,7 @@ namespace {
                 is<ProtoError>() >> 3,
                 $(is<ProtoControl>())[control_ack] >> 44,
                 is<ProtoControl>() >> 4,
-                __ >> 0);
+                _ >> 0);
   }
 
   static int patternia_pipe_protocol_router(const ProtocolMsg &msg) {
@@ -533,7 +533,7 @@ namespace {
                 is<ProtoError>() >> 3,
                 $(is<ProtoControl>())[control_ack] >> 44,
                 is<ProtoControl>() >> 4,
-                __ >> 0);
+                _ >> 0);
   }
 
   static int if_else_protocol_router(const ProtocolMsg &msg) {
@@ -634,7 +634,7 @@ namespace {
                 is<CmdDel>() >> 300,
                 $(is<CmdScan>())[wide_scan] >> 401,
                 is<CmdScan>() >> 400,
-                __ >> 0);
+                _ >> 0);
   }
 
   static int patternia_pipe_command_parser(const CommandMsg &msg) {
@@ -657,7 +657,7 @@ namespace {
                 is<CmdDel>() >> 300,
                 $(is<CmdScan>())[wide_scan] >> 401,
                 is<CmdScan>() >> 400,
-                __ >> 0);
+                _ >> 0);
   }
 
   static int if_else_command_parser(const CommandMsg &msg) {
@@ -750,7 +750,7 @@ namespace {
                 lit(6) >> 6,
                 lit(7) >> 7,
                 lit(8) >> 8,
-                __ >> 0);
+                _ >> 0);
   }
 
   static int patternia_literal_match_route(int x) {
@@ -765,7 +765,7 @@ namespace {
                 lit(6) >> 6,
                 lit(7) >> 7,
                 lit(8) >> 8,
-                __ >> 0);
+                _ >> 0);
   }
 
   static int if_else_literal_match_route(int x) {
@@ -877,7 +877,7 @@ namespace {
 
   static int patternia_pipe_literal_match_16_route(int x) {
     using namespace ptn;
-    return match(x) | on(PTN_RT_LIT_BLOCK_16(1), __ >> 0);
+    return match(x) | on(PTN_RT_LIT_BLOCK_16(1), _ >> 0);
   }
 
   static int if_else_literal_match_16_route(int x) {
@@ -900,7 +900,7 @@ namespace {
     return match(x)
            | on(PTN_RT_LIT_BLOCK_16(1),
                 PTN_RT_LIT_BLOCK_16(17),
-                __ >> 0);
+                _ >> 0);
   }
 
   static int if_else_literal_match_32_route(int x) {
@@ -927,7 +927,7 @@ namespace {
                 PTN_RT_LIT_BLOCK_16(17),
                 PTN_RT_LIT_BLOCK_16(33),
                 PTN_RT_LIT_BLOCK_16(49),
-                __ >> 0);
+                _ >> 0);
   }
 
   static int if_else_literal_match_64_route(int x) {
@@ -971,7 +971,7 @@ namespace {
                 ptn::lit(84) >> 84,
                 ptn::lit(91) >> 91,
                 ptn::lit(98) >> 98,
-                __ >> 0);
+                _ >> 0);
   }
 
   static int if_else_literal_match_rdense_route(int x) {
@@ -1090,7 +1090,7 @@ namespace {
                            PTN_LIT_BLOCK_16(81),
                            PTN_LIT_BLOCK_16(97),
                            PTN_LIT_BLOCK_16(113),
-                           __ >> 0);
+                           _ >> 0);
 
     return match(x) | cases;
   }
@@ -1107,7 +1107,7 @@ namespace {
                 PTN_LIT_BLOCK_16(81),
                 PTN_LIT_BLOCK_16(97),
                 PTN_LIT_BLOCK_16(113),
-                __ >> 0);
+                _ >> 0);
   }
 
   static int patternia_pipe_literal_match_128_on_macro_route(int x) {
@@ -1122,7 +1122,7 @@ namespace {
                     PTN_LIT_BLOCK_16(81),
                     PTN_LIT_BLOCK_16(97),
                     PTN_LIT_BLOCK_16(113),
-                    __ >> 0);
+                    _ >> 0);
   }
 
   static int switch_literal_match_128_route(int x) {
@@ -1242,7 +1242,7 @@ namespace {
                        [is_valid_data_packet]
                    >> 2,
                $(has<&Packet::type>)[is_error_packet] >> 3,
-               __ >> 0);
+               _ >> 0);
   }
 
   static int patternia_pipe_packet_route(const Packet &pkt) {
@@ -1272,7 +1272,7 @@ namespace {
                        [is_valid_data_packet]
                    >> 2,
                $(has<&Packet::type>)[is_error_packet] >> 3,
-               __ >> 0);
+               _ >> 0);
   }
 
   static int switch_packet_route(const Packet &pkt) {
@@ -1335,7 +1335,7 @@ namespace {
                $(has<&Packet::type,
                      &Packet::payload>)[is_error_packet]
                    >> 3,
-               __ >> 0);
+               _ >> 0);
   }
 
   static int
@@ -1375,7 +1375,7 @@ namespace {
                $(has<&Packet::type,
                      &Packet::payload>)[is_error_packet]
                    >> 3,
-               __ >> 0);
+               _ >> 0);
   }
 
   static int switch_packet_heavy_bind_route(const Packet &pkt) {

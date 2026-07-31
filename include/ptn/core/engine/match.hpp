@@ -17,11 +17,12 @@ namespace ptn {
   //
   // Subject type is automatically deduced as `T&`.
   // Usage:
-  //   - match(value) | on(case1, case2, ..., __ >> fallback)
+  //   - match(value) | on(case1, case2, ..., _ >> fallback)
   template <typename T>
   constexpr auto match(T &value) {
     using V = T &;
-    return core::engine::detail::pipeline_match_context<V>::create(V(value));
+    return core::engine::detail::pipeline_match_context<V>::create(
+        V(value));
   }
 
   // Caches an `on(...)` matcher behind a stateless factory.
@@ -30,7 +31,7 @@ namespace ptn {
   // pattern: `static auto cases = on(...);`.
   //
   // Usage:
-  //   - match(value) | static_on([] { return on(..., __ >>
+  //   - match(value) | static_on([] { return on(..., _ >>
   //   fallback); })
   //
   // The factory must be stateless so caching does not silently

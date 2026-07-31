@@ -16,6 +16,7 @@
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/pattern_base.hpp"
 #include "ptn/pattern/base/pattern_traits.hpp"
+#include "ptn/pattern/modifiers/placeholder.hpp"
 #include "ptn/core/common/diagnostics.hpp"
 
 namespace ptn::pat::mod {
@@ -34,19 +35,6 @@ namespace ptn::pat::mod {
   };
 
   // Multi-value guard expressions
-  //
-  // arg<N>: placeholder for the Nth bound element.
-  template <std::size_t I>
-  struct arg_t {
-    static constexpr std::size_t index = I;
-  };
-
-  // Argument placeholder for multi-value expressions.
-  template <std::size_t I>
-  inline constexpr arg_t<I> arg{};
-
-  // Shorthand aliases for common argument placeholders.
-  inline constexpr arg_t<0> _0{};
 
   // Value wrapper for literals in expression templates.
   template <typename T>
@@ -130,10 +118,6 @@ namespace ptn::pat::mod {
     return tuple_predicate<std::decay_t<E>>{
         as_expr(std::forward<E>(e))};
   }
-
-  // Computes maximum argument index in expression.
-  template <typename E>
-  struct max_arg_index;
 
   template <std::size_t I>
   struct max_arg_index<arg_t<I>>
@@ -325,15 +309,13 @@ namespace ptn::pat::mod {
 
     template <typename Pred, typename Tuple, std::size_t... I>
     constexpr decltype(auto) invoke_from_tuple_impl(
-        Pred                   &&pred,
-        Tuple                  &&tuple,
-        std::index_sequence<I...>) {
+        Pred &&pred, Tuple &&tuple, std::index_sequence<I...>) {
       return std::forward<Pred>(pred)(
           std::get<I>(std::forward<Tuple>(tuple))...);
     }
 
     template <typename Pred, typename Tuple>
-    constexpr decltype(auto) invoke_from_tuple(Pred &&pred,
+    constexpr decltype(auto) invoke_from_tuple(Pred  &&pred,
                                                Tuple &&tuple) {
       using tuple_t = std::remove_reference_t<Tuple>;
       return invoke_from_tuple_impl(
@@ -359,12 +341,8 @@ namespace ptn::pat::mod {
 
   } // namespace detail
 
-  // Guard wrapper for macro-generated named predicates.
-  //
-  // PTN_WHERE(...) and PTN_LET(...) expand to plain lambdas. Wrapping them
-  // in guard_predicate_tag keeps them compatible with the existing guard
-  // composition operators while still using invoke_guard for the single-tuple
-  // case produced by guarded_pattern.
+  // Guard wrapper that makes a callable participate in guard
+  // composition.
   template <typename Fn>
   struct callable_guard : traits::guard_predicate_tag {
     Fn fn;
@@ -376,11 +354,11 @@ namespace ptn::pat::mod {
     constexpr bool operator()(Args &&...args) const {
       if constexpr (sizeof...(Args) == 1) {
         // guarded_pattern passes one tuple-like binding object here.
-        return detail::invoke_guard(fn,
-                                    std::forward<Args>(args)...);
+        return detail::invoke_guard(fn, std::forward<Args>(args)...);
       }
       else {
-        // Direct multi-argument calls come from composed guard predicates.
+        // Direct multi-argument calls come from composed guard
+        // predicates.
         return static_cast<bool>(fn(std::forward<Args>(args)...));
       }
     }
@@ -388,8 +366,7 @@ namespace ptn::pat::mod {
 
   template <typename Fn>
   constexpr auto make_callable_guard(Fn &&fn) {
-    return callable_guard<std::decay_t<Fn>>(
-        std::forward<Fn>(fn));
+    return callable_guard<std::decay_t<Fn>>(std::forward<Fn>(fn));
   }
 
   // Logical AND for guard predicates.
@@ -601,10 +578,11 @@ namespace ptn::pat::mod {
             pred(bound)); // tuple-level predicate
       }
       else {
-        // Callable guard: lambda / where / custom functor.
+        // Callable guard: lambda or custom functor.
         // Also handles binary_predicate and range_predicate via
         // tuple expansion for single-element bindings.
-        return static_cast<bool>(detail::invoke_from_tuple(pred, bound));
+        return static_cast<bool>(
+            detail::invoke_from_tuple(pred, bound));
       }
     }
 

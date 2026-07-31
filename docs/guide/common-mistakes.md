@@ -65,7 +65,7 @@ The `PTN_ON` macro caches the entire matcher in a function-local static variable
 ```cpp
 int search(int x, int limit) {
   return match(x) | PTN_ON(
-    $[PTN_LET(v, v < limit)] >> [] { return true; }, // Error: 'limit' cannot be captured
+    $[_ < limit] >> [] { return true; }, // Error: 'limit' cannot be captured
     _ >> [] { return false; }
   );
 }
@@ -78,7 +78,7 @@ int search(int x, int limit) {
 
 ```cpp
 return match(x) | on(
-  $[PTN_LET(v, v < limit)] >> [] { return true; },
+  $[_ < limit] >> [] { return true; },
   _ >> [] { return false; }
 );
 ```

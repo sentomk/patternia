@@ -95,9 +95,10 @@ namespace ptn::pat::base {
 TEST(MatchFlow, FallbackCaseCanBindSubject) {
   int x      = 7;
   int result = ptn::match(x)
-               | ptn::on(ptn::lit(1) >> 10,
-                         ptn::$ >> [](int v) { return v * 2; },
-                         ptn::__ >> -1);
+               | ptn::on(
+                   ptn::lit(1) >> 10,
+                   ptn::$ >> [](int v) { return v * 2; },
+                   ptn::_ >> -1);
 
   EXPECT_EQ(result, 14);
 }
@@ -106,8 +107,10 @@ TEST(MatchFlow, WildcardCaseRunsFallbackHandler) {
   int x   = 9;
   int hit = 0;
 
-  ptn::match(x) | ptn::on(ptn::lit(1) >> [&] { hit = 1; },
-                          ptn::__ >> [&] { hit = 2; });
+  ptn::match(x)
+      | ptn::on(
+          ptn::lit(1) >> [&] { hit = 1; },
+          ptn::_ >> [&] { hit = 2; });
 
   EXPECT_EQ(hit, 2);
 }
@@ -118,8 +121,10 @@ TEST(MatchFlow, SubjectBindsAsLvalue) {
 
   int x      = 11;
   int result = ptn::match(x)
-               | ptn::on(ForwardingProbePattern{} >> [](int v) { return v; },
-                         ptn::__ >> -1);
+               | ptn::on(
+                   ForwardingProbePattern{} >>
+                       [](int v) { return v; },
+                   ptn::_ >> -1);
 
   EXPECT_EQ(result, 11);
   EXPECT_EQ(ForwardingProbePattern::lvalue_bind_calls, 1);
@@ -132,9 +137,10 @@ TEST(MatchFlow, GuardedCaseBindsOnlyOnceOnMatch) {
 
   int x      = 11;
   int result = ptn::match(x)
-               | ptn::on(ForwardingProbePattern{}[ptn::_0 > 0]
-                             >> [](int v) { return v; },
-                         ptn::__ >> -1);
+               | ptn::on(
+                   ForwardingProbePattern{}[ptn::_ > 0] >>
+                       [](int v) { return v; },
+                   ptn::_ >> -1);
 
   EXPECT_EQ(result, 11);
   EXPECT_EQ(ForwardingProbePattern::lvalue_bind_calls, 1);
@@ -144,7 +150,7 @@ TEST(MatchFlow, GuardedCaseBindsOnlyOnceOnMatch) {
 TEST(MatchFlow, GuardedPathAvoidsManualDoubleBindSequence) {
   int x = 11;
 
-  auto guarded = ForwardingProbePattern{}[ptn::_0 > 0];
+  auto guarded = ForwardingProbePattern{}[ptn::_ > 0];
 
   // Simulate a naive two-step flow:
   // 1) guarded.match(x) -> inner.bind(x) inside guard evaluation
@@ -166,9 +172,10 @@ TEST(MatchFlow, GuardedPathAvoidsManualDoubleBindSequence) {
   ForwardingProbePattern::rvalue_bind_calls = 0;
 
   int result = ptn::match(x)
-               | ptn::on(ForwardingProbePattern{}[ptn::_0 > 0]
-                             >> [](int v) { return v; },
-                         ptn::__ >> -1);
+               | ptn::on(
+                   ForwardingProbePattern{}[ptn::_ > 0] >>
+                       [](int v) { return v; },
+                   ptn::_ >> -1);
 
   EXPECT_EQ(result, 11);
   EXPECT_EQ(ForwardingProbePattern::lvalue_bind_calls, 1);
@@ -181,8 +188,10 @@ TEST(MatchFlow, BindCountMatrixNoBindWhenPatternMisses) {
 
   int x      = 11;
   int result = ptn::match(x)
-               | ptn::on(ConditionalProbePattern{} >> [](int) { return 1; },
-                         ptn::__ >> 0);
+               | ptn::on(
+                   ConditionalProbePattern{} >>
+                       [](int) { return 1; },
+                   ptn::_ >> 0);
 
   EXPECT_EQ(result, 0);
   EXPECT_EQ(ConditionalProbePattern::bind_calls, 0);
@@ -194,8 +203,10 @@ TEST(MatchFlow, BindCountMatrixOneBindWhenPatternMatches) {
 
   int x      = 11;
   int result = ptn::match(x)
-               | ptn::on(ConditionalProbePattern{} >> [](int v) { return v; },
-                         ptn::__ >> -1);
+               | ptn::on(
+                   ConditionalProbePattern{} >>
+                       [](int v) { return v; },
+                   ptn::_ >> -1);
 
   EXPECT_EQ(result, 11);
   EXPECT_EQ(ConditionalProbePattern::bind_calls, 1);
@@ -207,9 +218,10 @@ TEST(MatchFlow, BindCountMatrixGuardMissBindsOnceThenFallback) {
 
   int x      = 11;
   int result = ptn::match(x)
-               | ptn::on(ForwardingProbePattern{}[ptn::_0 > 100]
-                             >> [](int) { return 1; },
-                         ptn::__ >> 0);
+               | ptn::on(
+                   ForwardingProbePattern{}[ptn::_ > 100] >>
+                       [](int) { return 1; },
+                   ptn::_ >> 0);
 
   EXPECT_EQ(result, 0);
   EXPECT_EQ(ForwardingProbePattern::lvalue_bind_calls, 1);
@@ -222,10 +234,12 @@ TEST(MatchFlow, BindCountMatrixGuardMissThenNextCaseAddsSecondBind) {
 
   int x      = 11;
   int result = ptn::match(x)
-               | ptn::on(ForwardingProbePattern{}[ptn::_0 > 100]
-                             >> [](int) { return -1; },
-                         ForwardingProbePattern{} >> [](int v) { return v; },
-                         ptn::__ >> 0);
+               | ptn::on(
+                   ForwardingProbePattern{}[ptn::_ > 100] >>
+                       [](int) { return -1; },
+                   ForwardingProbePattern{} >>
+                       [](int v) { return v; },
+                   ptn::_ >> 0);
 
   EXPECT_EQ(result, 11);
   EXPECT_EQ(ForwardingProbePattern::lvalue_bind_calls, 2);
@@ -238,9 +252,10 @@ TEST(MatchFlow, ZeroBindVariantStyleCaseSkipsBindInTypedEval) {
   ZeroBindProbePattern::bind_calls = 0;
 
   int x      = 7;
-  int result =
-      ptn::match(x) | ptn::on(ZeroBindProbePattern{} >> [] { return 42; },
-                              ptn::__ >> -1);
+  int result = ptn::match(x)
+               | ptn::on(
+                   ZeroBindProbePattern{} >> [] { return 42; },
+                   ptn::_ >> -1);
 
   EXPECT_EQ(result, 42);
   // Fast path contract: zero-bind case should not call bind().
@@ -253,7 +268,7 @@ TEST(MatchFlow, PipeOnUsesWildcardFallback) {
   int result = ptn::match(x)
                | ptn::on(ptn::lit(1) >> 10,
                          ptn::lit(2) >> 20,
-                         ptn::__ >> -1);
+                         ptn::_ >> -1);
 
   EXPECT_EQ(result, -1);
 }
@@ -262,7 +277,7 @@ TEST(MatchFlow, PipeOnWildcardFallbackReturnsValue) {
   int x = 2;
 
   int result = ptn::match(x)
-               | ptn::on(ptn::lit(1) >> 10, ptn::__ >> 99);
+               | ptn::on(ptn::lit(1) >> 10, ptn::_ >> 99);
 
   EXPECT_EQ(result, 99);
 }
@@ -272,10 +287,10 @@ TEST(MatchFlow, PipeOnVariantGuardedThenSameAltPlainGuardHit) {
   V v     = 123;
 
   int result = ptn::match(v)
-               | ptn::on(ptn::$(ptn::is<int>())[ptn::_0 > 100] >> 10,
+               | ptn::on(ptn::$(ptn::is<int>())[ptn::_ > 100] >> 10,
                          ptn::is<int>() >> 1,
                          ptn::is<std::string>() >> 2,
-                         ptn::__ >> 0);
+                         ptn::_ >> 0);
 
   EXPECT_EQ(result, 10);
 }
@@ -286,10 +301,10 @@ TEST(MatchFlow,
   V v     = 7;
 
   int result = ptn::match(v)
-               | ptn::on(ptn::$(ptn::is<int>())[ptn::_0 > 100] >> 10,
+               | ptn::on(ptn::$(ptn::is<int>())[ptn::_ > 100] >> 10,
                          ptn::is<int>() >> 1,
                          ptn::is<std::string>() >> 2,
-                         ptn::__ >> 0);
+                         ptn::_ >> 0);
 
   EXPECT_EQ(result, 1);
 }
@@ -300,10 +315,10 @@ TEST(MatchFlow,
   V v     = std::string("ok");
 
   int result = ptn::match(v)
-               | ptn::on(ptn::$(ptn::is<int>())[ptn::_0 > 100] >> 10,
+               | ptn::on(ptn::$(ptn::is<int>())[ptn::_ > 100] >> 10,
                          ptn::is<int>() >> 1,
                          ptn::is<std::string>() >> 2,
-                         ptn::__ >> 0);
+                         ptn::_ >> 0);
 
   EXPECT_EQ(result, 2);
 }

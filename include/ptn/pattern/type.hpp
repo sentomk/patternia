@@ -18,144 +18,144 @@
 
 namespace ptn::pat::detail {
 
-    // Sentinel type representing "no subpattern".
-    struct no_subpattern {};
+  // Sentinel type representing "no subpattern".
+  struct no_subpattern {};
 
-    // Empty base used when a pattern is not a binding pattern.
-    struct non_binding_base {};
+  // Empty base used when a pattern is not a binding pattern.
+  struct non_binding_base {};
 
-    // Matches a specific variant alternative by type, with optional
-    // subpattern.
-    // - When SubPattern is no_subpattern: only checks the
-    // alternative.
-    // - Otherwise: delegates match/bind to the subpattern on the
-    // selected alt.
-    //
-    // Important: when SubPattern is a binding pattern (e.g. $(),
-    // $(has<...>)), this type pattern itself becomes a binding
-    // pattern, enabling guard syntax:
-    //   $(is<T>())[predicate]   // equivalent to
-    //   is<T>($[predicate])
-    template <typename T, typename SubPattern = no_subpattern>
-    struct type_is_pattern
-        : base::pattern_base<type_is_pattern<T, SubPattern>>,
-          std::conditional_t<
-              ptn::pat::traits::is_binding_pattern_v<SubPattern>,
-              base::binding_pattern_base<
-                  type_is_pattern<T, SubPattern>>,
-              non_binding_base> {
-      using alt_t = meta::remove_cvref_t<T>;
+  // Matches a specific variant alternative by type, with optional
+  // subpattern.
+  // - When SubPattern is no_subpattern: only checks the
+  // alternative.
+  // - Otherwise: delegates match/bind to the subpattern on the
+  // selected alt.
+  //
+  // Important: when SubPattern is a binding pattern (e.g. $(),
+  // $(has<...>)), this type pattern itself becomes a binding
+  // pattern, enabling guard syntax:
+  //   $(is<T>())[predicate]   // equivalent to
+  //   is<T>($[predicate])
+  template <typename T, typename SubPattern = no_subpattern>
+  struct type_is_pattern
+      : base::pattern_base<type_is_pattern<T, SubPattern>>,
+        std::conditional_t<
+            ptn::pat::traits::is_binding_pattern_v<SubPattern>,
+            base::binding_pattern_base<
+                type_is_pattern<T, SubPattern>>,
+            non_binding_base> {
+    using alt_t = meta::remove_cvref_t<T>;
 
-      SubPattern subpattern;
+    SubPattern subpattern;
 
-      constexpr type_is_pattern() = default;
-      constexpr explicit type_is_pattern(SubPattern sub)
-          : subpattern(std::move(sub)) {
+    constexpr type_is_pattern() = default;
+    constexpr explicit type_is_pattern(SubPattern sub)
+        : subpattern(std::move(sub)) {
+    }
+
+    // Computes the alternative index of alt_t within Subject's
+    // variant.
+    template <typename Subject>
+    static constexpr std::size_t alt_index() {
+      using subject_t = meta::remove_cvref_t<Subject>;
+      using args_t = typename meta::template_info<subject_t>::args;
+      // Map alternative type to its variant index using meta
+      // type_list.
+      constexpr int  idx = meta::index_of_v<alt_t, args_t>;
+      constexpr bool alt_type_found = (idx >= 0);
+      static_assert(
+          alt_type_found,
+          "[Patternia.is]: Alternative type not found in "
+          "std::variant. Tip: ensure the variant lists T, or use "
+          "alt<I>() to match by index.");
+      return static_cast<std::size_t>(idx);
+    }
+
+    template <typename Subject>
+    constexpr bool match(const Subject &subject) const noexcept {
+      core::common::static_assert_variant_alt_unique<alt_t,
+                                                     Subject>();
+      // Fast alternative check via index; subpattern evaluated
+      // only on hit.
+      if (subject.index() != alt_index<Subject>())
+        return false;
+      if constexpr (std::is_same_v<SubPattern, no_subpattern>) {
+        return true;
       }
-
-      // Computes the alternative index of alt_t within Subject's
-      // variant.
-      template <typename Subject>
-      static constexpr std::size_t alt_index() {
-        using subject_t = meta::remove_cvref_t<Subject>;
-        using args_t = typename meta::template_info<subject_t>::args;
-        // Map alternative type to its variant index using meta
-        // type_list.
-        constexpr int  idx = meta::index_of_v<alt_t, args_t>;
-        constexpr bool alt_type_found = (idx >= 0);
-        static_assert(
-            alt_type_found,
-            "[Patternia.is]: Alternative type not found in "
-            "std::variant. Tip: ensure the variant lists T, or use "
-            "alt<I>() to match by index.");
-        return static_cast<std::size_t>(idx);
+      else {
+        return subpattern.match(
+            std::get<alt_index<Subject>()>(subject));
       }
+    }
 
-      template <typename Subject>
-      constexpr bool match(const Subject &subject) const noexcept {
-        core::common::static_assert_variant_alt_unique<alt_t,
-                                                       Subject>();
-        // Fast alternative check via index; subpattern evaluated
-        // only on hit.
-        if (subject.index() != alt_index<Subject>())
-          return false;
-        if constexpr (std::is_same_v<SubPattern, no_subpattern>) {
-          return true;
-        }
-        else {
-          return subpattern.match(
-              std::get<alt_index<Subject>()>(subject));
-        }
+    template <typename Subject>
+    constexpr decltype(auto) bind(const Subject &subject) const {
+      core::common::static_assert_variant_alt_unique<alt_t,
+                                                     Subject>();
+      // No bindings when there is no subpattern.
+      if constexpr (std::is_same_v<SubPattern, no_subpattern>) {
+        return std::tuple<>{};
       }
-
-      template <typename Subject>
-      constexpr decltype(auto) bind(const Subject &subject) const {
-        core::common::static_assert_variant_alt_unique<alt_t,
-                                                       Subject>();
-        // No bindings when there is no subpattern.
-        if constexpr (std::is_same_v<SubPattern, no_subpattern>) {
-          return std::tuple<>{};
-        }
-        else {
-          return subpattern.bind(
-              std::get<alt_index<Subject>()>(subject));
-        }
+      else {
+        return subpattern.bind(
+            std::get<alt_index<Subject>()>(subject));
       }
-    };
+    }
+  };
 
-    // Matches a specific alternative by index, with optional
-    // subpattern.
-    // - When SubPattern is no_subpattern: only checks the index.
-    // - Otherwise: delegates match/bind to the subpattern on the
-    // selected alt.
-    //
-    // Like type_is_pattern, this becomes a binding pattern when
-    // SubPattern binds, so guards can be attached directly to the
-    // type pattern.
-    template <std::size_t I, typename SubPattern = no_subpattern>
-    struct type_alt_pattern
-        : base::pattern_base<type_alt_pattern<I, SubPattern>>,
-          std::conditional_t<
-              ptn::pat::traits::is_binding_pattern_v<SubPattern>,
-              base::binding_pattern_base<
-                  type_alt_pattern<I, SubPattern>>,
-              non_binding_base> {
-      SubPattern subpattern;
+  // Matches a specific alternative by index, with optional
+  // subpattern.
+  // - When SubPattern is no_subpattern: only checks the index.
+  // - Otherwise: delegates match/bind to the subpattern on the
+  // selected alt.
+  //
+  // Like type_is_pattern, this becomes a binding pattern when
+  // SubPattern binds, so guards can be attached directly to the
+  // type pattern.
+  template <std::size_t I, typename SubPattern = no_subpattern>
+  struct type_alt_pattern
+      : base::pattern_base<type_alt_pattern<I, SubPattern>>,
+        std::conditional_t<
+            ptn::pat::traits::is_binding_pattern_v<SubPattern>,
+            base::binding_pattern_base<
+                type_alt_pattern<I, SubPattern>>,
+            non_binding_base> {
+    SubPattern subpattern;
 
-      constexpr type_alt_pattern() = default;
-      constexpr explicit type_alt_pattern(SubPattern sub)
-          : subpattern(std::move(sub)) {
+    constexpr type_alt_pattern() = default;
+    constexpr explicit type_alt_pattern(SubPattern sub)
+        : subpattern(std::move(sub)) {
+    }
+
+    template <typename Subject>
+    constexpr bool match(const Subject &subject) const noexcept {
+      core::common::static_assert_variant_alt_index<I, Subject>();
+      // Fast alternative check via index; subpattern evaluated
+      // only on hit.
+      if (subject.index() != I)
+        return false;
+      if constexpr (std::is_same_v<SubPattern, no_subpattern>) {
+        return true;
       }
-
-      template <typename Subject>
-      constexpr bool match(const Subject &subject) const noexcept {
-        core::common::static_assert_variant_alt_index<I, Subject>();
-        // Fast alternative check via index; subpattern evaluated
-        // only on hit.
-        if (subject.index() != I)
-          return false;
-        if constexpr (std::is_same_v<SubPattern, no_subpattern>) {
-          return true;
-        }
-        else {
-          return subpattern.match(std::get<I>(subject));
-        }
+      else {
+        return subpattern.match(std::get<I>(subject));
       }
+    }
 
-      template <typename Subject>
-      constexpr decltype(auto) bind(const Subject &subject) const {
-        core::common::static_assert_variant_alt_index<I, Subject>();
-        // No bindings when there is no subpattern.
-        if constexpr (std::is_same_v<SubPattern, no_subpattern>) {
-          return std::tuple<>{};
-        }
-        else {
-          return subpattern.bind(std::get<I>(subject));
-        }
+    template <typename Subject>
+    constexpr decltype(auto) bind(const Subject &subject) const {
+      core::common::static_assert_variant_alt_index<I, Subject>();
+      // No bindings when there is no subpattern.
+      if constexpr (std::is_same_v<SubPattern, no_subpattern>) {
+        return std::tuple<>{};
       }
-    };
+      else {
+        return subpattern.bind(std::get<I>(subject));
+      }
+    }
+  };
 
-  } // namespace ptn::pat::detail
+} // namespace ptn::pat::detail
 
 // ----------------------------------------------------------------
 // Short-form variable template aliases.
@@ -168,7 +168,7 @@ namespace ptn::pat::detail {
 //   is<int>(sub_pattern)        // match + delegate to sub_pattern
 //   $(is<int>())                // match + bind value (use $
 //   callable)
-//   $(is<int>())[_0 > 0]        // match + bind + guard
+//   $(is<int>())[_ > 0]         // match + bind + guard
 //   alt_idx<0>                  // match by index, no bind
 // ----------------------------------------------------------------
 
@@ -194,7 +194,7 @@ namespace ptn::pat {
       template <typename SubPattern>
       constexpr auto operator()(SubPattern &&sub) const {
         return type_is_pattern<T, std::decay_t<SubPattern>>(
-                std::forward<SubPattern>(sub));
+            std::forward<SubPattern>(sub));
       }
     };
 
@@ -205,15 +205,14 @@ namespace ptn::pat {
       constexpr alt_factory() = default;
 
       // No-arg call form: `alt<I>()`.
-      constexpr type_alt_pattern<I>
-      operator()() const {
+      constexpr type_alt_pattern<I> operator()() const {
         return {};
       }
 
       template <typename SubPattern>
       constexpr auto operator()(SubPattern &&sub) const {
         return type_alt_pattern<I, std::decay_t<SubPattern>>(
-                std::forward<SubPattern>(sub));
+            std::forward<SubPattern>(sub));
       }
     };
 

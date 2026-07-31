@@ -10,7 +10,7 @@ Example:
 int classify(int x) {
   return match(x) | PTN_ON(
     lit(0) >> 0, lit(1) >> 1, lit(2) >> 2,
-    __ >> -1
+    _ >> -1
   );
 }
 ```
@@ -29,7 +29,7 @@ auto get_matcher() {
     return on(
       lit("start") >> Action::Start,
       lit("stop") >> Action::Stop,
-      __ >> Action::Unknown
+      _ >> Action::Unknown
     );
   });
 }

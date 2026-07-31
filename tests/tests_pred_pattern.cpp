@@ -10,7 +10,7 @@ TEST(PredPattern, MatchesWhenPredicateReturnsTrue) {
   int x      = 4;
   int result = match(x)
                | on(pred([](int v) { return v % 2 == 0; }) >> 1,
-                    __ >> 0);
+                    _ >> 0);
 
   EXPECT_EQ(result, 1);
 }
@@ -19,7 +19,7 @@ TEST(PredPattern, FallsBackWhenPredicateReturnsFalse) {
   int x      = 3;
   int result = match(x)
                | on(pred([](int v) { return v % 2 == 0; }) >> 1,
-                    __ >> 0);
+                    _ >> 0);
 
   EXPECT_EQ(result, 0);
 }
@@ -30,7 +30,7 @@ TEST(PredPattern, WorksWithStringSubject) {
                | on(pred([](const std::string &v) {
                       return v.size() > 3;
                     }) >> 1,
-                    __ >> 0);
+                    _ >> 0);
 
   EXPECT_EQ(result, 1);
 }
@@ -41,7 +41,7 @@ TEST(PredPattern, FallsBackWithShortString) {
                | on(pred([](const std::string &v) {
                       return v.size() > 3;
                     }) >> 1,
-                    __ >> 0);
+                    _ >> 0);
 
   EXPECT_EQ(result, 0);
 }
@@ -52,7 +52,7 @@ TEST(PredPattern, ComposesWithAny) {
                | on(any(pred([](int v) { return v < 0; }),
                         pred([](int v) { return v > 5; }))
                         >> 1,
-                    __ >> 0);
+                    _ >> 0);
 
   EXPECT_EQ(result, 1);
 }
@@ -63,7 +63,7 @@ TEST(PredPattern, ComposesWithAll) {
                | on(all(pred([](int v) { return v > 0; }),
                         pred([](int v) { return v % 2 == 0; }))
                         >> 1,
-                    __ >> 0);
+                    _ >> 0);
 
   EXPECT_EQ(result, 1);
 }
@@ -74,7 +74,7 @@ TEST(PredPattern, AllMissWhenOnePredicateFails) {
                | on(all(pred([](int v) { return v > 0; }),
                         pred([](int v) { return v % 2 == 0; }))
                         >> 1,
-                    __ >> 0);
+                    _ >> 0);
 
   EXPECT_EQ(result, 0);
 }
@@ -86,16 +86,16 @@ TEST(PredPattern, ReusableAcrossMatches) {
   int zero = 0;
   int neg  = -1;
 
-  EXPECT_EQ(match(pos) | on(is_positive >> 1, __ >> 0), 1);
-  EXPECT_EQ(match(zero) | on(is_positive >> 1, __ >> 0), 0);
-  EXPECT_EQ(match(neg) | on(is_positive >> 1, __ >> 0), 0);
+  EXPECT_EQ(match(pos) | on(is_positive >> 1, _ >> 0), 1);
+  EXPECT_EQ(match(zero) | on(is_positive >> 1, _ >> 0), 0);
+  EXPECT_EQ(match(neg) | on(is_positive >> 1, _ >> 0), 0);
 }
 
 TEST(PredPattern, WorksInsidePtnOnMacro) {
   auto run = [](int x) {
     return match(x)
            | PTN_ON(pred([](int v) { return v % 2 == 0; }) >> 1,
-                    __ >> 0);
+                    _ >> 0);
   };
 
   EXPECT_EQ(run(2), 1);
@@ -108,7 +108,7 @@ TEST(PredPattern, FullyQualifiedWithoutUsingDirective) {
   int result = ptn::match(x)
                | ptn::on(
                    ptn::pred([](int v) { return v == 10; }) >> 42,
-                   ptn::__ >> 0);
+                   ptn::_ >> 0);
 
   EXPECT_EQ(result, 42);
 }

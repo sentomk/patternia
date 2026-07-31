@@ -1,10 +1,8 @@
 // Tests for PTN_BIND named placeholder macro.
 //
-// Verifies that named placeholders declared via PTN_BIND produce the
-// same types and runtime results as the positional placeholders (_0,
-// arg<N>) they replace. All tests exercise the full match pipeline
-// (match | on($[guard] >> handler)) to ensure end-to-end
-// correctness.
+// Verifies that PTN_BIND declares readable names for bound tuple
+// positions. All tests exercise the full match pipeline
+// (match | on($[guard] >> handler)) end to end.
 
 #include <gtest/gtest.h>
 
@@ -49,7 +47,7 @@ namespace {
   };
 
   // Declare named placeholders for each struct.
-  // These are namespace-scoped inline constexpr arg_t<N> objects.
+  // These are constexpr arg_t<N> objects.
   PTN_BIND(Point, x, y);
   PTN_BIND(Packet, type, len);
   PTN_BIND(Triple, a, b, c);
@@ -58,6 +56,25 @@ namespace {
   PTN_BIND(Penta, pa, pb, pc, pd, pe);
 
 } // namespace
+
+TEST(NamedPlaceholder, SupportsBlockScopeDeclarations) {
+  struct Pair {
+    int left;
+    int right;
+  };
+
+  PTN_BIND(Pair, left, right);
+
+  Pair pair{2, 5};
+  auto result = ptn::match(pair)
+                | ptn::on(
+                    ptn::$(ptn::has<&Pair::left,
+                                    &Pair::right>)[left < right]
+                        >> 1,
+                    ptn::_ >> 0);
+
+  EXPECT_EQ(result, 1);
+}
 
 // =========================================================================
 // Type correctness: PTN_BIND names must be arg_t<N> of the right
@@ -89,31 +106,27 @@ TEST(NamedPlaceholder, ThreeArgTypesMatchPositions) {
 // Runtime correctness: named placeholders in guard expressions.
 // =========================================================================
 
-TEST(NamedPlaceholder, SingleValueGuard) {
-  // Same as: $[_0 > 5]
-  // Now:    $[x > 5]  (where x maps to arg<0>)
+TEST(NamedPlaceholder, SingleValueUsesWildcardPlaceholder) {
   int  val    = 10;
   auto result = ptn::match(val)
                 | PTN_ON(
-                    ptn::$[x > 5] >> [](int v) { return v * 2; },
+                    ptn::$[ptn::_ > 5] >>
+                        [](int v) { return v * 2; },
                     ptn::_ >> 0);
   EXPECT_EQ(result, 20);
 }
 
-TEST(NamedPlaceholder, SingleValueGuardFails) {
+TEST(NamedPlaceholder, SingleValueWildcardGuardFails) {
   int  val    = 3;
   auto result = ptn::match(val)
                 | PTN_ON(
-                    ptn::$[x > 5] >> [](int v) { return v * 2; },
+                    ptn::$[ptn::_ > 5] >>
+                        [](int v) { return v * 2; },
                     ptn::_ >> 0);
   EXPECT_EQ(result, 0);
 }
 
 TEST(NamedPlaceholder, StructuralGuardTwoMembers) {
-  // Same as:
-  //   $(has<&Point::x, &Point::y>)[_0*_0 + arg<1>*arg<1> == 25]
-  // Now:
-  //   $(has<&Point::x, &Point::y>)[x*x + y*y == 25]
   Point p{3, 4};
   auto  result = ptn::match(p)
                 | PTN_ON(
@@ -190,35 +203,6 @@ TEST(NamedPlaceholder, ThreeMemberGuardFails) {
                              >> 1,
                          ptn::_ >> 0);
   EXPECT_EQ(result, 0);
-}
-
-// =========================================================================
-// Equivalence: named and positional placeholders produce identical
-// results for the same expression.
-// =========================================================================
-
-TEST(NamedPlaceholder, NamedEquivalentToPositional) {
-  using ptn::_0;
-  using ptn::arg;
-
-  Point p{3, 4};
-
-  auto named = ptn::match(p)
-               | PTN_ON(
-                   ptn::$(ptn::has<&Point::x,
-                                   &Point::y>)[x * x + y * y == 25]
-                       >> 1,
-                   ptn::_ >> 0);
-
-  auto positional = ptn::match(p)
-                    | PTN_ON(
-                        ptn::$(ptn::has<&Point::x, &Point::y>)
-                                [_0 * _0 + arg<1> * arg<1> == 25]
-                            >> 1,
-                        ptn::_ >> 0);
-
-  EXPECT_EQ(named, positional);
-  EXPECT_EQ(named, 1);
 }
 
 // =========================================================================
@@ -347,59 +331,52 @@ TEST(NamedPlaceholder, FiveMemberGuardFails) {
 }
 
 // =========================================================================
-// PTN_WHERE arity coverage: 3 and 4 parameter variants.
-// (1, 2, and 5 are already tested in tests_guard.cpp.)
+// PTN_BIND arity coverage: 3 and 4 parameter variants.
 // =========================================================================
 
-TEST(NamedPlaceholder, WhereThreeArgGuard) {
-  // PTN_WHERE((a, b, c), a + b == c)
+TEST(NamedPlaceholder, BindThreeArgGuard) {
   Triple t{2, 3, 5};
   auto   result = ptn::match(t)
-                | PTN_ON(
-                    ptn::$(
-                        ptn::has<&Triple::a, &Triple::b, &Triple::c>)
-                            [PTN_WHERE((x, y, z), x + y == z)]
-                        >> 1,
-                    ptn::_ >> 0);
+                | PTN_ON(ptn::$(ptn::has<&Triple::a,
+                                         &Triple::b,
+                                         &Triple::c>)[a + b == c]
+                             >> 1,
+                         ptn::_ >> 0);
   EXPECT_EQ(result, 1);
 }
 
-TEST(NamedPlaceholder, WhereThreeArgGuardFails) {
+TEST(NamedPlaceholder, BindThreeArgGuardFails) {
   Triple t{2, 3, 6};
   auto   result = ptn::match(t)
-                | PTN_ON(
-                    ptn::$(
-                        ptn::has<&Triple::a, &Triple::b, &Triple::c>)
-                            [PTN_WHERE((x, y, z), x + y == z)]
-                        >> 1,
-                    ptn::_ >> 0);
+                | PTN_ON(ptn::$(ptn::has<&Triple::a,
+                                         &Triple::b,
+                                         &Triple::c>)[a + b == c]
+                             >> 1,
+                         ptn::_ >> 0);
   EXPECT_EQ(result, 0);
 }
 
-TEST(NamedPlaceholder, WhereFourArgGuard) {
-  // PTN_WHERE((a, b, c, d), a + b + c == d)
+TEST(NamedPlaceholder, BindFourArgGuard) {
   Quad q{1, 2, 3, 6};
   auto result = ptn::match(q)
                 | PTN_ON(
                     ptn::$(ptn::has<&Quad::a,
                                     &Quad::b,
                                     &Quad::c,
-                                    &Quad::d>)
-                            [PTN_WHERE((w, x, y, z), w + x + y == z)]
+                                    &Quad::d>)[qa + qb + qc == qd]
                         >> 1,
                     ptn::_ >> 0);
   EXPECT_EQ(result, 1);
 }
 
-TEST(NamedPlaceholder, WhereFourArgGuardFails) {
+TEST(NamedPlaceholder, BindFourArgGuardFails) {
   Quad q{1, 2, 3, 7};
   auto result = ptn::match(q)
                 | PTN_ON(
                     ptn::$(ptn::has<&Quad::a,
                                     &Quad::b,
                                     &Quad::c,
-                                    &Quad::d>)
-                            [PTN_WHERE((w, x, y, z), w + x + y == z)]
+                                    &Quad::d>)[qa + qb + qc == qd]
                         >> 1,
                     ptn::_ >> 0);
   EXPECT_EQ(result, 0);

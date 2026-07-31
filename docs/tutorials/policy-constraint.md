@@ -30,13 +30,14 @@ auto is_public_resource = [](int id) {
 ```cpp
 bool allowed(const Request &req) {
   using namespace ptn;
+  PTN_BIND(Request, role, resource_id, read_only);
 
   return match(req) | on(
-    $(has<&Request::role>)[arg<0> == Role::Admin] >> true,
+    $(has<&Request::role>)[_ == Role::Admin] >> true,
     $(has<&Request::role, &Request::resource_id, &Request::read_only>)
-        [arg<0> == Role::User && arg<1> >= 0 && arg<2> == true] >> true,
+        [role == Role::User && resource_id >= 0 && read_only == true] >> true,
     $(has<&Request::role, &Request::resource_id>)
-        [arg<0> == Role::Guest && is_public_resource] >> true,
+        [role == Role::Guest && is_public_resource] >> true,
     _ >> false
   );
 }

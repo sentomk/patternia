@@ -98,13 +98,13 @@ using namespace ptn;
 
 const char *bucket(int x) {
   return match(x) | on(
-    $[PTN_LET(value, value > 0 && value < 10)] >> "small",
+    $[_ > 0 && _ < 10] >> "small",
     _ >> "other"
   );
 }
 ```
 
-For multiple bound values, use `arg<N>` or `PTN_WHERE((...), expr)`:
+For multiple bound values, declare readable placeholders with `PTN_BIND`:
 
 ```cpp
 using namespace ptn;
@@ -114,21 +114,18 @@ struct Point {
   int y;
 };
 
+PTN_BIND(Point, x, y);
+
 bool on_unit_circle(const Point &p) {
   return match(p) | on(
-    $(has<&Point::x, &Point::y>)[arg<0> * arg<0> + arg<1> * arg<1> == 1]
-        >> true,
+    $(has<&Point::x, &Point::y>)[x * x + y * y == 1] >> true,
     _ >> false
   );
 }
-```
-
-```cpp
-using namespace ptn;
 
 bool on_diagonal(const Point &p) {
   return match(p) | on(
-    $(has<&Point::x, &Point::y>)[PTN_WHERE((x, y), x == y)] >> true,
+    $(has<&Point::x, &Point::y>)[x == y] >> true,
     _ >> false
   );
 }
