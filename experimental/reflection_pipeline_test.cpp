@@ -1,5 +1,5 @@
 // =============================================================================
-// Integration test: has_refl<^^Type::member> in full match pipeline.
+// Integration test: reflect::has<^^Type::member> in full match pipeline.
 //
 // Compile with:
 //   clang-21 -std=c++26 -freflection -nostdinc++ \
@@ -14,8 +14,8 @@
 #include "ptn/pattern/experimental/reflect_decompose.hpp"
 
 using namespace ptn;
-using ptn::pat::reflect::decompose;
-using ptn::pat::reflect::has_refl;
+
+namespace reflect = ptn::pat::reflect;
 
 struct Point {
   int x;
@@ -27,23 +27,23 @@ struct Packet {
   int length;
 };
 
-// Test 1: Basic binding — decompose<^^T::m...>() >> handler
+// Test 1: Basic binding — reflect::bind<^^T::m...> >> handler
 void test_basic_binding() {
   Point p{3, 4};
   int   result =
       match(p)
-      | on(decompose<^^Point::x, ^^Point::y>()
+      | on(reflect::bind<^^Point::x, ^^Point::y>
                >> [](int x, int y) { return x + y; },
            _ >> 0);
   printf("test_basic_binding:       %d (expect 7)\n", result);
 }
 
-// Test 2: Guarded binding — decompose<...>()[guard] >> handler
+// Test 2: Guarded binding — bind<...>[guard] >> handler
 void test_guarded_binding() {
   Point p{5, 3};
   int   result =
       match(p)
-      | on(decompose<^^Point::x, ^^Point::y>()[_0 > arg<1>]
+      | on(reflect::bind<^^Point::x, ^^Point::y>[_0 > arg<1>]
                >> [](int x, int y) { return x - y; },
            _ >> -1);
   printf("test_guarded_binding:     %d (expect 2)\n", result);
@@ -54,7 +54,7 @@ void test_guard_rejects() {
   Point p{2, 5};
   int   result =
       match(p)
-      | on(decompose<^^Point::x, ^^Point::y>()[_0 > arg<1>]
+      | on(reflect::bind<^^Point::x, ^^Point::y>[_0 > arg<1>]
                >> [](int x, int y) { return x - y; },
            _ >> -1);
   printf("test_guard_rejects:       %d (expect -1)\n", result);
@@ -65,18 +65,18 @@ void test_partial_binding() {
   Point p{42, 99};
   int   result =
       match(p)
-      | on(decompose<^^Point::x>()
+      | on(reflect::bind<^^Point::x>
                >> [](int x) { return x; },
            _ >> 0);
   printf("test_partial_binding:     %d (expect 42)\n", result);
 }
 
-// Test 5: Non-binding guard via has_refl<>
+// Test 5: Non-binding guard via has<>
 void test_nonbinding_guard() {
   Packet pkt{0x01, 100};
   int    result =
       match(pkt)
-      | on(has_refl<^^Packet::type>[_0 == 1]
+      | on(reflect::has<^^Packet::type>[_0 == 1]
                >> [] { return 42; },
            _ >> 0);
   printf("test_nonbinding_guard:    %d (expect 42)\n", result);
@@ -87,9 +87,9 @@ void test_fallthrough() {
   Packet pkt{0x02, 100};
   int    result =
       match(pkt)
-      | on(has_refl<^^Packet::type>[_0 == 1]
+      | on(reflect::has<^^Packet::type>[_0 == 1]
                >> [] { return 1; },
-           has_refl<^^Packet::type>[_0 == 2]
+           reflect::has<^^Packet::type>[_0 == 2]
                >> [] { return 2; },
            _ >> 0);
   printf("test_fallthrough:         %d (expect 2)\n", result);
@@ -100,7 +100,7 @@ void test_reordered() {
   Point p{3, 7};
   int   result =
       match(p)
-      | on(decompose<^^Point::y, ^^Point::x>()
+      | on(reflect::bind<^^Point::y, ^^Point::x>
                >> [](int first, int second) {
                  return first * 10 + second;
                },

@@ -174,29 +174,21 @@ namespace ptn::pat::detail {
 
 namespace ptn::pat::reflect {
 
-  // Public factory objects — mirror the has<> and $ API:
+  // Public factory object — same name as the C++17 has<>.
   //
-  //   has_refl<^^Point::x, ^^Point::y>   // non-binding structural check
-  //   $(has_refl<^^Point::x, ^^Point::y>)  // binding structural match
+  //   reflect::has<^^Point::x, ^^Point::y>      // non-binding check
+  //   $(reflect::has<^^Point::x, ^^Point::y>)   // binding
 
   template <std::meta::info... Members>
-  inline constexpr has_refl_pattern<Members...> has_refl{};
+  inline constexpr has_refl_pattern<Members...> has{};
 
-  // $() support: a dollar_reflect factory that wraps has_refl into
-  // a binding pattern.
+  // Binding factory — mirrors $() for the reflection variant.
   //
-  // Usage:
-  //   $(reflect::has_refl<^^Point::x, ^^Point::y>)
+  //   reflect::bind<^^Point::x, ^^Point::y>
   //   >> [](int x, int y) { return x + y; };
-  //
-  // The user can also use it directly:
-  //   reflect::decompose<^^Point::x, ^^Point::y>()
-  //   >> [](int x, int y) { ... };
 
   template <std::meta::info... Members>
-  constexpr auto decompose() {
-    return has_refl_bind_pattern<Members...>{};
-  }
+  inline constexpr has_refl_bind_pattern<Members...> bind{};
 
 } // namespace ptn::pat::reflect
 
