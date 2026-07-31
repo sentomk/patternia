@@ -1020,10 +1020,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_0" class="md-nav__link">
+  <a href="#_" class="md-nav__link">
     <span class="md-ellipsis">
       
-        _0
+        _
       
     </span>
   </a>
@@ -1031,10 +1031,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#argn" class="md-nav__link">
+  <a href="#ptn_bindtype-names" class="md-nav__link">
     <span class="md-ellipsis">
       
-        arg&lt;N&gt;
+        PTN_BIND(Type, names...)
       
     </span>
   </a>
@@ -1053,21 +1053,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ptn_wherenames-expr" class="md-nav__link">
+  <a href="#migration-from-positional-guard-apis" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PTN_WHERE((names...), expr)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#ptn_letname-expr" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PTN_LET(name, expr)
+        Migration from positional guard APIs
       
     </span>
   </a>
@@ -1876,7 +1865,7 @@ consider static dispatch.</p>
 <h2 id="guard-attachment">Guard Attachment <code>[]</code><a class="headerlink" href="#guard-attachment" title="Permanent link">&para;</a></h2>
 <p>Attach a guard to a binding pattern with <code>pattern[guard]</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">PTN_LET</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;small&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;small&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
 <span class="p">);</span>
 </code></pre></div>
@@ -1890,42 +1879,38 @@ consider static dispatch.</p>
 <p>A guard failure only rejects the current case.</p>
 <hr />
 <h2 id="guard-helpers">Guard Helpers<a class="headerlink" href="#guard-helpers" title="Permanent link">&para;</a></h2>
-<h3 id="_0"><code>_0</code><a class="headerlink" href="#_0" title="Permanent link">&para;</a></h3>
+<h3 id="_"><code>_</code><a class="headerlink" href="#_" title="Permanent link">&para;</a></h3>
 <p>Placeholder alias for a single bound value.</p>
-<div class="highlight"><pre><span></span><code><span class="n">$</span><span class="p">[</span><span class="n">_0</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="p">]</span>
 </code></pre></div>
-<p>Use <code>_0</code> when one binding is enough and the predicate reads clearly without an
+<p>Use <code>_</code> when one binding is enough and the predicate reads clearly without an
 explicit name.</p>
-<h3 id="argn"><code>arg&lt;N&gt;</code><a class="headerlink" href="#argn" title="Permanent link">&para;</a></h3>
-<p>Indexed placeholder for general multi-binding guards.</p>
-<div class="highlight"><pre><span></span><code><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">25</span><span class="p">]</span>
+<h3 id="ptn_bindtype-names"><code>PTN_BIND(Type, names...)</code><a class="headerlink" href="#ptn_bindtype-names" title="Permanent link">&para;</a></h3>
+<p>Declares readable placeholders for multi-binding guards. List the names in the
+same order as the members passed to <code>has&lt;&gt;</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">PTN_BIND</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
+
+<span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">25</span><span class="p">]</span>
 </code></pre></div>
 <h3 id="rnglo-hi-mode"><code>rng(lo, hi, mode)</code><a class="headerlink" href="#rnglo-hi-mode" title="Permanent link">&para;</a></h3>
 <p>Range helper for single-bound-value guards.</p>
 <div class="highlight"><pre><span></span><code><span class="n">$</span><span class="p">[</span><span class="n">rng</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)]</span>
 <span class="n">$</span><span class="p">[</span><span class="n">rng</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">pat</span><span class="o">::</span><span class="n">mod</span><span class="o">::</span><span class="n">open</span><span class="p">)]</span>
 </code></pre></div>
-<p>Use callables for domain logic that does not read naturally as <code>_0</code>,
-<code>arg&lt;N&gt;</code>, or <code>PTN_WHERE(...)</code>.</p>
-<h3 id="ptn_wherenames-expr"><code>PTN_WHERE((names...), expr)</code><a class="headerlink" href="#ptn_wherenames-expr" title="Permanent link">&para;</a></h3>
-<p>Use named guard parameters without writing the lambda yourself.
-The macro currently supports 1 to 5 names.</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">PTN_WHERE</span><span class="p">((</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">),</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">y</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;diagonal&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
-<span class="p">);</span>
+<p><code>PTN_BIND</code> supports one to five names and can be declared at namespace or block
+scope. Use callables for domain logic that does not read naturally as <code>_</code> or a
+short named-placeholder expression.</p>
+<h3 id="migration-from-positional-guard-apis">Migration from positional guard APIs<a class="headerlink" href="#migration-from-positional-guard-apis" title="Permanent link">&para;</a></h3>
+<p>The guard surface now uses <code>_</code> for one bound value and <code>PTN_BIND</code> names for
+multiple bound values. The former <code>__</code>, <code>_0</code>, <code>arg&lt;N&gt;</code>, <code>PTN_LET</code>, and
+<code>PTN_WHERE</code> spellings have been removed rather than retained as aliases.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Single value</span>
+<span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1">// Multiple values</span>
+<span class="n">PTN_BIND</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
+<span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">y</span><span class="p">]</span>
 </code></pre></div>
-<p><code>PTN_WHERE(...)</code> expands to a guard callable and composes with <code>&amp;&amp;</code> / <code>||</code>
-like other guard predicates.</p>
-<h3 id="ptn_letname-expr"><code>PTN_LET(name, expr)</code><a class="headerlink" href="#ptn_letname-expr" title="Permanent link">&para;</a></h3>
-<p>Use the single-value form when a guard binds exactly one value and you want to
- name it explicitly.</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">PTN_LET</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;small&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
-<span class="p">);</span>
-</code></pre></div>
-<p><code>PTN_LET(name, expr)</code> is equivalent to <code>PTN_WHERE((name), expr)</code>.</p>
 <hr />
 <h2 id="structural-matching">Structural Matching <code>has&lt;&amp;T::member...&gt;</code><a class="headerlink" href="#structural-matching" title="Permanent link">&para;</a></h2>
 <p><code>has&lt;&gt;</code> describes structure.
@@ -2043,17 +2028,18 @@ not match, and vice versa.</p>
 <p>The factory must be stateless.</p>
 <hr />
 <h2 id="namespace-summary">Namespace Summary<a class="headerlink" href="#namespace-summary" title="Permanent link">&para;</a></h2>
-<p>The public surface is re-exported through <code>namespace ptn</code>:</p>
+<p>The public surface is available through <code>namespace ptn</code>, plus the macros listed
+below:</p>
 <ul>
 <li><code>match</code></li>
 <li><code>on</code></li>
 <li><code>lit</code>, <code>val</code>, <code>lit_ci</code></li>
 <li><code>$</code></li>
-<li><code>_</code></li>
-<li><code>_0</code>, <code>arg</code>, <code>rng</code></li>
+<li><code>_</code>, <code>rng</code></li>
 <li><code>has</code></li>
 <li><code>is</code>, <code>alt</code></li>
 <li><code>any</code>, <code>all</code>, <code>neg</code></li>
+<li><code>PTN_ON</code>, <code>PTN_BIND</code> (macros)</li>
 </ul>
 <hr />
 <h2 id="minimal-example">Minimal Example<a class="headerlink" href="#minimal-example" title="Permanent link">&para;</a></h2>

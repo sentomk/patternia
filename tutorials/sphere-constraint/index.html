@@ -1438,19 +1438,21 @@ statements.</p>
 <span class="p">}</span>
 </code></pre></div>
 <h2 id="refining-the-constraint">Refining the Constraint<a class="headerlink" href="#refining-the-constraint" title="Permanent link">&para;</a></h2>
-<p>You can combine a named predicate with <code>arg&lt;N&gt;</code> for simple extra checks:</p>
+<p>You can combine a named predicate with a <code>PTN_BIND</code> placeholder for simple
+extra checks:</p>
 <div class="highlight"><pre><span></span><code><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="nf">classify_upper</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec3</span><span class="w"> </span><span class="o">&amp;</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+<span class="w">  </span><span class="n">PTN_BIND</span><span class="p">(</span><span class="n">Vec3</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">z</span><span class="p">);</span>
 
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">    </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">z</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">arg</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">inside_unit_sphere</span><span class="p">]</span>
+<span class="w">    </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Vec3</span><span class="o">::</span><span class="n">z</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">z</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">inside_unit_sphere</span><span class="p">]</span>
 <span class="w">        </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;inside&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;outside&quot;</span>
 <span class="w">  </span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>For multi-value guards, prefer explicit <code>arg&lt;N&gt;</code> references or a callable that
-accepts all bound values.</p>
+<p>For multi-value guards, prefer <code>PTN_BIND</code> names or a callable that accepts all
+bound values.</p>
 
 
 
