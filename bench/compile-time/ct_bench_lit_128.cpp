@@ -134,7 +134,7 @@ constexpr int ct_lit_128(int v) noexcept {
               ptn::lit(125) >> 125,
               ptn::lit(126) >> 126,
               ptn::lit(127) >> 127,
-              __ >> 0);
+              _ >> 0);
 }
 
 static_assert(ct_lit_128(0) == 0, "");

@@ -5,27 +5,27 @@ In Patternia, they live inside the case definition:
 
 ```cpp
 match(x) | on(
-  $[_0 > 0 && _0 < 10] >> "small",
+  $[_ > 0 && _ < 10] >> "small",
   _ >> "other"
 );
 ```
 
 ## Single-Value Guards
 
-Use `_0` for a case that binds exactly one value.
+Use `_` for a case that binds exactly one value.
 
 ```cpp
 match(x) | on(
-  $[_0 == 0 || _0 == 1] >> "edge",
+  $[_ == 0 || _ == 1] >> "edge",
   _ >> "other"
 );
 ```
 
-If you want a name instead of `_0`, use `PTN_LET(name, expr)`:
+For a single bound value, `_` is the guard placeholder:
 
 ```cpp
 match(x) | on(
-  $[PTN_LET(value, value == 0 || value == 1)] >> "edge",
+  $[_ == 0 || _ == 1] >> "edge",
   _ >> "other"
 );
 ```
@@ -42,7 +42,7 @@ match(x) | on(
 
 ## Multi-Value Guards
 
-Use `arg<N>` when a pattern binds multiple values.
+Use `PTN_BIND` to give multiple bound values readable names.
 
 ```cpp
 struct Point {
@@ -50,17 +50,10 @@ struct Point {
   int y;
 };
 
-match(p) | on(
-  $(has<&Point::x, &Point::y>)[arg<0> == arg<1>] >> "diagonal",
-  _ >> "other"
-);
-```
+PTN_BIND(Point, x, y);
 
-If you prefer named guard parameters, use `PTN_WHERE((...), expr)`:
-
-```cpp
 match(p) | on(
-  $(has<&Point::x, &Point::y>)[PTN_WHERE((x, y), x == y)] >> "diagonal",
+  $(has<&Point::x, &Point::y>)[x == y] >> "diagonal",
   _ >> "other"
 );
 ```
@@ -96,7 +89,7 @@ auto valid_id = [](int v) {
 };
 
 match(x) | on(
-  $[_0 > 0 && valid_id] >> "valid",
+  $[_ > 0 && valid_id] >> "valid",
   _ >> "invalid"
 );
 ```

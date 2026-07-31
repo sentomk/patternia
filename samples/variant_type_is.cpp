@@ -19,12 +19,16 @@ describe(const std::variant<int, std::string, Point> &v) {
              $(is<std::string>()) >>
                  [](const std::string &s) { return "str:" + s; },
              is<Point>($(has<&Point::x, &Point::y>)) >>
-                 [](int x, int y) { return "pt:" + std::to_string(x + y); },
-             __ >> [] { return std::string("other"); });
+                 [](int x, int y) {
+                   return "pt:" + std::to_string(x + y);
+                 },
+             _ >> [] { return std::string("other"); });
 }
 
 std::string
 describe_as(const std::variant<int, std::string, Point> &v) {
+  PTN_BIND(Point, x, y);
+
   // Same as describe(...), but uses the binding sugar
   // `$(is<T>())` and `$(has<...>)`.
   //
@@ -35,13 +39,14 @@ describe_as(const std::variant<int, std::string, Point> &v) {
   return match(v)
          | on(
              is<int>() >> "int",
-             $(is<std::string>())[_0 != ""] >>
+             $(is<std::string>())[_ != ""] >>
                  [](const std::string &s) { return "str:" + s; },
-             is<Point>($(has<&Point::x, &Point::y>))[arg<0> > 0
-                                                       && arg<1> > 0]
+             is<Point>($(has<&Point::x, &Point::y>))[x > 0 && y > 0]
                  >>
-                 [](int x, int y) { return "pt:" + std::to_string(x + y); },
-             __ >> [] { return std::string("other"); });
+                 [](int x, int y) {
+                   return "pt:" + std::to_string(x + y);
+                 },
+             _ >> [] { return std::string("other"); });
 }
 
 int main() {

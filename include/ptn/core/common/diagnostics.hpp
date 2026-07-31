@@ -2,8 +2,9 @@
 
 // Compile-time diagnostics and static assertions for Patternia.
 //
-// This header provides validation utilities that detect common pattern matching
-// errors at compile time, providing clear error messages to guide developers.
+// This header provides validation utilities that detect common
+// pattern matching errors at compile time, providing clear error
+// messages to guide developers.
 //
 #include <type_traits>
 #include <utility>
@@ -34,34 +35,44 @@ namespace ptn::core::common {
   // ------------------------------------------------------------
 
   // Validates the entire match expression for consistency.
-  // Ensures all handlers are invocable and have compatible return types.
+  // Ensures all handlers are invocable and have compatible return
+  // types.
   template <typename Subject, typename Otherwise, typename... Cases>
   constexpr void static_assert_valid_match() {
-    // (A) Each case handler must accept its pattern's bound arguments.
-    constexpr bool handlers_ok =
-        (traits::is_handler_invocable_v<Cases, Subject> && ...);
-    static_assert(
-        handlers_ok,
-        "[Patternia.match] At least one case's handler cannot be invoked with "
-        "the arguments bound by its pattern. "
-        "Please check the handler's signature against the pattern's expected "
-        "bindings. Tip: ensure handler parameter types match the pattern's "
-        "bindings.");
+    // (A) Each case handler must accept its pattern's bound
+    // arguments.
+    constexpr bool
+        handlers_ok = (traits::is_handler_invocable_v<Cases, Subject>
+                       && ...);
+    static_assert(handlers_ok,
+                  "[Patternia.match] At least one case's handler "
+                  "cannot be invoked with "
+                  "the arguments bound by its pattern. "
+                  "Please check the handler's signature against the "
+                  "pattern's expected "
+                  "bindings. Tip: ensure handler parameter types "
+                  "match the pattern's "
+                  "bindings.");
 
-    // (B) The otherwise handler must be callable with Subject or no args.
-    constexpr bool otherwise_ok = std::is_invocable_v<Otherwise, Subject> ||
-                                  std::is_invocable_v<Otherwise>;
-    static_assert(
-        otherwise_ok,
-        "[Patternia.match] The `otherwise` handler has an invalid signature. "
-        "It should be either callable with the subject value or callable with "
-        "no arguments. Tip: make it callable with Subject or with no args.");
+    // (B) The otherwise handler must be callable with Subject or no
+    // args.
+    constexpr bool
+        otherwise_ok = std::is_invocable_v<Otherwise, Subject>
+                       || std::is_invocable_v<Otherwise>;
+    static_assert(otherwise_ok,
+                  "[Patternia.match] The `otherwise` handler has an "
+                  "invalid signature. "
+                  "It should be either callable with the subject "
+                  "value or callable with "
+                  "no arguments. Tip: make it callable with Subject "
+                  "or with no args.");
 
     // (C) All handlers must share a common return type.
     using common_return_type = traits::
         match_result_t<Subject, Otherwise, Cases...>;
 
-    // Force instantiation to catch potential type errors (skip for void)
+    // Force instantiation to catch potential type errors (skip for
+    // void)
     if constexpr (!std::is_void_v<common_return_type>) {
       (void) sizeof(common_return_type);
     }
@@ -71,15 +82,17 @@ namespace ptn::core::common {
   template <typename Case, typename Subject>
   constexpr void static_assert_valid_handler() {
     // (A) Handler must be invocable with the bound values.
-    constexpr bool handler_invocable =
-        traits::is_handler_invocable_v<Case, Subject>;
-    static_assert(
-        handler_invocable,
-        "[Patternia.match] Handler signature does not match the pattern's "
-        "binding result.");
+    constexpr bool
+        handler_invocable = traits::is_handler_invocable_v<Case,
+                                                           Subject>;
+    static_assert(handler_invocable,
+                  "[Patternia.match] Handler signature does not "
+                  "match the pattern's "
+                  "binding result.");
   }
 
-  // Validates a single case expression structure and handler compatibility.
+  // Validates a single case expression structure and handler
+  // compatibility.
   template <typename Case, typename Subject>
   constexpr void static_assert_valid_case() {
     // (A) Match inputs must be case expressions.
@@ -96,11 +109,13 @@ namespace ptn::core::common {
   template <typename Pattern, typename Subject>
   constexpr void static_assert_valid_pattern() {
     // (A) Provided type must satisfy Patternia's pattern contract.
-    constexpr bool is_pattern_type = ptn::pat::traits::is_pattern_v<Pattern>;
-    static_assert(
-        is_pattern_type,
-        "[Patternia.match] The provided type is not a valid pattern. "
-        "A pattern must be invocable with a subject and return a boolean.");
+    constexpr bool
+        is_pattern_type = ptn::pat::traits::is_pattern_v<Pattern>;
+    static_assert(is_pattern_type,
+                  "[Patternia.match] The provided type is not a "
+                  "valid pattern. "
+                  "A pattern must be invocable with a subject and "
+                  "return a boolean.");
   }
 
   namespace detail {
@@ -112,26 +127,30 @@ namespace ptn::core::common {
 
     template <typename Case, typename Next, typename... Rest>
     struct fallback_is_last<Case, Next, Rest...>
-        : std::conditional_t<ptn::core::traits::is_pattern_fallback_v<
-                                 ptn::core::traits::case_pattern_t<Case>>,
-                             std::false_type,
-                             fallback_is_last<Next, Rest...>> {};
+        : std::conditional_t<
+              ptn::core::traits::is_pattern_fallback_v<
+                  ptn::core::traits::case_pattern_t<Case>>,
+              std::false_type,
+              fallback_is_last<Next, Rest...>> {};
   } // namespace detail
 
   // Detects unreachable cases in pattern matching.
   namespace detail {
-    inline constexpr std::size_t alt_npos = static_cast<std::size_t>(-1);
+    inline constexpr std::size_t alt_npos = static_cast<std::size_t>(
+        -1);
 
     template <typename Pattern>
-    struct alt_pattern_index : std::integral_constant<std::size_t, alt_npos> {};
+    struct alt_pattern_index
+        : std::integral_constant<std::size_t, alt_npos> {};
 
     template <std::size_t I, typename SubPattern>
-    struct alt_pattern_index<ptn::pat::detail::type_alt_pattern<
-        I,
-        SubPattern>> : std::integral_constant<std::size_t, I> {};
+    struct alt_pattern_index<
+        ptn::pat::detail::type_alt_pattern<I, SubPattern>>
+        : std::integral_constant<std::size_t, I> {};
 
     template <typename Inner, typename Pred>
-    struct alt_pattern_index<ptn::pat::mod::guarded_pattern<Inner, Pred>>
+    struct alt_pattern_index<
+        ptn::pat::mod::guarded_pattern<Inner, Pred>>
         : alt_pattern_index<Inner> {};
 
     template <typename Pattern>
@@ -139,18 +158,20 @@ namespace ptn::core::common {
         : std::integral_constant<std::size_t, alt_npos> {};
 
     template <std::size_t I>
-    struct plain_alt_pattern_index<ptn::pat::detail::type_alt_pattern<
-        I,
-        ptn::pat::detail::no_subpattern>>
+    struct plain_alt_pattern_index<
+        ptn::pat::detail::
+            type_alt_pattern<I, ptn::pat::detail::no_subpattern>>
         : std::integral_constant<std::size_t, I> {};
 
     template <typename Case>
-    inline constexpr std::size_t alt_case_index_v =
-        alt_pattern_index<ptn::core::traits::case_pattern_t<Case>>::value;
+    inline constexpr std::size_t
+        alt_case_index_v = alt_pattern_index<
+            ptn::core::traits::case_pattern_t<Case>>::value;
 
     template <typename Case>
-    inline constexpr std::size_t plain_alt_case_index_v =
-        plain_alt_pattern_index<ptn::core::traits::case_pattern_t<Case>>::value;
+    inline constexpr std::size_t
+        plain_alt_case_index_v = plain_alt_pattern_index<
+            ptn::core::traits::case_pattern_t<Case>>::value;
 
     template <std::size_t... Is>
     struct alt_index_set {};
@@ -174,19 +195,22 @@ namespace ptn::core::common {
     };
 
     template <typename CoveredSet, typename... Cases>
-    struct has_unreachable_alt_after_plain_alt_from : std::false_type {};
+    struct has_unreachable_alt_after_plain_alt_from
+        : std::false_type {};
 
-    template <std::size_t... Covered, typename First, typename... Rest>
+    template <std::size_t... Covered,
+              typename First,
+              typename... Rest>
     struct has_unreachable_alt_after_plain_alt_from<
         alt_index_set<Covered...>,
         First,
         Rest...>
         : std::bool_constant<
-              (((alt_case_index_v<First> != alt_npos) &&
-                alt_index_set_contains<
+              (((alt_case_index_v<First> != alt_npos)
+                && alt_index_set_contains<
                     alt_case_index_v<First>,
-                    alt_index_set<Covered...>>::value)) ||
-              has_unreachable_alt_after_plain_alt_from<
+                    alt_index_set<Covered...>>::value))
+              || has_unreachable_alt_after_plain_alt_from<
                   std::conditional_t<
                       (plain_alt_case_index_v<First> == alt_npos),
                       alt_index_set<Covered...>,
@@ -197,24 +221,24 @@ namespace ptn::core::common {
 
     template <typename... Cases>
     struct has_unreachable_alt_after_plain_alt
-        : has_unreachable_alt_after_plain_alt_from<alt_index_set<>, Cases...> {};
+        : has_unreachable_alt_after_plain_alt_from<alt_index_set<>,
+                                                   Cases...> {};
 
     template <typename CoveredSet, typename... Cases>
-    struct is_tail_case_unreachable_after_plain_alt : std::false_type {};
+    struct is_tail_case_unreachable_after_plain_alt
+        : std::false_type {};
 
     template <typename CoveredSet, typename Last>
     struct is_tail_case_unreachable_after_plain_alt<CoveredSet, Last>
-        : std::bool_constant<
-              ((alt_case_index_v<Last> != alt_npos) &&
-               alt_index_set_contains<
-                   alt_case_index_v<Last>,
-                   CoveredSet>::value)> {};
+        : std::bool_constant<(
+              (alt_case_index_v<Last> != alt_npos)
+              && alt_index_set_contains<alt_case_index_v<Last>,
+                                        CoveredSet>::value)> {};
 
-    template <
-        std::size_t... Covered,
-        typename First,
-        typename Next,
-        typename... Rest>
+    template <std::size_t... Covered,
+              typename First,
+              typename Next,
+              typename... Rest>
     struct is_tail_case_unreachable_after_plain_alt<
         alt_index_set<Covered...>,
         First,
@@ -232,37 +256,42 @@ namespace ptn::core::common {
 
     template <typename... Cases>
     struct is_new_case_unreachable_after_plain_alt
-        : is_tail_case_unreachable_after_plain_alt<alt_index_set<>, Cases...> {
-    };
+        : is_tail_case_unreachable_after_plain_alt<alt_index_set<>,
+                                                   Cases...> {};
   } // namespace detail
 
   template <typename... Cases>
   struct has_unreachable_case
       : std::bool_constant<
-            !detail::fallback_is_last<Cases...>::value ||
-            detail::has_unreachable_alt_after_plain_alt<Cases...>::value> {};
+            !detail::fallback_is_last<Cases...>::value
+            || detail::has_unreachable_alt_after_plain_alt<
+                Cases...>::value> {};
 
   // Convenience variable template for unreachable case detection.
   template <typename... Cases>
   inline constexpr bool
       has_unreachable_case_v = has_unreachable_case<Cases...>::value;
 
-  // Emits diagnostic for deterministic unreachable alt<I>(...) cases caused by
-  // an earlier plain alt<I>() that already covers the same alternative.
+  // Emits diagnostic for deterministic unreachable alt<I>(...) cases
+  // caused by an earlier plain alt<I>() that already covers the same
+  // alternative.
   template <typename... Cases>
   constexpr void static_assert_no_unreachable_alt_after_plain_alt() {
     constexpr bool no_unreachable_alt_after_plain_alt =
-        !detail::has_unreachable_alt_after_plain_alt<Cases...>::value;
+        !detail::has_unreachable_alt_after_plain_alt<
+            Cases...>::value;
     static_assert(
         no_unreachable_alt_after_plain_alt,
         "[Patternia.alt]: case is unreachable because an earlier "
-        "plain alt<I>() already covers this alternative. Tip: remove "
+        "plain alt<I>() already covers this alternative. Tip: "
+        "remove "
         "the later alt<I>(...) case, or reorder cases.");
   }
 
-  // Checks if the subject type is valid for pattern matching (must be an lvalue
-  // reference). This is a variable template because class bodies can only use
-  // static_assert with constant boolean conditions, not function calls.
+  // Checks if the subject type is valid for pattern matching (must
+  // be an lvalue reference). This is a variable template because
+  // class bodies can only use static_assert with constant boolean
+  // conditions, not function calls.
   template <typename Subject>
   inline constexpr bool
       is_subject_type_valid_v = std::is_lvalue_reference_v<Subject>;
@@ -270,10 +299,12 @@ namespace ptn::core::common {
   // Emits a diagnostic if subject is not an lvalue reference.
   template <typename Subject>
   struct subject_type_validator {
-    static constexpr bool is_lvalue_ref = is_subject_type_valid_v<Subject>;
-    static_assert(is_lvalue_ref,
-                  "[Patternia.match]: subject must be an lvalue reference. "
-                  "Tip: pass an lvalue (match(v)), not std::move(v).");
+    static constexpr bool
+        is_lvalue_ref = is_subject_type_valid_v<Subject>;
+    static_assert(
+        is_lvalue_ref,
+        "[Patternia.match]: subject must be an lvalue reference. "
+        "Tip: pass an lvalue (match(v)), not std::move(v).");
   };
 
   // ------------------------------------------------------------
@@ -285,24 +316,27 @@ namespace ptn::core::common {
   constexpr void static_assert_literal_store_type() {
     // (A) Literal storage type cannot be void.
     constexpr bool not_void = !std::is_void_v<StoreT>;
-    static_assert(not_void,
-                  "[Patternia.lit]: Literal value cannot be of type void.");
+    static_assert(
+        not_void,
+        "[Patternia.lit]: Literal value cannot be of type void.");
     // (B) Literal storage must be a value type (not a reference).
     constexpr bool not_ref = !std::is_reference_v<StoreT>;
-    static_assert(
-        not_ref,
-        "[Patternia.lit]: Literal value must be a value type (non-reference).");
+    static_assert(not_ref,
+                  "[Patternia.lit]: Literal value must be a value "
+                  "type (non-reference).");
     // (C) Literal storage must be movable.
     constexpr bool movable = std::is_move_constructible_v<StoreT>;
     static_assert(movable,
-                  "[Patternia.lit]: Literal value must be move-constructible.");
+                  "[Patternia.lit]: Literal value must be "
+                  "move-constructible.");
     // (D) Literal storage must support equality comparison.
-    constexpr bool comparable =
-        std::is_constructible_v<bool,
-                                decltype(std::declval<const StoreT &>()
-                                         == std::declval<const StoreT &>())>;
+    constexpr bool comparable = std::is_constructible_v<
+        bool,
+        decltype(std::declval<const StoreT &>()
+                 == std::declval<const StoreT &>())>;
     static_assert(comparable,
-                  "[Patternia.lit]: Literal value type must support operator==.");
+                  "[Patternia.lit]: Literal value type must support "
+                  "operator==.");
   }
 
   // ------------------------------------------------------------
@@ -313,11 +347,13 @@ namespace ptn::core::common {
   template <auto... Ms>
   constexpr void static_assert_structural_elements() {
     // (A) has<...> only accepts member pointers or placeholders.
-    constexpr bool all_elements_valid =
-        (ptn::pat::traits::is_structural_element_v<Ms> && ...);
-    static_assert(
-        all_elements_valid,
-        "[Patternia.has]: only data member pointers or nullptr/_ign allowed.");
+    constexpr bool
+        all_elements_valid = (ptn::pat::traits::
+                                  is_structural_element_v<Ms>
+                              && ...);
+    static_assert(all_elements_valid,
+                  "[Patternia.has]: only data member pointers or "
+                  "nullptr/_ign allowed.");
   }
 
   // Checks whether a subject exposes the requested member pointer.
@@ -330,47 +366,50 @@ namespace ptn::core::common {
     struct has_member_access<
         Subject,
         M,
-        std::void_t<decltype(std::declval<Subject &>().*M)>> : std::true_type {
-    };
+        std::void_t<decltype(std::declval<Subject &>().*M)>>
+        : std::true_type {};
   } // namespace detail
 
-  // Validates that a subject type provides all requested members in has<...>.
+  // Validates that a subject type provides all requested members in
+  // has<...>.
   template <typename Subject, auto... Ms>
   constexpr void static_assert_structural_accessible() {
     constexpr bool all_members_accessible =
-        ((ptn::pat::traits::is_nullptr_placeholder_v<Ms> ||
-          detail::has_member_access<Subject, Ms>::value) &&
-         ...);
-    static_assert(
-        all_members_accessible,
-        "[Patternia.has]: Subject does not expose one or more requested "
-        "members.");
+        ((ptn::pat::traits::is_nullptr_placeholder_v<Ms>
+          || detail::has_member_access<Subject, Ms>::value)
+         && ...);
+    static_assert(all_members_accessible,
+                  "[Patternia.has]: Subject does not expose one or "
+                  "more requested "
+                  "members.");
   }
 
   // ------------------------------------------------------------
   // Guard Predicate Validation
   // ------------------------------------------------------------
 
-  // Ensures arg<I> references are within the bound tuple range.
+  // Ensures placeholder references are within the bound tuple range.
   template <std::size_t MaxIndex, std::size_t N>
   constexpr void static_assert_tuple_guard_index() {
-    // (A) arg<I> must reference an existing bound value.
+    // (A) A placeholder must reference an existing bound value.
     constexpr bool guard_index_in_range = MaxIndex < N;
-    static_assert(
-        guard_index_in_range,
-        "[Patternia.guard]: arg<I> is out of range for the bound values.");
+    static_assert(guard_index_in_range,
+                  "[Patternia.guard]: placeholder is out of range "
+                  "for the bound values.");
   }
 
-  // Ensures unary guard predicates are only used with single bindings.
+  // Ensures unary guard predicates are only used with single
+  // bindings.
   template <std::size_t N>
   constexpr void static_assert_unary_guard_arity() {
     // (A) Unary guards require exactly one bound value.
     constexpr bool unary_guard_requires_one_binding = N == 1;
-    static_assert(
-        unary_guard_requires_one_binding,
-        "[Patternia.guard]: Unary guard predicates (_ / rng / && / ||) "
-        "require the pattern to bind exactly ONE value. "
-        "For multi-value guards, use a callable predicate (lambda / where).");
+    static_assert(unary_guard_requires_one_binding,
+                  "[Patternia.guard]: Unary guard predicates (_ / "
+                  "rng / && / ||) "
+                  "require the pattern to bind exactly ONE value. "
+                  "For multi-value guards, declare names with "
+                  "PTN_BIND or use a callable predicate (lambda).");
   }
 
   // ------------------------------------------------------------
@@ -382,10 +421,10 @@ namespace ptn::core::common {
   constexpr void static_assert_pattern_has_bind() {
     // (A) Patterns used in handlers must provide bind(subject).
     constexpr bool pattern_has_bind_method = HasBindMember;
-    static_assert(
-        pattern_has_bind_method,
-        "[Patternia.match] Pattern must have a 'bind(subject)' method that "
-        "returns a tuple of bound values.");
+    static_assert(pattern_has_bind_method,
+                  "[Patternia.match] Pattern must have a "
+                  "'bind(subject)' method that "
+                  "returns a tuple of bound values.");
   }
 
   // ------------------------------------------------------------
@@ -399,20 +438,19 @@ namespace ptn::core::common {
 
     template <typename T, typename... Ts>
     struct type_count<T, meta::type_list<Ts...>>
-        : std::integral_constant<std::size_t,
-                                 (0 + ... + (std::is_same_v<T, Ts> ? 1 : 0))> {
-    };
+        : std::integral_constant<
+              std::size_t,
+              (0 + ... + (std::is_same_v<T, Ts> ? 1 : 0))> {};
   } // namespace detail
 
   // Ensures Subject is a std::variant specialization.
   template <typename Subject>
   constexpr void static_assert_variant_subject() {
     // (A) Subject must be a std::variant specialization.
-    constexpr bool is_variant_subject =
-        meta::is_spec_of_v<std::variant, meta::remove_cvref_t<Subject>>;
-    static_assert(
-        is_variant_subject,
-        "[Patternia.is]: Subject must be a std::variant.");
+    constexpr bool is_variant_subject = meta::
+        is_spec_of_v<std::variant, meta::remove_cvref_t<Subject>>;
+    static_assert(is_variant_subject,
+                  "[Patternia.is]: Subject must be a std::variant.");
   }
 
   // Ensures Alt appears exactly once in the variant's alternatives.
@@ -424,15 +462,17 @@ namespace ptn::core::common {
     using args_t    = typename meta::template_info<subject_t>::args;
 
     constexpr std::size_t
-        count = detail::type_count<meta::remove_cvref_t<Alt>, args_t>::value;
+        count = detail::type_count<meta::remove_cvref_t<Alt>,
+                                   args_t>::value;
 
     // (A) Alternative type must appear exactly once.
     constexpr bool alt_appears_once = (count == 1);
-    static_assert(
-        alt_appears_once,
-        "[Patternia.is]: Alternative type must appear exactly once in "
-        "std::variant. Tip: use alt<I>() for duplicate types, or wrap "
-        "types in distinct structs.");
+    static_assert(alt_appears_once,
+                  "[Patternia.is]: Alternative type must appear "
+                  "exactly once in "
+                  "std::variant. Tip: use alt<I>() for duplicate "
+                  "types, or wrap "
+                  "types in distinct structs.");
   }
 
   // Ensures index I is within the variant's alternative range.
@@ -442,10 +482,12 @@ namespace ptn::core::common {
 
     using subject_t = meta::remove_cvref_t<Subject>;
     // (A) Alternative index must be in range.
-    constexpr bool alt_index_in_range = I < std::variant_size_v<subject_t>;
-    static_assert(alt_index_in_range,
-                  "[Patternia.alt]: Alternative index is out of range. "
-                  "Tip: valid indices are [0, variant_size-1].");
+    constexpr bool
+        alt_index_in_range = I < std::variant_size_v<subject_t>;
+    static_assert(
+        alt_index_in_range,
+        "[Patternia.alt]: Alternative index is out of range. "
+        "Tip: valid indices are [0, variant_size-1].");
   }
 
 } // namespace ptn::core::common

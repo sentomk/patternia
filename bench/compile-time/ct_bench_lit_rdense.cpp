@@ -19,7 +19,7 @@ namespace {
                 ptn::lit(84) >> 84,
                 ptn::lit(91) >> 91,
                 ptn::lit(98) >> 98,
-                __ >> 0);
+                _ >> 0);
   }
 
   static_assert(ct_lit_rdense(0) == 0, "");

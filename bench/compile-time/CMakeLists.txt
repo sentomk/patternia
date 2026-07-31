@@ -26,7 +26,7 @@ function(_ptn_ct_add_lit_tu N)
   foreach(_i RANGE 0 ${_last} 1)
     string(APPEND _cases "      ptn::lit(${_i}) >> ${_i},\n")
   endforeach()
-  string(APPEND _cases "      __ >> 0);\n")
+  string(APPEND _cases "      _ >> 0);\n")
   file(APPEND "${_tufile}" "${_cases}")
   file(APPEND "${_tufile}" "}\n\n")
 

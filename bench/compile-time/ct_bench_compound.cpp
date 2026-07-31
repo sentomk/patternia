@@ -14,13 +14,13 @@ namespace {
                 ptn::lit(2) >> 2,
                 ptn::lit(3) >> 3,
                 ptn::lit(4) >> 4,
-                __ >> 0);
+                _ >> 0);
   }
 
   int ct_combo_variant(const VariantT &v) {
     using namespace ptn;
     return match(v)
-           | on(is<int>() >> 100, is<std::string>() >> 200, __ >> 0);
+           | on(is<int>() >> 100, is<std::string>() >> 200, _ >> 0);
   }
 
   int (*volatile sink_lit)(int)              = ct_combo_lit;

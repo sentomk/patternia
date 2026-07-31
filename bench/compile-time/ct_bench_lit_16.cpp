@@ -22,7 +22,7 @@ constexpr int ct_lit_16(int v) noexcept {
               ptn::lit(13) >> 13,
               ptn::lit(14) >> 14,
               ptn::lit(15) >> 15,
-              __ >> 0);
+              _ >> 0);
 }
 
 static_assert(ct_lit_16(0) == 0, "");

@@ -83,7 +83,8 @@ namespace ptn::pat {
       // not bind any values to the handler.
       //
       // Usage:
-      //   has<&Pkt::type, &Pkt::len>[_0 == 0x01 && arg<1> == 0]
+      //   PTN_BIND(Pkt, type, len);
+      //   has<&Pkt::type, &Pkt::len>[type == 0x01 && len == 0]
       //       >> [] { handle_ping(); }
       template <typename Pred>
       constexpr auto operator[](Pred &&pred) const;

@@ -174,7 +174,7 @@ Attach a guard to a binding pattern with `pattern[guard]`.
 
 ```cpp
 match(x) | on(
-  $[PTN_LET(value, value > 0 && value < 10)] >> "small",
+  $[_ > 0 && _ < 10] >> "small",
   _ >> "other"
 );
 ```
@@ -192,23 +192,26 @@ A guard failure only rejects the current case.
 
 ## Guard Helpers {#guard-helpers}
 
-### `_0`
+### `_`
 
 Placeholder alias for a single bound value.
 
 ```cpp
-$[_0 > 5]
+$[_ > 5]
 ```
 
-Use `_0` when one binding is enough and the predicate reads clearly without an
+Use `_` when one binding is enough and the predicate reads clearly without an
 explicit name.
 
-### `arg<N>`
+### `PTN_BIND(Type, names...)`
 
-Indexed placeholder for general multi-binding guards.
+Declares readable placeholders for multi-binding guards. List the names in the
+same order as the members passed to `has<>`.
 
 ```cpp
-$(has<&Point::x, &Point::y>)[arg<0> * arg<0> + arg<1> * arg<1> == 25]
+PTN_BIND(Point, x, y);
+
+$(has<&Point::x, &Point::y>)[x * x + y * y == 25]
 ```
 
 ### `rng(lo, hi, mode)`
@@ -220,37 +223,24 @@ $[rng(0, 10)]
 $[rng(0, 10, pat::mod::open)]
 ```
 
-Use callables for domain logic that does not read naturally as `_0`,
-`arg<N>`, or `PTN_WHERE(...)`.
+`PTN_BIND` supports one to five names and can be declared at namespace or block
+scope. Use callables for domain logic that does not read naturally as `_` or a
+short named-placeholder expression.
 
-### `PTN_WHERE((names...), expr)`
+### Migration from positional guard APIs
 
-Use named guard parameters without writing the lambda yourself.
-The macro currently supports 1 to 5 names.
-
-```cpp
-match(p) | on(
-  $(has<&Point::x, &Point::y>)[PTN_WHERE((x, y), x == y)] >> "diagonal",
-  _ >> "other"
-);
-```
-
-`PTN_WHERE(...)` expands to a guard callable and composes with `&&` / `||`
-like other guard predicates.
-
-### `PTN_LET(name, expr)`
-
-Use the single-value form when a guard binds exactly one value and you want to
- name it explicitly.
+The guard surface now uses `_` for one bound value and `PTN_BIND` names for
+multiple bound values. The former `__`, `_0`, `arg<N>`, `PTN_LET`, and
+`PTN_WHERE` spellings have been removed rather than retained as aliases.
 
 ```cpp
-match(x) | on(
-  $[PTN_LET(value, value > 0 && value < 10)] >> "small",
-  _ >> "other"
-);
-```
+// Single value
+$[_ > 0]
 
-`PTN_LET(name, expr)` is equivalent to `PTN_WHERE((name), expr)`.
+// Multiple values
+PTN_BIND(Point, x, y);
+$(has<&Point::x, &Point::y>)[x < y]
+```
 
 ---
 
@@ -411,17 +401,18 @@ The factory must be stateless.
 
 ## Namespace Summary {#namespace-summary}
 
-The public surface is re-exported through `namespace ptn`:
+The public surface is available through `namespace ptn`, plus the macros listed
+below:
 
 - `match`
 - `on`
 - `lit`, `val`, `lit_ci`
 - `$`
-- `_`
-- `_0`, `arg`, `rng`
+- `_`, `rng`
 - `has`
 - `is`, `alt`
 - `any`, `all`, `neg`
+- `PTN_ON`, `PTN_BIND` (macros)
 
 ---
 

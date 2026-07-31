@@ -216,7 +216,7 @@ namespace {
                     is<EvtDisconnect>() >> 2,
                     is<EvtMessage>() >> 3,
                     is<EvtAck>() >> 4,
-                    __ >> 0);
+                    _ >> 0);
   }
 
   int scaleN_ptn8(const Evt8 &e) {
@@ -231,7 +231,7 @@ namespace {
                     is<EvtPong>() >> 6,
                     is<EvtError>() >> 7,
                     is<EvtTimeout>() >> 8,
-                    __ >> 0);
+                    _ >> 0);
   }
 
   int scaleN_ptn16(const Evt16 &e) {
@@ -254,7 +254,7 @@ namespace {
                     is<EvtInput>() >> 14,
                     is<EvtFocus>() >> 15,
                     is<EvtRender>() >> 16,
-                    __ >> 0);
+                    _ >> 0);
   }
 
   int scaleN_ptn32(const Evt32 &e) {
@@ -293,7 +293,7 @@ namespace {
                     is<EvtCompress>() >> 30,
                     is<EvtCache>() >> 31,
                     is<EvtRetry>() >> 32,
-                    __ >> 0);
+                    _ >> 0);
   }
 
   // ---- StdVisit dispatchers ----

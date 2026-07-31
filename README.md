@@ -57,7 +57,7 @@ int classify(int x) {
 
 - Literal, structural, and `std::variant` matching in one DSL.
 - Explicit binding through `$` and `$(...)`.
-- Declarative guards via `PTN_LET`, `PTN_WHERE`, `_0`, `arg<N>`, `rng(...)`, and callables.
+- Declarative guards via `_`, `PTN_BIND`, `rng(...)`, and callables.
 - No RTTI, no virtual dispatch, no heap allocation.
 - Static literal and variant dispatch lowering for hot paths.
 
@@ -70,8 +70,8 @@ using namespace ptn;
 
 const char *bucket(int x) {
   return match(x) | on(
-    $[PTN_LET(value, value < 0)] >> "negative",
-    $[PTN_LET(value, value < 10)] >> "small",
+    $[_ < 0] >> "negative",
+    $[_ < 10] >> "small",
     _ >> "large"
   );
 }

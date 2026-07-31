@@ -85,7 +85,7 @@ Guards apply after a binding pattern succeeds.
 
 ```cpp
 match(x) | on(
-  $[PTN_LET(value, value > 0 && value < 10)] >> "small",
+  $[_ > 0 && _ < 10] >> "small",
   _ >> "other"
 );
 ```
@@ -128,7 +128,7 @@ match(value) | on(
   $(has<&Point::x, &Point::y>) >> [](int x, int y) {
     return x + y > 0 ? "point" : "origin-side";
   },
-  $(is<std::string>)[PTN_LET(text, text != "")] >> "string",
+  $(is<std::string>)[_ != ""] >> "string",
   _ >> "other"
 );
 ```

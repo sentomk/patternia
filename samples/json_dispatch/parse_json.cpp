@@ -10,12 +10,12 @@ void parse_json(const json &j, int depth = 0) {
       | on(
           $[is_type(json::value_t::null)] >> print_null(depth),
           $[is_type(json::value_t::boolean)] >> print_bool(depth),
-          $[is_type(json::value_t::number_integer)] >>
-              print_number<int>("int", depth),
-          $[is_type(json::value_t::number_unsigned)] >>
-              print_number<unsigned>("uint", depth),
-          $[is_type(json::value_t::number_float)] >>
-              print_number<double>("float", depth),
+          $[is_type(json::value_t::number_integer)]
+              >> print_number<int>("int", depth),
+          $[is_type(json::value_t::number_unsigned)]
+              >> print_number<unsigned>("uint", depth),
+          $[is_type(json::value_t::number_float)]
+              >> print_number<double>("float", depth),
           $[is_type(json::value_t::string)] >> print_string(depth),
           $[is_empty_array] >>
               [=](const json &) {
@@ -40,8 +40,9 @@ void parse_json(const json &j, int depth = 0) {
                   parse_json(v, depth + 2);
                 }
               },
-          __ >> [=] {
-            indent(depth);
-            std::cout << "<unknown>\n";
-          });
+          _ >>
+              [=] {
+                indent(depth);
+                std::cout << "<unknown>\n";
+              });
 }

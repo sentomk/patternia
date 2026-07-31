@@ -77,7 +77,7 @@ namespace {
                 alt<29>() >> 30,
                 alt<30>() >> 31,
                 alt<31>() >> 32,
-                __ >> 0);
+                _ >> 0);
   }
 
   int (*volatile sink)(const VAlt32 &) = ct_var_alt_route;
