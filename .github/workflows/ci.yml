@@ -79,12 +79,20 @@ jobs:
         run: cmake --build build --parallel
 
       - name: Run Tests
-        run: ctest --test-dir build --output-on-failure
+        env:
+          # Give each test process its own raw profile file.
+          # %p = PID, %m = binary module name → avoids overwrites across
+          # the 150+ gtest_discover_tests processes.
+          LLVM_PROFILE_FILE: ${{ github.workspace }}/build/profile/%p-%m.profraw
+        run: |
+          mkdir -p build/profile
+          ctest --test-dir build --output-on-failure
 
       - name: Capture coverage
         run: |
-          # Merge raw profiles from all test runs.
-          find build -name '*.profraw' > profraw_list.txt
+          # Merge raw profiles from all test processes.
+          find build/profile -name '*.profraw' > profraw_list.txt
+          echo "Found $(wc -l < profraw_list.txt) raw profiles"
           llvm-profdata-18 merge \
             -input-files profraw_list.txt \
             -output coverage.profdata \
@@ -111,78 +119,3 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.info
           fail_ci_if_error: false
-
-  benchmark:
-    needs: build-and-test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.BENCH_BOT_TOKEN || github.token }}
-
-      - name: Configure
-        run: |
-          cmake -S . -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DPTN_BUILD_TESTS=OFF \
-            -DPTN_BUILD_BENCHMARKS=ON \
-            -DPTN_SKIP_COMPILER_CHECK=ON
-
-      - name: Build
-        run: cmake --build build --target ptn_bench ptn_bench_scale --parallel
-
-      - name: Run benchmarks
-        run: |
-          mkdir -p bench_results
-          build/bench/ptn_bench \
-            --benchmark_filter="VariantMixed|VariantAltHot|VariantMixedGuarded|VariantAltHotGuarded|ProtocolRouter|CommandParser|PacketMixed|PacketMixedHeavyBind" \
-            --benchmark_out=bench_results/ptn_bench.json \
-            --benchmark_out_format=json
-          build/bench/ptn_bench_scale \
-            --benchmark_filter="ScaleN" \
-            --benchmark_out=bench_results/ptn_bench_scale.json \
-            --benchmark_out_format=json
-
-      - name: Upload benchmark results
-        uses: actions/upload-artifact@v4
-        with:
-          name: benchmark-results-${{ github.sha }}
-          path: bench_results/
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-
-      - name: Install plotting dependency
-        run: python -m pip install matplotlib
-
-      - name: Generate benchmark chart
-        run: |
-          python scripts/bench_single_report.py \
-            --input bench_results/ptn_bench.json \
-            --include "VariantMixed|VariantAltHot|VariantMixedGuarded|VariantAltHotGuarded|ProtocolRouter|CommandParser|PacketMixed|PacketMixedHeavyBind" \
-            --outdir docs/assets/bench \
-            --prefix latest \
-            --title "Patternia vs Standard C++"
-          python scripts/bench_single_report.py \
-            --input bench_results/ptn_bench_scale.json \
-            --include "ScaleN" \
-            --outdir docs/assets/bench \
-            --prefix scale \
-            --title "Variant Dispatch Scalability (4-32 alternatives)"
-
-      - name: Commit and push chart update
-        run: |
-          if git diff --quiet -- docs/assets/bench/; then
-            echo "No chart changes."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/assets/bench/
-          git commit -m "ci: update benchmark summary chart"
-          git push
