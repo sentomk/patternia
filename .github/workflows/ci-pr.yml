@@ -76,3 +76,42 @@ jobs:
         if: always()
         run: |
           echo "Compile-time benchmarks built successfully."
+
+  benchmark:
+    name: Benchmark (informational)
+    runs-on: ubuntu-latest
+    # Informational only — does not block PR merge.
+    # Benchmark failures surface as artifacts for review, not as red X.
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPTN_BUILD_TESTS=OFF \
+            -DPTN_BUILD_BENCHMARKS=ON \
+            -DPTN_SKIP_COMPILER_CHECK=ON
+
+      - name: Build
+        run: cmake --build build --target ptn_bench ptn_bench_scale --parallel
+
+      - name: Run benchmarks
+        run: |
+          mkdir -p bench_results
+          build/bench/ptn_bench \
+            --benchmark_filter="VariantMixed|VariantAltHot|VariantMixedGuarded|VariantAltHotGuarded|ProtocolRouter|CommandParser|PacketMixed|PacketMixedHeavyBind" \
+            --benchmark_out=bench_results/ptn_bench.json \
+            --benchmark_out_format=json
+          build/bench/ptn_bench_scale \
+            --benchmark_filter="ScaleN" \
+            --benchmark_out=bench_results/ptn_bench_scale.json \
+            --benchmark_out_format=json
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ github.event.pull_request.number || github.sha }}
+          path: bench_results/
