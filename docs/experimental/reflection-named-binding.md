@@ -2,128 +2,98 @@
 
 > Branch: `experimental/reflection-named-binding`
 >
-> Status: **Exploration** — not production-ready, not API-stable.
+> Status: exploration; not production-ready or API-stable.
 
-## Problem
+## API invariant
 
-Patternia's guard syntax requires positional placeholders (`_0`, `_1`) because
-C++17 pattern matching produces unnamed tuple bindings. This is the root cause
-of all guard ergonomics issues:
-
-```cpp
-// Current (C++17): positional, ugly, no semantic meaning
-$(has<&Point::x, &Point::y>)[_0*_0 + _1*_1 < 25]
-```
-
-## Goal
-
-Use C++26 reflection (P2996) to let `$` automatically discover struct members
-and expose them as **named bindings** in guard expressions:
+Reflection extends Patternia's existing structural API. It does not introduce a
+parallel namespace or a second binding abstraction.
 
 ```cpp
-// Target (C++26): named, readable, matches Rust/Scala ergonomics
-$[x*x + y*y < 25]
+struct Point {
+  int x;
+  int y;
+};
+
+// C++17
+$(has<&Point::x, &Point::y>)
+    >> [](int x, int y) { return x + y; }
+
+// C++26 reflection
+$(has<^^Point::x, ^^Point::y>)
+    >> [](int x, int y) { return x + y; }
 ```
 
-## How It Works
+The only structural spelling change is `&T::member` to `^^T::member`.
+`has<>` remains non-binding and `$()` remains the binding operator. There is no
+`reflect::has`, `reflect::bind`, `has_refl`, or reflection-only factory.
 
-### 1. `$` reflects the subject type
+Reflected members may be selected, omitted with `_ign`, or reordered exactly as
+member pointers can be on the C++17 path:
 
 ```cpp
-// When $ matches a Point, it calls:
-nonstatic_data_members_of(^^Point, access_context::current())
-// → [^^Point::x, ^^Point::y]
+$(has<^^Point::y, ^^Point::x>)
+    >> [](int y, int x) { return y - x; }
 ```
 
-### 2. Each member becomes a named placeholder
+## Named guard target
 
-For each reflected member, generate a compile-time placeholder bound to that
-member's reflection. The placeholder carries the member's name (via
-`identifier_of`) and its index in the member list.
-
-### 3. Guard expressions use member names directly
-
-The named placeholders participate in the existing expression template system
-(`operator>`, `operator+`, etc.) — they're `arg_t<N>` under the hood, but the
-user writes `x` instead of `_0`.
-
-### 4. Splice access at match time
-
-When the guard is evaluated, each placeholder resolves to the actual member
-value via splice: `subject.[:member_reflection:]`.
-
-## API Surface
+The intended reflection experience removes the manual C++17 declaration:
 
 ```cpp
-#if __has_feature(reflection) || defined(PTN_EXPERIMENTAL_REFLECTION)
-
-namespace ptn::pat::reflect {
-
-  // Reflective bind: auto-discovers struct members
-  template <typename T>
-  struct decompose_pattern;
-
-  // Factory: creates a reflective binding pattern
-  template <typename T>
-  constexpr auto decompose();
-
-  // Enhanced $ that uses reflection when available
-  // Falls back to existing behavior for non-struct types
-  constexpr struct dollar_t {} $ {};
-
-} // namespace ptn::pat::reflect
-
-#endif
+PTN_BIND(Point, x, y);
 ```
 
-## Usage Examples
+and ultimately permits member names in a guard without repeating them:
 
 ```cpp
-struct Point { int x; int y; };
-struct Packet { uint8_t type; uint16_t length; };
-
-// Named guard — no _0, _1 needed
-match(point) | on(
-    $[x*x + y*y < 25] >> [](auto x, auto y) { return x + y; },
-    $ >> [](auto p) { return 0; }
-);
-
-// Mixed: named guard with type check
-match(pkt) | on(
-    $(is<Packet>())[type == 0x01 && length > 0]
-    >> [](auto type, auto length) { return decode(type, length); }
-);
+$(has<^^Point::x, ^^Point::y>)[x*x + y*y == 25]
 ```
 
-## Compilation Requirements
+P2996 alone cannot implement this syntax. The guard expression is parsed before
+`has<...>` is instantiated, so the unqualified identifiers `x` and `y` must
+already exist in the caller's lexical scope. Reflection can recover their names
+and splice member access, but an ordinary library template cannot inject local
+declarations retroactively.
 
-- Clang P2996 fork (`bloomberg/clang-p2996`, `p2996` branch)
-- Flags: `-std=c++26 -freflection`
-- Feature guard: `#if __has_feature(reflection)`
+Consequently, the branch must not claim automatic caller-scope injection until
+it has a token-level implementation. The intended implementation boundary is a
+future procedural `PTN_ON!` macro that receives each complete case before C++
+parsing, derives names from `has<^^...>`, and emits a private declaration scope
+for that case. P3294 token sequences and scoped macros are the standards-track
+mechanism for this design; the current Bloomberg P2996 Clang fork does not
+implement them.
 
-## Non-Goals
+Until such a frontend or procedural-macro prototype exists, positional guards
+remain executable:
 
-- Does not replace C++17/20/23 guard syntax. The `_0`/`_1` expression template
-  system remains the fallback for compilers without reflection.
-- Does not require reflection for basic pattern matching. Only the `$` named
-  binding feature uses it.
+```cpp
+$(has<^^Point::x, ^^Point::y>)[_0*_0 + arg<1>*arg<1> == 25]
+```
 
-## Open Questions
+This is an implementation limitation, not an alternative public design.
 
-1. **Name injection mechanism**: How to make `x` and `y` visible in the guard
-   expression scope? Options:
-   - Macro-based injection (fragile, ugly)
-   - ADL with named placeholder types (cleaner, but requires careful namespace design)
-   - `consteval` block generating local variables (needs P3289 consteval blocks)
+## Compilation
 
-2. **Fallback behavior**: When `$` is used on a type without reflection (e.g.,
-   `int`), should it fall back to whole-value binding (current `$` behavior)?
+The current reflection path requires the Bloomberg P2996 Clang fork:
 
-3. **Partial decomposition**: Should `$[x, y]` allow selecting specific members
-   instead of all?
+```bash
+clang++ -std=c++26 -freflection \
+  -nostdinc++ -I<clang-p2996/libcxx/include> \
+  --stdlib=libstdc++ -I<patternia/include> example.cpp
+```
+
+Including `ptn/patternia.hpp` is sufficient. No experimental reflection header
+is required.
+
+## Compatibility
+
+The reflection implementation is conditionally compiled behind
+`__has_feature(reflection)`. Existing C++17 through C++26 builds without the
+reflection extension retain member-pointer behavior and the same public API.
 
 ## References
 
-- [P2996r13](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p2996r13.html) — Reflection for C++26
-- [bloomberg/clang-p2996](https://github.com/bloomberg/clang-p2996) — Reference implementation
-- Patternia PRD §7 — Architecture (reflection-aware `$` evolution path)
+- [P2996R13](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2025/p2996r13.html)
+- [P3294R2](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p3294r2.html)
+- [Bloomberg Clang P2996](https://github.com/bloomberg/clang-p2996)

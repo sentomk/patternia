@@ -2,11 +2,18 @@
 
 // Structural (decomposition) pattern: `has<...>`.
 //
-// Provides `has<&T::field...>` to destructure aggregates / records
-// by direct non-static data member pointers.
+// Provides `has<&T::field...>` and, when reflection is enabled,
+// `has<^^T::field...>` to destructure aggregates and records.
 
 #include <cstddef>
 #include <tuple>
+
+#if defined(__has_feature)
+#if __has_feature(reflection)
+#include <meta>
+#define PTN_DETAIL_HAS_REFLECTION 1
+#endif
+#endif
 
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/pattern_base.hpp"
@@ -22,7 +29,38 @@ namespace ptn::pat {
 
   namespace detail {
 
-    // Extracts the value of a single member pointer from a subject.
+    template <auto M>
+    constexpr bool is_valid_structural_element() {
+#if defined(PTN_DETAIL_HAS_REFLECTION)
+      if constexpr (std::is_same_v<std::decay_t<decltype(M)>,
+                                   std::meta::info>) {
+        return std::meta::is_nonstatic_data_member(M);
+      }
+      else
+#endif
+      {
+        return traits::is_structural_element_v<M>;
+      }
+    }
+
+#if defined(PTN_DETAIL_HAS_REFLECTION)
+    template <typename Subject, auto M>
+    constexpr bool is_structural_element_accessible() {
+      if constexpr (std::is_same_v<std::decay_t<decltype(M)>,
+                                   std::meta::info>) {
+        return requires(const Subject &subject) { subject.[:M:]; };
+      }
+      else if constexpr (std::is_null_pointer_v<decltype(M)>) {
+        return true;
+      }
+      else {
+        return requires(const Subject &subject) { subject.*M; };
+      }
+    }
+#endif
+
+    // Extracts the value of a single member pointer or reflection
+    // from a subject.
     template <auto M, typename Subject>
     constexpr decltype(auto)
     extract_member(const Subject &s) noexcept {
@@ -30,6 +68,12 @@ namespace ptn::pat {
         // _ign: ignored slot, never extracted.
         return;
       }
+#if defined(PTN_DETAIL_HAS_REFLECTION)
+      else if constexpr (std::is_same_v<std::decay_t<decltype(M)>,
+                                        std::meta::info>) {
+        return (s.[:M:]);
+      }
+#endif
       else {
         return (s.*M);
       }
@@ -42,6 +86,12 @@ namespace ptn::pat {
         if constexpr (std::is_null_pointer_v<decltype(Ms)>) {
           return std::tuple<>{};
         }
+#if defined(PTN_DETAIL_HAS_REFLECTION)
+        else if constexpr (std::is_same_v<std::decay_t<decltype(Ms)>,
+                                          std::meta::info>) {
+          return std::forward_as_tuple(s.[:Ms:]);
+        }
+#endif
         else {
           return std::forward_as_tuple(s.*Ms);
         }
@@ -53,8 +103,11 @@ namespace ptn::pat {
     struct has_pattern : base::pattern_base<has_pattern<Ms...>> {
 
       constexpr has_pattern() {
-        ptn::core::common::static_assert_structural_elements<
-            Ms...>();
+        static_assert(
+            (is_valid_structural_element<Ms>() && ...),
+            "[Patternia.has]: only non-static data member pointers, "
+            "non-static data member reflections, or nullptr/_ign "
+            "allowed.");
       }
 
       // Performs structural matching.
@@ -63,8 +116,14 @@ namespace ptn::pat {
       // design.
       template <typename Subject>
       constexpr bool match(const Subject &) const noexcept {
+#if defined(PTN_DETAIL_HAS_REFLECTION)
+        static_assert(
+            (is_structural_element_accessible<Subject, Ms>() && ...),
+            "[Patternia.has]: Subject lacks a requested member.");
+#else
         ptn::core::common::
             static_assert_structural_accessible<Subject, Ms...>();
+#endif
         return true;
       }
 
@@ -161,3 +220,7 @@ namespace ptn::pat::base {
     using type = std::tuple<>;
   };
 } // namespace ptn::pat::base
+
+#if defined(PTN_DETAIL_HAS_REFLECTION)
+#undef PTN_DETAIL_HAS_REFLECTION
+#endif

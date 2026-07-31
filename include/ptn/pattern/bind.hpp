@@ -1,6 +1,7 @@
 #pragma once
 
-// Public API and implementation for binding patterns (`$` and `$()`).
+// Public API and implementation for binding patterns (`$` and
+// `$()`).
 //
 // This file provides factory functions to create patterns that
 // capture and bind subject values for later use in pattern matching.
@@ -143,22 +144,9 @@ namespace ptn::pat {
         return has.match(subject);
       }
 
-      // Extract member fields for all member-ptr Ms...; ignore
-      // wildcard (__).
-      template <auto M, typename Subject>
-      static constexpr auto bind_one(const Subject &subject) {
-        if constexpr (std::is_member_object_pointer_v<decltype(M)>) {
-          return std::forward_as_tuple(subject.*M);
-        }
-        else {
-          // nullptr placeholder (_ign) -> ignored
-          return std::tuple<>{};
-        }
-      }
-
       template <typename Subject>
       constexpr auto bind(const Subject &subject) const {
-        return std::tuple_cat(bind_one<Ms>(subject)...);
+        return extract_members<Subject, Ms...>(subject);
       }
     };
 
