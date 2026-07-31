@@ -29,11 +29,33 @@ namespace {
     int c;
   };
 
+  struct Single {
+    int value;
+  };
+
+  struct Quad {
+    int a;
+    int b;
+    int c;
+    int d;
+  };
+
+  struct Penta {
+    int a;
+    int b;
+    int c;
+    int d;
+    int e;
+  };
+
   // Declare named placeholders for each struct.
   // These are namespace-scoped inline constexpr arg_t<N> objects.
   PTN_BIND(Point, x, y);
   PTN_BIND(Packet, type, len);
   PTN_BIND(Triple, a, b, c);
+  PTN_BIND(Single, sv);
+  PTN_BIND(Quad, qa, qb, qc, qd);
+  PTN_BIND(Penta, pa, pb, pc, pd, pe);
 
 } // namespace
 
@@ -223,4 +245,162 @@ TEST(NamedPlaceholder, MixedArithmeticAndComparison) {
                              >> 1,
                          ptn::_ >> 0);
   EXPECT_EQ(result, 1);
+}
+
+// =========================================================================
+// PTN_BIND arity coverage: 1, 4, and 5 member structs.
+// =========================================================================
+
+TEST(NamedPlaceholder, OneMemberTypeCorrect) {
+  static_assert(std::is_same_v<std::decay_t<decltype(sv)>,
+                               ptn::pat::mod::arg_t<0>>);
+}
+
+TEST(NamedPlaceholder, OneMemberGuard) {
+  Single s{42};
+  auto   result = ptn::match(s)
+                | PTN_ON(
+                    ptn::$(ptn::has<&Single::value>)[sv > 5] >> 1,
+                    ptn::_ >> 0);
+  EXPECT_EQ(result, 1);
+}
+
+TEST(NamedPlaceholder, OneMemberGuardFails) {
+  Single s{3};
+  auto   result = ptn::match(s)
+                | PTN_ON(
+                    ptn::$(ptn::has<&Single::value>)[sv > 5] >> 1,
+                    ptn::_ >> 0);
+  EXPECT_EQ(result, 0);
+}
+
+TEST(NamedPlaceholder, FourMemberTypeCorrect) {
+  static_assert(std::is_same_v<std::decay_t<decltype(qa)>,
+                               ptn::pat::mod::arg_t<0>>);
+  static_assert(std::is_same_v<std::decay_t<decltype(qd)>,
+                               ptn::pat::mod::arg_t<3>>);
+}
+
+TEST(NamedPlaceholder, FourMemberGuard) {
+  // a + b + c == d
+  Quad q{1, 2, 3, 6};
+  auto result = ptn::match(q)
+                | PTN_ON(
+                    ptn::$(ptn::has<&Quad::a,
+                                    &Quad::b,
+                                    &Quad::c,
+                                    &Quad::d>)[qa + qb + qc == qd]
+                        >> 1,
+                    ptn::_ >> 0);
+  EXPECT_EQ(result, 1);
+}
+
+TEST(NamedPlaceholder, FourMemberGuardFails) {
+  Quad q{1, 2, 3, 7};
+  auto result = ptn::match(q)
+                | PTN_ON(
+                    ptn::$(ptn::has<&Quad::a,
+                                    &Quad::b,
+                                    &Quad::c,
+                                    &Quad::d>)[qa + qb + qc == qd]
+                        >> 1,
+                    ptn::_ >> 0);
+  EXPECT_EQ(result, 0);
+}
+
+TEST(NamedPlaceholder, FiveMemberTypeCorrect) {
+  static_assert(std::is_same_v<std::decay_t<decltype(pa)>,
+                               ptn::pat::mod::arg_t<0>>);
+  static_assert(std::is_same_v<std::decay_t<decltype(pe)>,
+                               ptn::pat::mod::arg_t<4>>);
+}
+
+TEST(NamedPlaceholder, FiveMemberGuard) {
+  // a * b - c == d + e
+  Penta p{6, 2, 5, 4, 3};
+  auto  result = ptn::match(p)
+                | PTN_ON(
+                    ptn::$(
+                        ptn::has<&Penta::a,
+                                 &Penta::b,
+                                 &Penta::c,
+                                 &Penta::d,
+                                 &Penta::e>)[pa * pb - pc == pd + pe]
+                        >> 1,
+                    ptn::_ >> 0);
+  EXPECT_EQ(result, 1);
+}
+
+TEST(NamedPlaceholder, FiveMemberGuardFails) {
+  Penta p{6, 2, 5, 4, 4};
+  auto  result = ptn::match(p)
+                | PTN_ON(
+                    ptn::$(
+                        ptn::has<&Penta::a,
+                                 &Penta::b,
+                                 &Penta::c,
+                                 &Penta::d,
+                                 &Penta::e>)[pa * pb - pc == pd + pe]
+                        >> 1,
+                    ptn::_ >> 0);
+  EXPECT_EQ(result, 0);
+}
+
+// =========================================================================
+// PTN_WHERE arity coverage: 3 and 4 parameter variants.
+// (1, 2, and 5 are already tested in tests_guard.cpp.)
+// =========================================================================
+
+TEST(NamedPlaceholder, WhereThreeArgGuard) {
+  // PTN_WHERE((a, b, c), a + b == c)
+  Triple t{2, 3, 5};
+  auto   result = ptn::match(t)
+                | PTN_ON(
+                    ptn::$(
+                        ptn::has<&Triple::a, &Triple::b, &Triple::c>)
+                            [PTN_WHERE((x, y, z), x + y == z)]
+                        >> 1,
+                    ptn::_ >> 0);
+  EXPECT_EQ(result, 1);
+}
+
+TEST(NamedPlaceholder, WhereThreeArgGuardFails) {
+  Triple t{2, 3, 6};
+  auto   result = ptn::match(t)
+                | PTN_ON(
+                    ptn::$(
+                        ptn::has<&Triple::a, &Triple::b, &Triple::c>)
+                            [PTN_WHERE((x, y, z), x + y == z)]
+                        >> 1,
+                    ptn::_ >> 0);
+  EXPECT_EQ(result, 0);
+}
+
+TEST(NamedPlaceholder, WhereFourArgGuard) {
+  // PTN_WHERE((a, b, c, d), a + b + c == d)
+  Quad q{1, 2, 3, 6};
+  auto result = ptn::match(q)
+                | PTN_ON(
+                    ptn::$(ptn::has<&Quad::a,
+                                    &Quad::b,
+                                    &Quad::c,
+                                    &Quad::d>)
+                            [PTN_WHERE((w, x, y, z), w + x + y == z)]
+                        >> 1,
+                    ptn::_ >> 0);
+  EXPECT_EQ(result, 1);
+}
+
+TEST(NamedPlaceholder, WhereFourArgGuardFails) {
+  Quad q{1, 2, 3, 7};
+  auto result = ptn::match(q)
+                | PTN_ON(
+                    ptn::$(ptn::has<&Quad::a,
+                                    &Quad::b,
+                                    &Quad::c,
+                                    &Quad::d>)
+                            [PTN_WHERE((w, x, y, z), w + x + y == z)]
+                        >> 1,
+                    ptn::_ >> 0);
+  EXPECT_EQ(result, 0);
 }
