@@ -54,6 +54,23 @@ extensions cost one short macro per level. See PR #44.
 
 ---
 
+### Member-anchored `PTN_BIND` placeholders
+
+`PTN_BIND(Type, ...)` names expand to `member_t<&Type::name>`
+instead of positional `arg_t<N>`. Guards resolve each name to the
+position of its member in the `has<...>` member list at compile
+time:
+
+- names follow members, so `has<...>` order no longer matters;
+- misspelled member names fail at the `PTN_BIND` line;
+- a name used with a `has<...>` that lacks its member fails a
+  static_assert.
+
+This also settles the previously deferred `Type`-validation item
+without static reflection.
+
+---
+
 ## NEXT
 
 Potential follow-up items after current WIP scope is stabilized.
@@ -120,6 +137,6 @@ here so they are not re-proposed without new motivation.
 - **Chained comparisons** (`1 <= _ <= 10`): breaks predicate
   semantics and produces unreadable diagnostics. Use `rng(lo, hi)`
   with explicit range modes.
-- **`PTN_BIND` `Type` validation**: deferred. The `Type` argument is
-  documentary for now; member-name checking becomes feasible with
-  static reflection (C++26).
+- **`PTN_BIND` `Type` validation**: resolved without reflection —
+  names now expand to `member_t<&Type::name>`, so member checking
+  happens at declaration time (see WIP above).

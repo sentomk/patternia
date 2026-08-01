@@ -60,6 +60,9 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/static_on_with_capture.cpp
   compile_fail/on_pipeline_without_wildcard.cpp
   compile_fail/val_requires_compile_time_constant.cpp
+  compile_fail/member_placeholder_not_in_pattern.cpp
+  compile_fail/member_placeholder_non_structural.cpp
+  compile_fail/ptn_bind_unknown_member.cpp
 )
 
 if(CMAKE_CXX_STANDARD LESS 20)

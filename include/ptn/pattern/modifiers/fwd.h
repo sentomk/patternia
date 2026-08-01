@@ -36,6 +36,14 @@ namespace ptn::pat::mod {
   template <typename Op, typename X>
   struct un_expr;
 
+  // Forward declare member-anchored placeholder
+  template <auto M>
+  struct member_t;
+
+  // Forward declare member pointer list
+  template <auto... Ms>
+  struct member_list;
+
   // Forward declare max argument index traits
   template <typename E>
   struct max_arg_index;

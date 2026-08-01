@@ -98,6 +98,19 @@ namespace ptn::pat::mod {
     return Op{}(eval(e.x, std::forward<Tuple>(t)));
   }
 
+  // Trap: member placeholders must be resolved to positional
+  // placeholders by the structural pattern owning the guard. This
+  // overload is only reached when a PTN_BIND name is used in a
+  // guard on a non-structural pattern.
+  template <auto M, typename Tuple>
+  constexpr decltype(auto) eval(const member_t<M> &, Tuple &&) {
+    static_assert(dependent_false<Tuple>::value,
+                  "[Patternia.guard] A PTN_BIND member placeholder "
+                  "was used in a guard on a non-structural pattern. "
+                  "Member names are only valid in guards attached "
+                  "to has<...>.");
+  }
+
   // Makes expression callable as predicate on bound tuples.
   template <typename Expr>
   struct tuple_predicate : traits::guard_predicate_tag {
@@ -139,6 +152,18 @@ namespace ptn::pat::mod {
   struct max_arg_index<un_expr<Op, X>>
       : std::integral_constant<std::size_t,
                                max_arg_index<X>::value> {};
+
+  // Trap with a clear message when a member placeholder leaks into
+  // the positional bounds check (non-structural guard).
+  template <auto M>
+  struct max_arg_index<member_t<M>> {
+    static_assert(dependent_false<member_t<M>>::value,
+                  "[Patternia.guard] A PTN_BIND member placeholder "
+                  "was used in a guard on a non-structural pattern. "
+                  "Member names are only valid in guards attached "
+                  "to has<...>.");
+    static constexpr std::size_t value = 0;
+  };
 
   template <typename T>
   inline constexpr std::size_t
@@ -459,6 +484,126 @@ namespace ptn::pat::mod {
         std::forward<L>(l), std::forward<R>(r)};
   }
 
+  // --- Member placeholder resolution (structural guards) ---
+
+  namespace detail {
+
+    // Type-safe member pointer equality: comparing member pointers
+    // of different types is ill-formed, so guard the comparison.
+    template <auto M, auto N, bool SameType>
+    struct member_eq_impl : std::false_type {};
+
+    template <auto M, auto N>
+    struct member_eq_impl<M, N, true> : std::bool_constant<M == N> {
+    };
+
+    template <auto M, auto N>
+    struct member_eq
+        : member_eq_impl<
+              M,
+              N,
+              (std::is_same_v<decltype(M), decltype(N)>)> {};
+
+  } // namespace detail
+
+  // Position of member M among the non-_ign members of Ms....
+  // _ign (nullptr) slots do not occupy binding positions.
+  template <auto M, auto... Ms>
+  struct member_position;
+
+  template <auto M>
+  struct member_position<M> {
+    static constexpr bool        found = false;
+    static constexpr std::size_t value = 0;
+  };
+
+  template <auto M, auto First, auto... Rest>
+  struct member_position<M, First, Rest...> {
+  private:
+    static constexpr bool
+        is_ign = std::is_null_pointer_v<decltype(First)>;
+    static constexpr bool
+        hit    = !is_ign && detail::member_eq<M, First>::value;
+    using next = member_position<M, Rest...>;
+
+  public:
+    static constexpr bool        found = hit || next::found;
+    static constexpr std::size_t value = hit ? 0
+                                             : (is_ign ? next::value
+                                                       : next::value
+                                                             + 1);
+  };
+
+  // Rewrites a guard expression tree, replacing every member_t<M>
+  // leaf with arg_t<position of M in Ms...>. All other nodes are
+  // preserved. Evaluation machinery is untouched.
+  //
+  // Fallback: non-expression nodes pass through unchanged (by
+  // value, so stored types stay decayed).
+  template <auto... Ms, typename E>
+  constexpr auto resolve_expr(member_list<Ms...>, E &&e) {
+    return std::forward<E>(e);
+  }
+
+  template <auto... Ms, auto M>
+  constexpr auto resolve_expr(member_list<Ms...>, member_t<M>) {
+    using pos = member_position<M, Ms...>;
+    static_assert(pos::found,
+                  "[Patternia.guard] A PTN_BIND name does not match "
+                  "any member listed in has<...>. Check the member "
+                  "pointers in the pattern.");
+    return arg_t<pos::value>{};
+  }
+
+  template <auto... Ms, typename Op, typename L, typename R>
+  constexpr auto resolve_expr(member_list<Ms...> ml,
+                              bin_expr<Op, L, R> e) {
+    auto l = resolve_expr(ml, e.l);
+    auto r = resolve_expr(ml, e.r);
+    return bin_expr<Op, decltype(l), decltype(r)>{std::move(l),
+                                                  std::move(r)};
+  }
+
+  template <auto... Ms, typename Op, typename X>
+  constexpr auto resolve_expr(member_list<Ms...> ml,
+                              un_expr<Op, X>     e) {
+    auto x = resolve_expr(ml, e.x);
+    return un_expr<Op, decltype(x)>{std::move(x)};
+  }
+
+  // Rewrites a full guard predicate. Expression predicates
+  // (tuple_predicate) and logical compositions (pred_and/pred_or)
+  // are rewritten; callables and other predicates pass through.
+  template <auto... Ms, typename P>
+  constexpr auto resolve_pred(member_list<Ms...>, P &&p) {
+    return std::forward<P>(p);
+  }
+
+  template <auto... Ms, typename E>
+  constexpr auto resolve_pred(member_list<Ms...> ml,
+                              tuple_predicate<E> p) {
+    auto e = resolve_expr(ml, std::move(p.expr));
+    return tuple_predicate<decltype(e)>{std::move(e)};
+  }
+
+  template <auto... Ms, typename L, typename R>
+  constexpr auto resolve_pred(member_list<Ms...> ml,
+                              pred_and<L, R>     p) {
+    auto l = resolve_pred(ml, std::move(p.lhs));
+    auto r = resolve_pred(ml, std::move(p.rhs));
+    return pred_and<decltype(l), decltype(r)>{std::move(l),
+                                              std::move(r)};
+  }
+
+  template <auto... Ms, typename L, typename R>
+  constexpr auto resolve_pred(member_list<Ms...> ml,
+                              pred_or<L, R>      p) {
+    auto l = resolve_pred(ml, std::move(p.lhs));
+    auto r = resolve_pred(ml, std::move(p.rhs));
+    return pred_or<decltype(l), decltype(r)>{std::move(l),
+                                             std::move(r)};
+  }
+
   // Range modes for interval predicates.
   enum class range_mode {
     closed,
@@ -597,6 +742,16 @@ namespace ptn::pat::mod {
 } // namespace ptn::pat::mod
 
 namespace ptn::pat::base {
+
+  // Guards on already-guarded patterns delegate member-placeholder
+  // resolution to the inner pattern (chained guard support).
+  template <typename Inner, typename Pred>
+  struct guard_resolver<mod::guarded_pattern<Inner, Pred>> {
+    template <typename P>
+    static constexpr auto apply(P &&pred) {
+      return guard_resolver<Inner>::apply(std::forward<P>(pred));
+    }
+  };
 
   // Binding contract specialization for guarded_pattern.
   template <typename Inner, typename Pred, typename Subject>

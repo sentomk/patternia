@@ -12,6 +12,7 @@
 #include "ptn/pattern/base/binding_base.hpp"
 #include "ptn/pattern/base/pattern_base.hpp"
 #include "ptn/pattern/structural.hpp"
+#include "ptn/pattern/modifiers/guard.hpp"
 
 #include <tuple>
 #include <type_traits>
@@ -281,6 +282,29 @@ namespace ptn::pat::base {
                 const std::remove_reference_t<Subject> &>>(),
             std::declval<typename binding_args<SubPattern,
                                                Subject>::type>()))>;
+  };
+
+  // Guards on as-binding patterns delegate member-placeholder
+  // resolution to the wrapped subpattern.
+  template <typename Tag, typename Sub>
+  struct guard_resolver<pat::detail::binding_as_pattern<Tag, Sub>> {
+    template <typename P>
+    static constexpr auto apply(P &&pred) {
+      return guard_resolver<Sub>::apply(std::forward<P>(pred));
+    }
+  };
+
+  // Guard resolver for structural binding patterns: PTN_BIND
+  // member placeholders in the guard are anchored to their
+  // member's position in the has<...> member list.
+  template <auto... Ms>
+  struct guard_resolver<pat::detail::structural_bind_pattern<
+      pat::detail::has_pattern<Ms...>>> {
+    template <typename P>
+    static constexpr auto apply(P &&pred) {
+      return pat::mod::resolve_pred(pat::mod::member_list<Ms...>{},
+                                    std::forward<P>(pred));
+    }
   };
 
   // Structural-binding pattern binds.
