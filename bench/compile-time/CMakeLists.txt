@@ -8,7 +8,10 @@ find_package(Threads REQUIRED)
 # runtime dependency on Google Benchmark.
 
 function(_ptn_ct_add_lit_tu N)
-  set(_tufile "${CMAKE_CURRENT_SOURCE_DIR}/ct_bench_lit_${N}.cpp")
+  # Generate into the build tree, not the source tree: writing to
+  # CMAKE_CURRENT_SOURCE_DIR dirtied the working tree on every
+  # configure, and the generated files must not be committed.
+  set(_tufile "${CMAKE_CURRENT_BINARY_DIR}/ct_bench_lit_${N}.cpp")
   file(WRITE "${_tufile}"
     "// compile-time literal-match benchmark – forces full instantiation\n"
     "// of the match-dispatch machinery with ${N} literal cases.\n\n"
