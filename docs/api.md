@@ -241,9 +241,8 @@ $[rng(0, 10, pat::mod::open)]
 scope. Use callables for domain logic that does not read naturally as `_` or a
 short named-placeholder expression.
 
-Note: block-scope names cannot be referenced inside `PTN_ON`, because its
-caching lambda cannot capture them. Use plain `on(...)` there, or declare the
-names at namespace scope.
+Block-scope declarations use static storage duration, so they can also be
+referenced inside `PTN_ON`'s captureless caching lambda.
 
 ### Migration from positional guard APIs
 

@@ -333,6 +333,38 @@ TEST(NamedPlaceholder, GuardOnTypePatternRejects) {
 }
 
 // =========================================================================
+// PTN_ON: block-scope names have static storage duration, so the
+// captureless caching lambda can reference them.
+// =========================================================================
+
+TEST(NamedPlaceholder, BlockScopeNamesWorkInsidePtnOn) {
+  PTN_BIND(Point, x, y);
+  auto on_circle = [](const Point &p) {
+    return ptn::match(p)
+           | PTN_ON(ptn::$(ptn::has<&Point::x,
+                                    &Point::y>)[x * x + y * y == 25]
+                        >> 1,
+                    ptn::_ >> 0);
+  };
+  EXPECT_EQ(on_circle(Point{3, 4}), 1);
+  EXPECT_EQ(on_circle(Point{1, 2}), 0);
+}
+
+TEST(NamedPlaceholder, RepeatedNamesInsidePtnOn) {
+  PTN_BIND(Point, x, y);
+  auto on_diagonal = [](const Point &p) {
+    return ptn::match(p)
+           | PTN_ON(
+               ptn::$(ptn::has<&Point::x, &Point::y>)[x * x == y * y]
+                   >> 1,
+               ptn::_ >> 0);
+  };
+  EXPECT_EQ(on_diagonal(Point{3, 3}), 1);
+  EXPECT_EQ(on_diagonal(Point{3, -3}), 1);
+  EXPECT_EQ(on_diagonal(Point{3, 4}), 0);
+}
+
+// =========================================================================
 // Arithmetic expressions in guards (not just comparisons).
 // =========================================================================
 
