@@ -94,6 +94,25 @@ int magnitude2(const Point &p) {
 }
 ```
 
+### Structural match with named placeholders
+
+Declare readable names once with `PTN_BIND` (one to ten names), then
+use them directly in guard expressions:
+
+```cpp
+using namespace ptn;
+
+struct Point { int x; int y; };
+PTN_BIND(Point, x, y);
+
+bool on_circle_radius5(const Point &p) {
+  return match(p) | on(
+    $(has<&Point::x, &Point::y>)[x * x + y * y == 25] >> true,
+    _ >> false
+  );
+}
+```
+
 ### Variant match
 
 ```cpp

@@ -45,6 +45,15 @@ match(x) | on(
 
 ---
 
+### `PTN_BIND` arity 10 — chained arity macros
+
+Raise the named-placeholder limit from 5 to 10 member names and
+refactor the arity macros into chained composition
+(`PTN_BIND_N` = `PTN_BIND_{N-1}` + one declaration), so future
+extensions cost one short macro per level. See PR #44.
+
+---
+
 ## NEXT
 
 Potential follow-up items after current WIP scope is stabilized.
@@ -63,6 +72,33 @@ match(v) | on(
 
 ---
 
+### Multi-subject matching — `match(a, b)` with slot composition
+
+Match on combinations of values, in the spirit of Rust's
+`match (a, b)`. `match(a, b)` packs the subjects into a tuple; a
+slot-wise pattern (working name `tup(...)`, alternative `each(...)`)
+matches each position with its own sub-pattern and flattens the
+bindings in order:
+
+```cpp
+match(x, y) | on(
+  tup(lit(0), lit(0)) >> "origin",
+  tup(lit(0), _)      >> "on y axis",
+  tup(_, lit(0))      >> "on x axis",
+  _                   >> "elsewhere"
+);
+```
+
+Design notes:
+
+- Pure front-end sugar: the engine is untouched; `tup` is a pattern
+  combinator in the same family as `any`/`all`.
+- Shares the slot-composition machinery (per-slot match/bind plus
+  binding flattening) with `some`/`none`. The two should be designed
+  together so their binding semantics stay consistent.
+
+---
+
 ## Design Principles for New API
 
 - Stateless compile-time patterns should be variable templates, not
@@ -70,3 +106,20 @@ match(v) | on(
 - Function template forms are reserved for patterns that require runtime
   arguments (e.g., `lit(value)`, `lit_ci(value)`, `rng(lo, hi)`).
 - Names should be short, lowercase, and read naturally in the DSL.
+
+## Considered and Declined
+
+Syntax ideas that were evaluated and intentionally rejected, kept
+here so they are not re-proposed without new motivation.
+
+- **Guard `operator!`**: intentionally not provided; rewrite the
+  comparison instead (e.g. `!(x < y)` becomes `y <= x`).
+- **Member-call placeholders** (`_.size() > 3`): not expressible —
+  C++ has no `operator.` overloading, so `.size()` cannot become an
+  expression node. Use `pred` with a lambda.
+- **Chained comparisons** (`1 <= _ <= 10`): breaks predicate
+  semantics and produces unreadable diagnostics. Use `rng(lo, hi)`
+  with explicit range modes.
+- **`PTN_BIND` `Type` validation**: deferred. The `Type` argument is
+  documentary for now; member-name checking becomes feasible with
+  static reflection (C++26).
