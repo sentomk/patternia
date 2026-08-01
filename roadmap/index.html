@@ -1390,6 +1390,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#member-anchored-ptn_bind-placeholders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Member-anchored PTN_BIND placeholders
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1524,6 +1535,20 @@ refactor the arity macros into chained composition
 (<code>PTN_BIND_N</code> = <code>PTN_BIND_{N-1}</code> + one declaration), so future
 extensions cost one short macro per level. See PR #44.</p>
 <hr />
+<h3 id="member-anchored-ptn_bind-placeholders">Member-anchored <code>PTN_BIND</code> placeholders<a class="headerlink" href="#member-anchored-ptn_bind-placeholders" title="Permanent link">&para;</a></h3>
+<p><code>PTN_BIND(Type, ...)</code> names expand to <code>member_t&lt;&amp;Type::name&gt;</code>
+instead of positional <code>arg_t&lt;N&gt;</code>. Guards resolve each name to the
+position of its member in the <code>has&lt;...&gt;</code> member list at compile
+time:</p>
+<ul>
+<li>names follow members, so <code>has&lt;...&gt;</code> order no longer matters;</li>
+<li>misspelled member names fail at the <code>PTN_BIND</code> line;</li>
+<li>a name used with a <code>has&lt;...&gt;</code> that lacks its member fails a
+  static_assert.</li>
+</ul>
+<p>This also settles the previously deferred <code>Type</code>-validation item
+without static reflection.</p>
+<hr />
 <h2 id="next">NEXT<a class="headerlink" href="#next" title="Permanent link">&para;</a></h2>
 <p>Potential follow-up items after current WIP scope is stabilized.</p>
 <h3 id="some-none-stdoptional-patterns"><code>some</code> / <code>none</code> — <code>std::optional</code> patterns<a class="headerlink" href="#some-none-stdoptional-patterns" title="Permanent link">&para;</a></h3>
@@ -1577,9 +1602,9 @@ here so they are not re-proposed without new motivation.</p>
 <li><strong>Chained comparisons</strong> (<code>1 &lt;= _ &lt;= 10</code>): breaks predicate
   semantics and produces unreadable diagnostics. Use <code>rng(lo, hi)</code>
   with explicit range modes.</li>
-<li><strong><code>PTN_BIND</code> <code>Type</code> validation</strong>: deferred. The <code>Type</code> argument is
-  documentary for now; member-name checking becomes feasible with
-  static reflection (C++26).</li>
+<li><strong><code>PTN_BIND</code> <code>Type</code> validation</strong>: resolved without reflection —
+  names now expand to <code>member_t&lt;&amp;Type::name&gt;</code>, so member checking
+  happens at declaration time (see WIP above).</li>
 </ul>
 
 

@@ -1886,12 +1886,22 @@ consider static dispatch.</p>
 <p>Use <code>_</code> when one binding is enough and the predicate reads clearly without an
 explicit name.</p>
 <h3 id="ptn_bindtype-names"><code>PTN_BIND(Type, names...)</code><a class="headerlink" href="#ptn_bindtype-names" title="Permanent link">&para;</a></h3>
-<p>Declares readable placeholders for multi-binding guards. List the names in the
-same order as the members passed to <code>has&lt;&gt;</code>.</p>
+<p>Declares member-anchored placeholders for structural guards. Each name must
+designate a non-static data member of <code>Type</code>; the macro expands <code>name</code> to
+<code>constexpr member_t&lt;&amp;Type::name&gt;</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="n">PTN_BIND</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
 
 <span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">25</span><span class="p">]</span>
 </code></pre></div>
+<p>Inside a guard, names resolve to the position of their member in the <code>has&lt;&gt;</code>
+member list at compile time, so they follow members, not positions — the order
+of member pointers in <code>has&lt;&gt;</code> does not matter:</p>
+<div class="highlight"><pre><span></span><code><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">4</span><span class="p">]</span><span class="w">  </span><span class="c1">// x is still .x</span>
+</code></pre></div>
+<p>Misuse is caught at compile time: a misspelled member name fails right at the
+<code>PTN_BIND</code> line, and a name whose member is not listed in <code>has&lt;&gt;</code> fails a
+static_assert. Member names are only valid in guards attached to <code>has&lt;...&gt;</code>;
+using them on a non-structural pattern is a compile-time error.</p>
 <h3 id="rnglo-hi-mode"><code>rng(lo, hi, mode)</code><a class="headerlink" href="#rnglo-hi-mode" title="Permanent link">&para;</a></h3>
 <p>Range helper for single-bound-value guards.</p>
 <div class="highlight"><pre><span></span><code><span class="n">$</span><span class="p">[</span><span class="n">rng</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)]</span>
@@ -1900,6 +1910,9 @@ same order as the members passed to <code>has&lt;&gt;</code>.</p>
 <p><code>PTN_BIND</code> supports one to ten names and can be declared at namespace or block
 scope. Use callables for domain logic that does not read naturally as <code>_</code> or a
 short named-placeholder expression.</p>
+<p>Note: block-scope names cannot be referenced inside <code>PTN_ON</code>, because its
+caching lambda cannot capture them. Use plain <code>on(...)</code> there, or declare the
+names at namespace scope.</p>
 <h3 id="migration-from-positional-guard-apis">Migration from positional guard APIs<a class="headerlink" href="#migration-from-positional-guard-apis" title="Permanent link">&para;</a></h3>
 <p>The guard surface now uses <code>_</code> for one bound value and <code>PTN_BIND</code> names for
 multiple bound values. The former <code>__</code>, <code>_0</code>, <code>arg&lt;N&gt;</code>, <code>PTN_LET</code>, and
