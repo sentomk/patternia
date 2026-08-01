@@ -1910,9 +1910,8 @@ using them on a non-structural pattern is a compile-time error.</p>
 <p><code>PTN_BIND</code> supports one to ten names and can be declared at namespace or block
 scope. Use callables for domain logic that does not read naturally as <code>_</code> or a
 short named-placeholder expression.</p>
-<p>Note: block-scope names cannot be referenced inside <code>PTN_ON</code>, because its
-caching lambda cannot capture them. Use plain <code>on(...)</code> there, or declare the
-names at namespace scope.</p>
+<p>Block-scope declarations use static storage duration, so they can also be
+referenced inside <code>PTN_ON</code>'s captureless caching lambda.</p>
 <h3 id="migration-from-positional-guard-apis">Migration from positional guard APIs<a class="headerlink" href="#migration-from-positional-guard-apis" title="Permanent link">&para;</a></h3>
 <p>The guard surface now uses <code>_</code> for one bound value and <code>PTN_BIND</code> names for
 multiple bound values. The former <code>__</code>, <code>_0</code>, <code>arg&lt;N&gt;</code>, <code>PTN_LET</code>, and
