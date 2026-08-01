@@ -71,6 +71,16 @@ without static reflection.
 
 ---
 
+### Pattern operator sugar — `!p`, `(a || b)`, `(a && b)`
+
+Operator forms of the combinators: `!p` for `neg(p)`, `(a || b)` for
+`any(a, b)`, and `(a && b)` for `all(a, b)`. The overloads live in
+`ptn::pat::base` so ADL finds them for every pattern via the shared
+`pattern_base` base class, and they reject guard predicates so the
+guard-level `&&` / `||` semantics are untouched.
+
+---
+
 ## NEXT
 
 Potential follow-up items after current WIP scope is stabilized.
