@@ -5,6 +5,8 @@
 #include <utility>
 
 #include "ptn/pattern/base/fwd.h"
+#include "ptn/pattern/base/pattern_base.hpp"
+#include "ptn/pattern/base/pattern_traits.hpp"
 
 namespace ptn::pat {
 
@@ -45,5 +47,23 @@ namespace ptn::pat::base {
                       Subject> {
     using type = std::tuple<>;
   };
+
+  // Operator sugar: `!p` is equivalent to `neg(p)`. Only pattern
+  // objects participate; guard predicates are excluded so this
+  // never collides with boolean logic over predicates.
+  //
+  // Declared in ptn::pat::base so ADL finds it for every pattern:
+  // all patterns derive from base::pattern_base, which makes this
+  // namespace associated even though the concrete pattern types
+  // live in ptn::pat::detail (ADL does not ascend namespaces).
+  template <
+      typename P,
+      std::enable_if_t<
+          std::is_base_of_v<pattern_tag, std::decay_t<P>>
+              && !pat::traits::is_guard_predicate_v<std::decay_t<P>>,
+          int> = 0>
+  constexpr auto operator!(P &&p) {
+    return pat::neg(std::forward<P>(p));
+  }
 
 } // namespace ptn::pat::base

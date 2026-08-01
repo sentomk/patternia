@@ -12,6 +12,7 @@
 
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/pattern_base.hpp"
+#include "ptn/pattern/base/pattern_traits.hpp"
 
 namespace ptn::pat {
 
@@ -20,11 +21,13 @@ namespace ptn::pat {
     // Matches when any sub-pattern matches. This combinator never
     // contributes bindings; it is used only for control flow.
     template <typename... Patterns>
-    struct any_pattern : base::pattern_base<any_pattern<Patterns...>> {
+    struct any_pattern
+        : base::pattern_base<any_pattern<Patterns...>> {
       std::tuple<Patterns...> patterns;
 
       template <typename... Ps,
-                typename = std::enable_if_t<sizeof...(Ps) == sizeof...(Patterns)>>
+                typename = std::enable_if_t<sizeof...(Ps)
+                                            == sizeof...(Patterns)>>
       constexpr explicit any_pattern(Ps &&...ps)
           : patterns(std::forward<Ps>(ps)...) {
       }
@@ -49,11 +52,13 @@ namespace ptn::pat {
     // Matches only when every sub-pattern matches. Like any_pattern,
     // this combinator is non-binding.
     template <typename... Patterns>
-    struct all_pattern : base::pattern_base<all_pattern<Patterns...>> {
+    struct all_pattern
+        : base::pattern_base<all_pattern<Patterns...>> {
       std::tuple<Patterns...> patterns;
 
       template <typename... Ps,
-                typename = std::enable_if_t<sizeof...(Ps) == sizeof...(Patterns)>>
+                typename = std::enable_if_t<sizeof...(Ps)
+                                            == sizeof...(Patterns)>>
       constexpr explicit all_pattern(Ps &&...ps)
           : patterns(std::forward<Ps>(ps)...) {
       }
@@ -85,7 +90,8 @@ namespace ptn::pat {
         sizeof...(Patterns) > 0,
         "[Patternia.any]: requires at least one sub-pattern.");
     static_assert(
-        (std::is_base_of_v<base::pattern_tag, std::decay_t<Patterns>> && ...),
+        (std::is_base_of_v<base::pattern_tag, std::decay_t<Patterns>>
+         && ...),
         "[Patternia.any]: every argument must be a pattern object.");
 
     return detail::any_pattern<std::decay_t<Patterns>...>(
@@ -100,7 +106,8 @@ namespace ptn::pat {
         sizeof...(Patterns) > 0,
         "[Patternia.all]: requires at least one sub-pattern.");
     static_assert(
-        (std::is_base_of_v<base::pattern_tag, std::decay_t<Patterns>> && ...),
+        (std::is_base_of_v<base::pattern_tag, std::decay_t<Patterns>>
+         && ...),
         "[Patternia.all]: every argument must be a pattern object.");
 
     return detail::all_pattern<std::decay_t<Patterns>...>(
@@ -111,13 +118,55 @@ namespace ptn::pat {
 
 namespace ptn::pat::base {
 
+  namespace detail {
+
+    // Both operands must be patterns and neither may be a guard
+    // predicate: `&&` / `||` between guard predicates keep their
+    // existing pred_and / pred_or meaning.
+    template <typename L, typename R>
+    inline constexpr bool pattern_pair_v =
+        std::is_base_of_v<pattern_tag, std::decay_t<L>>
+        && std::is_base_of_v<pattern_tag, std::decay_t<R>>
+        && !pat::traits::is_guard_predicate_v<std::decay_t<L>>
+        && !pat::traits::is_guard_predicate_v<std::decay_t<R>>;
+
+  } // namespace detail
+
+  // Operator sugar: `a || b` is equivalent to `any(a, b)`.
+  //
+  // Declared in ptn::pat::base so ADL finds it for every pattern
+  // via the shared pattern_base base class (concrete patterns live
+  // in ptn::pat::detail, and ADL does not ascend namespaces).
+  //
+  // NOTE: `>>` binds tighter than `||`, so parenthesize the
+  // pattern in a case: `(lit(1) || lit(2)) >> handler`.
+  template <typename L,
+            typename R,
+            std::enable_if_t<detail::pattern_pair_v<L, R>, int> = 0>
+  constexpr auto operator||(L &&l, R &&r) {
+    return pat::any(std::forward<L>(l), std::forward<R>(r));
+  }
+
+  // Operator sugar: `a && b` is equivalent to `all(a, b)`.
+  //
+  // NOTE: `>>` binds tighter than `&&`, so parenthesize the
+  // pattern in a case: `(p && q) >> handler`.
+  template <typename L,
+            typename R,
+            std::enable_if_t<detail::pattern_pair_v<L, R>, int> = 0>
+  constexpr auto operator&&(L &&l, R &&r) {
+    return pat::all(std::forward<L>(l), std::forward<R>(r));
+  }
+
   template <typename... Patterns, typename Subject>
-  struct binding_args<ptn::pat::detail::any_pattern<Patterns...>, Subject> {
+  struct binding_args<ptn::pat::detail::any_pattern<Patterns...>,
+                      Subject> {
     using type = std::tuple<>;
   };
 
   template <typename... Patterns, typename Subject>
-  struct binding_args<ptn::pat::detail::all_pattern<Patterns...>, Subject> {
+  struct binding_args<ptn::pat::detail::all_pattern<Patterns...>,
+                      Subject> {
     using type = std::tuple<>;
   };
 

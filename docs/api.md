@@ -344,6 +344,8 @@ Properties:
 - Sub-patterns are evaluated left-to-right; evaluation stops at the first
   match.
 - Requires at least one sub-pattern; every argument must be a pattern object.
+- Operator sugar: `(a || b)` is equivalent to `any(a, b)`. Note that `>>`
+  binds tighter than `||`, so parenthesize: `(lit(1) || lit(2)) >> handler`.
 
 ### `all(ps...)`
 
@@ -363,6 +365,8 @@ Properties:
 - Sub-patterns are evaluated left-to-right; evaluation stops at the first
   mismatch.
 - Requires at least one sub-pattern; every argument must be a pattern object.
+- Operator sugar: `(a && b)` is equivalent to `all(a, b)`. Note that `>>`
+  binds tighter than `&&`, so parenthesize: `(p && q) >> handler`.
 
 ### `neg(p)`
 
@@ -381,6 +385,12 @@ Properties:
 - Non-binding: handlers receive zero arguments.
 - Accepts exactly one sub-pattern (no zero- or multi-argument form).
 - `neg(neg(p))` restores the original match behavior (double negation cancels).
+- Operator sugar: `!p` is equivalent to `neg(p)` and needs no parentheses:
+  `!val<200> >> "error"`.
+
+The pattern-level operators only accept pattern operands, so they never
+collide with the guard-level `&&` / `||` (which keep their `pred_and` /
+`pred_or` meaning inside `[...]` guards).
 
 ---
 

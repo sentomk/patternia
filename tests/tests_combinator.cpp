@@ -336,3 +336,88 @@ TEST(NegationPattern, NegNegIsIdentity) {
                     _ >> [] { return 0; }),
             42);
 }
+
+// =========================================================================
+// Operator sugar: !p == neg(p), (a || b) == any(a, b),
+// (a && b) == all(a, b).
+// =========================================================================
+
+TEST(OperatorSugar, NegationIsNeg) {
+  static_assert(
+      std::is_same_v<decltype(!lit(1)), decltype(neg(lit(1)))>);
+}
+
+TEST(OperatorSugar, BangMatchesNeg) {
+  int a = 5, b = 1;
+  EXPECT_EQ(match(a) | on(!lit(1) >> 1, _ >> 0), 1);
+  EXPECT_EQ(match(b) | on(!lit(1) >> 1, _ >> 0), 0);
+}
+
+TEST(OperatorSugar, BangOnVal) {
+  int a = 404, b = 200;
+  EXPECT_EQ(match(a) | on(!val<200> >> 1, _ >> 0), 1);
+  EXPECT_EQ(match(b) | on(!val<200> >> 1, _ >> 0), 0);
+}
+
+TEST(OperatorSugar, OrIsAny) {
+  int a = 2, b = 3;
+  // NOTE: `>>` binds tighter than `||`, hence the parentheses.
+  EXPECT_EQ(match(a) | on((lit(1) || lit(2)) >> 1, _ >> 0), 1);
+  EXPECT_EQ(match(b) | on((lit(1) || lit(2)) >> 1, _ >> 0), 0);
+}
+
+TEST(OperatorSugar, OrChainsLeft) {
+  int a = 3, b = 4;
+  EXPECT_EQ(match(a) | on((lit(1) || lit(2) || lit(3)) >> 1, _ >> 0),
+            1);
+  EXPECT_EQ(match(b) | on((lit(1) || lit(2) || lit(3)) >> 1, _ >> 0),
+            0);
+}
+
+TEST(OperatorSugar, AndIsAll) {
+  auto is_even = [](int x) { return x % 2 == 0; };
+  int  a = 6, b = 2, c = 5;
+  EXPECT_EQ(match(a) | on((pred(is_even) && !lit(2)) >> 1, _ >> 0),
+            1);
+  EXPECT_EQ(match(b) | on((pred(is_even) && !lit(2)) >> 1, _ >> 0),
+            0);
+  EXPECT_EQ(match(c) | on((pred(is_even) && !lit(2)) >> 1, _ >> 0),
+            0);
+}
+
+TEST(OperatorSugar, DoubleBangIsIdentity) {
+  int a = 1, b = 2;
+  EXPECT_EQ(match(a) | on(!!lit(1) >> 1, _ >> 0), 1);
+  EXPECT_EQ(match(b) | on(!!lit(1) >> 1, _ >> 0), 0);
+}
+
+TEST(OperatorSugar, GuardOperatorsUnaffected) {
+  // `&&` / `||` between guard predicates keep pred_and / pred_or
+  // semantics; the pattern-level sugar must not interfere.
+  int a = 50, b = 150;
+  EXPECT_EQ(match(a) | on($[(_ > 0) && (_ < 100)] >> 1, _ >> 0), 1);
+  EXPECT_EQ(match(b) | on($[(_ < 0) || (_ > 100)] >> 1, _ >> 0), 1);
+}
+
+TEST(OperatorSugar, MixedWithTypePatterns) {
+  // The sugar composes patterns of different kinds against one
+  // subject (here: two type patterns over a variant).
+  std::variant<int, std::string, double> a = 1;
+  std::variant<int, std::string, double> b = std::string("s");
+  std::variant<int, std::string, double> c = 1.5;
+  EXPECT_EQ(
+      match(a)
+          | on((is<int> || is<std::string>) >> [] { return 1; },
+               _ >> 0),
+      1);
+  EXPECT_EQ(
+      match(b)
+          | on((is<int> || is<std::string>) >> [] { return 1; },
+               _ >> 0),
+      1);
+  EXPECT_EQ(
+      match(c)
+          | on((is<int> || is<std::string>) >> [] { return 1; },
+               _ >> 0),
+      0);
+}
