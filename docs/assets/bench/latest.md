@@ -2,22 +2,22 @@
 
 - Source: `bench_results/ptn_bench.json`
 - Scenarios: `8`
-- Patternia fastest: `1/8`
-- Average Patternia gap vs fastest: `+24.85%`
-- Largest Patternia gap: `VariantMixed` `+100.18%` vs `SwitchIndex`
+- Patternia fastest: `2/8`
+- Average Patternia gap vs fastest: `+33.05%`
+- Largest Patternia gap: `VariantMixed` `+99.32%` vs `SwitchIndex`
 
 ## Patternia Focus
 
 | Scenario | Patternia impl | Rank | Patternia mean (ns) | Fastest | Fastest mean (ns) | Gap vs fastest | Patternia CV % | Status |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| VariantMixed | PatterniaPipe | 4/4 | 1.999 | SwitchIndex | 0.998 | +100.18% | 0.28 | slow |
-| VariantMixedGuarded | PatterniaPipe | 3/4 | 1.986 | SwitchIndex | 1.413 | +40.52% | 0.85 | slow |
-| CommandParser | PatterniaPipe | 2/4 | 1.773 | StdVisit | 1.390 | +27.54% | 0.14 | slow |
-| PacketMixedHeavyBind | PatterniaPipe | 2/2 | 1.683 | Switch | 1.496 | +12.52% | 0.27 | watch |
-| PacketMixed | PatterniaPipe | 2/2 | 1.622 | Switch | 1.459 | +11.20% | 0.22 | watch |
-| ProtocolRouter | PatterniaPipe | 3/4 | 1.623 | StdVisit | 1.521 | +6.72% | 0.82 | watch |
-| VariantAltHot | PatterniaPipe | 2/4 | 1.558 | StdVisit | 1.556 | +0.09% | 0.25 | close |
-| VariantAltHotGuarded | PatterniaPipe | 2/4 | 1.713 | StdVisit | 1.713 | +0.01% | 0.09 | fastest |
+| VariantMixed | PatterniaPipe | 3/4 | 2.127 | SwitchIndex | 1.067 | +99.32% | 0.28 | slow |
+| VariantMixedGuarded | PatterniaPipe | 3/4 | 2.134 | SwitchIndex | 1.155 | +84.70% | 0.89 | slow |
+| CommandParser | PatterniaPipe | 4/4 | 2.103 | StdVisit | 1.453 | +44.78% | 0.79 | slow |
+| PacketMixedHeavyBind | PatterniaPipe | 2/2 | 1.964 | Switch | 1.616 | +21.55% | 1.12 | slow |
+| PacketMixed | PatterniaPipe | 2/2 | 1.819 | Switch | 1.609 | +13.01% | 0.17 | watch |
+| ProtocolRouter | PatterniaPipe | 2/4 | 1.710 | StdVisit | 1.692 | +1.05% | 0.99 | close |
+| VariantAltHot | PatterniaPipe | 1/4 | 1.757 | PatterniaPipe | 1.757 | +0.00% | 0.07 | fastest |
+| VariantAltHotGuarded | PatterniaPipe | 1/4 | 1.934 | PatterniaPipe | 1.934 | +0.00% | 0.09 | fastest |
 
 ---
 
@@ -26,67 +26,67 @@
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| SwitchIndex | 0.998 | fastest | -50.04% | 0.51 |
-| Sequential | 1.162 | +16.34% | -41.88% | 0.14 |
-| StdVisit | 1.992 | +99.55% | -0.31% | 0.31 |
-| **PatterniaPipe** | 1.999 | +100.18% | - | 0.28 |
+| SwitchIndex | 1.067 | fastest | -49.83% | 0.20 |
+| Sequential | 1.168 | +9.38% | -45.12% | 0.59 |
+| **PatterniaPipe** | 2.127 | +99.32% | - | 0.28 |
+| StdVisit | 3.178 | +197.72% | +49.37% | 0.33 |
 
 ### VariantMixedGuarded
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| SwitchIndex | 1.413 | fastest | -28.83% | 0.43 |
-| Sequential | 1.427 | +0.97% | -28.14% | 0.26 |
-| **PatterniaPipe** | 1.986 | +40.52% | - | 0.85 |
-| StdVisit | 2.152 | +52.27% | +8.36% | 0.05 |
+| SwitchIndex | 1.155 | fastest | -45.86% | 0.57 |
+| Sequential | 1.222 | +5.74% | -42.75% | 1.43 |
+| **PatterniaPipe** | 2.134 | +84.70% | - | 0.89 |
+| StdVisit | 2.309 | +99.90% | +8.23% | 0.34 |
 
 ### CommandParser
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| StdVisit | 1.390 | fastest | -21.60% | 0.52 |
-| **PatterniaPipe** | 1.773 | +27.54% | - | 0.14 |
-| IfElse | 2.129 | +53.20% | +20.11% | 0.56 |
-| Switch | 2.253 | +62.12% | +27.11% | 0.18 |
+| StdVisit | 1.453 | fastest | -30.93% | 2.06 |
+| Switch | 1.810 | +24.60% | -13.94% | 0.79 |
+| IfElse | 1.871 | +28.82% | -11.03% | 0.76 |
+| **PatterniaPipe** | 2.103 | +44.78% | - | 0.79 |
 
 ### PacketMixedHeavyBind
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| Switch | 1.496 | fastest | -11.13% | 0.60 |
-| **PatterniaPipe** | 1.683 | +12.52% | - | 0.27 |
+| Switch | 1.616 | fastest | -17.73% | 0.56 |
+| **PatterniaPipe** | 1.964 | +21.55% | - | 1.12 |
 
 ### PacketMixed
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| Switch | 1.459 | fastest | -10.07% | 1.47 |
-| **PatterniaPipe** | 1.622 | +11.20% | - | 0.22 |
+| Switch | 1.609 | fastest | -11.51% | 1.77 |
+| **PatterniaPipe** | 1.819 | +13.01% | - | 0.17 |
 
 ### ProtocolRouter
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| StdVisit | 1.521 | fastest | -6.29% | 0.26 |
-| Switch | 1.608 | +5.74% | -0.92% | 0.89 |
-| **PatterniaPipe** | 1.623 | +6.72% | - | 0.82 |
-| IfElse | 1.871 | +23.03% | +15.28% | 0.91 |
+| StdVisit | 1.692 | fastest | -1.04% | 0.56 |
+| **PatterniaPipe** | 1.710 | +1.05% | - | 0.99 |
+| Switch | 1.722 | +1.73% | +0.67% | 4.00 |
+| IfElse | 2.147 | +26.85% | +25.53% | 1.87 |
 
 ### VariantAltHot
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| StdVisit | 1.556 | fastest | -0.09% | 0.09 |
-| **PatterniaPipe** | 1.558 | +0.09% | - | 0.25 |
-| Sequential | 1.712 | +10.00% | +9.90% | 0.06 |
-| SwitchIndex | 2.179 | +39.97% | +39.84% | 0.03 |
+| **PatterniaPipe** | 1.757 | fastest | - | 0.07 |
+| Sequential | 2.461 | +40.04% | +40.04% | 0.07 |
+| StdVisit | 2.462 | +40.11% | +40.11% | 22.54 |
+| SwitchIndex | 2.993 | +70.30% | +70.30% | 0.38 |
 
 ### VariantAltHotGuarded
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| StdVisit | 1.713 | fastest | -0.01% | 0.08 |
-| **PatterniaPipe** | 1.713 | +0.01% | - | 0.09 |
-| Sequential | 1.869 | +9.12% | +9.11% | 0.09 |
-| SwitchIndex | 1.869 | +9.12% | +9.12% | 0.08 |
+| **PatterniaPipe** | 1.934 | fastest | - | 0.09 |
+| SwitchIndex | 2.636 | +36.32% | +36.32% | 0.05 |
+| StdVisit | 2.988 | +54.52% | +54.52% | 0.04 |
+| Sequential | 2.989 | +54.54% | +54.54% | 0.08 |
 
