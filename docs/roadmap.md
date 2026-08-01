@@ -11,9 +11,18 @@ Status labels:
 
 ## FINISHED
 
+Completed in [v0.9.4](changelog/v0.9.4.md):
+
+- `PTN_BIND(Type, names...)` member-anchored named guard
+  placeholders (one to ten names), replacing the positional guard
+  APIs (`__`, `_0`, `arg<N>`, `PTN_LET`, `PTN_WHERE`).
+- Block-scope `PTN_BIND` names usable inside `PTN_ON`.
+- Pattern operator sugar: `!p`, `(a || b)`, `(a && b)`.
+
 Completed in [v0.9.3](changelog/v0.9.3.md):
 
 - `pred(callable)` predicate pattern for lifting arbitrary unary predicates into first-class patterns.
+- `neg(p)` negation pattern.
 
 Completed in [v0.9.2](changelog/v0.9.2.md):
 
@@ -30,54 +39,7 @@ Completed in [v0.9.1](changelog/v0.9.1.md):
 
 ## WIP
 
-Current workstream for upcoming releases.
-
-### `neg(p)` — negation pattern
-
-Invert the result of a sub-pattern.
-
-```cpp
-match(x) | on(
-  neg(val<0>) >> "non-zero",
-  _ >> "zero"
-);
-```
-
----
-
-### `PTN_BIND` arity 10 — chained arity macros
-
-Raise the named-placeholder limit from 5 to 10 member names and
-refactor the arity macros into chained composition
-(`PTN_BIND_N` = `PTN_BIND_{N-1}` + one declaration), so future
-extensions cost one short macro per level. See PR #44.
-
----
-
-### Member-anchored `PTN_BIND` placeholders
-
-`PTN_BIND(Type, ...)` names expand to `member_t<&Type::name>`
-instead of positional `arg_t<N>`. Guards resolve each name to the
-position of its member in the `has<...>` member list at compile
-time:
-
-- names follow members, so `has<...>` order no longer matters;
-- misspelled member names fail at the `PTN_BIND` line;
-- a name used with a `has<...>` that lacks its member fails a
-  static_assert.
-
-This also settles the previously deferred `Type`-validation item
-without static reflection.
-
----
-
-### Pattern operator sugar — `!p`, `(a || b)`, `(a && b)`
-
-Operator forms of the combinators: `!p` for `neg(p)`, `(a || b)` for
-`any(a, b)`, and `(a && b)` for `all(a, b)`. The overloads live in
-`ptn::pat::base` so ADL finds them for every pattern via the shared
-`pattern_base` base class, and they reject guard predicates so the
-guard-level `&&` / `||` semantics are untouched.
+No active workstream. See NEXT for candidates.
 
 ---
 
