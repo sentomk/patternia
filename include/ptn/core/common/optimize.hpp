@@ -121,7 +121,7 @@ namespace ptn::core::common {
     constexpr std::size_t
         k_runtime_literal_dense_dispatch_min_cases = 4;
 
-    enum class variant_dispatch_tier {
+    enum class variant_dispatch_tier : std::uint8_t {
       hot_inline,
       warm_segmented,
       cold_compact
@@ -820,7 +820,7 @@ namespace ptn::core::common {
     // Describes the primary discriminator a single case contributes
     // to the IR. This is the key the planner may use before any
     // residual checking.
-    enum class case_discriminator_kind {
+    enum class case_discriminator_kind : std::uint8_t {
       opaque,
       wildcard,
       runtime_literal,
@@ -832,7 +832,7 @@ namespace ptn::core::common {
     // routing. `guard` means the key is usable, but the bucket must
     // still evaluate a guard. `structural` means the bucket must
     // re-enter general matching.
-    enum class case_residual_kind {
+    enum class case_residual_kind : std::uint8_t {
       none,
       guard,
       structural
@@ -841,7 +841,7 @@ namespace ptn::core::common {
     // Describes how much the case's binding behavior constrains
     // lowering. `general` means the planner must assume full matcher
     // replay semantics.
-    enum class case_binding_kind {
+    enum class case_binding_kind : std::uint8_t {
       none,
       direct_ref,
       general
@@ -1314,7 +1314,7 @@ namespace ptn::core::common {
     // `full` means direct keyed dispatch is legal, `bucketed` means
     // keyed dispatch may narrow the search before replay, and `none`
     // means the planner must fall back to sequential evaluation.
-    enum class lowering_legality {
+    enum class lowering_legality : std::uint8_t {
       none,
       bucketed,
       full
@@ -1323,7 +1323,7 @@ namespace ptn::core::common {
     // Names the concrete runtime shape selected after legality
     // analysis. Multiple plan kinds may share the same legality
     // grade.
-    enum class dispatch_plan_kind {
+    enum class dispatch_plan_kind : std::uint8_t {
       sequential,
       literal_linear,
       static_literal_dense,

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 // Forward declarations for Patternia Pattern Base Layer.
 
 namespace ptn::pat::base {
@@ -12,14 +14,15 @@ namespace ptn::pat::base {
   struct pattern_base;
 
   // Pattern identification base
-  enum class pattern_kind;
+  enum class pattern_kind : std::uint8_t;
 
   // Pattern identification base
   template <typename Pattern, typename Subject>
   struct binding_args;
 
   template <typename Pattern, typename Subject>
-  using binding_args_t = typename binding_args<Pattern, Subject>::type;
+  using binding_args_t = typename binding_args<Pattern,
+                                               Subject>::type;
 
   template <typename Derived>
   struct binding_pattern_base;

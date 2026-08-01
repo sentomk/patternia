@@ -71,6 +71,7 @@ option(PTN_INSTALL "Generate install/export targets" ${PTN_MASTER_PROJECT})
 option(PTN_BUILD_TESTS "Build unit tests" ${PTN_MASTER_PROJECT})
 option(PTN_BUILD_BENCHMARKS "Build benchmarks" ${PTN_MASTER_PROJECT})
 option(PTN_BUILD_SAMPLES "Build sample programs" ${PTN_MASTER_PROJECT})
+option(PTN_BUILD_FUZZ "Build fuzz targets (requires Clang)" OFF)
 option(PTN_DEV_INDEX "Create local indexable target for IDEs (not installed)" ON)
 option(PTN_SKIP_COMPILER_CHECK "Skip compiler version check" OFF)
 
@@ -180,6 +181,14 @@ if(PTN_BUILD_TESTS)
   if(BUILD_TESTING)
     add_subdirectory(tests)
   endif()
+endif()
+
+if(PTN_BUILD_FUZZ)
+  if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    message(FATAL_ERROR
+      "PTN_BUILD_FUZZ requires Clang (libFuzzer entry point).")
+  endif()
+  add_subdirectory(fuzz)
 endif()
 
 if(PTN_BUILD_BENCHMARKS)

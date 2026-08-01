@@ -103,7 +103,13 @@ namespace ptn::pat {
         : base::pattern_base<has_guarded_pattern<HasPat, Pred>> {
       Pred pred;
 
-      template <typename P>
+      // Constrained so it cannot hide the copy/move constructors
+      // (bugprone-forwarding-reference-overload).
+      template <
+          typename P,
+          std::enable_if_t<
+              !std::is_same_v<std::decay_t<P>, has_guarded_pattern>,
+              int> = 0>
       constexpr explicit has_guarded_pattern(P &&p)
           : pred(std::forward<P>(p)) {
       }

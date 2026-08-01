@@ -132,13 +132,11 @@ namespace ptn::core::common {
           decltype(std::get<I>(std::forward<Tuple>(t)))...>;
 
       if constexpr (std::is_void_v<result_t>) {
-        std::invoke(std::forward<F>(f),
-                    std::get<I>(std::forward<Tuple>(t))...);
+        std::invoke(std::forward<F>(f), std::get<I>(t)...);
         return;
       }
       else {
-        return std::invoke(std::forward<F>(f),
-                           std::get<I>(std::forward<Tuple>(t))...);
+        return std::invoke(std::forward<F>(f), std::get<I>(t)...);
       }
     }
 

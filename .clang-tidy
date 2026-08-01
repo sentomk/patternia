@@ -1,0 +1,35 @@
+---
+# Patternia clang-tidy configuration.
+#
+# Scope: correctness and performance findings in library headers.
+# Style/readability checks stay with clang-format; two bugprone
+# checks are disabled because they conflict with deliberate design
+# idioms (see comments inline).
+Checks: >
+  bugprone-*,
+  clang-analyzer-*,
+  performance-*,
+  portability-*,
+  concurrency-*,
+  -bugprone-crtp-constructor-accessibility,
+  -bugprone-branch-clone,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-exception-escape
+
+# Only library headers are checked; test/sample code and
+# third-party headers are out of scope.
+HeaderFilterRegex: 'include/ptn/'
+
+# CI treats every warning as an error.
+WarningsAsErrors: '*'
+
+# Rationale for disabled checks:
+# - bugprone-crtp-constructor-accessibility: pattern_base and
+#   guard_operator are intentional public CRTP mixins.
+# - bugprone-branch-clone: repeated branch bodies are a normal
+#   consequence of constexpr/if-constexpr metaprogramming.
+# - bugprone-easily-swappable-parameters: fires pervasively on
+#   forwarding-reference machinery where parameter order is part
+#   of the DSL contract.
+# - bugprone-exception-escape: noisy on executable mains (samples),
+#   irrelevant for a header-only library.

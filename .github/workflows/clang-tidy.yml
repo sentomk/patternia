@@ -1,0 +1,46 @@
+name: clang-tidy
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  clang-tidy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-tidy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang clang-tidy
+          clang-tidy --version
+
+      - name: Configure (compile_commands.json)
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DPTN_BUILD_TESTS=ON
+
+      - name: Run clang-tidy on tests and samples
+        shell: bash
+        run: |
+          set -euo pipefail
+          # WarningsAsErrors is set in .clang-tidy, so any finding
+          # fails the step. json_dispatch samples are excluded:
+          # they need nlohmann/json which is not part of the build.
+          for f in tests/*.cpp samples/*.cpp; do
+            echo "=== $f"
+            clang-tidy -p build "$f"
+          done
