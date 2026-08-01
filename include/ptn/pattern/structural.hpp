@@ -11,6 +11,7 @@
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/pattern_base.hpp"
 #include "ptn/pattern/base/pattern_traits.hpp"
+#include "ptn/pattern/modifiers/guard.hpp"
 #include "ptn/core/common/diagnostics.hpp"
 
 namespace ptn::pat {
@@ -130,13 +131,18 @@ namespace ptn::pat {
     }
 
     // Deferred definition of has_pattern::operator[].
+    // PTN_BIND member placeholders in the guard are resolved
+    // against this pattern's member list.
     template <auto... Ms>
     template <typename Pred>
     constexpr auto
     has_pattern<Ms...>::operator[](Pred &&pred) const {
+      auto resolved = ptn::pat::mod::resolve_pred(
+          ptn::pat::mod::member_list<Ms...>{},
+          std::forward<Pred>(pred));
       return has_guarded_pattern<has_pattern<Ms...>,
-                                 std::decay_t<Pred>>{
-          std::forward<Pred>(pred)};
+                                 decltype(resolved)>{
+          std::move(resolved)};
     }
 
   } // namespace detail

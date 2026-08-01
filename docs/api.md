@@ -205,14 +205,28 @@ explicit name.
 
 ### `PTN_BIND(Type, names...)`
 
-Declares readable placeholders for multi-binding guards. List the names in the
-same order as the members passed to `has<>`.
+Declares member-anchored placeholders for structural guards. Each name must
+designate a non-static data member of `Type`; the macro expands `name` to
+`constexpr member_t<&Type::name>`.
 
 ```cpp
 PTN_BIND(Point, x, y);
 
 $(has<&Point::x, &Point::y>)[x * x + y * y == 25]
 ```
+
+Inside a guard, names resolve to the position of their member in the `has<>`
+member list at compile time, so they follow members, not positions — the order
+of member pointers in `has<>` does not matter:
+
+```cpp
+$(has<&Point::y, &Point::x>)[x == 3 && y == 4]  // x is still .x
+```
+
+Misuse is caught at compile time: a misspelled member name fails right at the
+`PTN_BIND` line, and a name whose member is not listed in `has<>` fails a
+static_assert. Member names are only valid in guards attached to `has<...>`;
+using them on a non-structural pattern is a compile-time error.
 
 ### `rng(lo, hi, mode)`
 
@@ -226,6 +240,10 @@ $[rng(0, 10, pat::mod::open)]
 `PTN_BIND` supports one to ten names and can be declared at namespace or block
 scope. Use callables for domain logic that does not read naturally as `_` or a
 short named-placeholder expression.
+
+Note: block-scope names cannot be referenced inside `PTN_ON`, because its
+caching lambda cannot capture them. Use plain `on(...)` there, or declare the
+names at namespace scope.
 
 ### Migration from positional guard APIs
 

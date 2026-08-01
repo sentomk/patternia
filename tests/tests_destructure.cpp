@@ -18,8 +18,8 @@ struct Packet {
   std::string payload;
 };
 
-PTN_BIND(Point, point_x, point_y);
-PTN_BIND(Packet, packet_type, packet_length);
+PTN_BIND(Point, x, y);
+PTN_BIND(Packet, type, length);
 
 // -- $(has<>) destructure binding --
 
@@ -40,9 +40,8 @@ TEST(Destructure, WithGuard) {
 
   int result = match(p)
                | on(
-                   $(has<&Point::x, &Point::y>)[point_x > 0
-                                                && point_y > 0]
-                       >> [](int x, int y) { return x * y; },
+                   $(has<&Point::x, &Point::y>)[x > 0 && y > 0] >>
+                       [](int x, int y) { return x * y; },
                    _ >> -1);
 
   EXPECT_EQ(result, 50);
@@ -53,9 +52,8 @@ TEST(Destructure, GuardRejects) {
 
   int result = match(p)
                | on(
-                   $(has<&Point::x, &Point::y>)[point_x > 0
-                                                && point_y > 0]
-                       >> [](int x, int y) { return x * y; },
+                   $(has<&Point::x, &Point::y>)[x > 0 && y > 0] >>
+                       [](int x, int y) { return x * y; },
                    _ >> -1);
 
   EXPECT_EQ(result, -1);
@@ -137,8 +135,7 @@ TEST(HasGuard, MultiMemberGuard) {
   int result = match(pkt)
                | on(
                    has<&Packet::type,
-                       &Packet::length>[packet_type == 0x01
-                                        && packet_length == 0]
+                       &Packet::length>[type == 0x01 && length == 0]
                        >> [] { return 1; },
                    _ >> 0);
 

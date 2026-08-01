@@ -289,3 +289,26 @@ namespace ptn::pat::base {
   };
 
 } // namespace ptn::pat::base
+
+namespace ptn::pat::base {
+
+  // Guards on type patterns delegate member-placeholder
+  // resolution to the wrapped subpattern, so PTN_BIND names work
+  // through is<T>(...) / alt<I>(...) wrappers.
+  template <typename T, typename Sub>
+  struct guard_resolver<ptn::pat::detail::type_is_pattern<T, Sub>> {
+    template <typename P>
+    static constexpr auto apply(P &&pred) {
+      return guard_resolver<Sub>::apply(std::forward<P>(pred));
+    }
+  };
+
+  template <std::size_t I, typename Sub>
+  struct guard_resolver<ptn::pat::detail::type_alt_pattern<I, Sub>> {
+    template <typename P>
+    static constexpr auto apply(P &&pred) {
+      return guard_resolver<Sub>::apply(std::forward<P>(pred));
+    }
+  };
+
+} // namespace ptn::pat::base

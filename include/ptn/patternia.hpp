@@ -89,11 +89,16 @@ namespace ptn {
 
 // PTN_BIND(Type, member0, member1, ...)
 //
-// Declares named placeholder objects for use in guard expressions.
-// Each name is a constexpr arg_t<N> where N is the zero-based
-// position of the member in the argument list. Declarations are
-// valid at namespace or block scope, so names can stay close to a
-// match.
+// Declares member-anchored named placeholders for use in guard
+// expressions attached to has<...>. Each name must designate a
+// non-static data member of Type: the macro expands name to
+// constexpr member_t<&Type::name>. Declarations are valid at
+// namespace or block scope.
+//
+// Inside a guard, names resolve to the position of their member
+// in the has<...> member list at compile time. They follow
+// members, not positions, so the order of member pointers in
+// has<...> does not matter.
 //
 // Example:
 //   struct Point { int x; int y; };
@@ -104,11 +109,9 @@ namespace ptn {
 //           >> [](auto& p) { return dist(p); }
 //   );
 //
-// NOTE: The Type argument is currently unused by the generated code.
-// It serves as documentation: the names are expected to correspond
-// to the members of Type, listed in the same order as in has<...>.
-// A future reflection-based variant may validate this at compile
-// time.
+// A misspelled member name fails at the PTN_BIND line, and a name
+// used with a has<...> that does not list its member fails a
+// static_assert.
 //
 // Supports 1 to 10 member names.
 //
@@ -117,47 +120,47 @@ namespace ptn {
 // - PTN_BIND_N is defined by chaining: it expands to
 //   PTN_BIND_{N-1} plus one more declaration, so adding a new
 //   arity only costs one short macro instead of a full rewrite.
-#define PTN_BIND_DECL(Index, name)                                  \
-  constexpr ::ptn::pat::mod::arg_t<Index> name{};
+#define PTN_BIND_DECL(Type, name)                                   \
+  constexpr ::ptn::pat::mod::member_t<&Type::name> name{};
 
-#define PTN_BIND_1(Type, m0) PTN_BIND_DECL(0, m0)
+#define PTN_BIND_1(Type, m0) PTN_BIND_DECL(Type, m0)
 
 #define PTN_BIND_2(Type, m0, m1)                                    \
   PTN_BIND_EXPAND(PTN_BIND_1(Type, m0))                             \
-  PTN_BIND_DECL(1, m1)
+  PTN_BIND_DECL(Type, m1)
 
 #define PTN_BIND_3(Type, m0, m1, m2)                                \
   PTN_BIND_EXPAND(PTN_BIND_2(Type, m0, m1))                         \
-  PTN_BIND_DECL(2, m2)
+  PTN_BIND_DECL(Type, m2)
 
 #define PTN_BIND_4(Type, m0, m1, m2, m3)                            \
   PTN_BIND_EXPAND(PTN_BIND_3(Type, m0, m1, m2))                     \
-  PTN_BIND_DECL(3, m3)
+  PTN_BIND_DECL(Type, m3)
 
 #define PTN_BIND_5(Type, m0, m1, m2, m3, m4)                        \
   PTN_BIND_EXPAND(PTN_BIND_4(Type, m0, m1, m2, m3))                 \
-  PTN_BIND_DECL(4, m4)
+  PTN_BIND_DECL(Type, m4)
 
 #define PTN_BIND_6(Type, m0, m1, m2, m3, m4, m5)                    \
   PTN_BIND_EXPAND(PTN_BIND_5(Type, m0, m1, m2, m3, m4))             \
-  PTN_BIND_DECL(5, m5)
+  PTN_BIND_DECL(Type, m5)
 
 #define PTN_BIND_7(Type, m0, m1, m2, m3, m4, m5, m6)                \
   PTN_BIND_EXPAND(PTN_BIND_6(Type, m0, m1, m2, m3, m4, m5))         \
-  PTN_BIND_DECL(6, m6)
+  PTN_BIND_DECL(Type, m6)
 
 #define PTN_BIND_8(Type, m0, m1, m2, m3, m4, m5, m6, m7)            \
   PTN_BIND_EXPAND(PTN_BIND_7(Type, m0, m1, m2, m3, m4, m5, m6))     \
-  PTN_BIND_DECL(7, m7)
+  PTN_BIND_DECL(Type, m7)
 
 #define PTN_BIND_9(Type, m0, m1, m2, m3, m4, m5, m6, m7, m8)        \
   PTN_BIND_EXPAND(PTN_BIND_8(Type, m0, m1, m2, m3, m4, m5, m6, m7)) \
-  PTN_BIND_DECL(8, m8)
+  PTN_BIND_DECL(Type, m8)
 
 #define PTN_BIND_10(Type, m0, m1, m2, m3, m4, m5, m6, m7, m8, m9)   \
   PTN_BIND_EXPAND(                                                  \
       PTN_BIND_9(Type, m0, m1, m2, m3, m4, m5, m6, m7, m8))         \
-  PTN_BIND_DECL(9, m9)
+  PTN_BIND_DECL(Type, m9)
 
 #define PTN_BIND_PICK(                                              \
     _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, NAME, ...)             \

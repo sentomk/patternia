@@ -2,9 +2,9 @@
 
 // Compile-time detection utilities for Patternia patterns.
 //
-// This file provides type traits for detecting and characterizing patterns,
-// including pattern identification, binding pattern detection, structural
-// pattern traits, and guard predicate traits.
+// This file provides type traits for detecting and characterizing
+// patterns, including pattern identification, binding pattern
+// detection, structural pattern traits, and guard predicate traits.
 
 #include <type_traits>
 #include <utility>
@@ -25,23 +25,24 @@ namespace ptn::pat::traits {
   template <typename P>
   struct has_match_method<
       P,
-      std::void_t<decltype(static_cast<bool>(std::declval<const P &>().match(
-          std::declval<int>())))>> : std::true_type {};
+      std::void_t<decltype(static_cast<bool>(
+          std::declval<const P &>().match(std::declval<int>())))>>
+      : std::true_type {};
 
   // Variable template for has_match_method<P>::value.
   template <typename P>
-  inline constexpr bool has_match_method_v = has_match_method<P>::value;
+  inline constexpr bool
+      has_match_method_v = has_match_method<P>::value;
 
   // Trait: determines whether P acts as a Pattern.
   //
-  // A type is considered a pattern if it inherits from base::pattern_tag
-  // OR has a .match(Subject) method.
+  // A type is considered a pattern if it inherits from
+  // base::pattern_tag OR has a .match(Subject) method.
   template <typename P>
-  struct is_pattern
-      : std::integral_constant<
-            bool,
-            std::is_base_of_v<base::pattern_tag, P> || has_match_method_v<P>> {
-  };
+  struct is_pattern : std::integral_constant<
+                          bool,
+                          std::is_base_of_v<base::pattern_tag, P>
+                              || has_match_method_v<P>> {};
 
   // Convenience variable template for is_pattern<P>::value.
   template <typename P>
@@ -53,8 +54,8 @@ namespace ptn::pat::traits {
 
   // Detects if a pattern is a binding pattern.
   //
-  // Binding patterns are those that inherit from binding_pattern_base and
-  // have a static is_binding member.
+  // Binding patterns are those that inherit from
+  // binding_pattern_base and have a static is_binding member.
   template <typename P, typename = void>
   struct is_binding_pattern : std::false_type {};
 
@@ -65,7 +66,8 @@ namespace ptn::pat::traits {
 
   // Helper variable template for is_binding_pattern.
   template <typename P>
-  inline constexpr bool is_binding_pattern_v = is_binding_pattern<P>::value;
+  inline constexpr bool
+      is_binding_pattern_v = is_binding_pattern<P>::value;
 
   // -----------------------------------------------------------------------
   // Structural-pattern traits.
@@ -73,21 +75,22 @@ namespace ptn::pat::traits {
 
   // Checks if M is a non-static data member pointer.
   template <auto M>
-  inline constexpr bool is_data_member_ptr_v =
-      std::is_member_object_pointer_v<decltype(M)>;
+  inline constexpr bool is_data_member_ptr_v = std::
+      is_member_object_pointer_v<decltype(M)>;
 
   // Checks if M is a nullptr placeholder (e.g., _ign).
   template <auto M>
-  inline constexpr bool is_nullptr_placeholder_v =
-      std::is_same_v<std::decay_t<decltype(M)>, std::nullptr_t>;
+  inline constexpr bool is_nullptr_placeholder_v = std::
+      is_same_v<std::decay_t<decltype(M)>, std::nullptr_t>;
 
   // Unified notion: M is a structural element.
   //
-  // Structural elements are either data member pointers or nullptr placeholders
-  // used in has<> patterns.
+  // Structural elements are either data member pointers or nullptr
+  // placeholders used in has<> patterns.
   template <auto M>
-  inline constexpr bool is_structural_element_v =
-      is_data_member_ptr_v<M> || is_nullptr_placeholder_v<M>;
+  inline constexpr bool
+      is_structural_element_v = is_data_member_ptr_v<M>
+                                || is_nullptr_placeholder_v<M>;
 
   // -----------------------------------------------------------------------
   // Guard-predicate traits.
@@ -95,7 +98,8 @@ namespace ptn::pat::traits {
 
   // Marker tag for guard predicates.
   //
-  // Guard predicates should inherit from this tag to enable detection.
+  // Guard predicates should inherit from this tag to enable
+  // detection.
   struct guard_predicate_tag {};
 
   // Detects if a type is a guard predicate.
@@ -103,18 +107,23 @@ namespace ptn::pat::traits {
   // A type is considered a guard predicate if it inherits from
   // guard_predicate_tag.
   template <typename T>
-  inline constexpr bool is_guard_predicate_v =
-      std::is_base_of_v<guard_predicate_tag, std::decay_t<T>>;
+  inline constexpr bool
+      is_guard_predicate_v = std::is_base_of_v<guard_predicate_tag,
+                                               std::decay_t<T>>;
 
   // Trait to detect argument expression nodes.
   //
-  // Argument expressions include placeholders (arg_t), value wrappers (val_t),
-  // binary expressions (bin_expr), and unary expressions (un_expr).
+  // Argument expressions include placeholders (arg_t), value
+  // wrappers (val_t), binary expressions (bin_expr), and unary
+  // expressions (un_expr).
   template <typename T>
   struct is_arg_expr : std::false_type {};
 
   template <std::size_t I>
   struct is_arg_expr<mod::arg_t<I>> : std::true_type {};
+
+  template <auto M>
+  struct is_arg_expr<mod::member_t<M>> : std::true_type {};
 
   template <typename T>
   struct is_arg_expr<mod::val_t<T>> : std::true_type {};
@@ -126,47 +135,54 @@ namespace ptn::pat::traits {
   struct is_arg_expr<mod::un_expr<Op, X>> : std::true_type {};
 
   template <typename T>
-  inline constexpr bool is_arg_expr_v = is_arg_expr<std::decay_t<T>>::value;
+  inline constexpr bool
+      is_arg_expr_v = is_arg_expr<std::decay_t<T>>::value;
 
   // Trait to detect tuple predicates.
   //
-  // Tuple predicates wrap expression templates and operate on bound tuples.
+  // Tuple predicates wrap expression templates and operate on bound
+  // tuples.
   template <typename T>
   struct is_tuple_predicate : std::false_type {};
 
   template <typename E>
-  struct is_tuple_predicate<mod::tuple_predicate<E>> : std::true_type {};
+  struct is_tuple_predicate<mod::tuple_predicate<E>>
+      : std::true_type {};
 
   template <typename T>
-  inline constexpr bool is_tuple_predicate_v =
-      is_tuple_predicate<std::decay_t<T>>::value;
+  inline constexpr bool is_tuple_predicate_v = is_tuple_predicate<
+      std::decay_t<T>>::value;
 
-  // Trait to detect tuple guard predicates (including && / || compositions).
+  // Trait to detect tuple guard predicates (including && / ||
+  // compositions).
   //
-  // Tuple guard predicates are predicates that can be called with a tuple
-  // of bound values. This includes tuple_predicate and logical compositions
-  // (pred_and, pred_or) of tuple guard predicates.
+  // Tuple guard predicates are predicates that can be called with a
+  // tuple of bound values. This includes tuple_predicate and logical
+  // compositions (pred_and, pred_or) of tuple guard predicates.
   template <typename T>
   struct is_tuple_guard_predicate : std::false_type {};
 
   template <typename E>
-  struct is_tuple_guard_predicate<mod::tuple_predicate<E>> : std::true_type {};
+  struct is_tuple_guard_predicate<mod::tuple_predicate<E>>
+      : std::true_type {};
 
   template <typename Fn>
-  struct is_tuple_guard_predicate<mod::callable_guard<Fn>> : std::true_type {};
+  struct is_tuple_guard_predicate<mod::callable_guard<Fn>>
+      : std::true_type {};
 
   template <typename T>
-  inline constexpr bool is_tuple_guard_predicate_v =
-      is_tuple_guard_predicate<std::decay_t<T>>::value;
+  inline constexpr bool
+      is_tuple_guard_predicate_v = is_tuple_guard_predicate<
+          std::decay_t<T>>::value;
 
   template <typename L, typename R>
   struct is_tuple_guard_predicate<mod::pred_and<L, R>>
-      : std::bool_constant<
-            is_tuple_guard_predicate_v<L> || is_tuple_guard_predicate_v<R>> {};
+      : std::bool_constant<is_tuple_guard_predicate_v<L>
+                           || is_tuple_guard_predicate_v<R>> {};
 
   template <typename L, typename R>
   struct is_tuple_guard_predicate<mod::pred_or<L, R>>
-      : std::bool_constant<
-            is_tuple_guard_predicate_v<L> || is_tuple_guard_predicate_v<R>> {};
+      : std::bool_constant<is_tuple_guard_predicate_v<L>
+                           || is_tuple_guard_predicate_v<R>> {};
 
 } // namespace ptn::pat::traits
