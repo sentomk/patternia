@@ -1083,6 +1083,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../changelog/v0.9.4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.4
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/v0.9.3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../changelog/v0.9.2/" class="md-nav__link">
         
   
@@ -1365,56 +1421,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="WIP">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#negp-negation-pattern" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        neg(p) — negation pattern
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#ptn_bind-arity-10-chained-arity-macros" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PTN_BIND arity 10 — chained arity macros
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#member-anchored-ptn_bind-placeholders" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Member-anchored PTN_BIND placeholders
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pattern-operator-sugar-p-a-b-a-b" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pattern operator sugar — !p, (a || b), (a &amp;&amp; b)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1514,9 +1520,18 @@
 - <code>NEXT</code>: future consideration, not yet committed.</p>
 <hr />
 <h2 id="finished">FINISHED<a class="headerlink" href="#finished" title="Permanent link">&para;</a></h2>
+<p>Completed in <a href="../changelog/v0.9.4/">v0.9.4</a>:</p>
+<ul>
+<li><code>PTN_BIND(Type, names...)</code> member-anchored named guard
+  placeholders (one to ten names), replacing the positional guard
+  APIs (<code>__</code>, <code>_0</code>, <code>arg&lt;N&gt;</code>, <code>PTN_LET</code>, <code>PTN_WHERE</code>).</li>
+<li>Block-scope <code>PTN_BIND</code> names usable inside <code>PTN_ON</code>.</li>
+<li>Pattern operator sugar: <code>!p</code>, <code>(a || b)</code>, <code>(a &amp;&amp; b)</code>.</li>
+</ul>
 <p>Completed in <a href="../changelog/v0.9.3/">v0.9.3</a>:</p>
 <ul>
 <li><code>pred(callable)</code> predicate pattern for lifting arbitrary unary predicates into first-class patterns.</li>
+<li><code>neg(p)</code> negation pattern.</li>
 </ul>
 <p>Completed in <a href="../changelog/v0.9.2/">v0.9.2</a>:</p>
 <ul>
@@ -1531,41 +1546,7 @@
 </ul>
 <hr />
 <h2 id="wip">WIP<a class="headerlink" href="#wip" title="Permanent link">&para;</a></h2>
-<p>Current workstream for upcoming releases.</p>
-<h3 id="negp-negation-pattern"><code>neg(p)</code> — negation pattern<a class="headerlink" href="#negp-negation-pattern" title="Permanent link">&para;</a></h3>
-<p>Invert the result of a sub-pattern.</p>
-<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">neg</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;non-zero&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span>
-<span class="p">);</span>
-</code></pre></div>
-<hr />
-<h3 id="ptn_bind-arity-10-chained-arity-macros"><code>PTN_BIND</code> arity 10 — chained arity macros<a class="headerlink" href="#ptn_bind-arity-10-chained-arity-macros" title="Permanent link">&para;</a></h3>
-<p>Raise the named-placeholder limit from 5 to 10 member names and
-refactor the arity macros into chained composition
-(<code>PTN_BIND_N</code> = <code>PTN_BIND_{N-1}</code> + one declaration), so future
-extensions cost one short macro per level. See PR #44.</p>
-<hr />
-<h3 id="member-anchored-ptn_bind-placeholders">Member-anchored <code>PTN_BIND</code> placeholders<a class="headerlink" href="#member-anchored-ptn_bind-placeholders" title="Permanent link">&para;</a></h3>
-<p><code>PTN_BIND(Type, ...)</code> names expand to <code>member_t&lt;&amp;Type::name&gt;</code>
-instead of positional <code>arg_t&lt;N&gt;</code>. Guards resolve each name to the
-position of its member in the <code>has&lt;...&gt;</code> member list at compile
-time:</p>
-<ul>
-<li>names follow members, so <code>has&lt;...&gt;</code> order no longer matters;</li>
-<li>misspelled member names fail at the <code>PTN_BIND</code> line;</li>
-<li>a name used with a <code>has&lt;...&gt;</code> that lacks its member fails a
-  static_assert.</li>
-</ul>
-<p>This also settles the previously deferred <code>Type</code>-validation item
-without static reflection.</p>
-<hr />
-<h3 id="pattern-operator-sugar-p-a-b-a-b">Pattern operator sugar — <code>!p</code>, <code>(a || b)</code>, <code>(a &amp;&amp; b)</code><a class="headerlink" href="#pattern-operator-sugar-p-a-b-a-b" title="Permanent link">&para;</a></h3>
-<p>Operator forms of the combinators: <code>!p</code> for <code>neg(p)</code>, <code>(a || b)</code> for
-<code>any(a, b)</code>, and <code>(a &amp;&amp; b)</code> for <code>all(a, b)</code>. The overloads live in
-<code>ptn::pat::base</code> so ADL finds them for every pattern via the shared
-<code>pattern_base</code> base class, and they reject guard predicates so the
-guard-level <code>&amp;&amp;</code> / <code>||</code> semantics are untouched.</p>
+<p>No active workstream. See NEXT for candidates.</p>
 <hr />
 <h2 id="next">NEXT<a class="headerlink" href="#next" title="Permanent link">&para;</a></h2>
 <p>Potential follow-up items after current WIP scope is stabilized.</p>
