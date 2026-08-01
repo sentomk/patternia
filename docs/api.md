@@ -223,7 +223,7 @@ $[rng(0, 10)]
 $[rng(0, 10, pat::mod::open)]
 ```
 
-`PTN_BIND` supports one to five names and can be declared at namespace or block
+`PTN_BIND` supports one to ten names and can be declared at namespace or block
 scope. Use callables for domain logic that does not read naturally as `_` or a
 short named-placeholder expression.
 

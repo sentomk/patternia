@@ -46,6 +46,19 @@ namespace {
     int e;
   };
 
+  struct Deca {
+    int a;
+    int b;
+    int c;
+    int d;
+    int e;
+    int f;
+    int g;
+    int h;
+    int i;
+    int j;
+  };
+
   // Declare named placeholders for each struct.
   // These are constexpr arg_t<N> objects.
   PTN_BIND(Point, x, y);
@@ -54,6 +67,7 @@ namespace {
   PTN_BIND(Single, sv);
   PTN_BIND(Quad, qa, qb, qc, qd);
   PTN_BIND(Penta, pa, pb, pc, pd, pe);
+  PTN_BIND(Deca, da, db, dc, dd, de, df, dg, dh, di, dj);
 
 } // namespace
 
@@ -377,6 +391,62 @@ TEST(NamedPlaceholder, BindFourArgGuardFails) {
                                     &Quad::b,
                                     &Quad::c,
                                     &Quad::d>)[qa + qb + qc == qd]
+                        >> 1,
+                    ptn::_ >> 0);
+  EXPECT_EQ(result, 0);
+}
+
+// =========================================================================
+// PTN_BIND arity coverage: 10 member struct (chained expansion).
+// =========================================================================
+
+TEST(NamedPlaceholder, TenMemberTypeCorrect) {
+  static_assert(std::is_same_v<std::decay_t<decltype(da)>,
+                               ptn::pat::mod::arg_t<0>>);
+  static_assert(std::is_same_v<std::decay_t<decltype(dj)>,
+                               ptn::pat::mod::arg_t<9>>);
+}
+
+TEST(NamedPlaceholder, TenMemberGuard) {
+  // a + b + ... + i == j
+  Deca d{1, 1, 1, 1, 1, 1, 1, 1, 1, 9};
+  auto result = ptn::match(d)
+                | PTN_ON(
+                    ptn::$(
+                        ptn::has<&Deca::a,
+                                 &Deca::b,
+                                 &Deca::c,
+                                 &Deca::d,
+                                 &Deca::e,
+                                 &Deca::f,
+                                 &Deca::g,
+                                 &Deca::h,
+                                 &Deca::i,
+                                 &Deca::j>)[da + db + dc + dd + de
+                                                + df + dg + dh + di
+                                            == dj]
+                        >> 1,
+                    ptn::_ >> 0);
+  EXPECT_EQ(result, 1);
+}
+
+TEST(NamedPlaceholder, TenMemberGuardFails) {
+  Deca d{1, 1, 1, 1, 1, 1, 1, 1, 1, 10};
+  auto result = ptn::match(d)
+                | PTN_ON(
+                    ptn::$(
+                        ptn::has<&Deca::a,
+                                 &Deca::b,
+                                 &Deca::c,
+                                 &Deca::d,
+                                 &Deca::e,
+                                 &Deca::f,
+                                 &Deca::g,
+                                 &Deca::h,
+                                 &Deca::i,
+                                 &Deca::j>)[da + db + dc + dd + de
+                                                + df + dg + dh + di
+                                            == dj]
                         >> 1,
                     ptn::_ >> 0);
   EXPECT_EQ(result, 0);
