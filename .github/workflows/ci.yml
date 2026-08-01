@@ -11,12 +11,10 @@ on:
       - ".github/ISSUE_TEMPLATE/**"
   pull_request:
     branches: [main]
-    paths-ignore:
-      - "README.md"
-      - "CONTRIBUTING.md"
-      - "docs/**"
-      - "LICENSE"
-      - ".github/ISSUE_TEMPLATE/**"
+    # NOTE: no paths-ignore here on purpose. Branch protection
+    # requires the build-and-test/coverage checks from this
+    # workflow; skipping docs-only PRs would leave those checks
+    # unreported and block the merge (see PR #45).
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
