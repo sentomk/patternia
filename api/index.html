@@ -1987,6 +1987,8 @@ on the first matching sub-pattern.</p>
 <li>Sub-patterns are evaluated left-to-right; evaluation stops at the first
   match.</li>
 <li>Requires at least one sub-pattern; every argument must be a pattern object.</li>
+<li>Operator sugar: <code>(a || b)</code> is equivalent to <code>any(a, b)</code>. Note that <code>&gt;&gt;</code>
+  binds tighter than <code>||</code>, so parenthesize: <code>(lit(1) || lit(2)) &gt;&gt; handler</code>.</li>
 </ul>
 <h3 id="allps"><code>all(ps...)</code><a class="headerlink" href="#allps" title="Permanent link">&para;</a></h3>
 <p>Matches only when every sub-pattern matches (AND semantics). Short-circuits
@@ -2002,6 +2004,8 @@ on the first mismatch.</p>
 <li>Sub-patterns are evaluated left-to-right; evaluation stops at the first
   mismatch.</li>
 <li>Requires at least one sub-pattern; every argument must be a pattern object.</li>
+<li>Operator sugar: <code>(a &amp;&amp; b)</code> is equivalent to <code>all(a, b)</code>. Note that <code>&gt;&gt;</code>
+  binds tighter than <code>&amp;&amp;</code>, so parenthesize: <code>(p &amp;&amp; q) &gt;&gt; handler</code>.</li>
 </ul>
 <h3 id="negp"><code>neg(p)</code><a class="headerlink" href="#negp" title="Permanent link">&para;</a></h3>
 <p>Negates the match result of a sub-pattern. <code>neg(p)</code> matches when <code>p</code> does
@@ -2016,7 +2020,12 @@ not match, and vice versa.</p>
 <li>Non-binding: handlers receive zero arguments.</li>
 <li>Accepts exactly one sub-pattern (no zero- or multi-argument form).</li>
 <li><code>neg(neg(p))</code> restores the original match behavior (double negation cancels).</li>
+<li>Operator sugar: <code>!p</code> is equivalent to <code>neg(p)</code> and needs no parentheses:
+  <code>!val&lt;200&gt; &gt;&gt; "error"</code>.</li>
 </ul>
+<p>The pattern-level operators only accept pattern operands, so they never
+collide with the guard-level <code>&amp;&amp;</code> / <code>||</code> (which keep their <code>pred_and</code> /
+<code>pred_or</code> meaning inside <code>[...]</code> guards).</p>
 <hr />
 <h2 id="cached-case-packs">Cached Case Packs<a class="headerlink" href="#cached-case-packs" title="Permanent link">&para;</a></h2>
 <h3 id="static_on"><code>static_on(...)</code><a class="headerlink" href="#static_on" title="Permanent link">&para;</a></h3>

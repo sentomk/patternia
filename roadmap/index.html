@@ -1401,6 +1401,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#pattern-operator-sugar-p-a-b-a-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern operator sugar — !p, (a || b), (a &amp;&amp; b)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1548,6 +1559,13 @@ time:</p>
 </ul>
 <p>This also settles the previously deferred <code>Type</code>-validation item
 without static reflection.</p>
+<hr />
+<h3 id="pattern-operator-sugar-p-a-b-a-b">Pattern operator sugar — <code>!p</code>, <code>(a || b)</code>, <code>(a &amp;&amp; b)</code><a class="headerlink" href="#pattern-operator-sugar-p-a-b-a-b" title="Permanent link">&para;</a></h3>
+<p>Operator forms of the combinators: <code>!p</code> for <code>neg(p)</code>, <code>(a || b)</code> for
+<code>any(a, b)</code>, and <code>(a &amp;&amp; b)</code> for <code>all(a, b)</code>. The overloads live in
+<code>ptn::pat::base</code> so ADL finds them for every pattern via the shared
+<code>pattern_base</code> base class, and they reject guard predicates so the
+guard-level <code>&amp;&amp;</code> / <code>||</code> semantics are untouched.</p>
 <hr />
 <h2 id="next">NEXT<a class="headerlink" href="#next" title="Permanent link">&para;</a></h2>
 <p>Potential follow-up items after current WIP scope is stabilized.</p>
