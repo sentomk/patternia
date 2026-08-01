@@ -40,6 +40,26 @@ Pull request titles should follow the same style as commit subjects, such as
 `feat(pattern): add case-insensitive string matching` or
 `fix(eval): correct match_result type inference`.
 
+Pull requests are validated automatically by CI
+(`.github/workflows/validate.yml`). Requirements:
+
+- **PR title** must follow the conventional commit format:
+  `type(scope): description`.
+- **PR body** must be at least 50 characters and contain three
+  sections, each as a bold header on its own line:
+  - `**Summary**` — overview of the change
+  - `**Changes**` — bullet list of what changed
+  - `**Testing**` — how the change was verified
+- **Exactly one commit** per pull request. Pull requests are
+  squash-merged, so a single-commit branch keeps the result
+  predictable:
+
+  ```bash
+  git reset --soft $(git merge-base HEAD origin/main)
+  git commit -m 'type(scope): description'
+  git push --force-with-lease
+  ```
+
 ### 2. Discuss First
 
 For non-trivial changes (new features, API changes, or behavior modifications),  
@@ -87,6 +107,18 @@ Suggested body sections:
 - `Implementation`
 - `Tests`
 - `Notes`
+
+The subject line is checked mechanically by CI
+(`scripts/check_commit_msg.py`):
+
+- Description uses the imperative mood ("add", not "added"/"adds").
+- Description starts lowercase and has no trailing period.
+- Description is specific, not a vague placeholder
+  ("fix bug", "wip", "update").
+- Subjects over 72 characters trigger a warning (aim for 50-72).
+
+Prose lines in the body should wrap at 72 characters; CI enforces
+this as well (bullet and indented lines are exempt).
 
 Example:
 
