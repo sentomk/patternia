@@ -1,0 +1,59 @@
+name: fuzz
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    # Weekly deep run, Monday 03:00 UTC.
+    - cron: '0 3 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang
+
+      - name: Build fuzz target
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DPTN_BUILD_FUZZ=ON
+          cmake --build build --target ptn_fuzz_match
+
+      - name: Fuzz (oracle + ASan/UBSan)
+        shell: bash
+        run: |
+          set -euo pipefail
+          TIME=180
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            TIME=900
+          fi
+          mkdir -p fuzz_corpus artifacts
+          ./build/fuzz/ptn_fuzz_match fuzz_corpus \
+            -max_total_time="$TIME" \
+            -rss_limit_mb=2048 \
+            -artifact_prefix=artifacts/ \
+            -print_final_stats=1
+
+      - name: Upload crash artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-crash-${{ github.sha }}
+          path: artifacts/
+          if-no-files-found: ignore

@@ -3,6 +3,7 @@
 // Forward declarations for Patternia Pattern Mod Layer.
 
 #include <cstddef>
+#include <cstdint>
 
 namespace ptn::pat::mod {
 
@@ -53,7 +54,7 @@ namespace ptn::pat::mod {
   struct max_tuple_guard_index;
 
   // Forward declare range predicate and related types
-  enum class range_mode : int;
+  enum class range_mode : std::uint8_t;
 
   struct closed_t;
   struct open_t;

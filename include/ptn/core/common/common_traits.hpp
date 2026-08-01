@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 // Core type traits used by the matching engine.
 //
 // This header provides fundamental type traits and utilities for
@@ -68,7 +70,7 @@ namespace ptn::core::traits {
 
   // Fallback Semantics (pattern-level vs match-level)
 
-  enum class fallback_level {
+  enum class fallback_level : std::uint8_t {
     none,
     pattern, // e.g. wildcard '_'
     match    // e.g. otherwise(...)

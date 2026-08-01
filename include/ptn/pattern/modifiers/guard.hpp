@@ -8,6 +8,7 @@
 // to bound values.
 
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <type_traits>
 #include <tuple>
@@ -85,11 +86,14 @@ namespace ptn::pat::mod {
   }
 
   // Evaluates binary expression.
+  //
+  // The bound tuple is read through an lvalue on purpose: guard
+  // evaluation is read-only, and forwarding the same tuple into
+  // both operands would be unsequenced (bugprone-use-after-move).
   template <typename Tuple, typename Op, typename L, typename R>
   constexpr decltype(auto) eval(const bin_expr<Op, L, R> &e,
                                 Tuple                   &&t) {
-    return std::decay_t<Op>{}(eval(e.l, std::forward<Tuple>(t)),
-                              eval(e.r, std::forward<Tuple>(t)));
+    return std::decay_t<Op>{}(eval(e.l, t), eval(e.r, t));
   }
 
   // Evaluates unary expression.
@@ -605,7 +609,7 @@ namespace ptn::pat::mod {
   }
 
   // Range modes for interval predicates.
-  enum class range_mode {
+  enum class range_mode : std::uint8_t {
     closed,
     open,
     open_closed,
