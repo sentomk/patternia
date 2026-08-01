@@ -120,8 +120,11 @@ namespace ptn {
 // - PTN_BIND_N is defined by chaining: it expands to
 //   PTN_BIND_{N-1} plus one more declaration, so adding a new
 //   arity only costs one short macro instead of a full rewrite.
+// The static storage duration lets block-scope declarations appear
+// inside PTN_ON's captureless caching lambda: only automatic
+// variables require captures; statics do not.
 #define PTN_BIND_DECL(Type, name)                                   \
-  constexpr ::ptn::pat::mod::member_t<&Type::name> name{};
+  static constexpr ::ptn::pat::mod::member_t<&Type::name> name{};
 
 #define PTN_BIND_1(Type, m0) PTN_BIND_DECL(Type, m0)
 
