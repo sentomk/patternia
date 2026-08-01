@@ -1379,6 +1379,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#ptn_bind-arity-10-chained-arity-macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PTN_BIND arity 10 — chained arity macros
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1407,6 +1418,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#multi-subject-matching-matcha-b-with-slot-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-subject matching — match(a, b) with slot composition
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1417,6 +1439,17 @@
     <span class="md-ellipsis">
       
         Design Principles for New API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#considered-and-declined" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Considered and Declined
       
     </span>
   </a>
@@ -1485,6 +1518,12 @@
 <span class="p">);</span>
 </code></pre></div>
 <hr />
+<h3 id="ptn_bind-arity-10-chained-arity-macros"><code>PTN_BIND</code> arity 10 — chained arity macros<a class="headerlink" href="#ptn_bind-arity-10-chained-arity-macros" title="Permanent link">&para;</a></h3>
+<p>Raise the named-placeholder limit from 5 to 10 member names and
+refactor the arity macros into chained composition
+(<code>PTN_BIND_N</code> = <code>PTN_BIND_{N-1}</code> + one declaration), so future
+extensions cost one short macro per level. See PR #44.</p>
+<hr />
 <h2 id="next">NEXT<a class="headerlink" href="#next" title="Permanent link">&para;</a></h2>
 <p>Potential follow-up items after current WIP scope is stabilized.</p>
 <h3 id="some-none-stdoptional-patterns"><code>some</code> / <code>none</code> — <code>std::optional</code> patterns<a class="headerlink" href="#some-none-stdoptional-patterns" title="Permanent link">&para;</a></h3>
@@ -1496,6 +1535,28 @@
 <span class="p">);</span>
 </code></pre></div>
 <hr />
+<h3 id="multi-subject-matching-matcha-b-with-slot-composition">Multi-subject matching — <code>match(a, b)</code> with slot composition<a class="headerlink" href="#multi-subject-matching-matcha-b-with-slot-composition" title="Permanent link">&para;</a></h3>
+<p>Match on combinations of values, in the spirit of Rust's
+<code>match (a, b)</code>. <code>match(a, b)</code> packs the subjects into a tuple; a
+slot-wise pattern (working name <code>tup(...)</code>, alternative <code>each(...)</code>)
+matches each position with its own sub-pattern and flattens the
+bindings in order:</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">tup</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;origin&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">tup</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">_</span><span class="p">)</span><span class="w">      </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;on y axis&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">tup</span><span class="p">(</span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="w">      </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;on x axis&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w">                   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;elsewhere&quot;</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>Design notes:</p>
+<ul>
+<li>Pure front-end sugar: the engine is untouched; <code>tup</code> is a pattern
+  combinator in the same family as <code>any</code>/<code>all</code>.</li>
+<li>Shares the slot-composition machinery (per-slot match/bind plus
+  binding flattening) with <code>some</code>/<code>none</code>. The two should be designed
+  together so their binding semantics stay consistent.</li>
+</ul>
+<hr />
 <h2 id="design-principles-for-new-api">Design Principles for New API<a class="headerlink" href="#design-principles-for-new-api" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Stateless compile-time patterns should be variable templates, not
@@ -1503,6 +1564,22 @@
 <li>Function template forms are reserved for patterns that require runtime
   arguments (e.g., <code>lit(value)</code>, <code>lit_ci(value)</code>, <code>rng(lo, hi)</code>).</li>
 <li>Names should be short, lowercase, and read naturally in the DSL.</li>
+</ul>
+<h2 id="considered-and-declined">Considered and Declined<a class="headerlink" href="#considered-and-declined" title="Permanent link">&para;</a></h2>
+<p>Syntax ideas that were evaluated and intentionally rejected, kept
+here so they are not re-proposed without new motivation.</p>
+<ul>
+<li><strong>Guard <code>operator!</code></strong>: intentionally not provided; rewrite the
+  comparison instead (e.g. <code>!(x &lt; y)</code> becomes <code>y &lt;= x</code>).</li>
+<li><strong>Member-call placeholders</strong> (<code>_.size() &gt; 3</code>): not expressible —
+  C++ has no <code>operator.</code> overloading, so <code>.size()</code> cannot become an
+  expression node. Use <code>pred</code> with a lambda.</li>
+<li><strong>Chained comparisons</strong> (<code>1 &lt;= _ &lt;= 10</code>): breaks predicate
+  semantics and produces unreadable diagnostics. Use <code>rng(lo, hi)</code>
+  with explicit range modes.</li>
+<li><strong><code>PTN_BIND</code> <code>Type</code> validation</strong>: deferred. The <code>Type</code> argument is
+  documentary for now; member-name checking becomes feasible with
+  static reflection (C++26).</li>
 </ul>
 
 
