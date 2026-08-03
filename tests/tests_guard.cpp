@@ -145,3 +145,49 @@ TEST(Guard, BlockScopeNamesSupportFiveValues) {
 
   EXPECT_EQ(result, 1);
 }
+
+// --- Guard operators not previously exercised: %, /, <=, >=. ---
+
+namespace {
+  struct Pair {
+    int a;
+    int b;
+  };
+  PTN_BIND(Pair, a, b);
+} // namespace
+
+TEST(GuardExpression, ModuloAndDivisionOperators) {
+  Pair p{9, 4};
+  // a % b == 1 and a / b == 2
+  auto r = ptn::match(p)
+           | ptn::on(
+               ptn::$(ptn::has<&Pair::a, &Pair::b>)[a % b == 1
+                                                    && a / b == 2]
+                   >> 1,
+               ptn::_ >> 0);
+  EXPECT_EQ(r, 1);
+}
+
+TEST(GuardExpression, LessEqualGreaterEqual) {
+  int  v = 5;
+  auto r = ptn::match(v)
+           | ptn::on(ptn::$[_ <= 5 && _ >= 5] >> 1, ptn::_ >> 0);
+  EXPECT_EQ(r, 1);
+
+  int  w  = 6;
+  auto r2 = ptn::match(w)
+            | ptn::on(ptn::$[_ <= 5] >> 1, ptn::_ >> 0);
+  EXPECT_EQ(r2, 0);
+}
+
+TEST(GuardExpression, AllComparisonOperatorsOnMembers) {
+  Pair p{3, 3};
+  auto r = ptn::match(p)
+           | ptn::on(
+               ptn::$(
+                   ptn::has<&Pair::a, &Pair::b>)[a != b || a == b
+                                                 || a < b || a > b]
+                   >> 1,
+               ptn::_ >> 0);
+  EXPECT_EQ(r, 1);
+}

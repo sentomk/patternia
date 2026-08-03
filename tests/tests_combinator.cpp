@@ -421,3 +421,30 @@ TEST(OperatorSugar, MixedWithTypePatterns) {
                _ >> 0),
       0);
 }
+
+// --- Operator sugar truth table: exercise every !/||/&& combination
+// over a small predicate set so each operator branch is hit. ---
+
+TEST(OperatorSugar, FullTruthTable) {
+  auto pos  = [](int n) { return n > 0; };
+  auto even = [](int n) { return n % 2 == 0; };
+
+  auto run = [&](int v, auto pat) {
+    return ptn::match(v) | ptn::on(pat >> 1, ptn::_ >> 0);
+  };
+
+  // (a || b) : both true, one true, none true
+  EXPECT_EQ(run(4, ptn::pred(pos) || ptn::pred(even)), 1);
+  EXPECT_EQ(run(-2, ptn::pred(pos) || ptn::pred(even)), 1);
+  EXPECT_EQ(run(-3, ptn::pred(pos) || ptn::pred(even)), 0);
+
+  // (a && b) : both true, one false, none true
+  EXPECT_EQ(run(4, ptn::pred(pos) && ptn::pred(even)), 1);
+  EXPECT_EQ(run(3, ptn::pred(pos) && ptn::pred(even)), 0);
+  EXPECT_EQ(run(-2, ptn::pred(pos) && ptn::pred(even)), 0);
+
+  // !p combined with && / ||
+  EXPECT_EQ(run(-1, !ptn::pred(pos) && ptn::pred(even)), 0);
+  EXPECT_EQ(run(-4, !ptn::pred(pos) && ptn::pred(even)), 1);
+  EXPECT_EQ(run(0, !ptn::pred(pos) || ptn::pred(pos)), 1);
+}
