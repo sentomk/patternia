@@ -151,3 +151,47 @@ TEST(TypePattern, MixedVariantGuardedCaseWinsWhenPredicateTrue) {
   EXPECT_EQ(guarded_hits, 1);
   EXPECT_EQ(simple_hits, 0);
 }
+
+// --- alt<I> and is<T>: cover both the no-subpattern fast path and
+// the subpattern path for match()/bind() in type.hpp. ---
+
+TEST(TypePattern, AltByIndexNoSubpatternMatchFastPath) {
+  std::variant<int, std::string> v = std::string("x");
+  // alt<I>() with no subpattern: match() fast-path returns true;
+  // handler is nullary (no_subpattern binds nothing).
+  auto r = ptn::match(v)
+           | ptn::on(ptn::alt<1>() >> [] { return 1; }, ptn::_ >> 0);
+  EXPECT_EQ(r, 1);
+}
+
+TEST(TypePattern, AltByIndexWithSubpattern) {
+  std::variant<int, std::string> v = std::string("hi");
+  // alt<I>(sub): the subpattern match()/bind() branches.
+  auto r = ptn::match(v)
+           | ptn::on(ptn::alt<1>(ptn::pred([](const std::string &s) {
+                       return s.size() == 2;
+                     })) >> 1,
+                     ptn::_ >> 0);
+  EXPECT_EQ(r, 1);
+}
+
+TEST(TypePattern, AltRejectsWrongIndex) {
+  std::variant<int, std::string> v = 7;
+  auto r = ptn::match(v) | ptn::on(ptn::alt<1>() >> 1, ptn::_ >> 0);
+  EXPECT_EQ(r, 0);
+}
+
+TEST(TypePattern, IsWithSubpatternMatchAndBind) {
+  struct P {
+    int a;
+    int b;
+  };
+  std::variant<int, P> v = P{2, 3};
+  // is<T>(sub): exercises the subpattern branch of type_is_pattern.
+  auto r = ptn::match(v)
+           | ptn::on(
+               ptn::is<P>(ptn::$(ptn::has<&P::a, &P::b>)) >>
+                   [](int a, int b) { return a * b; },
+               ptn::_ >> 0);
+  EXPECT_EQ(r, 6);
+}

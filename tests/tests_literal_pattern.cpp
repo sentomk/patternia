@@ -170,3 +170,40 @@ TEST(LiteralPattern, ValSupportsFloatingPointInCpp20) {
   EXPECT_EQ(hit, 7);
 }
 #endif
+
+// --- lit_ci branch coverage: non-letter chars, size mismatch,
+// and the generic convertible-to-string_view comparison path. ---
+
+TEST(LiteralPattern, LitCiNonLetterCharacters) {
+  // Exercises tolower_ascii's non-letter branch (digits/symbols).
+  std::string s = "ABC-123_XYZ";
+  auto        r = ptn::match(s)
+           | ptn::on(ptn::lit_ci("abc-123_xyz") >> 1, ptn::_ >> 0);
+  EXPECT_EQ(r, 1);
+}
+
+TEST(LiteralPattern, LitCiSizeMismatch) {
+  // Different lengths hit the early-return false in iequal_ascii.
+  std::string s = "ab";
+  auto        r = ptn::match(s)
+           | ptn::on(ptn::lit_ci("abc") >> 1, ptn::_ >> 0);
+  EXPECT_EQ(r, 0);
+}
+
+TEST(LiteralPattern, LitCiAgainstStringViewSubject) {
+  // Subject as std::string_view exercises the comparison through
+  // the string_view overload.
+  std::string_view s = "HeLLo";
+  auto             r = ptn::match(s)
+           | ptn::on(ptn::lit_ci("hello") >> 1, ptn::_ >> 0);
+  EXPECT_EQ(r, 1);
+}
+
+TEST(LiteralPattern, LitCiCharLiteralSubject) {
+  // const char* subject forces the templated convertible overload
+  // of iequal_ascii::operator().
+  const char *s = "World";
+  auto        r = ptn::match(s)
+           | ptn::on(ptn::lit_ci("WORLD") >> 1, ptn::_ >> 0);
+  EXPECT_EQ(r, 1);
+}
