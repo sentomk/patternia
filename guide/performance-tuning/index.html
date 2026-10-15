@@ -1400,8 +1400,8 @@
 <div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">get_matcher</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">static_on</span><span class="p">([]</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">      </span><span class="n">lit</span><span class="p">(</span><span class="s">&quot;start&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Action</span><span class="o">::</span><span class="n">Start</span><span class="p">,</span>
-<span class="w">      </span><span class="n">lit</span><span class="p">(</span><span class="s">&quot;stop&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Action</span><span class="o">::</span><span class="n">Stop</span><span class="p">,</span>
+<span class="w">      </span><span class="n">lit</span><span class="p">(</span><span class="s">"start"</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Action</span><span class="o">::</span><span class="n">Start</span><span class="p">,</span>
+<span class="w">      </span><span class="n">lit</span><span class="p">(</span><span class="s">"stop"</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Action</span><span class="o">::</span><span class="n">Stop</span><span class="p">,</span>
 <span class="w">      </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Action</span><span class="o">::</span><span class="n">Unknown</span>
 <span class="w">    </span><span class="p">);</span>
 <span class="w">  </span><span class="p">});</span>

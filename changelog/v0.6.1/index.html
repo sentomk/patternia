@@ -1411,9 +1411,9 @@ cleanup: total matches should make the fallback explicit in the case list.</p>
 
 <span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="nf">day_name</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">day</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">day</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;Monday&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;Tuesday&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;invalid&quot;</span>
+<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"Monday"</span><span class="p">,</span>
+<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"Tuesday"</span><span class="p">,</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"invalid"</span>
 <span class="w">  </span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>

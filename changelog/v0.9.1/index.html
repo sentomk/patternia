@@ -1593,16 +1593,16 @@ packaging flow for clean installs.</p>
 used by <code>is&lt;T&gt;</code> and <code>alt&lt;I&gt;</code>.</p>
 <p>Runtime literal patterns are unchanged:</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"one"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <h3 id="c20-floating-point-static-literals">C++20 Floating-Point Static Literals<a class="headerlink" href="#c20-floating-point-static-literals" title="Permanent link">&para;</a></h3>
 <p>When you compile Patternia in C++20 or later mode, <code>val&lt;V&gt;</code> now accepts
 floating-point non-type template parameters:</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mf">3.25</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;three-point-two-five&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mf">3.25</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"three-point-two-five"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <p>In C++17 builds, floating-point static literals remain unavailable by design.
@@ -1653,14 +1653,14 @@ needed for a clean package install after the initial v0.9.0 port landing.</p>
 <h3 id="c17-vs-c20-static-floating-point-matching">C++17 vs C++20 Static Floating-Point Matching<a class="headerlink" href="#c17-vs-c20-static-floating-point-matching" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1">// C++17</span>
 <span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mf">3.25</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;three-point-two-five&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mf">3.25</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"three-point-two-five"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 
 <span class="c1">// C++20+</span>
 <span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mf">3.25</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;three-point-two-five&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mf">3.25</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"three-point-two-five"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <hr />

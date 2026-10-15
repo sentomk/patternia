@@ -1501,7 +1501,7 @@ There is no build system, no linking step, and no external dependency.</p>
 </code></pre></div>
 <p>Or via <code>vcpkg.json</code> manifest:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;patternia&quot;</span><span class="p">]</span>
+<span class="w">  </span><span class="nt">"dependencies"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"patternia"</span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>Then in your CMake project:</p>
@@ -1525,7 +1525,7 @@ There is no build system, no linking step, and no external dependency.</p>
 <span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">your_target</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">patternia::patternia</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>CPM.cmake:</strong></p>
-<div class="highlight"><pre><span></span><code><span class="nb">CPMAddPackage</span><span class="p">(</span><span class="s2">&quot;gh:sentomk/patternia@main&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="nb">CPMAddPackage</span><span class="p">(</span><span class="s2">"gh:sentomk/patternia@main"</span><span class="p">)</span>
 </code></pre></div>
 <p>This fits well in reproducible CI pipelines and modern CMake workflows.</p>
 <hr />

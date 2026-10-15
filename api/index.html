@@ -1832,9 +1832,9 @@ There is no deferred builder stage.</p>
 <h2 id="oncases"><code>on(case1, case2, ...)</code><a class="headerlink" href="#oncases" title="Permanent link">&para;</a></h2>
 <p><code>on(...)</code> groups the case list consumed by <code>match(subject)</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;two&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"one"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"two"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <p>Rules:</p>
@@ -1860,8 +1860,8 @@ There is no deferred builder stage.</p>
 <h2 id="_-wildcard">Wildcard <code>_</code><a class="headerlink" href="#_-wildcard" title="Permanent link">&para;</a></h2>
 <p><code>_</code> is the public wildcard and fallback pattern.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"one"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <p>The wildcard does not bind values by itself.</p>
@@ -1887,7 +1887,7 @@ consider static dispatch.</p>
 <h3 id="lit_civalue"><code>lit_ci(value)</code><a class="headerlink" href="#lit_civalue" title="Permanent link">&para;</a></h3>
 <p>Runtime ASCII case-insensitive string match.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">lit_ci</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">lit_ci</span><span class="p">(</span><span class="s">"hello"</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
 <span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
 <span class="p">);</span>
 </code></pre></div>
@@ -1921,8 +1921,8 @@ consider static dispatch.</p>
 <h2 id="guard-attachment">Guard Attachment <code>[]</code><a class="headerlink" href="#guard-attachment" title="Permanent link">&para;</a></h2>
 <p>Attach a guard to a binding pattern with <code>pattern[guard]</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;small&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"small"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <p>Guard evaluation order:</p>
@@ -2006,19 +2006,19 @@ Wrap it with <code>$(...)</code> to extract values.</p>
 <h3 id="ist"><code>is&lt;T&gt;</code><a class="headerlink" href="#ist" title="Permanent link">&para;</a></h3>
 <p>Type-based <code>std::variant</code> match.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;int&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"int"</span><span class="p">,</span>
 <span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;str:&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">"str:"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;other&quot;</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">"other"</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
 <span class="p">);</span>
 </code></pre></div>
 <h3 id="alti"><code>alt&lt;I&gt;</code><a class="headerlink" href="#alti" title="Permanent link">&para;</a></h3>
 <p>Index-based <code>std::variant</code> match.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;first&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;second&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"first"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"second"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <p>Rules:</p>
@@ -2033,8 +2033,8 @@ Wrap it with <code>$(...)</code> to extract values.</p>
 <p>Matches when at least one sub-pattern matches (OR semantics). Short-circuits
 on the first matching sub-pattern.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">any</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">3</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;1, 2, or 3&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">any</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">3</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"1, 2, or 3"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <p>Properties:</p>
@@ -2050,8 +2050,8 @@ on the first matching sub-pattern.</p>
 <p>Matches only when every sub-pattern matches (AND semantics). Short-circuits
 on the first mismatch.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">all</span><span class="p">(</span><span class="n">any</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;2&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">all</span><span class="p">(</span><span class="n">any</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"2"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <p>Properties:</p>
@@ -2067,8 +2067,8 @@ on the first mismatch.</p>
 <p>Negates the match result of a sub-pattern. <code>neg(p)</code> matches when <code>p</code> does
 not match, and vice versa.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">neg</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;non-zero&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span>
+<span class="w">  </span><span class="n">neg</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"non-zero"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"zero"</span>
 <span class="p">);</span>
 </code></pre></div>
 <p>Properties:</p>

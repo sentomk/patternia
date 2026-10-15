@@ -1535,8 +1535,8 @@ adds the corresponding API reference documentation.</p>
 <p>Matches when at least one sub-pattern matches. Short-circuits on the first
 match.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">any</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">3</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;1, 2, or 3&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">any</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">3</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"1, 2, or 3"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <p>Properties:</p>
@@ -1550,8 +1550,8 @@ match.</p>
 <p>Matches only when every sub-pattern matches. Short-circuits on the first
 mismatch.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">all</span><span class="p">(</span><span class="n">any</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;2&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">all</span><span class="p">(</span><span class="n">any</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"2"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <p>Properties:</p>

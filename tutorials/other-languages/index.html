@@ -1503,16 +1503,16 @@ familiar at the semantic level:</p>
 <h2 id="expression-oriented-matching">Expression-Oriented Matching<a class="headerlink" href="#expression-oriented-matching" title="Permanent link">&para;</a></h2>
 <p>Rust:</p>
 <div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">match</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="mi">0</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="mi">1</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">&quot;many&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="mi">0</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"zero"</span><span class="p">,</span>
+<span class="w">    </span><span class="mi">1</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"one"</span><span class="p">,</span>
+<span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s">"many"</span><span class="p">,</span>
 <span class="p">};</span>
 </code></pre></div>
 <p>Patternia:</p>
 <div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;zero&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;one&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;many&quot;</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"zero"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"one"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"many"</span>
 <span class="p">);</span>
 </code></pre></div>
 <h2 id="explicit-binding">Explicit Binding<a class="headerlink" href="#explicit-binding" title="Permanent link">&para;</a></h2>
@@ -1526,8 +1526,8 @@ Patternia keeps binding explicit because it is a C++ library:</p>
 <h2 id="guards">Guards<a class="headerlink" href="#guards" title="Permanent link">&para;</a></h2>
 <p>Patternia guards refine a bound case:</p>
 <div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;small&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"small"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <h2 id="structural-matching">Structural Matching<a class="headerlink" href="#structural-matching" title="Permanent link">&para;</a></h2>
@@ -1536,8 +1536,8 @@ Patternia keeps binding explicit because it is a C++ library:</p>
 
 <span class="k">auto</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">user</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
 <span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">User</span><span class="o">::</span><span class="n">age</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">User</span><span class="o">::</span><span class="n">active</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">age</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">18</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">active</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">true</span><span class="p">]</span>
-<span class="w">      </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;minor&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;adult&quot;</span>
+<span class="w">      </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"minor"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"adult"</span>
 <span class="p">);</span>
 </code></pre></div>
 <h2 id="mental-model">Mental Model<a class="headerlink" href="#mental-model" title="Permanent link">&para;</a></h2>

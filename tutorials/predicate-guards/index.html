@@ -1484,28 +1484,28 @@
 <p>Guards refine an already-bound case.
 In Patternia, they live inside the case definition:</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;small&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"small"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <h2 id="single-value-guards">Single-Value Guards<a class="headerlink" href="#single-value-guards" title="Permanent link">&para;</a></h2>
 <p>Use <code>_</code> for a case that binds exactly one value.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;edge&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"edge"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <p>For a single bound value, <code>_</code> is the guard placeholder:</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;edge&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"edge"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <p>Use <code>rng(...)</code> when a range reads better than two comparisons:</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">rng</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;closed&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">rng</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">pat</span><span class="o">::</span><span class="n">mod</span><span class="o">::</span><span class="n">open</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;open&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">rng</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"closed"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">rng</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">pat</span><span class="o">::</span><span class="n">mod</span><span class="o">::</span><span class="n">open</span><span class="p">)]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"open"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <h2 id="multi-value-guards">Multi-Value Guards<a class="headerlink" href="#multi-value-guards" title="Permanent link">&para;</a></h2>
@@ -1518,8 +1518,8 @@ In Patternia, they live inside the case definition:</p>
 <span class="n">PTN_BIND</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
 
 <span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;diagonal&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;other&quot;</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"diagonal"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
 <h2 id="use-lambdas-for-domain-logic">Use Lambdas for Domain Logic<a class="headerlink" href="#use-lambdas-for-domain-logic" title="Permanent link">&para;</a></h2>
@@ -1537,8 +1537,8 @@ In Patternia, they live inside the case definition:</p>
 <span class="p">};</span>
 
 <span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">is_prime</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;prime&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;composite&quot;</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">is_prime</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"prime"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"composite"</span>
 <span class="p">);</span>
 </code></pre></div>
 <p>You can mix a placeholder expression with a named predicate:</p>
@@ -1547,8 +1547,8 @@ In Patternia, they live inside the case definition:</p>
 <span class="p">};</span>
 
 <span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">valid_id</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;valid&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">&quot;invalid&quot;</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">valid_id</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"valid"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"invalid"</span>
 <span class="p">);</span>
 </code></pre></div>
 <h2 id="guideline">Guideline<a class="headerlink" href="#guideline" title="Permanent link">&para;</a></h2>
