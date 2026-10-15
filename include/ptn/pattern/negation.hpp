@@ -26,7 +26,7 @@ namespace ptn::pat {
       }
 
       template <typename X>
-      constexpr auto bind(const X &subj) const {
+      constexpr auto bind(const X &) const {
         return std::tuple<>{};
       }
     };
