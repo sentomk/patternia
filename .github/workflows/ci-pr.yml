@@ -83,35 +83,114 @@ jobs:
     # Informational only — does not block PR merge.
     # Benchmark failures surface as artifacts for review, not as red X.
     continue-on-error: true
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      BENCH_FILTER: "VariantMixed|VariantAltHot|VariantMixedGuarded|VariantAltHotGuarded|ProtocolRouter|CommandParser|PacketMixed|PacketMixedHeavyBind"
+      BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout base
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: baseline
+          persist-credentials: false
 
-      - name: Configure
+      # The default checkout of a pull_request event is the PR merged into
+      # its base, which is what main will look like after the merge.
+      - name: Checkout PR (merged into base)
+        uses: actions/checkout@v4
+        with:
+          path: current
+          persist-credentials: false
+
+      - name: Build base benchmarks
         run: |
-          cmake -S . -B build \
+          cmake -S baseline -B baseline/build \
             -DCMAKE_BUILD_TYPE=Release \
             -DPTN_BUILD_TESTS=OFF \
             -DPTN_BUILD_BENCHMARKS=ON \
             -DPTN_SKIP_COMPILER_CHECK=ON
+          cmake --build baseline/build --target ptn_bench --parallel
 
-      - name: Build
-        run: cmake --build build --target ptn_bench ptn_bench_scale --parallel
+      - name: Build PR benchmarks
+        run: |
+          cmake -S current -B current/build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPTN_BUILD_TESTS=OFF \
+            -DPTN_BUILD_BENCHMARKS=ON \
+            -DPTN_SKIP_COMPILER_CHECK=ON
+          cmake --build current/build --target ptn_bench --parallel
 
-      - name: Run benchmarks
+      # Both runs happen on this one runner, back to back, so machine
+      # differences do not leak into the comparison.
+      - name: Run base benchmarks
         run: |
           mkdir -p bench_results
-          build/bench/ptn_bench \
-            --benchmark_filter="VariantMixed|VariantAltHot|VariantMixedGuarded|VariantAltHotGuarded|ProtocolRouter|CommandParser|PacketMixed|PacketMixedHeavyBind" \
-            --benchmark_out=bench_results/ptn_bench.json \
-            --benchmark_out_format=json
-          build/bench/ptn_bench_scale \
-            --benchmark_filter="ScaleN" \
-            --benchmark_out=bench_results/ptn_bench_scale.json \
+          baseline/build/bench/ptn_bench \
+            --benchmark_filter="$BENCH_FILTER" \
+            --benchmark_out=bench_results/baseline.json \
             --benchmark_out_format=json
 
+      - name: Run PR benchmarks
+        run: |
+          current/build/bench/ptn_bench \
+            --benchmark_filter="$BENCH_FILTER" \
+            --benchmark_out=bench_results/current.json \
+            --benchmark_out_format=json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install plotting dependency
+        run: python -m pip install matplotlib
+
+      - name: Compare
+        run: |
+          python current/scripts/bench_compare.py \
+            --baseline bench_results/baseline.json \
+            --current bench_results/current.json \
+            --include "$BENCH_FILTER" \
+            --label-baseline "base ${BASE_SHA::7}" \
+            --label-current "PR ${HEAD_SHA::7}" \
+            --outdir bench_results/compare \
+            --prefix bench_compare
+          python current/scripts/bench_pr_comment.py \
+            --baseline bench_results/baseline.json \
+            --current bench_results/current.json \
+            --include "$BENCH_FILTER" \
+            --base-sha "$BASE_SHA" \
+            --head-sha "$HEAD_SHA" \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            > bench_results/compare/comment.md
+
       - name: Upload benchmark results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: benchmark-results-${{ github.event.pull_request.number || github.sha }}
+          name: benchmark-compare-${{ github.event.pull_request.number }}
           path: bench_results/
+
+      # Pull requests from forks get a read-only token, so they only get
+      # the artifact above.
+      - name: Post or update the PR comment
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          marker='<!-- ptn-bench-compare -->'
+          id=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+            --jq ".[] | select(.body | contains(\"${marker}\")) | .id" | head -n 1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${id}" \
+              -F body=@bench_results/compare/comment.md > /dev/null
+          else
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              -F body=@bench_results/compare/comment.md > /dev/null
+          fi
