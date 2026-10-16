@@ -3,17 +3,17 @@
 - Source: `bench_results/ptn_bench_scale.json`
 - Scenarios: `4`
 - Patternia fastest: `0/4`
-- Average Patternia gap vs fastest: `+87.65%`
-- Largest Patternia gap: `ScaleN32` `+135.88%` vs `SwitchIndex`
+- Average Patternia gap vs fastest: `+87.69%`
+- Largest Patternia gap: `ScaleN32` `+137.27%` vs `SwitchIndex`
 
 ## Patternia Focus
 
 | Scenario | Patternia impl | Rank | Patternia mean (ns) | Fastest | Fastest mean (ns) | Gap vs fastest | Patternia CV % | Status |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ScaleN32 | PatterniaPipe | 2/3 | 2.146 | SwitchIndex | 0.910 | +135.88% | 0.43 | slow |
-| ScaleN8 | PatterniaPipe | 3/3 | 1.550 | StdVisit | 0.824 | +87.97% | 0.36 | slow |
-| ScaleN16 | PatterniaPipe | 2/3 | 1.660 | SwitchIndex | 0.948 | +75.20% | 0.19 | slow |
-| ScaleN4 | PatterniaPipe | 3/3 | 1.355 | SwitchIndex | 0.894 | +51.54% | 0.84 | slow |
+| ScaleN32 | PatterniaPipe | 2/3 | 2.144 | SwitchIndex | 0.903 | +137.27% | 0.75 | slow |
+| ScaleN8 | PatterniaPipe | 3/3 | 1.545 | StdVisit | 0.829 | +86.41% | 0.30 | slow |
+| ScaleN16 | PatterniaPipe | 2/3 | 1.659 | SwitchIndex | 0.935 | +77.51% | 0.32 | slow |
+| ScaleN4 | PatterniaPipe | 3/3 | 1.344 | SwitchIndex | 0.898 | +49.57% | 1.10 | slow |
 
 ---
 
@@ -22,31 +22,31 @@
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| SwitchIndex | 0.910 | fastest | -57.61% | 0.61 |
-| **PatterniaPipe** | 2.146 | +135.88% | - | 0.43 |
-| StdVisit | 8.135 | +794.41% | +279.18% | 3.11 |
+| SwitchIndex | 0.903 | fastest | -57.85% | 0.21 |
+| **PatterniaPipe** | 2.144 | +137.27% | - | 0.75 |
+| StdVisit | 7.643 | +745.99% | +256.56% | 1.64 |
 
 ### ScaleN8
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| StdVisit | 0.824 | fastest | -46.80% | 0.19 |
-| SwitchIndex | 0.894 | +8.46% | -42.30% | 4.48 |
-| **PatterniaPipe** | 1.550 | +87.97% | - | 0.36 |
+| StdVisit | 0.829 | fastest | -46.36% | 1.40 |
+| SwitchIndex | 0.887 | +7.04% | -42.58% | 5.42 |
+| **PatterniaPipe** | 1.545 | +86.41% | - | 0.30 |
 
 ### ScaleN16
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| SwitchIndex | 0.948 | fastest | -42.92% | 1.04 |
-| **PatterniaPipe** | 1.660 | +75.20% | - | 0.19 |
-| StdVisit | 5.647 | +495.97% | +240.17% | 1.30 |
+| SwitchIndex | 0.935 | fastest | -43.67% | 1.81 |
+| **PatterniaPipe** | 1.659 | +77.51% | - | 0.32 |
+| StdVisit | 3.638 | +289.14% | +119.22% | 41.91 |
 
 ### ScaleN4
 
 | Impl | Mean (ns) | vs fastest | vs Patternia | CV % |
 |---|---:|---:|---:|---:|
-| SwitchIndex | 0.894 | fastest | -34.01% | 0.10 |
-| StdVisit | 0.934 | +4.42% | -31.09% | 0.09 |
-| **PatterniaPipe** | 1.355 | +51.54% | - | 0.84 |
+| SwitchIndex | 0.898 | fastest | -33.14% | 0.62 |
+| StdVisit | 0.938 | +4.45% | -30.16% | 0.90 |
+| **PatterniaPipe** | 1.344 | +49.57% | - | 1.10 |
 
