@@ -1,7 +1,8 @@
 name: Publish Benchmark Charts
 
-# Runs on push to main only. Generates benchmark charts and commits
-# them to docs/assets/bench/. This is separated from the main CI so
+# Runs on push to main only. Generates benchmark charts and publishes
+# them to the bench-charts branch as one force-pushed orphan commit, so
+# no chart commits land on main. This is separated from the main CI so
 # that benchmark failures never cause the main branch CI to fail.
 on:
   push:
@@ -27,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.BENCH_BOT_TOKEN || github.token }}
+          persist-credentials: false
 
       - name: Configure
         run: |
@@ -65,22 +66,19 @@ jobs:
           python scripts/bench_single_report.py \
             --input bench_results/ptn_bench.json \
             --include "VariantMixed|VariantAltHot|VariantMixedGuarded|VariantAltHotGuarded|ProtocolRouter|CommandParser|PacketMixed|PacketMixedHeavyBind" \
-            --outdir docs/assets/bench \
+            --outdir bench_results/charts \
             --prefix latest \
             --title "Patternia vs Standard C++"
           python scripts/bench_single_report.py \
             --input bench_results/ptn_bench_scale.json \
             --include "ScaleN" \
-            --outdir docs/assets/bench \
+            --outdir bench_results/charts \
             --prefix scale \
             --title "Variant Dispatch Scalability (4-32 alternatives)"
 
-      # Additive step for moving the charts off main: also publish the
-      # generated charts to the bench-charts branch as one orphan commit.
-      # The step below still commits them to main; a follow-up removes
-      # that. continue-on-error keeps a publishing problem from blocking it.
+      # The orphan branch keeps no history: each run replaces it with a
+      # single commit holding only the current charts.
       - name: Publish charts to the bench-charts branch
-        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -88,7 +86,7 @@ jobs:
           out="$RUNNER_TEMP/bench-charts"
           rm -rf "$out"
           mkdir -p "$out"
-          cp docs/assets/bench/latest.* docs/assets/bench/scale.* "$out"/
+          cp bench_results/charts/* "$out"/
           printf '%s\n' \
             '# bench-charts' \
             '' \
@@ -106,15 +104,3 @@ jobs:
           git commit -q -m "ci: publish benchmark charts for ${GITHUB_SHA::7}"
           git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git push --force origin bench-charts
-
-      - name: Commit and push chart update
-        run: |
-          if git diff --quiet -- docs/assets/bench/; then
-            echo "No chart changes."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/assets/bench/
-          git commit -m "ci: update benchmark summary chart"
-          git push

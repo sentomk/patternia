@@ -67,8 +67,8 @@ You can also rebuild a report from an existing CSV:
 
 ```powershell
 py -3 scripts/bench_single_report.py `
-  --input docs/assets/bench/latest.csv `
-  --outdir docs/assets/bench `
+  --input bench_results/charts/latest.csv `
+  --outdir bench_results/charts `
   --prefix latest
 ```
 
