@@ -53,4 +53,4 @@ Patternia uses different dispatch strategies based on the patterns provided:
 - **Literal Dense/Runtime Dense:** Used for contiguous literal values. These are lowered to efficient jump tables or direct indexing.
 - **Variant Inline/Segmented/Compact:** Optimized strategies for `std::variant`. Inline dispatch is used for small variants, while segmented or compact forms handle larger or more complex type distributions.
 
-According to `docs/assets/bench/latest.md`, Patternia is the fastest in 3 out of 4 tested scenarios. It is particularly efficient in `VariantMixed` tests (~0.94ns per call). The slowest scenario is `PacketMixed`, where Patternia is +2.68% vs a manual Switch statement, primarily due to structural binding overhead. Literal-only scenarios typically run at approximately 1.1ns per call.
+The current benchmark report is published on the [`bench-charts` branch](https://github.com/sentomk/patternia/blob/bench-charts/latest.md) after every push to `main`. It normalizes each scenario to the fastest implementation, and Patternia is not the fastest in every scenario. See [Performance Notes](../performance/index.md) for methodology and per-release results.

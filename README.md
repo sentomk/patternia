@@ -195,7 +195,7 @@ ctest --test-dir build --output-on-failure
 ## Benchmarks
 
 <p align="center">
-  <img src="docs/assets/bench/latest.png" alt="Patternia benchmark comparison" width="90%">
+  <img src="https://raw.githubusercontent.com/sentomk/patternia/bench-charts/latest.png" alt="Patternia benchmark comparison" width="90%">
 </p>
 
 <p align="center"><em>Patternia gap map across key scenarios. Each row is normalized to the fastest implementation in that scenario.</em></p>
