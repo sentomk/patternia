@@ -111,13 +111,58 @@ namespace ptn::core::traits {
   // Handler Invocability Check (C++17)
 
   namespace detail {
+    // The result type goes through remove_reference_t so that a
+    // handler returning a reference (a lambda returning `const T &`,
+    // or a pointer to data member) still forms a valid pointer type.
     template <typename H, typename Tuple>
     static constexpr std::true_type is_applicable_impl(
-        decltype(std::apply(std::declval<H>(),
-                            std::declval<Tuple>())) *);
+        std::remove_reference_t<decltype(std::apply(
+            std::declval<H>(), std::declval<Tuple>()))> *);
 
     template <typename H, typename Tuple>
     static constexpr std::false_type is_applicable_impl(...);
+
+    // Does the class type T have a call operator? T is probed
+    // without instantiating any operator() body: a type deriving
+    // from both T and a class with a known operator() has an
+    // ambiguous `operator()` exactly when T has one. This also works
+    // for generic and overloaded call operators, so a generic lambda
+    // whose body only compiles for its real arguments is classified
+    // correctly.
+    struct probe_call_operator {
+      void operator()();
+    };
+
+    template <typename T>
+    struct probe_derived : T, probe_call_operator {};
+
+    template <typename T, typename = void>
+    struct has_call_operator_probe : std::true_type {};
+
+    template <typename T>
+    struct has_call_operator_probe<
+        T,
+        std::void_t<decltype(&probe_derived<T>::operator())>>
+        : std::false_type {};
+
+    // A final class cannot be derived from, so for it only a single
+    // non-template operator() is recognised.
+    template <typename T, typename = void>
+    struct has_unique_call_operator : std::false_type {};
+
+    template <typename T>
+    struct has_unique_call_operator<
+        T,
+        std::void_t<decltype(&T::operator())>> : std::true_type {};
+
+    template <typename T, bool IsClass = std::is_class_v<T>>
+    struct class_has_call_operator : std::false_type {};
+
+    template <typename T>
+    struct class_has_call_operator<T, true>
+        : std::conditional_t<std::is_final_v<T>,
+                             has_unique_call_operator<T>,
+                             has_call_operator_probe<T>> {};
 
     // Detect if a type is "handler-like".
     template <typename T>
@@ -125,58 +170,15 @@ namespace ptn::core::traits {
     private:
       using D = std::decay_t<T>;
 
-      template <typename U>
-      static auto test_op(int) -> decltype(&U::operator(),
-                                           std::true_type{});
-
-      // Generic lambdas have a templated operator(). Taking the
-      // address of `U::operator()` is ill-formed in that case, so we
-      // probe a few common template arities explicitly. This allows
-      // us to correctly classify generic lambdas (e.g. [](auto
-      // x){...}) as handler-like.
-      template <typename U>
-      static auto
-      test_op_t1(int) -> decltype(&U::template operator()<int>,
-                                  std::true_type{});
-
-      template <typename U>
-      static auto
-      test_op_t2(int) -> decltype(&U::template operator()<int, int>,
-                                  std::true_type{});
-
-      template <typename U>
-      static auto test_op_t3(int)
-          -> decltype(&U::template operator()<int, int, int>,
-                      std::true_type{});
-
-      template <typename U>
-      static auto test_op_t4(int)
-          -> decltype(&U::template operator()<int, int, int, int>,
-                      std::true_type{});
-
-      template <typename>
-      static auto test_op(...) -> std::false_type;
-
-      template <typename>
-      static auto test_op_t1(...) -> std::false_type;
-
-      template <typename>
-      static auto test_op_t2(...) -> std::false_type;
-
-      template <typename>
-      static auto test_op_t3(...) -> std::false_type;
-
-      template <typename>
-      static auto test_op_t4(...) -> std::false_type;
-
       static constexpr bool
-          has_call_operator = decltype(test_op<D>(0))::value
-                              || decltype(test_op_t1<D>(0))::value
-                              || decltype(test_op_t2<D>(0))::value
-                              || decltype(test_op_t3<D>(0))::value
-                              || decltype(test_op_t4<D>(0))::value;
+          has_call_operator = class_has_call_operator<D>::value;
 
       static constexpr bool is_function_type = std::is_function_v<D>;
+
+      // Pointers to members are invoked like functions
+      // (`&Circle::area` calls the member on the bound value).
+      static constexpr bool
+          is_member_pointer = std::is_member_pointer_v<D>;
 
       static constexpr bool
           is_function_pointer = std::is_pointer_v<D>
@@ -191,6 +193,7 @@ namespace ptn::core::traits {
     public:
       static constexpr bool value = has_call_operator
                                     || is_function_type
+                                    || is_member_pointer
                                     || is_function_pointer
                                     || is_function_reference;
     };

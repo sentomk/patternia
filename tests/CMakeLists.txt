@@ -26,6 +26,7 @@ add_executable(ptn_tests
   tests_terminal_semantics.cpp
   tests_type_pattern.cpp
   tests_named_placeholder.cpp
+  tests_handler_forms.cpp
 )
 
 target_link_libraries(ptn_tests PRIVATE
