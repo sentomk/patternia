@@ -29,7 +29,7 @@ concurrency:
 
 jobs:
   compare:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout baseline
@@ -46,12 +46,12 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: "3.12"
 
       - name: Install plotting dependency
         run: |
           python -m pip install --upgrade pip
-          python -m pip install matplotlib
+          python -m pip install -r current/tools/requirements-bench.txt
 
       - name: Configure baseline benchmark build
         run: |
@@ -122,7 +122,7 @@ jobs:
           exit 1
 
   ct-compare:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: always()
 
     steps:
@@ -140,7 +140,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: "3.12"
 
       - name: Run baseline compile-time benchmark
         run: |

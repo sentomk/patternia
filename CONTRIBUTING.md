@@ -160,7 +160,25 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
 ```
 
-Optional: enable local pre-commit formatting hook (recommended):
+### Pinned formatter
+
+Formatting is checked with the exact clang-format version listed in
+`tools/requirements.txt`, the same one CI uses. `tools/envsetup.py`
+installs it into the ignored `.tools/venv` directory on first use; you
+only need Python 3 with `venv` support (Debian/Ubuntu: `python3-venv`).
+
+```bash
+python3 scripts/format.py          # check files changed against origin/main
+python3 scripts/format.py --fix    # rewrite them in place
+python3 scripts/format.py --all    # check every tracked C/C++ file
+python3 tools/envsetup.py --versions   # install and print the pinned version
+```
+
+Formatting is only enforced for files a pull request touches, so
+`--all` may list older files that have not been reformatted yet.
+
+Optional: enable the local pre-commit hook, which runs
+`scripts/format.py --fix --staged` (recommended):
 
 ```bash
 bash scripts/setup-git-hooks.sh
@@ -171,3 +189,12 @@ On Windows PowerShell:
 ```powershell
 pwsh -File .\scripts\setup-git-hooks.ps1
 ```
+
+The setup scripts set `core.hooksPath` for this repository only. If you
+already use a global `core.hooksPath` (for example company-wide hooks),
+that setting is replaced for this repository, so skip the setup script
+and run `scripts/format.py --fix` yourself instead.
+
+The pinned versions of the other CI dependencies live next to it:
+`tools/requirements-bench.txt` (benchmark charts) and
+`tools/requirements-docs.txt` (documentation site).

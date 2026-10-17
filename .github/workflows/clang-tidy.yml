@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   clang-tidy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v4
@@ -23,13 +23,13 @@ jobs:
       - name: Install clang-tidy
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang clang-tidy
-          clang-tidy --version
+          sudo apt-get install -y clang-18 clang-tidy-18
+          clang-tidy-18 --version
 
       - name: Configure (compile_commands.json)
         run: |
           cmake -S . -B build \
-            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_CXX_COMPILER=clang++-18 \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DPTN_BUILD_TESTS=ON
 
@@ -42,5 +42,5 @@ jobs:
           # they need nlohmann/json which is not part of the build.
           for f in tests/*.cpp samples/*.cpp; do
             echo "=== $f"
-            clang-tidy -p build "$f"
+            clang-tidy-18 -p build "$f"
           done

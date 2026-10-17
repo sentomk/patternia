@@ -1,0 +1,2 @@
+# Plotting dependencies for the benchmark scripts and workflows.
+matplotlib==3.11.2
