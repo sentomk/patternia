@@ -108,6 +108,6 @@ py -3 scripts/bench_compare.py \
 
 ## Dependency
 
-```powershell
-py -3 -m pip install matplotlib
+```bash
+python3 -m pip install -r tools/requirements-bench.txt
 ```

@@ -1,24 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if ! command -v clang-format >/dev/null 2>&1; then
-  echo "pre-commit: clang-format not found in PATH."
-  echo "Install clang-format or bypass with --no-verify."
+# Formats staged C/C++ files with the pinned clang-format from
+# .tools/venv (installed on first use) and re-stages them.
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+python="$(command -v python3 || command -v python || true)"
+if [ -z "$python" ]; then
+  echo "pre-commit: python not found in PATH."
+  echo "Install Python 3 or bypass with --no-verify."
   exit 1
 fi
 
-mapfile -t files < <(
-  git diff --cached --name-only --diff-filter=ACMR -- \
-    '*.h' '*.hpp' '*.hh' '*.hxx' '*.c' '*.cc' '*.cpp' '*.cxx' '*.ipp'
-)
-
-if [ "${#files[@]}" -eq 0 ]; then
-  exit 0
-fi
-
-for file in "${files[@]}"; do
-  if [ -f "$file" ]; then
-    clang-format -i -style=file "$file"
-    git add "$file"
-  fi
-done
+exec "$python" scripts/format.py --fix --staged

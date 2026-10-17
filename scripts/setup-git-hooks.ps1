@@ -9,4 +9,4 @@ if (!(Test-Path $hooksDir)) {
 
 git config core.hooksPath .githooks
 Write-Host "Configured git hooks path: .githooks"
-Write-Host "pre-commit hook will run clang-format on staged C/C++ files."
+Write-Host "pre-commit hook will format staged C/C++ files with the pinned clang-format (tools/requirements.txt)."

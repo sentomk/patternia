@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout repository
@@ -19,12 +19,12 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: "3.12"
 
       - name: Install MkDocs & Plugins
         run: |
           pip install --upgrade pip
-          pip install mkdocs mkdocs-material mkdocs-material-extensions
+          pip install -r tools/requirements-docs.txt
 
       - name: Build MkDocs site
         run: mkdocs build --clean

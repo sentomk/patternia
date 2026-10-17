@@ -104,3 +104,6 @@ cmake/patternia_dummy.cc
 
 # Local benchmark staging outputs
 bench/results/
+
+# ===== Pinned developer tools (tools/envsetup.py) =====
+.tools/
