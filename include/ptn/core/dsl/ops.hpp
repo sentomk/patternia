@@ -49,7 +49,9 @@ namespace ptn::pat::base {
                                          std::decay_t<Pattern>>,
                        int> = 0>
   constexpr auto operator>>(Pattern &&pattern, Handler &&handler) {
-    using P = std::decay_t<Pattern>;
+    // `is<T>` and `alt<I>` are stored as their canonical_pattern
+    // type so that dispatch and diagnostics recognize them.
+    using P = ptn::pat::base::canonical_pattern_t<Pattern>;
     using H = std::decay_t<Handler>;
 
     if constexpr (ptn::core::traits::detail::is_value_like_v<H>) {
@@ -57,13 +59,13 @@ namespace ptn::pat::base {
       using value_handler_t = core::dsl::detail::value_handler<H>;
 
       return core::dsl::detail::case_expr<P, value_handler_t>{
-          std::forward<Pattern>(pattern),
+          P(std::forward<Pattern>(pattern)),
           value_handler_t{std::forward<Handler>(handler)}};
     }
     else {
       // Handler Mode: Pattern >> Handler
       return core::dsl::detail::case_expr<P, H>{
-          std::forward<Pattern>(pattern),
+          P(std::forward<Pattern>(pattern)),
           std::forward<Handler>(handler)};
     }
   }

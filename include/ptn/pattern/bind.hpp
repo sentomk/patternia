@@ -204,7 +204,7 @@ namespace ptn::pat {
     // operator()(subpattern) - Return appropriate binding pattern
     template <typename SubPattern>
     constexpr auto operator()(SubPattern &&subpattern) const {
-      using SP = std::decay_t<SubPattern>;
+      using SP = base::canonical_pattern_t<SubPattern>;
 
       if constexpr (detail::is_structural_has_v<SP>) {
         return detail::structural_bind_pattern<SP>(
@@ -212,7 +212,7 @@ namespace ptn::pat {
       }
       else {
         return detail::binding_as_pattern<void, SP>(
-            std::forward<SubPattern>(subpattern));
+            SP(std::forward<SubPattern>(subpattern)));
       }
     }
   };
