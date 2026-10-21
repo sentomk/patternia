@@ -1509,19 +1509,30 @@ In Patternia, they live inside the case definition:</p>
 <span class="p">);</span>
 </code></pre></div>
 <h2 id="multi-value-guards">Multi-Value Guards<a class="headerlink" href="#multi-value-guards" title="Permanent link">&para;</a></h2>
-<p>Use <code>PTN_BIND</code> to give multiple bound values readable names.</p>
+<p>Use a C++17 structured binding to give structural members readable placeholder
+names. These names refer to members, not extracted values:</p>
 <div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Point</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
 <span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
 <span class="p">};</span>
 
-<span class="n">PTN_BIND</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pt</span><span class="p">;</span>
 
 <span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"diagonal"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">pt</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"diagonal"</span><span class="p">,</span>
 <span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
+<p>The names follow the members listed in <code>has&lt;...&gt;</code>; <code>_ign</code> slots are skipped.
+<code>$(pt)</code> remains responsible for binding those members to the handler.</p>
+<p><code>PTN_BIND</code> is deprecated but still supported. Automatic structured bindings
+inside a function work with <code>on(...)</code>, as above, but cannot be used inside
+<code>PTN_ON</code>'s captureless lambda. To cache that case pack, declare the pattern
+and names at namespace scope. In C++20, function-local declarations can use
+<code>static constexpr auto pt = has&lt;&amp;Point::x, &amp;Point::y&gt;;</code> and
+<code>static auto [x, y] = pt;</code>. In C++17, keep <code>PTN_BIND</code> for local names and give
+any local pattern used by <code>PTN_ON</code> static storage too.</p>
 <h2 id="use-lambdas-for-domain-logic">Use Lambdas for Domain Logic<a class="headerlink" href="#use-lambdas-for-domain-logic" title="Permanent link">&para;</a></h2>
 <p>When the rule is not a short relational expression, use a predicate.</p>
 <div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">is_prime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>

@@ -1031,10 +1031,38 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ptn_bindtype-names" class="md-nav__link">
+  <a href="#structured-binding-member-names" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PTN_BIND(Type, names...)
+        Structured-binding member names
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Structured-binding member names">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scope-and-cached-matchers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope and cached matchers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ptn_bindtype-names-deprecated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PTN_BIND(Type, names...) (deprecated)
       
     </span>
   </a>
@@ -1941,43 +1969,74 @@ consider static dispatch.</p>
 </code></pre></div>
 <p>Use <code>_</code> when one binding is enough and the predicate reads clearly without an
 explicit name.</p>
-<h3 id="ptn_bindtype-names"><code>PTN_BIND(Type, names...)</code><a class="headerlink" href="#ptn_bindtype-names" title="Permanent link">&para;</a></h3>
-<p>Declares member-anchored placeholders for structural guards. Each name must
-designate a non-static data member of <code>Type</code>; the macro expands <code>name</code> to
-<code>constexpr member_t&lt;&amp;Type::name&gt;</code>.</p>
+<h3 id="structured-binding-member-names">Structured-binding member names<a class="headerlink" href="#structured-binding-member-names" title="Permanent link">&para;</a></h3>
+<p>A <code>has&lt;...&gt;</code> pattern is tuple-like. Prefer a C++17 structured binding to name
+its member placeholders without a macro:</p>
+<div class="highlight"><pre><span></span><code><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pt</span><span class="p">;</span>
+
+<span class="n">$</span><span class="p">(</span><span class="n">pt</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">25</span><span class="p">]</span>
+</code></pre></div>
+<p>There is one name per non-ignored member, in the order listed in <code>has&lt;...&gt;</code>;
+<code>_ign</code> slots do not get names. The names are placeholders, not values extracted
+from a subject. <code>$(pt)</code> still controls which values reach the handler.</p>
+<p>Inside a guard, names resolve to the position of their member in the <code>has&lt;&gt;</code>
+member list at compile time, so they follow members, not positions — the order
+of member pointers in a subsequent pattern does not matter:</p>
+<div class="highlight"><pre><span></span><code><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">4</span><span class="p">]</span><span class="w">  </span><span class="c1">// x is still .x</span>
+</code></pre></div>
+<p>A name whose member is not listed in <code>has&lt;&gt;</code> fails a static_assert. Member
+names are only valid in guards attached to <code>has&lt;...&gt;</code>; using them on a
+non-structural pattern is a compile-time error.</p>
+<h4 id="scope-and-cached-matchers">Scope and cached matchers<a class="headerlink" href="#scope-and-cached-matchers" title="Permanent link">&para;</a></h4>
+<p>Function-local <code>auto [x, y] = pt;</code> works with <code>on(...)</code>, but not with
+<code>PTN_ON(...)</code>: the macro uses a captureless lambda, which cannot access these
+automatic bindings. For cached matchers, choose one of these options:</p>
+<ul>
+<li>Declare the pattern and its structured-binding names at namespace scope.</li>
+<li>
+<p>In C++20 or later, give both the pattern and the bindings static storage
+    inside the function:</p>
+<div class="highlight"><pre><span></span><code><span class="k">static</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="k">static</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pt</span><span class="p">;</span>
+</code></pre></div>
+</li>
+<li>
+<p>In C++17, keep <code>PTN_BIND</code> for function-local names used inside <code>PTN_ON</code>, or
+  use <code>on(...)</code> instead. Any local pattern passed to <code>PTN_ON</code> must also be
+  static; alternatively, write <code>has&lt;...&gt;</code> directly inside the macro.</p>
+</li>
+</ul>
+<h3 id="ptn_bindtype-names-deprecated"><code>PTN_BIND(Type, names...)</code> (deprecated)<a class="headerlink" href="#ptn_bindtype-names-deprecated" title="Permanent link">&para;</a></h3>
+<p><code>PTN_BIND</code> remains supported for compatibility, but prefer structured-binding
+member names where the scope rules above permit them. It declares
+<code>static constexpr member_t&lt;&amp;Type::name&gt;</code> placeholders for one to ten
+non-static data members:</p>
 <div class="highlight"><pre><span></span><code><span class="n">PTN_BIND</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
 
 <span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">25</span><span class="p">]</span>
 </code></pre></div>
-<p>Inside a guard, names resolve to the position of their member in the <code>has&lt;&gt;</code>
-member list at compile time, so they follow members, not positions — the order
-of member pointers in <code>has&lt;&gt;</code> does not matter:</p>
-<div class="highlight"><pre><span></span><code><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">4</span><span class="p">]</span><span class="w">  </span><span class="c1">// x is still .x</span>
-</code></pre></div>
-<p>Misuse is caught at compile time: a misspelled member name fails right at the
-<code>PTN_BIND</code> line, and a name whose member is not listed in <code>has&lt;&gt;</code> fails a
-static_assert. Member names are only valid in guards attached to <code>has&lt;...&gt;</code>;
-using them on a non-structural pattern is a compile-time error.</p>
+<p>Declarations are valid at namespace or block scope. Their static storage
+duration allows block-scope names inside <code>PTN_ON</code> even in C++17. A misspelled
+member name fails at the <code>PTN_BIND</code> line.</p>
 <h3 id="rnglo-hi-mode"><code>rng(lo, hi, mode)</code><a class="headerlink" href="#rnglo-hi-mode" title="Permanent link">&para;</a></h3>
 <p>Range helper for single-bound-value guards.</p>
 <div class="highlight"><pre><span></span><code><span class="n">$</span><span class="p">[</span><span class="n">rng</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)]</span>
 <span class="n">$</span><span class="p">[</span><span class="n">rng</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">pat</span><span class="o">::</span><span class="n">mod</span><span class="o">::</span><span class="n">open</span><span class="p">)]</span>
 </code></pre></div>
-<p><code>PTN_BIND</code> supports one to ten names and can be declared at namespace or block
-scope. Use callables for domain logic that does not read naturally as <code>_</code> or a
-short named-placeholder expression.</p>
-<p>Block-scope declarations use static storage duration, so they can also be
-referenced inside <code>PTN_ON</code>'s captureless caching lambda.</p>
+<p>Use callables for domain logic that does not read naturally as <code>_</code> or a short
+named-placeholder expression.</p>
 <h3 id="migration-from-positional-guard-apis">Migration from positional guard APIs<a class="headerlink" href="#migration-from-positional-guard-apis" title="Permanent link">&para;</a></h3>
-<p>The guard surface now uses <code>_</code> for one bound value and <code>PTN_BIND</code> names for
-multiple bound values. The former <code>__</code>, <code>_0</code>, <code>arg&lt;N&gt;</code>, <code>PTN_LET</code>, and
-<code>PTN_WHERE</code> spellings have been removed rather than retained as aliases.</p>
+<p>The guard surface now uses <code>_</code> for one bound value and structured-binding
+member names for structural guards. The former <code>__</code>, <code>_0</code>, <code>arg&lt;N&gt;</code>,
+<code>PTN_LET</code>, and <code>PTN_WHERE</code> spellings have been removed rather than retained as aliases.</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// Single value</span>
 <span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span>
 
-<span class="c1">// Multiple values</span>
-<span class="n">PTN_BIND</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
-<span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">y</span><span class="p">]</span>
+<span class="c1">// Multiple structural members</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pt</span><span class="p">;</span>
+<span class="n">$</span><span class="p">(</span><span class="n">pt</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">y</span><span class="p">]</span>
 </code></pre></div>
 <hr />
 <h2 id="structural-matching">Structural Matching <code>has&lt;&amp;T::member...&gt;</code><a class="headerlink" href="#structural-matching" title="Permanent link">&para;</a></h2>
@@ -2116,7 +2175,8 @@ below:</p>
 <li><code>has</code></li>
 <li><code>is</code>, <code>alt</code></li>
 <li><code>any</code>, <code>all</code>, <code>neg</code></li>
-<li><code>PTN_ON</code>, <code>PTN_BIND</code> (macros)</li>
+<li><code>PTN_ON</code> (macro)</li>
+<li><code>PTN_BIND</code> (deprecated compatibility macro)</li>
 </ul>
 <hr />
 <h2 id="minimal-example">Minimal Example<a class="headerlink" href="#minimal-example" title="Permanent link">&para;</a></h2>
