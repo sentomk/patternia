@@ -142,6 +142,22 @@ jobs:
       - name: Build
         run: cmake --build build --config Release --parallel
 
+      # CMake/MSBuild initializes the compiler environment for builds,
+      # but compile-fail tests invoke cl.exe directly from CTest.
+      - name: Set MSVC include paths for compile-fail tests
+        if: matrix.compiler == 'msvc'
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vs = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $vs) { throw "Visual Studio C++ tools were not found" }
+          $devcmd = Join-Path $vs 'Common7\Tools\VsDevCmd.bat'
+          $include = & cmd.exe /d /c "call `"$devcmd`" -no_logo -arch=x64 -host_arch=x64 >nul && set INCLUDE"
+          if ($LASTEXITCODE -ne 0 -or -not ($include -match '^INCLUDE=')) {
+            throw "Could not initialize the MSVC include paths"
+          }
+          $include | Where-Object { $_ -match '^INCLUDE=' } | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       - name: Run tests
         run: ctest --test-dir build -C Release --output-on-failure
 

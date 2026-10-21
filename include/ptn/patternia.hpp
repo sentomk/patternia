@@ -89,6 +89,18 @@ namespace ptn {
 
 // PTN_BIND(Type, member0, member1, ...)
 //
+// Deprecated: prefer naming the members of a pattern with a
+// structured binding, which needs no macro:
+//   constexpr auto pt = has<&Point::x, &Point::y>;
+//   auto [x, y]       = pt;
+//   $(pt)[x * x + y * y == 25]
+// Automatic block-scope bindings work with on(...), but cannot be
+// used inside PTN_ON's captureless lambda. For PTN_ON, put the
+// pattern and names at namespace scope, or use static constexpr
+// auto pt and static auto [x, y] = pt at block scope in C++20.
+// For block-scope names with PTN_ON in C++17, keep using PTN_BIND.
+// PTN_BIND keeps working and will be removed in a later release.
+//
 // Declares member-anchored named placeholders for use in guard
 // expressions attached to has<...>. Each name must designate a
 // non-static data member of Type: the macro expands name to

@@ -57,7 +57,7 @@ int classify(int x) {
 
 - Literal, structural, and `std::variant` matching in one DSL.
 - Explicit binding through `$` and `$(...)`.
-- Declarative guards via `_`, `PTN_BIND`, `rng(...)`, and callables.
+- Declarative guards via `_`, structured-binding member names, `rng(...)`, and callables.
 - No RTTI, no virtual dispatch, no heap allocation.
 - Static literal and variant dispatch lowering for hot paths.
 
@@ -96,22 +96,30 @@ int magnitude2(const Point &p) {
 
 ### Structural match with named placeholders
 
-Declare readable names once with `PTN_BIND` (one to ten names), then
-use them directly in guard expressions:
+Name the members of a structural pattern with a C++17 structured binding,
+then use those placeholders directly in guard expressions:
 
 ```cpp
 using namespace ptn;
 
 struct Point { int x; int y; };
-PTN_BIND(Point, x, y);
+constexpr auto pt = has<&Point::x, &Point::y>;
+auto [x, y] = pt;
 
 bool on_circle_radius5(const Point &p) {
   return match(p) | on(
-    $(has<&Point::x, &Point::y>)[x * x + y * y == 25] >> true,
+    $(pt)[x * x + y * y == 25] >> true,
     _ >> false
   );
 }
 ```
+
+`PTN_BIND` is deprecated but still supported. Function-local `auto [x, y] = pt;`
+works with `on(...)`, not with `PTN_ON`'s captureless lambda. For `PTN_ON`,
+use namespace-scope names as above. In C++20, function-local declarations can
+use `static constexpr auto pt = has<&Point::x, &Point::y>;` and
+`static auto [x, y] = pt;`. In C++17, keep `PTN_BIND` for function-local names
+(and give any local pattern used by `PTN_ON` static storage too).
 
 ### Variant match
 

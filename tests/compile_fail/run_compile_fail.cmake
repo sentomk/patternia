@@ -65,4 +65,22 @@ if(_rv EQUAL 0)
     "Expected compile failure but compilation succeeded: ${SOURCE_FILE}")
 endif()
 
+# Cases may pin a library diagnostic and reject cascading errors.
+# Use literal substrings so punctuation in static_assert messages
+# does not need regular-expression escaping in the source files.
+file(STRINGS "${SOURCE_FILE}" _expectations
+  REGEX "^// (EXPECT_ERROR|FORBID_ERROR): ")
+foreach(_expectation IN LISTS _expectations)
+  string(REGEX REPLACE "^// (EXPECT_ERROR|FORBID_ERROR): " ""
+    _diagnostic "${_expectation}")
+  string(FIND "${_out}${_err}" "${_diagnostic}" _position)
+  if(_expectation MATCHES "^// EXPECT_ERROR:" AND _position EQUAL -1)
+    message(FATAL_ERROR
+      "Missing expected diagnostic: ${_diagnostic}\n${_out}${_err}")
+  elseif(_expectation MATCHES "^// FORBID_ERROR:" AND NOT _position EQUAL -1)
+    message(FATAL_ERROR
+      "Unexpected cascading diagnostic: ${_diagnostic}\n${_out}${_err}")
+  endif()
+endforeach()
+
 message(STATUS "Compile-fail test passed for ${SOURCE_FILE}")

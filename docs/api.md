@@ -203,11 +203,59 @@ $[_ > 5]
 Use `_` when one binding is enough and the predicate reads clearly without an
 explicit name.
 
-### `PTN_BIND(Type, names...)`
+### Structured-binding member names
 
-Declares member-anchored placeholders for structural guards. Each name must
-designate a non-static data member of `Type`; the macro expands `name` to
-`constexpr member_t<&Type::name>`.
+A `has<...>` pattern is tuple-like. Prefer a C++17 structured binding to name
+its member placeholders without a macro:
+
+```cpp
+constexpr auto pt = has<&Point::x, &Point::y>;
+auto [x, y] = pt;
+
+$(pt)[x * x + y * y == 25]
+```
+
+There is one name per non-ignored member, in the order listed in `has<...>`;
+`_ign` slots do not get names. The names are placeholders, not values extracted
+from a subject. `$(pt)` still controls which values reach the handler.
+
+Inside a guard, names resolve to the position of their member in the `has<>`
+member list at compile time, so they follow members, not positions — the order
+of member pointers in a subsequent pattern does not matter:
+
+```cpp
+$(has<&Point::y, &Point::x>)[x == 3 && y == 4]  // x is still .x
+```
+
+A name whose member is not listed in `has<>` fails a static_assert. Member
+names are only valid in guards attached to `has<...>`; using them on a
+non-structural pattern is a compile-time error.
+
+#### Scope and cached matchers
+
+Function-local `auto [x, y] = pt;` works with `on(...)`, but not with
+`PTN_ON(...)`: the macro uses a captureless lambda, which cannot access these
+automatic bindings. For cached matchers, choose one of these options:
+
+- Declare the pattern and its structured-binding names at namespace scope.
+- In C++20 or later, give both the pattern and the bindings static storage
+    inside the function:
+
+    ```cpp
+    static constexpr auto pt = has<&Point::x, &Point::y>;
+    static auto [x, y] = pt;
+    ```
+
+- In C++17, keep `PTN_BIND` for function-local names used inside `PTN_ON`, or
+  use `on(...)` instead. Any local pattern passed to `PTN_ON` must also be
+  static; alternatively, write `has<...>` directly inside the macro.
+
+### `PTN_BIND(Type, names...)` (deprecated)
+
+`PTN_BIND` remains supported for compatibility, but prefer structured-binding
+member names where the scope rules above permit them. It declares
+`static constexpr member_t<&Type::name>` placeholders for one to ten
+non-static data members:
 
 ```cpp
 PTN_BIND(Point, x, y);
@@ -215,18 +263,9 @@ PTN_BIND(Point, x, y);
 $(has<&Point::x, &Point::y>)[x * x + y * y == 25]
 ```
 
-Inside a guard, names resolve to the position of their member in the `has<>`
-member list at compile time, so they follow members, not positions — the order
-of member pointers in `has<>` does not matter:
-
-```cpp
-$(has<&Point::y, &Point::x>)[x == 3 && y == 4]  // x is still .x
-```
-
-Misuse is caught at compile time: a misspelled member name fails right at the
-`PTN_BIND` line, and a name whose member is not listed in `has<>` fails a
-static_assert. Member names are only valid in guards attached to `has<...>`;
-using them on a non-structural pattern is a compile-time error.
+Declarations are valid at namespace or block scope. Their static storage
+duration allows block-scope names inside `PTN_ON` even in C++17. A misspelled
+member name fails at the `PTN_BIND` line.
 
 ### `rng(lo, hi, mode)`
 
@@ -237,26 +276,23 @@ $[rng(0, 10)]
 $[rng(0, 10, pat::mod::open)]
 ```
 
-`PTN_BIND` supports one to ten names and can be declared at namespace or block
-scope. Use callables for domain logic that does not read naturally as `_` or a
-short named-placeholder expression.
-
-Block-scope declarations use static storage duration, so they can also be
-referenced inside `PTN_ON`'s captureless caching lambda.
+Use callables for domain logic that does not read naturally as `_` or a short
+named-placeholder expression.
 
 ### Migration from positional guard APIs
 
-The guard surface now uses `_` for one bound value and `PTN_BIND` names for
-multiple bound values. The former `__`, `_0`, `arg<N>`, `PTN_LET`, and
-`PTN_WHERE` spellings have been removed rather than retained as aliases.
+The guard surface now uses `_` for one bound value and structured-binding
+member names for structural guards. The former `__`, `_0`, `arg<N>`,
+`PTN_LET`, and `PTN_WHERE` spellings have been removed rather than retained as aliases.
 
 ```cpp
 // Single value
 $[_ > 0]
 
-// Multiple values
-PTN_BIND(Point, x, y);
-$(has<&Point::x, &Point::y>)[x < y]
+// Multiple structural members
+constexpr auto pt = has<&Point::x, &Point::y>;
+auto [x, y] = pt;
+$(pt)[x < y]
 ```
 
 ---
@@ -439,7 +475,8 @@ below:
 - `has`
 - `is`, `alt`
 - `any`, `all`, `neg`
-- `PTN_ON`, `PTN_BIND` (macros)
+- `PTN_ON` (macro)
+- `PTN_BIND` (deprecated compatibility macro)
 
 ---
 

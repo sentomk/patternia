@@ -104,15 +104,15 @@ namespace ptn::pat::mod {
 
   // Trap: member placeholders must be resolved to positional
   // placeholders by the structural pattern owning the guard. This
-  // overload is only reached when a PTN_BIND name is used in a
-  // guard on a non-structural pattern.
+  // overload is only reached when a member placeholder is used in
+  // a guard on a non-structural pattern.
   template <auto M, typename Tuple>
   constexpr decltype(auto) eval(const member_t<M> &, Tuple &&) {
     static_assert(dependent_false<Tuple>::value,
-                  "[Patternia.guard] A PTN_BIND member placeholder "
-                  "was used in a guard on a non-structural pattern. "
-                  "Member names are only valid in guards attached "
-                  "to has<...>.");
+                  "[Patternia.guard]: A member placeholder was used "
+                  "in a guard on a non-structural pattern. Member "
+                  "names are only valid in guards attached to "
+                  "has<...>.");
   }
 
   // Makes expression callable as predicate on bound tuples.
@@ -161,11 +161,11 @@ namespace ptn::pat::mod {
   // the positional bounds check (non-structural guard).
   template <auto M>
   struct max_arg_index<member_t<M>> {
-    static_assert(dependent_false<member_t<M>>::value,
-                  "[Patternia.guard] A PTN_BIND member placeholder "
-                  "was used in a guard on a non-structural pattern. "
-                  "Member names are only valid in guards attached "
-                  "to has<...>.");
+    static_assert(
+        dependent_false<member_t<M>>::value,
+        "[Patternia.guard]: A member placeholder was used "
+        "in a guard on a non-structural pattern. Member names are "
+        "only valid in guards attached to has<...>.");
     static constexpr std::size_t value = 0;
   };
 
@@ -552,11 +552,15 @@ namespace ptn::pat::mod {
   template <auto... Ms, auto M>
   constexpr auto resolve_expr(member_list<Ms...>, member_t<M>) {
     using pos = member_position<M, Ms...>;
-    static_assert(pos::found,
-                  "[Patternia.guard] A PTN_BIND name does not match "
-                  "any member listed in has<...>. Check the member "
-                  "pointers in the pattern.");
-    return arg_t<pos::value>{};
+    static_assert(
+        pos::found,
+        "[Patternia.guard]: A member placeholder does not match any "
+        "member listed in this has<...>. Check that the placeholder "
+        "names a member of the pattern the guard is attached to.");
+    // A missing member resolves to position 0 so that the failure
+    // above is the only diagnostic, not the start of a cascade.
+    constexpr std::size_t position = pos::found ? pos::value : 0;
+    return arg_t<position>{};
   }
 
   template <auto... Ms, typename Op, typename L, typename R>
