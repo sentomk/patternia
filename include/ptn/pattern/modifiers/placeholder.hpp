@@ -13,11 +13,13 @@ namespace ptn::pat::mod {
 
   // Member-anchored placeholder for structural guards.
   //
-  // A PTN_BIND name expands to member_t<&Type::member>. Inside a
-  // guard attached to has<...>, the structural pattern resolves
-  // the member pointer to the position of that member in its
-  // member list at compile time, so guard names follow members,
-  // not the order of pointers in has<...>.
+  // Names come from `auto [x, y] = has<&Type::x, &Type::y>;`
+  // (each is a member_t<&Type::member>) or from the deprecated
+  // PTN_BIND macro. Inside a guard attached to has<...>, the
+  // structural pattern resolves the member pointer to the
+  // position of that member in its member list at compile time,
+  // so guard names follow members, not the order of pointers in
+  // has<...>.
   template <auto M>
   struct member_t {
     static constexpr auto member = M;

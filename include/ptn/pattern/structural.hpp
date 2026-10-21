@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <tuple>
+#include <type_traits>
 
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/pattern_base.hpp"
@@ -84,9 +85,9 @@ namespace ptn::pat {
       // not bind any values to the handler.
       //
       // Usage:
-      //   PTN_BIND(Pkt, type, len);
-      //   has<&Pkt::type, &Pkt::len>[type == 0x01 && len == 0]
-      //       >> [] { handle_ping(); }
+      //   constexpr auto pkt = has<&Pkt::type, &Pkt::len>;
+      //   auto [type, len] = pkt;
+      //   pkt[type == 0x01 && len == 0] >> [] { handle_ping(); }
       template <typename Pred>
       constexpr auto operator[](Pred &&pred) const;
     };
@@ -151,6 +152,53 @@ namespace ptn::pat {
           std::move(resolved)};
     }
 
+    // Number of members of Ms... that are not `_ign` slots.
+    template <auto... Ms>
+    inline constexpr std::size_t
+        bound_member_count_v = ((std::is_null_pointer_v<decltype(Ms)>
+                                     ? std::size_t{0}
+                                     : std::size_t{1})
+                                + ... + std::size_t{0});
+
+    template <auto M>
+    struct member_constant {
+      static constexpr auto value = M;
+    };
+
+    // The I-th member of Ms... that is not an `_ign` slot.
+    template <std::size_t I, auto... Ms>
+    struct nth_bound_member;
+
+    // Keep invalid indices well-formed here so the public tuple
+    // protocol reports only its own bounds diagnostic. This also
+    // handles patterns with no non-ignored members.
+    template <std::size_t I>
+    struct nth_bound_member<I> : member_constant<nullptr> {};
+
+    template <std::size_t I, auto M, auto... Rest>
+    struct nth_bound_member<I, M, Rest...>
+        : std::conditional_t<
+              std::is_null_pointer_v<decltype(M)>,
+              nth_bound_member<I, Rest...>,
+              std::conditional_t<I == 0,
+                                 member_constant<M>,
+                                 nth_bound_member<I - 1, Rest...>>> {
+    };
+
+    // Makes `has<...>` tuple-like, so that
+    //   auto [x, y] = has<&P::x, &P::y>;
+    // declares one member-anchored placeholder per non-ignored
+    // member, in the order the members are listed. `get` is found
+    // through argument-dependent lookup.
+    template <std::size_t I, auto... Ms>
+    constexpr auto get(const has_pattern<Ms...> &) noexcept {
+      static_assert(
+          I < bound_member_count_v<Ms...>,
+          "[Patternia.has]: member index is out of range.");
+      return ptn::pat::mod::member_t<
+          nth_bound_member<I, Ms...>::value>{};
+    }
+
   } // namespace detail
 
   // Public API.
@@ -174,3 +222,24 @@ namespace ptn::pat::base {
     using type = std::tuple<>;
   };
 } // namespace ptn::pat::base
+
+// `has<...>` is tuple-like: one element per non-ignored member.
+// (`struct`, as in the standard library, to avoid
+// -Wmismatched-tags.)
+namespace std {
+
+  template <auto... Ms>
+  struct tuple_size<ptn::pat::detail::has_pattern<Ms...>>
+      : integral_constant<
+            size_t,
+            ptn::pat::detail::bound_member_count_v<Ms...>> {};
+
+  template <size_t I, auto... Ms>
+  struct tuple_element<I, ptn::pat::detail::has_pattern<Ms...>> {
+    static_assert(I < ptn::pat::detail::bound_member_count_v<Ms...>,
+                  "[Patternia.has]: member index is out of range.");
+    using type = ptn::pat::mod::member_t<
+        ptn::pat::detail::nth_bound_member<I, Ms...>::value>;
+  };
+
+} // namespace std

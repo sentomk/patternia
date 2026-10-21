@@ -104,7 +104,8 @@ const char *bucket(int x) {
 }
 ```
 
-For multiple bound values, declare readable placeholders with `PTN_BIND`:
+For structural guards, give members readable placeholder names with a C++17
+structured binding:
 
 ```cpp
 using namespace ptn;
@@ -114,22 +115,31 @@ struct Point {
   int y;
 };
 
-PTN_BIND(Point, x, y);
+constexpr auto pt = has<&Point::x, &Point::y>;
+auto [x, y] = pt;
 
 bool on_unit_circle(const Point &p) {
   return match(p) | on(
-    $(has<&Point::x, &Point::y>)[x * x + y * y == 1] >> true,
+    $(pt)[x * x + y * y == 1] >> true,
     _ >> false
   );
 }
 
 bool on_diagonal(const Point &p) {
   return match(p) | on(
-    $(has<&Point::x, &Point::y>)[x == y] >> true,
+    $(pt)[x == y] >> true,
     _ >> false
   );
 }
 ```
+
+`PTN_BIND` is deprecated but still supported. Names declared at namespace
+scope as above also work with `PTN_ON`. Inside a function, automatic
+structured bindings work with `on(...)`, not with `PTN_ON`'s captureless
+lambda. In C++20, make a function-local pattern `static constexpr` and use
+`static auto [x, y] = pt;` for its names. In C++17, retain `PTN_BIND` for local
+names and make any local pattern used by `PTN_ON` static too. See the
+[API reference](../api.md#scope-and-cached-matchers) for the scope rules.
 
 ---
 

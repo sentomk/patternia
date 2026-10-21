@@ -42,7 +42,8 @@ match(x) | on(
 
 ## Multi-Value Guards
 
-Use `PTN_BIND` to give multiple bound values readable names.
+Use a C++17 structured binding to give structural members readable placeholder
+names. These names refer to members, not extracted values:
 
 ```cpp
 struct Point {
@@ -50,13 +51,25 @@ struct Point {
   int y;
 };
 
-PTN_BIND(Point, x, y);
+constexpr auto pt = has<&Point::x, &Point::y>;
+auto [x, y] = pt;
 
 match(p) | on(
-  $(has<&Point::x, &Point::y>)[x == y] >> "diagonal",
+  $(pt)[x == y] >> "diagonal",
   _ >> "other"
 );
 ```
+
+The names follow the members listed in `has<...>`; `_ign` slots are skipped.
+`$(pt)` remains responsible for binding those members to the handler.
+
+`PTN_BIND` is deprecated but still supported. Automatic structured bindings
+inside a function work with `on(...)`, as above, but cannot be used inside
+`PTN_ON`'s captureless lambda. To cache that case pack, declare the pattern
+and names at namespace scope. In C++20, function-local declarations can use
+`static constexpr auto pt = has<&Point::x, &Point::y>;` and
+`static auto [x, y] = pt;`. In C++17, keep `PTN_BIND` for local names and give
+any local pattern used by `PTN_ON` static storage too.
 
 ## Use Lambdas for Domain Logic
 

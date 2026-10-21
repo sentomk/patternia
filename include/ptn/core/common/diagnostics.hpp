@@ -404,12 +404,13 @@ namespace ptn::core::common {
   constexpr void static_assert_unary_guard_arity() {
     // (A) Unary guards require exactly one bound value.
     constexpr bool unary_guard_requires_one_binding = N == 1;
-    static_assert(unary_guard_requires_one_binding,
-                  "[Patternia.guard]: Unary guard predicates (_ / "
-                  "rng / && / ||) "
-                  "require the pattern to bind exactly ONE value. "
-                  "For multi-value guards, declare names with "
-                  "PTN_BIND or use a callable predicate (lambda).");
+    static_assert(
+        unary_guard_requires_one_binding,
+        "[Patternia.guard]: Unary guard predicates (_ / "
+        "rng / && / ||) "
+        "require the pattern to bind exactly ONE value. "
+        "For multi-value guards, name the members with `auto [x, y] "
+        "= has<...>;` or use a callable predicate (lambda).");
   }
 
   // ------------------------------------------------------------

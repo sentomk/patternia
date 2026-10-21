@@ -28,6 +28,7 @@ add_executable(ptn_tests
   tests_type_pattern.cpp
   tests_named_placeholder.cpp
   tests_handler_forms.cpp
+  tests_member_names.cpp
 )
 
 target_link_libraries(ptn_tests PRIVATE
@@ -38,6 +39,19 @@ target_link_libraries(ptn_tests PRIVATE
 
 include(GoogleTest)
 gtest_discover_tests(ptn_tests)
+
+# Exercise static structured bindings even when the main suite is
+# built with the project's C++17 default.
+if("cxx_std_20" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+  add_executable(ptn_member_names_cpp20 tests_member_names.cpp)
+  target_compile_features(ptn_member_names_cpp20 PRIVATE cxx_std_20)
+  target_link_libraries(ptn_member_names_cpp20 PRIVATE
+    patternia
+    GTest::gtest
+    GTest::gtest_main
+  )
+  gtest_discover_tests(ptn_member_names_cpp20 TEST_PREFIX "cxx20.")
+endif()
 
 set(PTN_COMPILE_FAIL_CASES
   compile_fail/chained_when_removed.cpp
@@ -65,6 +79,13 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/member_placeholder_not_in_pattern.cpp
   compile_fail/member_placeholder_non_structural.cpp
   compile_fail/ptn_bind_unknown_member.cpp
+  compile_fail/member_names_local_ptn_on.cpp
+  compile_fail/has_get_out_of_range.cpp
+  compile_fail/has_get_empty.cpp
+  compile_fail/has_get_ignored.cpp
+  compile_fail/has_tuple_element_out_of_range.cpp
+  compile_fail/has_tuple_element_empty.cpp
+  compile_fail/has_tuple_element_ignored.cpp
 )
 
 if(CMAKE_CXX_STANDARD LESS 20)
