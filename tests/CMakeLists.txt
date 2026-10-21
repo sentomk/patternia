@@ -78,6 +78,9 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/val_requires_compile_time_constant.cpp
   compile_fail/member_placeholder_not_in_pattern.cpp
   compile_fail/member_placeholder_non_structural.cpp
+  compile_fail/member_names_foreign_pattern.cpp
+  compile_fail/member_names_ignored_member.cpp
+  compile_fail/member_names_non_structural.cpp
   compile_fail/ptn_bind_unknown_member.cpp
   compile_fail/member_names_local_ptn_on.cpp
   compile_fail/has_get_out_of_range.cpp

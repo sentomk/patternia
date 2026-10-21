@@ -1,3 +1,8 @@
+// EXPECT_ERROR: A member placeholder does not match any
+// EXPECT_ERROR: member listed in this has<...>.
+// FORBID_ERROR: [Patternia.guard]: placeholder is out of range
+// FORBID_ERROR: tuple index must be in range
+// FORBID_ERROR: tuple index out of bounds
 #include <ptn/patternia.hpp>
 
 struct Point {

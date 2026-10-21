@@ -1,3 +1,5 @@
+// EXPECT_ERROR: A member placeholder was used
+// EXPECT_ERROR: in a guard on a non-structural pattern.
 #include <ptn/patternia.hpp>
 
 struct Point {
