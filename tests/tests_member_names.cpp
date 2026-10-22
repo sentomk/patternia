@@ -4,6 +4,7 @@
 
 #include <tuple>
 #include <type_traits>
+#include <variant>
 
 namespace {
 
@@ -138,4 +139,115 @@ TEST(MemberNames, GuardedBindingStillReachesTheHandler) {
                    ptn::_ >> -1);
 
   EXPECT_EQ(result, 12);
+}
+
+TEST(MemberNames, RuntimeThresholdsAreStoredByValue) {
+  // Build matchers from runtime configuration. Each must retain
+  // its own threshold, even after the configuration changes.
+  auto make_matcher = [](const int &minimum) {
+    return ptn::on(
+        ptn::$(swapped_pt)[px + py >= minimum] >>
+            [](int y, int x) { return x * 10 + y; },
+        ptn::_ >> -1);
+  };
+
+  int  minimum = 7;
+  auto lower   = make_matcher(minimum);
+  minimum      = 8;
+  auto higher  = make_matcher(minimum);
+  minimum      = 0;
+  auto zero    = make_matcher(minimum);
+
+  Point point{3, 4};
+  EXPECT_EQ(ptn::match(point) | lower, 34);
+  EXPECT_EQ(ptn::match(point) | higher, -1);
+  point.y = 5;
+  EXPECT_EQ(ptn::match(point) | higher, 35);
+  point = {2, 4};
+  EXPECT_EQ(ptn::match(point) | lower, -1);
+  EXPECT_EQ(ptn::match(point) | zero, 24);
+}
+
+TEST(MemberNames, ComposedRuntimeGuardsPreserveShortCircuiting) {
+  constexpr auto pt = ptn::
+      has<ptn::_ign, &Point::y, ptn::_ign, &Point::x, ptn::_ign>;
+  int  calls          = 0;
+  int  fallback_calls = 0;
+  auto ordered        = [&calls](int y, int x) {
+    ++calls;
+    return x < y;
+  };
+  auto fallback = [&fallback_calls](int, int) {
+    ++fallback_calls;
+    return true;
+  };
+  auto make_matcher = [&](int minimum, int accepted_y) {
+    return ptn::on(
+        ptn::$(pt)[(px >= minimum && ordered)
+                   || (py == accepted_y && fallback)]
+            >> [](int y, int x) { return x * 10 + y; },
+        ptn::_ >> -1);
+  };
+  auto matcher  = make_matcher(3, 9);
+  auto classify = [&](const Point &point) {
+    return ptn::match(point) | matcher;
+  };
+
+  // A false left operand skips the callable; the right-hand member
+  // expression still resolves through the reordered, ignored slots.
+  EXPECT_EQ(classify(Point{2, 4}), -1);
+  EXPECT_EQ(calls, 0);
+  EXPECT_EQ(fallback_calls, 0);
+  EXPECT_EQ(classify(Point{2, 9}), 29);
+  EXPECT_EQ(calls, 0);
+  EXPECT_EQ(fallback_calls, 1);
+  // Both expressions accept this point, but OR skips the fallback.
+  EXPECT_EQ(classify(Point{3, 9}), 39);
+  EXPECT_EQ(calls, 1);
+  EXPECT_EQ(fallback_calls, 1);
+  EXPECT_EQ(classify(Point{5, 4}), -1);
+  EXPECT_EQ(calls, 2);
+  EXPECT_EQ(fallback_calls, 1);
+}
+
+TEST(MemberNames, NonBindingRuntimeGuardKeepsHandlerNullary) {
+  auto make_matcher = [](int expected_type, int maximum_length) {
+    return ptn::on(
+        packet_pt[pkt_type == expected_type
+                  && plen <= maximum_length]
+            >> [] { return true; },
+        ptn::_ >> false);
+  };
+  auto matcher  = make_matcher(2, 8);
+  auto classify = [&](const Packet &packet) {
+    return ptn::match(packet) | matcher;
+  };
+
+  EXPECT_TRUE(classify(Packet{2, 8, 99}));
+  EXPECT_FALSE(classify(Packet{2, 9, 99}));
+  EXPECT_FALSE(classify(Packet{1, 8, 99}));
+}
+
+TEST(MemberNames, RuntimeGuardResolvesThroughVariantWrapper) {
+  using subject_t   = std::variant<int, Point>;
+  int  calls        = 0;
+  auto make_matcher = [&](int minimum) {
+    return ptn::on(
+        ptn::is<Point>(ptn::$(swapped_pt))[px + py >= minimum] >>
+            [&calls](int y, int x) {
+              ++calls;
+              return x * 10 + y;
+            },
+        ptn::_ >> -1);
+  };
+  auto matcher  = make_matcher(7);
+  auto classify = [&](const subject_t &subject) {
+    return ptn::match(subject) | matcher;
+  };
+
+  EXPECT_EQ(classify(subject_t{Point{3, 4}}), 34);
+  EXPECT_EQ(calls, 1);
+  EXPECT_EQ(classify(subject_t{Point{1, 2}}), -1);
+  EXPECT_EQ(classify(subject_t{42}), -1);
+  EXPECT_EQ(calls, 1);
 }
