@@ -21,37 +21,42 @@ jobs:
       matrix:
         include:
           # ===== GCC =====
-          - os: ubuntu-latest
+          # Linux jobs are pinned to images that preinstall their compiler:
+          # ubuntu-latest moved to 26.04 (resolute), which no longer ships
+          # clang-14 or clang-16, and downloading compilers from the runner
+          # apt mirror can take tens of minutes. ubuntu-22.04 provides
+          # gcc-11 and clang-14; ubuntu-24.04 provides the rest.
+          - os: ubuntu-22.04
             compiler: gcc-11
             cxx: g++-11
             std: 17
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             compiler: gcc-11
             cxx: g++-11
             std: 20
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             compiler: gcc-13
             cxx: g++-13
             std: 23
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             compiler: gcc-13
             cxx: g++-13
             std: 26
 
           # ===== Clang =====
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             compiler: clang-14
             cxx: clang++-14
             std: 17
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             compiler: clang-16
             cxx: clang++-16
             std: 20
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             compiler: clang-18
             cxx: clang++-18
             std: 23
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             compiler: clang-18
             cxx: clang++-18
             std: 26
@@ -91,16 +96,23 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: |
-          sudo apt-get update
+          ver=$(echo "${{ matrix.compiler }}" | cut -d'-' -f2)
+          # Use the image's preinstalled compiler; fall back to apt only
+          # when it is missing.
+          if ! command -v "${{ matrix.cxx }}" >/dev/null; then
+            sudo apt-get update
+            if [[ "${{ matrix.compiler }}" == gcc* ]]; then
+              sudo apt-get install -y gcc-${ver} g++-${ver}
+            else
+              sudo apt-get install -y clang-${ver}
+            fi
+          fi
           if [[ "${{ matrix.compiler }}" == gcc* ]]; then
-            ver=$(echo "${{ matrix.compiler }}" | cut -d'-' -f2)
-            sudo apt-get install -y gcc-${ver} g++-${ver}
             sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${ver} 100
-          elif [[ "${{ matrix.compiler }}" == clang* ]]; then
-            ver=$(echo "${{ matrix.compiler }}" | cut -d'-' -f2)
-            sudo apt-get install -y clang-${ver}
+          else
             sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${ver} 100
           fi
+          "${{ matrix.cxx }}" --version
 
       # Windows: detect MSVC vs clang-cl
       - name: Configure CMake (Windows)
