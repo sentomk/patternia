@@ -58,11 +58,11 @@ auto label = match(x) | on(
 Without native language destructuring, Patternia uses explicit member pointers:
 
 ```cpp
-PTN_BIND(User, age, active);
+constexpr auto u = has<&User::age, &User::active>;
+auto [age, active] = u;
 
 auto label = match(user) | on(
-  $(has<&User::age, &User::active>)[age < 18 && active == true]
-      >> "minor",
+  $(u)[age < 18 && active == true] >> "minor",
   _ >> "adult"
 );
 ```

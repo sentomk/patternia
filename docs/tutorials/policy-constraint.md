@@ -20,21 +20,27 @@ struct Request {
 ## Naming Domain Predicates
 
 ```cpp
-auto is_public_resource = [](int id) {
+auto is_public_resource = [](Role, int id) {
   return id >= 0 && id < 1000;
 };
 ```
+
+A callable guard receives every member listed in `has<...>`, in order. The
+rule below lists `role` and `resource_id`, so the predicate takes both, even
+though it only inspects the id.
 
 ## Declaring the Rules
 
 ```cpp
 bool allowed(const Request &req) {
   using namespace ptn;
-  PTN_BIND(Request, role, resource_id, read_only);
+  constexpr auto request =
+      has<&Request::role, &Request::resource_id, &Request::read_only>;
+  auto [role, resource_id, read_only] = request;
 
   return match(req) | on(
     $(has<&Request::role>)[_ == Role::Admin] >> true,
-    $(has<&Request::role, &Request::resource_id, &Request::read_only>)
+    $(request)
         [role == Role::User && resource_id >= 0 && read_only == true] >> true,
     $(has<&Request::role, &Request::resource_id>)
         [role == Role::Guest && is_public_resource] >> true,
@@ -52,3 +58,7 @@ Each rule is self-contained:
 - the handler states the outcome
 
 That keeps policy code readable even when ordering matters.
+
+The names declared from `request` follow members, not positions, so the
+third rule can use `role` with a pattern that lists only `role` and
+`resource_id`.

@@ -34,21 +34,22 @@ const char *classify(const Vec3 &p) {
 
 ## Refining the Constraint
 
-You can combine a named predicate with a `PTN_BIND` placeholder for simple
-extra checks:
+You can combine a named predicate with a structured-binding member name for
+simple extra checks:
 
 ```cpp
 const char *classify_upper(const Vec3 &p) {
   using namespace ptn;
-  PTN_BIND(Vec3, x, y, z);
+  constexpr auto xyz = has<&Vec3::x, &Vec3::y, &Vec3::z>;
+  auto [x, y, z] = xyz;
 
   return match(p) | on(
-    $(has<&Vec3::x, &Vec3::y, &Vec3::z>)[z >= 0 && inside_unit_sphere]
-        >> "inside",
+    $(xyz)[z >= 0 && inside_unit_sphere] >> "inside",
     _ >> "outside"
   );
 }
 ```
 
-For multi-value guards, prefer `PTN_BIND` names or a callable that accepts all
-bound values.
+For multi-value guards, prefer structured-binding member names or a callable
+that accepts all bound values. Only `z` is used here; unused names such as `x`
+and `y` are fine.
