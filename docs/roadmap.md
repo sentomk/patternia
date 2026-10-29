@@ -11,7 +11,7 @@ Status labels:
 
 ## FINISHED
 
-Completed on `main` (unreleased):
+Completed in [v0.9.5](changelog/v0.9.5.md):
 
 - `has<...>` is tuple-like: `auto [x, y] = has<&Point::x, &Point::y>;`
   declares member-anchored guard placeholders without a macro.
@@ -19,6 +19,8 @@ Completed on `main` (unreleased):
   It remains supported, and is still needed for function-local names
   inside `PTN_ON` in C++17.
 - Bare `is<T>` and `alt<I>` reach the static variant dispatch fast path.
+- Handler classification no longer instantiates generic lambdas; pointers
+  to members and reference-returning handlers are accepted.
 
 Completed in [v0.9.4](changelog/v0.9.4.md):
 
