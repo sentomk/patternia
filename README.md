@@ -174,7 +174,7 @@ target_link_libraries(your_target PRIVATE patternia::patternia)
 include(FetchContent)
 FetchContent_Declare(patternia
   GIT_REPOSITORY https://github.com/sentomk/patternia.git
-  GIT_TAG v0.9.4
+  GIT_TAG v0.9.5
 )
 FetchContent_MakeAvailable(patternia)
 
