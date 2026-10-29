@@ -11,6 +11,15 @@ Status labels:
 
 ## FINISHED
 
+Completed on `main` (unreleased):
+
+- `has<...>` is tuple-like: `auto [x, y] = has<&Point::x, &Point::y>;`
+  declares member-anchored guard placeholders without a macro.
+- `PTN_BIND` is deprecated in favor of structured-binding member names.
+  It remains supported, and is still needed for function-local names
+  inside `PTN_ON` in C++17.
+- Bare `is<T>` and `alt<I>` reach the static variant dispatch fast path.
+
 Completed in [v0.9.4](changelog/v0.9.4.md):
 
 - `PTN_BIND(Type, names...)` member-anchored named guard
@@ -111,4 +120,4 @@ here so they are not re-proposed without new motivation.
   with explicit range modes.
 - **`PTN_BIND` `Type` validation**: resolved without reflection —
   names now expand to `member_t<&Type::name>`, so member checking
-  happens at declaration time (see WIP above).
+  happens at declaration time (shipped in v0.9.4).
