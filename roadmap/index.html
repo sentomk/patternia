@@ -912,6 +912,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../performance/v0.9.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../performance/v0.9.3/" class="md-nav__link">
         
   
@@ -1063,6 +1091,34 @@
     
   
     Releases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/v0.9.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.5
   
 
     
@@ -1520,7 +1576,7 @@
 - <code>NEXT</code>: future consideration, not yet committed.</p>
 <hr />
 <h2 id="finished">FINISHED<a class="headerlink" href="#finished" title="Permanent link">&para;</a></h2>
-<p>Completed on <code>main</code> (unreleased):</p>
+<p>Completed in <a href="../changelog/v0.9.5/">v0.9.5</a>:</p>
 <ul>
 <li><code>has&lt;...&gt;</code> is tuple-like: <code>auto [x, y] = has&lt;&amp;Point::x, &amp;Point::y&gt;;</code>
   declares member-anchored guard placeholders without a macro.</li>
@@ -1528,6 +1584,8 @@
   It remains supported, and is still needed for function-local names
   inside <code>PTN_ON</code> in C++17.</li>
 <li>Bare <code>is&lt;T&gt;</code> and <code>alt&lt;I&gt;</code> reach the static variant dispatch fast path.</li>
+<li>Handler classification no longer instantiates generic lambdas; pointers
+  to members and reference-returning handlers are accepted.</li>
 </ul>
 <p>Completed in <a href="../changelog/v0.9.4/">v0.9.4</a>:</p>
 <ul>
