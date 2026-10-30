@@ -106,6 +106,27 @@ py -3 scripts/bench_compare.py \
 - `--fail-if-regress-pct`: fail when any selected benchmark regresses beyond threshold.
 - `--fail-if-mean-regress-pct`: fail when mean regression across selected benchmarks exceeds threshold.
 
+## CI change detection
+
+`scripts/ci_changes.py` decides which CI work a pull request needs. Every
+workflow starts with a `changes` job that runs it and exposes two outputs:
+
+- `code`: false only when every changed file is documentation, agent
+  instructions (`ai/`, `.claude/`) or packaging metadata (`packaging/`);
+  see `NON_CODE_PREFIXES` and `NON_CODE_FILES` in the script.
+- `perf`: true when a changed file can affect benchmark results.
+
+Jobs that branch protection requires keep running and skip only their
+steps, so their check names are still reported (a skipped matrix job would
+be reported under its unexpanded name and never satisfy the requirement).
+Other jobs (clang-tidy, fuzz, the benchmark comparison) are skipped whole.
+Pushes, scheduled runs and manual runs always report true, and so does any
+case where the changed files cannot be listed. To check a path set locally:
+
+```bash
+python3 scripts/ci_changes.py docs/index.md README.md
+```
+
 ## Dependency
 
 ```bash

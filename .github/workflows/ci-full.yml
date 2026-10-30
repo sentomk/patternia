@@ -12,9 +12,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: changes
+    runs-on: ubuntu-24.04
+    outputs:
+      code: ${{ steps.detect.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # Docs-only pull requests skip the work below; see
+      # scripts/ci_changes.py. Jobs that branch protection requires keep
+      # running and skip only their steps, so their check names are still
+      # reported.
+      - id: detect
+        run: python3 scripts/ci_changes.py
+
   build-and-test:
     name: "${{ matrix.compiler }} C++${{ matrix.std }}"
     runs-on: ${{ matrix.os }}
+    needs: changes
 
     strategy:
       fail-fast: false
@@ -89,11 +107,12 @@ jobs:
 
     steps:
       - name: Checkout repository
+        if: needs.changes.outputs.code == 'true'
         uses: actions/checkout@v4
 
       # Linux: install compilers
       - name: Setup Compiler (Linux)
-        if: runner.os == 'Linux'
+        if: needs.changes.outputs.code == 'true' && runner.os == 'Linux'
         shell: bash
         run: |
           ver=$(echo "${{ matrix.compiler }}" | cut -d'-' -f2)
@@ -116,7 +135,7 @@ jobs:
 
       # Windows: detect MSVC vs clang-cl
       - name: Configure CMake (Windows)
-        if: runner.os == 'Windows'
+        if: needs.changes.outputs.code == 'true' && runner.os == 'Windows'
         run: |
           # windows-latest moved to windows-2025-vs2026, which ships only
           # Visual Studio 2026 (generator "Visual Studio 18 2026"); the old
@@ -142,7 +161,7 @@ jobs:
 
       # Linux: configure
       - name: Configure CMake (Linux)
-        if: runner.os == 'Linux'
+        if: needs.changes.outputs.code == 'true' && runner.os == 'Linux'
         run: |
           cmake -S . -B build \
             -DCMAKE_CXX_STANDARD=${{ matrix.std }} \
@@ -152,12 +171,13 @@ jobs:
             -DPTN_SKIP_COMPILER_CHECK=ON
 
       - name: Build
+        if: needs.changes.outputs.code == 'true'
         run: cmake --build build --config Release --parallel
 
       # CMake/MSBuild initializes the compiler environment for builds,
       # but compile-fail tests invoke cl.exe directly from CTest.
       - name: Set MSVC include paths for compile-fail tests
-        if: matrix.compiler == 'msvc'
+        if: needs.changes.outputs.code == 'true' && matrix.compiler == 'msvc'
         shell: pwsh
         run: |
           $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
@@ -171,6 +191,7 @@ jobs:
           $include | Where-Object { $_ -match '^INCLUDE=' } | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Run tests
+        if: needs.changes.outputs.code == 'true'
         run: ctest --test-dir build -C Release --output-on-failure
 
       - name: Upload test log (on failure)

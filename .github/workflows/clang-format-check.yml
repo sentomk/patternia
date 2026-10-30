@@ -14,19 +14,40 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: changes
+    runs-on: ubuntu-24.04
+    outputs:
+      code: ${{ steps.detect.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # Docs-only pull requests skip the work below; see
+      # scripts/ci_changes.py. Jobs that branch protection requires keep
+      # running and skip only their steps, so their check names are still
+      # reported.
+      - id: detect
+        run: python3 scripts/ci_changes.py
+
   clang-format:
     runs-on: ubuntu-24.04
+    needs: changes
 
     steps:
       - uses: actions/checkout@v4
+        if: needs.changes.outputs.code == 'true'
         with:
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
+        if: needs.changes.outputs.code == 'true'
         with:
           python-version: "3.12"
 
       - name: Check formatting of changed C/C++ files
+        if: needs.changes.outputs.code == 'true'
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
