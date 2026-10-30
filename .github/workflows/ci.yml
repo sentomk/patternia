@@ -13,21 +13,42 @@ on:
     branches: [main]
     # NOTE: no paths-ignore here on purpose. Branch protection
     # requires the build-and-test/coverage checks from this
-    # workflow; skipping docs-only PRs would leave those checks
-    # unreported and block the merge (see PR #45).
+    # workflow; skipping the whole workflow for docs-only PRs would
+    # leave those checks unreported and block the merge (see PR #45).
+    # Instead the jobs run and the `changes` job turns their steps off.
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: changes
+    runs-on: ubuntu-24.04
+    outputs:
+      code: ${{ steps.detect.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # Docs-only pull requests skip the work below; see
+      # scripts/ci_changes.py. Jobs that branch protection requires keep
+      # running and skip only their steps, so their check names are still
+      # reported.
+      - id: detect
+        run: python3 scripts/ci_changes.py
+
   build-and-test:
     runs-on: ubuntu-24.04
+    needs: changes
 
     steps:
       - uses: actions/checkout@v4
+        if: needs.changes.outputs.code == 'true'
 
       - name: Configure CMake
+        if: needs.changes.outputs.code == 'true'
         run: |
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Release \
@@ -36,9 +57,11 @@ jobs:
             -DPTN_SKIP_COMPILER_CHECK=ON
 
       - name: Build
+        if: needs.changes.outputs.code == 'true'
         run: cmake --build build --parallel
 
       - name: Run Tests
+        if: needs.changes.outputs.code == 'true'
         run: ctest --test-dir build --output-on-failure
 
       - name: Upload test log (on failure)
@@ -49,12 +72,14 @@ jobs:
           path: build/Testing/Temporary/LastTest.log
 
   coverage:
-    needs: build-and-test
     runs-on: ubuntu-24.04
+    needs: [changes, build-and-test]
     steps:
       - uses: actions/checkout@v4
+        if: needs.changes.outputs.code == 'true'
 
       - name: Install LLVM tools
+        if: needs.changes.outputs.code == 'true'
         run: |
           wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo add-apt-repository -y 'deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main'
@@ -62,6 +87,7 @@ jobs:
           sudo apt-get install -y -qq llvm-18 clang-18
 
       - name: Configure (Clang + source-based coverage)
+        if: needs.changes.outputs.code == 'true'
         run: |
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Debug \
@@ -74,9 +100,11 @@ jobs:
             -DPTN_SKIP_COMPILER_CHECK=ON
 
       - name: Build
+        if: needs.changes.outputs.code == 'true'
         run: cmake --build build --parallel
 
       - name: Run Tests
+        if: needs.changes.outputs.code == 'true'
         env:
           # Give each test process its own raw profile file.
           # %p = PID, %m = binary module name → avoids overwrites across
@@ -87,6 +115,7 @@ jobs:
           ctest --test-dir build --output-on-failure
 
       - name: Capture coverage
+        if: needs.changes.outputs.code == 'true'
         run: |
           # Merge raw profiles from all test processes.
           find build/profile -name '*.profraw' > profraw_list.txt
@@ -112,6 +141,7 @@ jobs:
             build/tests/ptn_tests
 
       - name: Upload to Codecov
+        if: needs.changes.outputs.code == 'true'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

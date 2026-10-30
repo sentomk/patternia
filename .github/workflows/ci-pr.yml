@@ -10,14 +10,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: changes
+    runs-on: ubuntu-24.04
+    outputs:
+      code: ${{ steps.detect.outputs.code }}
+      perf: ${{ steps.detect.outputs.perf }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # Docs-only pull requests skip the work below; see
+      # scripts/ci_changes.py. Jobs that branch protection requires keep
+      # running and skip only their steps, so their check names are still
+      # reported.
+      - id: detect
+        run: python3 scripts/ci_changes.py
+
   pr-test:
     name: Ubuntu / Clang / Debug
     runs-on: ubuntu-24.04
+    needs: changes
 
     steps:
       - uses: actions/checkout@v4
+        if: needs.changes.outputs.code == 'true'
 
       - name: Set up Clang
+        if: needs.changes.outputs.code == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y clang
@@ -25,6 +46,7 @@ jobs:
           clang++ --version
 
       - name: Configure (Debug build)
+        if: needs.changes.outputs.code == 'true'
         run: |
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Debug \
@@ -34,9 +56,11 @@ jobs:
             -DPTN_SKIP_COMPILER_CHECK=ON
 
       - name: Build
+        if: needs.changes.outputs.code == 'true'
         run: cmake --build build --parallel
 
       - name: Run Tests
+        if: needs.changes.outputs.code == 'true'
         run: ctest --test-dir build --output-on-failure
 
       - name: Upload test log (on failure)
@@ -49,11 +73,14 @@ jobs:
   ct-bench-build:
     name: Ubuntu / Clang / Compile-Time Bench Build
     runs-on: ubuntu-24.04
+    needs: changes
 
     steps:
       - uses: actions/checkout@v4
+        if: needs.changes.outputs.code == 'true'
 
       - name: Set up Clang
+        if: needs.changes.outputs.code == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y clang
@@ -61,6 +88,7 @@ jobs:
           clang++ --version
 
       - name: Configure compile-time benchmarks
+        if: needs.changes.outputs.code == 'true'
         run: |
           cmake -S . -B build_ct \
             -DCMAKE_BUILD_TYPE=Release \
@@ -70,16 +98,19 @@ jobs:
             -DPTN_SKIP_COMPILER_CHECK=ON
 
       - name: Build compile-time benchmarks
+        if: needs.changes.outputs.code == 'true'
         run: cmake --build build_ct --target ptn_bench_ct --parallel
 
       - name: Report build time
-        if: always()
+        if: needs.changes.outputs.code == 'true' && always()
         run: |
           echo "Compile-time benchmarks built successfully."
 
   benchmark:
     name: Benchmark (informational)
     runs-on: ubuntu-24.04
+    if: needs.changes.outputs.perf == 'true'
+    needs: changes
     # Informational only — does not block PR merge.
     # Benchmark failures surface as artifacts for review, not as red X.
     continue-on-error: true
