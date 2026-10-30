@@ -22,6 +22,7 @@ The `main` branch is protected and should remain releasable.
   - `docs/<topic>` for documentation
   - `test/<topic>` for test-only changes
   - `chore/<topic>` for maintenance
+  - `release/X.Y.Z` for a release (no `v` prefix)
 - Open a pull request into `main`
 - Keep each pull request focused on one goal
 - Ensure required CI passes before merging
@@ -148,6 +149,10 @@ feat(pattern): add case-insensitive string matching
 fix(eval): correct match_result type inference
 refactor(dsl): reorganize case expression operators
 ```
+
+Do not add attribution trailers (`Co-authored-by:`, AI "Generated
+with" lines) to commits, pull requests, release notes or downstream
+pull requests such as vcpkg port updates.
 
 ---
 
