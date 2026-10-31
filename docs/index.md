@@ -34,9 +34,19 @@ Patternia is a modern C++ pattern-matching DSL designed to make dispatch logic c
 
 ## System Requirements
 
-- **C++ Standard**: C++17 or later
-- **Compilers**: GCC >= 11, Clang >= 12, MSVC >= 2019
-- **Platforms**: Linux, Windows, macOS
+- **C++ Standard**: C++17 or later (floating-point `val<V>` literals need C++20)
+- **Compilers** (minimums enforced by `cmake/CheckCompilerVersion.cmake`):
+
+| Compiler | Minimum |
+|---|---|
+| GCC | 11 |
+| Clang | 12 |
+| AppleClang | 14 |
+| MSVC | 19.30 (Visual Studio 2022) |
+| clang-cl | 18, with an MSVC 19.30+ toolset |
+
+- **Tested in CI**: GCC 11/13 and Clang 14/16/18 on Linux (C++17 through
+  C++26); MSVC and clang-cl on Windows (C++20 through C++26).
 
 ---
 
