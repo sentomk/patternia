@@ -1614,9 +1614,42 @@
 <hr />
 <h2 id="system-requirements">System Requirements<a class="headerlink" href="#system-requirements" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>C++ Standard</strong>: C++17 or later</li>
-<li><strong>Compilers</strong>: GCC &gt;= 11, Clang &gt;= 12, MSVC &gt;= 2019</li>
-<li><strong>Platforms</strong>: Linux, Windows, macOS</li>
+<li><strong>C++ Standard</strong>: C++17 or later (floating-point <code>val&lt;V&gt;</code> literals need C++20)</li>
+<li><strong>Compilers</strong> (minimums enforced by <code>cmake/CheckCompilerVersion.cmake</code>):</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Compiler</th>
+<th>Minimum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GCC</td>
+<td>11</td>
+</tr>
+<tr>
+<td>Clang</td>
+<td>12</td>
+</tr>
+<tr>
+<td>AppleClang</td>
+<td>14</td>
+</tr>
+<tr>
+<td>MSVC</td>
+<td>19.30 (Visual Studio 2022)</td>
+</tr>
+<tr>
+<td>clang-cl</td>
+<td>18, with an MSVC 19.30+ toolset</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Tested in CI</strong>: GCC 11/13 and Clang 14/16/18 on Linux (C++17 through
+  C++26); MSVC and clang-cl on Windows (C++20 through C++26).</li>
 </ul>
 <hr />
 <h2 id="benchmarking">Benchmarking<a class="headerlink" href="#benchmarking" title="Permanent link">&para;</a></h2>
