@@ -27,19 +27,19 @@ Feedback on any item is welcome in
 
 ---
 
-## v0.10 — Shorter cases and variant exhaustiveness { data-toc-label="v0.10" }
+## v0.10 — Shorter cases and exhaustiveness checking { data-toc-label="v0.10" }
 
 **Status:** Planned
 
 The goal of this release is to remove the boilerplate that most
-matches carry today: the unreachable `_` at the end of a variant match,
-single-expression lambdas, and `lit(...)` inside other patterns.
+matches carry today, such as the unreachable `_` at the end of a
+complete match, single-expression lambdas and `lit(...)` inside other
+patterns, and to let the compiler check that a match covers every case.
 
-### Exhaustiveness checking for `std::variant`
+### Exhaustiveness checking
 
-A match on a `std::variant` no longer needs a trailing `_` when every
-alternative is covered. A missing alternative becomes a compile-time
-error that names it:
+A match no longer needs a trailing `_` when its cases cover every
+possible value of the subject:
 
 ```cpp
 using Shape = std::variant<Circle, Square, Triangle>;
@@ -53,17 +53,88 @@ double area(const Shape &s) {
 }
 ```
 
+If a case is missing, for example the `Triangle` one, the match no
+longer compiles, and the error names what is missing:
+
 ```text
 [Patternia.on]: non-exhaustive match on std::variant<Circle, Square, Triangle>.
 Missing alternatives: Triangle.
 Tip: add the missing cases, or end the list with '_ >> handler'.
 ```
 
-- Only unguarded `is<T>` and `alt<I>` cases count as covering an
-  alternative. A guard or a refutable subpattern never does.
-- A `bool` subject is covered by `val<true>` and `val<false>`.
-- A trailing `_` after a complete list stays allowed, so existing code
-  keeps compiling.
+A trailing `_` or `$` after a complete list stays allowed, so existing code
+keeps compiling.
+
+#### Subjects that can be checked
+
+| Subject | Covered when the cases include |
+|---|---|
+| `std::variant<Ts...>` | every alternative, by type or by index |
+| `bool` | `val<true>` and `val<false>` |
+| Enumeration with declared enumerators | `val<E::x>` for every declared enumerator |
+| Any subject | a case that matches every value, such as `_` or `$` |
+
+C++17 cannot list the enumerators of an enumeration, so an enumeration
+opts in by declaring them once:
+
+```cpp
+enum class Coin { Penny, Nickel, Dime, Quarter };
+
+template <>
+inline constexpr auto ptn::enumerators<Coin> =
+    ptn::values<Coin::Penny, Coin::Nickel, Coin::Dime, Coin::Quarter>;
+
+int value_in_cents(Coin c) {
+  return match(c) | on(
+    val<Coin::Penny>   >> 1,
+    val<Coin::Nickel>  >> 5,
+    val<Coin::Dime>    >> 10,
+    val<Coin::Quarter> >> 25
+  );   // complete, no `_` needed
+}
+```
+
+Without that declaration an enumeration still needs `_`. With C++26
+reflection the declaration becomes unnecessary; see
+[v0.12](#v012-performance-and-c26-reflection).
+
+Integers, floating-point values and strings are never exhaustive and
+always need `_`.
+
+#### Patterns that count as coverage
+
+- `is<T>` and `alt<I>`, with or without `$(...)`.
+- `is<T>(p)` and `alt<I>(p)` when `p` matches every value of that
+  alternative, such as `_`, `$`, or `has<...>` without a guard.
+- `val<V>` for `bool` and declared enumerations.
+- `any(...)` and `||` cover the union of what their operands cover, so
+  `(is<Square> || is<Triangle>)` covers both alternatives.
+
+Cases with a guard, and patterns whose result is only known at run
+time, such as `lit(...)`, `pred(...)` and `rng(...)`, never count as
+coverage. A plain value on the left of `>>`, as in `Coin::Penny >> 1`,
+is a runtime literal, so it does not count either; write
+`val<Coin::Penny>` instead.
+
+#### Redundant cases
+
+A case that can never be selected because earlier cases already cover
+everything it matches becomes a compile-time error. This extends the
+current check for a repeated `alt<I>` to `is<T>`, combinators, and any
+case written after a complete list. The one exception is a trailing
+`_` or `$`, which stays allowed.
+
+This is a breaking change: code that compiles today with an
+unreachable case stops compiling. The release notes will list it, and
+the error names the case to delete.
+
+#### When no case matches at run time
+
+A `std::variant` can be valueless after an exception during assignment.
+In a match without `_`, a valueless subject throws
+`std::bad_variant_access`, the same as `std::visit`, or calls
+`std::abort` when exceptions are disabled. In a match with `_`, a
+valueless subject goes to `_`, as it does today.
 
 ### Binding patterns as the fallback
 
@@ -249,7 +320,8 @@ auto [x, y] = pt;
 
 Reflection mode also enables:
 
-- exhaustiveness checking for enumerations,
+- exhaustiveness checking for enumerations without declaring
+  `ptn::enumerators<E>`,
 - positional destructuring of aggregates without listing members.
 
 Reflection mode is off by default and does not change behavior in
