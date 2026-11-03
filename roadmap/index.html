@@ -1458,7 +1458,7 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#v010-shorter-cases-and-variant-exhaustiveness" class="md-nav__link">
+  <a href="#v010-shorter-cases-and-exhaustiveness-checking" class="md-nav__link">
     <span class="md-ellipsis">
       
         v0.10
@@ -1470,10 +1470,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#exhaustiveness-checking-for-stdvariant" class="md-nav__link">
+  <a href="#exhaustiveness-checking" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Exhaustiveness checking for std::variant
+        Exhaustiveness checking
       
     </span>
   </a>
@@ -1732,7 +1732,7 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#v010-shorter-cases-and-variant-exhaustiveness" class="md-nav__link">
+  <a href="#v010-shorter-cases-and-exhaustiveness-checking" class="md-nav__link">
     <span class="md-ellipsis">
       
         v0.10
@@ -1744,10 +1744,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#exhaustiveness-checking-for-stdvariant" class="md-nav__link">
+  <a href="#exhaustiveness-checking" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Exhaustiveness checking for std::variant
+        Exhaustiveness checking
       
     </span>
   </a>
@@ -2028,15 +2028,15 @@ available in any release yet.</p>
 <p>Feedback on any item is welcome in
 <a href="https://github.com/sentomk/patternia/issues">GitHub issues</a>.</p>
 <hr />
-<h2 id="v010-shorter-cases-and-variant-exhaustiveness">v0.10 — Shorter cases and variant exhaustiveness<a class="headerlink" href="#v010-shorter-cases-and-variant-exhaustiveness" title="Permanent link">&para;</a></h2>
+<h2 id="v010-shorter-cases-and-exhaustiveness-checking">v0.10 — Shorter cases and exhaustiveness checking<a class="headerlink" href="#v010-shorter-cases-and-exhaustiveness-checking" title="Permanent link">&para;</a></h2>
 <p><strong>Status:</strong> Planned</p>
 <p>The goal of this release is to remove the boilerplate that most
-matches carry today: the unreachable <code>_</code> at the end of a variant match,
-single-expression lambdas, and <code>lit(...)</code> inside other patterns.</p>
-<h3 id="exhaustiveness-checking-for-stdvariant">Exhaustiveness checking for <code>std::variant</code><a class="headerlink" href="#exhaustiveness-checking-for-stdvariant" title="Permanent link">&para;</a></h3>
-<p>A match on a <code>std::variant</code> no longer needs a trailing <code>_</code> when every
-alternative is covered. A missing alternative becomes a compile-time
-error that names it:</p>
+matches carry today, such as the unreachable <code>_</code> at the end of a
+complete match, single-expression lambdas and <code>lit(...)</code> inside other
+patterns, and to let the compiler check that a match covers every case.</p>
+<h3 id="exhaustiveness-checking">Exhaustiveness checking<a class="headerlink" href="#exhaustiveness-checking" title="Permanent link">&para;</a></h3>
+<p>A match no longer needs a trailing <code>_</code> when its cases cover every
+possible value of the subject:</p>
 <div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">Shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="n">Circle</span><span class="p">,</span><span class="w"> </span><span class="n">Square</span><span class="p">,</span><span class="w"> </span><span class="n">Triangle</span><span class="o">&gt;</span><span class="p">;</span>
 
 <span class="kt">double</span><span class="w"> </span><span class="nf">area</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Shape</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -2047,17 +2047,92 @@ error that names it:</p>
 <span class="w">  </span><span class="p">);</span><span class="w">   </span><span class="c1">// no `_` needed</span>
 <span class="p">}</span>
 </code></pre></div>
+<p>If a case is missing, for example the <code>Triangle</code> one, the match no
+longer compiles, and the error names what is missing:</p>
 <div class="highlight"><pre><span></span><code>[Patternia.on]: non-exhaustive match on std::variant&lt;Circle, Square, Triangle&gt;.
 Missing alternatives: Triangle.
 Tip: add the missing cases, or end the list with '_ &gt;&gt; handler'.
 </code></pre></div>
+<p>A trailing <code>_</code> or <code>$</code> after a complete list stays allowed, so existing code
+keeps compiling.</p>
+<h4 id="subjects-that-can-be-checked">Subjects that can be checked<a class="headerlink" href="#subjects-that-can-be-checked" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Subject</th>
+<th>Covered when the cases include</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>std::variant&lt;Ts...&gt;</code></td>
+<td>every alternative, by type or by index</td>
+</tr>
+<tr>
+<td><code>bool</code></td>
+<td><code>val&lt;true&gt;</code> and <code>val&lt;false&gt;</code></td>
+</tr>
+<tr>
+<td>Enumeration with declared enumerators</td>
+<td><code>val&lt;E::x&gt;</code> for every declared enumerator</td>
+</tr>
+<tr>
+<td>Any subject</td>
+<td>a case that matches every value, such as <code>_</code> or <code>$</code></td>
+</tr>
+</tbody>
+</table>
+<p>C++17 cannot list the enumerators of an enumeration, so an enumeration
+opts in by declaring them once:</p>
+<div class="highlight"><pre><span></span><code><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Coin</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Penny</span><span class="p">,</span><span class="w"> </span><span class="n">Nickel</span><span class="p">,</span><span class="w"> </span><span class="n">Dime</span><span class="p">,</span><span class="w"> </span><span class="n">Quarter</span><span class="w"> </span><span class="p">};</span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;&gt;</span>
+<span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">enumerators</span><span class="o">&lt;</span><span class="n">Coin</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="n">ptn</span><span class="o">::</span><span class="n">values</span><span class="o">&lt;</span><span class="n">Coin</span><span class="o">::</span><span class="n">Penny</span><span class="p">,</span><span class="w"> </span><span class="n">Coin</span><span class="o">::</span><span class="n">Nickel</span><span class="p">,</span><span class="w"> </span><span class="n">Coin</span><span class="o">::</span><span class="n">Dime</span><span class="p">,</span><span class="w"> </span><span class="n">Coin</span><span class="o">::</span><span class="n">Quarter</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">value_in_cents</span><span class="p">(</span><span class="n">Coin</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">    </span><span class="n">val</span><span class="o">&lt;</span><span class="n">Coin</span><span class="o">::</span><span class="n">Penny</span><span class="o">&gt;</span><span class="w">   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="n">val</span><span class="o">&lt;</span><span class="n">Coin</span><span class="o">::</span><span class="n">Nickel</span><span class="o">&gt;</span><span class="w">  </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">    </span><span class="n">val</span><span class="o">&lt;</span><span class="n">Coin</span><span class="o">::</span><span class="n">Dime</span><span class="o">&gt;</span><span class="w">    </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">    </span><span class="n">val</span><span class="o">&lt;</span><span class="n">Coin</span><span class="o">::</span><span class="n">Quarter</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">25</span>
+<span class="w">  </span><span class="p">);</span><span class="w">   </span><span class="c1">// complete, no `_` needed</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Without that declaration an enumeration still needs <code>_</code>. With C++26
+reflection the declaration becomes unnecessary; see
+<a href="#v012-performance-and-c26-reflection">v0.12</a>.</p>
+<p>Integers, floating-point values and strings are never exhaustive and
+always need <code>_</code>.</p>
+<h4 id="patterns-that-count-as-coverage">Patterns that count as coverage<a class="headerlink" href="#patterns-that-count-as-coverage" title="Permanent link">&para;</a></h4>
 <ul>
-<li>Only unguarded <code>is&lt;T&gt;</code> and <code>alt&lt;I&gt;</code> cases count as covering an
-  alternative. A guard or a refutable subpattern never does.</li>
-<li>A <code>bool</code> subject is covered by <code>val&lt;true&gt;</code> and <code>val&lt;false&gt;</code>.</li>
-<li>A trailing <code>_</code> after a complete list stays allowed, so existing code
-  keeps compiling.</li>
+<li><code>is&lt;T&gt;</code> and <code>alt&lt;I&gt;</code>, with or without <code>$(...)</code>.</li>
+<li><code>is&lt;T&gt;(p)</code> and <code>alt&lt;I&gt;(p)</code> when <code>p</code> matches every value of that
+  alternative, such as <code>_</code>, <code>$</code>, or <code>has&lt;...&gt;</code> without a guard.</li>
+<li><code>val&lt;V&gt;</code> for <code>bool</code> and declared enumerations.</li>
+<li><code>any(...)</code> and <code>||</code> cover the union of what their operands cover, so
+  <code>(is&lt;Square&gt; || is&lt;Triangle&gt;)</code> covers both alternatives.</li>
 </ul>
+<p>Cases with a guard, and patterns whose result is only known at run
+time, such as <code>lit(...)</code>, <code>pred(...)</code> and <code>rng(...)</code>, never count as
+coverage. A plain value on the left of <code>&gt;&gt;</code>, as in <code>Coin::Penny &gt;&gt; 1</code>,
+is a runtime literal, so it does not count either; write
+<code>val&lt;Coin::Penny&gt;</code> instead.</p>
+<h4 id="redundant-cases">Redundant cases<a class="headerlink" href="#redundant-cases" title="Permanent link">&para;</a></h4>
+<p>A case that can never be selected because earlier cases already cover
+everything it matches becomes a compile-time error. This extends the
+current check for a repeated <code>alt&lt;I&gt;</code> to <code>is&lt;T&gt;</code>, combinators, and any
+case written after a complete list. The one exception is a trailing
+<code>_</code> or <code>$</code>, which stays allowed.</p>
+<p>This is a breaking change: code that compiles today with an
+unreachable case stops compiling. The release notes will list it, and
+the error names the case to delete.</p>
+<h4 id="when-no-case-matches-at-run-time">When no case matches at run time<a class="headerlink" href="#when-no-case-matches-at-run-time" title="Permanent link">&para;</a></h4>
+<p>A <code>std::variant</code> can be valueless after an exception during assignment.
+In a match without <code>_</code>, a valueless subject throws
+<code>std::bad_variant_access</code>, the same as <code>std::visit</code>, or calls
+<code>std::abort</code> when exceptions are disabled. In a match with <code>_</code>, a
+valueless subject goes to <code>_</code>, as it does today.</p>
 <h3 id="binding-patterns-as-the-fallback">Binding patterns as the fallback<a class="headerlink" href="#binding-patterns-as-the-fallback" title="Permanent link">&para;</a></h3>
 <p><code>$</code> and other patterns that match every value can end a case list on
 their own, instead of being followed by an unreachable <code>_</code>:</p>
@@ -2197,7 +2272,8 @@ API accepts reflections in place of pointers to members:</p>
 </code></pre></div>
 <p>Reflection mode also enables:</p>
 <ul>
-<li>exhaustiveness checking for enumerations,</li>
+<li>exhaustiveness checking for enumerations without declaring
+  <code>ptn::enumerators&lt;E&gt;</code>,</li>
 <li>positional destructuring of aggregates without listing members.</li>
 </ul>
 <p>Reflection mode is off by default and does not change behavior in
