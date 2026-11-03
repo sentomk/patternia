@@ -92,6 +92,101 @@ body {
   background-color: var(--md-default-bg-color) !important;
 }
 
-.md-nav__item .md-nav__item>.md-nav {
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
+/* ---------------------------------------------------------
+   SIDEBARS (navigation on the left, table of contents on the right)
+   --------------------------------------------------------- */
+
+[data-md-color-scheme="default"] {
+  --ptn-sidebar-strong: #0A0F18;
+  --ptn-sidebar-muted: #6B7380;
+  --ptn-sidebar-rule: rgba(10, 15, 24, 0.14);
+  --ptn-sidebar-hover-bg: rgba(10, 15, 24, 0.05);
+}
+
+[data-md-color-scheme="slate"] {
+  --ptn-sidebar-strong: #E6E9EF;
+  --ptn-sidebar-muted: #8A93A3;
+  --ptn-sidebar-rule: rgba(255, 255, 255, 0.12);
+  --ptn-sidebar-hover-bg: rgba(255, 255, 255, 0.05);
+}
+
+.md-sidebar .md-nav {
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+/* Small caps label at the top of each sidebar */
+.md-sidebar .md-nav__title {
+  color: var(--ptn-sidebar-muted);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background-color: var(--md-default-bg-color);
+  box-shadow: none;
+}
+
+.md-sidebar .md-nav__link {
+  margin-top: 0.1em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color 120ms, color 120ms;
+}
+
+.md-sidebar .md-nav__link:hover {
+  background-color: var(--ptn-sidebar-hover-bg);
+}
+
+/* Left navigation: section label, then its pages */
+.md-nav--primary .md-nav__item--section > .md-nav__link {
+  color: var(--ptn-sidebar-muted) !important;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.md-nav--primary .md-nav__link--active {
+  background-color: var(--ptn-sidebar-hover-bg);
+}
+
+/* Table of contents, level 1: the page's main sections */
+.md-nav--secondary > .md-nav__list > .md-nav__item {
+  margin-top: 0.6rem;
+}
+
+.md-nav--secondary > .md-nav__list > .md-nav__item:first-child {
+  margin-top: 0;
+}
+
+.md-nav--secondary > .md-nav__list > .md-nav__item > .md-nav__link {
+  color: var(--ptn-sidebar-strong) !important;
+  font-weight: 600;
+}
+
+/* Table of contents, level 2: indented, lighter, on a guide line */
+.md-nav--secondary .md-nav__item > .md-nav {
+  margin: 0.15rem 0 0.1rem 0.5rem;
+  border-left: 1px solid var(--ptn-sidebar-rule);
+}
+
+.md-nav--secondary .md-nav__item > .md-nav .md-nav__link {
+  margin-left: -1px;
+  padding: 0.15rem 0.6rem;
+  border-left: 2px solid transparent;
+  border-radius: 0 0.25rem 0.25rem 0;
+  color: var(--ptn-sidebar-muted) !important;
+  font-size: 0.64rem;
+  font-weight: 400;
+}
+
+/* Current section in either level */
+.md-nav--secondary .md-nav__item > .md-nav__link.md-nav__link--active {
+  color: var(--md-nav-link-color--active) !important;
+}
+
+.md-nav--secondary .md-nav__item > .md-nav .md-nav__link--active {
+  border-left-color: var(--md-nav-link-color--active);
+  font-weight: 500;
 }
