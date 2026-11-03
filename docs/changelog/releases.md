@@ -1,32 +1,8 @@
 # Patternia Releases
 
-Historical release notes have been normalized where necessary so examples
-reflect the current supported API surface.
-
-## 0.5.x
-- [v0.5.2](v0.5.2.md) - December 10, 2025
-- [v0.5.3](v0.5.3.md) - December 14, 2025
-
-## 0.6.x
-- [v0.6.0](v0.6.0.md) - December 16, 2025
-- [v0.6.1](v0.6.1.md) - December 20, 2025
-- [v0.6.2](v0.6.2.md) - December 23, 2025
-- [v0.6.3](v0.6.3.md) - January 2, 2026
-
-## 0.7.x
-- [v0.7.0](v0.7.0.md) - February 5, 2026
-- [v0.7.1](v0.7.1.md) - February 7, 2026
-- [v0.7.2](v0.7.2.md) - February 14, 2026
-- [v0.7.3](v0.7.3.md) - February 16, 2026
-- [v0.7.4](v0.7.4.md) - February 18, 2026
-- [v0.7.5](v0.7.5.md) - February 18, 2026 (Hotfix)
-- [v0.7.6](v0.7.6.md) - February 21, 2026
-
-## 0.8.x
-- [v0.8.0](v0.8.0.md) - February 27, 2026
-- [v0.8.2](v0.8.2.md) - March 3, 2026
-- [v0.8.3](v0.8.3.md) - March 9, 2026
-- [v0.8.5](v0.8.5.md) - March 10, 2026
+Release notes, newest first. Historical release notes have been
+normalized where necessary so examples reflect the current supported API
+surface.
 
 ## 0.9.x
 - [v0.9.5](v0.9.5.md) - October 2026
@@ -35,3 +11,28 @@ reflect the current supported API surface.
 - [v0.9.2](v0.9.2.md) - April 10, 2026
 - [v0.9.1](v0.9.1.md) - March 18, 2026
 - [v0.9.0](v0.9.0.md) - March 13, 2026
+
+## 0.8.x
+- [v0.8.5](v0.8.5.md) - March 10, 2026
+- [v0.8.3](v0.8.3.md) - March 9, 2026
+- [v0.8.2](v0.8.2.md) - March 3, 2026
+- [v0.8.0](v0.8.0.md) - February 27, 2026
+
+## 0.7.x
+- [v0.7.6](v0.7.6.md) - February 21, 2026
+- [v0.7.5](v0.7.5.md) - February 18, 2026 (Hotfix)
+- [v0.7.4](v0.7.4.md) - February 18, 2026
+- [v0.7.3](v0.7.3.md) - February 16, 2026
+- [v0.7.2](v0.7.2.md) - February 14, 2026
+- [v0.7.1](v0.7.1.md) - February 7, 2026
+- [v0.7.0](v0.7.0.md) - February 5, 2026
+
+## 0.6.x
+- [v0.6.3](v0.6.3.md) - January 2, 2026
+- [v0.6.2](v0.6.2.md) - December 23, 2025
+- [v0.6.1](v0.6.1.md) - December 20, 2025
+- [v0.6.0](v0.6.0.md) - December 16, 2025
+
+## 0.5.x
+- [v0.5.3](v0.5.3.md) - December 14, 2025
+- [v0.5.2](v0.5.2.md) - December 10, 2025

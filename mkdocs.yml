@@ -33,7 +33,6 @@ theme:
     - navigation.top
     - navigation.footer
     - toc.follow
-    - toc.integrate
 
     # Search
     - search.suggest
@@ -54,6 +53,7 @@ markdown_extensions:
   - admonition
   - toc:
       permalink: true
+      toc_depth: 3
   - tables
   - attr_list
 
