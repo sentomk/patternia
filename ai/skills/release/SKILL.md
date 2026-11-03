@@ -48,10 +48,11 @@ Rules that apply to everything below:
    was not measured (other compilers), and mark deltas inside noise as
    noise. Without a performance change, say so in the PR body instead of
    adding a page.
-7. Register the pages: `docs/changelog/releases.md`,
-   `docs/performance/index.md` (current version and index),
-   `mkdocs.yml` nav, and move the roadmap's unreleased items under
-   "Completed in vX.Y.Z".
+7. Register the pages: `docs/changelog/releases.md` (newest first, at
+   the top of its minor series), `docs/performance/index.md` (current
+   version and index), `mkdocs.yml` nav, and in `docs/roadmap.md` move
+   the shipped items out of their version section into a new first row
+   of the "Released" table.
 8. Bump the version in `CMakeLists.txt`, `packaging/vcpkg/vcpkg.json` and
    the README FetchContent `GIT_TAG`. Grep for the previous version to
    catch other places.

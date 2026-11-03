@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---
+
 # Patternia API Reference
 
 ## Overview
@@ -17,7 +22,9 @@ There is no deferred builder stage.
 
 ---
 
-## `match(subject)` {#matchsubject}
+## Match Expression {#match-expression}
+
+### `match(subject)` {#matchsubject}
 
 `match(subject)` creates the evaluation context for one subject value.
 
@@ -35,9 +42,7 @@ Rules:
 - Cases are evaluated in source order.
 - Matching uses first-match-wins semantics.
 
----
-
-## `on(case1, case2, ...)` {#oncases}
+### `on(case1, case2, ...)` {#oncases}
 
 `on(...)` groups the case list consumed by `match(subject)`.
 
@@ -55,9 +60,7 @@ Rules:
 - Each entry must be a `pattern >> handler` case expression.
 - Unreachable wildcard/alt ordering errors are diagnosed at compile time.
 
----
-
-## `pattern >> handler` {#pattern-handler}
+### `pattern >> handler` {#pattern-handler}
 
 This is the core case-expression form.
 
@@ -76,7 +79,9 @@ Bindings are determined entirely by the pattern.
 
 ---
 
-## Wildcard `_` {#_-wildcard}
+## Wildcard {#wildcard}
+
+### `_` {#_-wildcard}
 
 `_` is the public wildcard and fallback pattern.
 
@@ -168,7 +173,9 @@ Binding rules:
 
 ---
 
-## Guard Attachment `[]` {#guard-attachment}
+## Guard Attachment {#guard-attachment}
+
+### `pattern[guard]`
 
 Attach a guard to a binding pattern with `pattern[guard]`.
 
@@ -297,7 +304,9 @@ $(pt)[x < y]
 
 ---
 
-## Structural Matching `has<&T::member...>` {#structural-matching}
+## Structural Matching {#structural-matching}
+
+### `has<&T::member...>`
 
 `has<>` describes structure.
 Wrap it with `$(...)` to extract values.
@@ -324,7 +333,7 @@ Properties:
 
 ---
 
-## Variant Matching `is<T>` and `alt<I>` {#variant-matching}
+## Variant Matching {#variant-matching}
 
 ### `is<T>`
 
