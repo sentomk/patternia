@@ -102,6 +102,30 @@ TEST(PredPattern, WorksInsidePtnOnMacro) {
   EXPECT_EQ(run(3), 0);
 }
 
+TEST(PredPattern, DollarBindsTheMatchedValue) {
+  auto positive = [](int v) { return v > 0; };
+  auto twice    = [](int v) { return v * 2; };
+
+  int pos = 5;
+  int neg = -5;
+
+  EXPECT_EQ(match(pos) | on($(pred(positive)) >> twice, _ >> 0), 10);
+  EXPECT_EQ(match(neg) | on($(pred(positive)) >> twice, _ >> 0), 0);
+}
+
+TEST(PredPattern, DollarBindsTheSubjectByReference) {
+  std::string        s    = "hello";
+  const std::string *seen = nullptr;
+
+  match(s)
+      | on(
+          $(pred([](const std::string &v) { return !v.empty(); })) >>
+              [&](const std::string &v) { seen = &v; },
+          _ >> [] {});
+
+  EXPECT_EQ(seen, &s);
+}
+
 TEST(PredPattern, FullyQualifiedWithoutUsingDirective) {
   int x = 10;
 

@@ -269,19 +269,30 @@ namespace ptn::pat::base {
                                                       Subject>::type>
                             == 0;
 
+    // Select lazily: only type patterns have alt_index, so the
+    // extracting form must not be instantiated for other
+    // subpatterns such as lit, val, any, neg, pred or `_`.
+    // Otherwise: bind Subject + SubPattern bindings.
+    template <bool ExtractAlternative, typename = void>
+    struct select {
+      using type = decltype(std::tuple_cat(
+          std::declval<std::tuple<
+              const std::remove_reference_t<Subject> &>>(),
+          std::declval<
+              typename binding_args<SubPattern, Subject>::type>()));
+    };
+
+    // Type pattern with no subpattern: bind extracted value.
+    template <typename Dummy>
+    struct select<true, Dummy> {
+      using type = std::tuple<const std::variant_alternative_t<
+          SubPattern::template alt_index<Subject>(),
+          std::remove_reference_t<Subject>> &>;
+    };
+
   public:
-    using type = std::conditional_t<
-        is_type_pattern && has_no_subpattern,
-        // Type pattern with no subpattern: bind extracted value
-        std::tuple<const std::variant_alternative_t<
-            SubPattern::template alt_index<Subject>(),
-            std::remove_reference_t<Subject>> &>,
-        // Otherwise: bind Subject + SubPattern bindings
-        decltype(std::tuple_cat(
-            std::declval<std::tuple<
-                const std::remove_reference_t<Subject> &>>(),
-            std::declval<typename binding_args<SubPattern,
-                                               Subject>::type>()))>;
+    using type = typename select<is_type_pattern
+                                 && has_no_subpattern>::type;
   };
 
   // Guards on as-binding patterns delegate member-placeholder
