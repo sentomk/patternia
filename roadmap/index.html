@@ -2073,8 +2073,8 @@ keeps compiling.</p>
 <td><code>val&lt;true&gt;</code> and <code>val&lt;false&gt;</code></td>
 </tr>
 <tr>
-<td>Enumeration with declared enumerators</td>
-<td><code>val&lt;E::x&gt;</code> for every declared enumerator</td>
+<td>Enumeration with a one-byte underlying type</td>
+<td><code>val&lt;E::x&gt;</code> for every enumerator</td>
 </tr>
 <tr>
 <td>Any subject</td>
@@ -2082,13 +2082,9 @@ keeps compiling.</p>
 </tr>
 </tbody>
 </table>
-<p>C++17 cannot list the enumerators of an enumeration, so an enumeration
-opts in by declaring them once:</p>
-<div class="highlight"><pre><span></span><code><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Coin</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Penny</span><span class="p">,</span><span class="w"> </span><span class="n">Nickel</span><span class="p">,</span><span class="w"> </span><span class="n">Dime</span><span class="p">,</span><span class="w"> </span><span class="n">Quarter</span><span class="w"> </span><span class="p">};</span>
-
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;&gt;</span>
-<span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">ptn</span><span class="o">::</span><span class="n">enumerators</span><span class="o">&lt;</span><span class="n">Coin</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span>
-<span class="w">    </span><span class="n">ptn</span><span class="o">::</span><span class="n">values</span><span class="o">&lt;</span><span class="n">Coin</span><span class="o">::</span><span class="n">Penny</span><span class="p">,</span><span class="w"> </span><span class="n">Coin</span><span class="o">::</span><span class="n">Nickel</span><span class="p">,</span><span class="w"> </span><span class="n">Coin</span><span class="o">::</span><span class="n">Dime</span><span class="p">,</span><span class="w"> </span><span class="n">Coin</span><span class="o">::</span><span class="n">Quarter</span><span class="o">&gt;</span><span class="p">;</span>
+<p>An enumeration can be checked when it has a fixed underlying type of
+one byte, such as <code>std::uint8_t</code>. Nothing else has to be written:</p>
+<div class="highlight"><pre><span></span><code><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Coin</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Penny</span><span class="p">,</span><span class="w"> </span><span class="n">Nickel</span><span class="p">,</span><span class="w"> </span><span class="n">Dime</span><span class="p">,</span><span class="w"> </span><span class="n">Quarter</span><span class="w"> </span><span class="p">};</span>
 
 <span class="kt">int</span><span class="w"> </span><span class="nf">value_in_cents</span><span class="p">(</span><span class="n">Coin</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
@@ -2099,17 +2095,36 @@ opts in by declaring them once:</p>
 <span class="w">  </span><span class="p">);</span><span class="w">   </span><span class="c1">// complete, no `_` needed</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Without that declaration an enumeration still needs <code>_</code>. With C++26
-reflection the declaration becomes unnecessary; see
-<a href="#v012-performance-and-c26-reflection">v0.12</a>.</p>
-<p>Integers, floating-point values and strings are never exhaustive and
-always need <code>_</code>.</p>
+<p>C++17 cannot list the enumerators of an enumeration, so Patternia finds
+them at compile time: it tries every value of the underlying type (256
+for an 8-bit type, two for <code>bool</code>) and keeps the ones the compiler
+names as enumerators. Every value is tried, so no enumerator can be
+missed, and the list follows the enumeration as it changes. Adding
+<code>HalfDollar</code> to <code>Coin</code> makes every match on <code>Coin</code> without <code>_</code> fail to
+compile until it handles the new value.</p>
+<p>Detection relies on how the compiler prints enumeration values. If
+Patternia does not recognize a compiler's output, detection is turned
+off and these enumerations need <code>_</code>, as they do today. Detection never
+reports a match as complete when it is not.</p>
+<p>The cost is portability: a match on <code>Coin</code> without <code>_</code> that compiles
+with one compiler fails to compile with a compiler whose output is not
+recognized. Support is planned for the compilers in the CI matrix (GCC,
+Clang, MSVC and clang-cl), and the release notes will list the ones
+verified. Code that must build everywhere should keep <code>_</code> until all of
+its compilers are listed.</p>
+<p>Other enumerations still need <code>_</code>. This includes an <code>enum class</code> with
+the default <code>int</code> underlying type and an unscoped <code>enum</code> without a
+fixed underlying type. To opt in, give the enumeration a one-byte
+underlying type. With C++26 reflection every enumeration can be
+checked; see <a href="#v012-performance-and-c26-reflection">v0.12</a>.</p>
+<p>Integers, floating-point values and strings are never exhaustive in
+this release and always need <code>_</code>.</p>
 <h4 id="patterns-that-count-as-coverage">Patterns that count as coverage<a class="headerlink" href="#patterns-that-count-as-coverage" title="Permanent link">&para;</a></h4>
 <ul>
 <li><code>is&lt;T&gt;</code> and <code>alt&lt;I&gt;</code>, with or without <code>$(...)</code>.</li>
 <li><code>is&lt;T&gt;(p)</code> and <code>alt&lt;I&gt;(p)</code> when <code>p</code> matches every value of that
   alternative, such as <code>_</code>, <code>$</code>, or <code>has&lt;...&gt;</code> without a guard.</li>
-<li><code>val&lt;V&gt;</code> for <code>bool</code> and declared enumerations.</li>
+<li><code>val&lt;V&gt;</code> for <code>bool</code> and for enumerations that can be checked.</li>
 <li><code>any(...)</code> and <code>||</code> cover the union of what their operands cover, so
   <code>(is&lt;Square&gt; || is&lt;Triangle&gt;)</code> covers both alternatives.</li>
 </ul>
@@ -2127,12 +2142,28 @@ case written after a complete list. The one exception is a trailing
 <p>This is a breaking change: code that compiles today with an
 unreachable case stops compiling. The release notes will list it, and
 the error names the case to delete.</p>
+<p>Enumerators that share a value are one case. If <code>E::Alias</code> has the
+same value as <code>E::A</code>, then <code>val&lt;E::A&gt;</code> and <code>val&lt;E::Alias&gt;</code> match the
+same value: either one covers it, and writing both is a redundant case.</p>
 <h4 id="when-no-case-matches-at-run-time">When no case matches at run time<a class="headerlink" href="#when-no-case-matches-at-run-time" title="Permanent link">&para;</a></h4>
-<p>A <code>std::variant</code> can be valueless after an exception during assignment.
-In a match without <code>_</code>, a valueless subject throws
-<code>std::bad_variant_access</code>, the same as <code>std::visit</code>, or calls
-<code>std::abort</code> when exceptions are disabled. In a match with <code>_</code>, a
-valueless subject goes to <code>_</code>, as it does today.</p>
+<p>Two kinds of values can reach a complete match without matching any of
+its cases:</p>
+<ul>
+<li>A <code>std::variant</code> that is valueless after an exception during
+  assignment. In a match without <code>_</code>, it throws
+  <code>std::bad_variant_access</code>, the same as <code>std::visit</code>, or calls
+  <code>std::abort</code> when exceptions are disabled.</li>
+<li>An enumeration value that is not an enumerator, such as
+  <code>static_cast&lt;Coin&gt;(200)</code>. In a match without <code>_</code>, it is a run-time
+  error and never falls through silently. Whether it throws or aborts
+  will be decided before the release.</li>
+</ul>
+<p>In a match with <code>_</code>, both go to <code>_</code>, as they do today.</p>
+<p>Flag-style enumerations routinely hold values that are not
+enumerators. With
+<code>enum class Perm : std::uint8_t { Read = 1, Write = 2, Exec = 4 }</code>, a
+combined value such as <code>Read | Write</code> is one of them, so match
+flag-style enumerations with <code>_</code>.</p>
 <h3 id="binding-patterns-as-the-fallback">Binding patterns as the fallback<a class="headerlink" href="#binding-patterns-as-the-fallback" title="Permanent link">&para;</a></h3>
 <p><code>$</code> and other patterns that match every value can end a case list on
 their own, instead of being followed by an unreachable <code>_</code>:</p>
@@ -2272,8 +2303,8 @@ API accepts reflections in place of pointers to members:</p>
 </code></pre></div>
 <p>Reflection mode also enables:</p>
 <ul>
-<li>exhaustiveness checking for enumerations without declaring
-  <code>ptn::enumerators&lt;E&gt;</code>,</li>
+<li>exhaustiveness checking for enumerations of any underlying type, not
+  only one-byte ones,</li>
 <li>positional destructuring of aggregates without listing members.</li>
 </ul>
 <p>Reflection mode is off by default and does not change behavior in
@@ -2311,6 +2342,15 @@ concrete use case first.</p>
 <li><strong>More value types on the left of <code>&gt;&gt;</code>.</strong> Accepting any
   equality-comparable type, not only arithmetic, enum and string
   types.</li>
+<li><strong>Exhaustive integer matches.</strong> A compile-time range pattern, so that
+  integer cases can cover the full range of their type, and a way to
+  state the values one match can see, such as <code>0</code>, <code>1</code> and <code>2</code> for
+  <code>i % 3</code>. A value outside the stated values is a run-time error, not
+  a silent fall-through.</li>
+<li><strong>Declared enumerators.</strong> An opt-in list of the enumerators of an
+  enumeration that cannot use a one-byte underlying type, for code that
+  cannot wait for reflection. It repeats every enumerator, so it waits
+  for a concrete use case.</li>
 </ul>
 <hr />
 <h2 id="released">Released<a class="headerlink" href="#released" title="Permanent link">&para;</a></h2>
@@ -2377,6 +2417,10 @@ they are not re-proposed without new motivation.</p>
 <li><strong>Handlers that return from the enclosing function</strong>: a handler is a
   callable, so <code>return</code>, <code>break</code> and <code>continue</code> inside it cannot leave
   the enclosing function or loop.</li>
+<li><strong>Detecting enumerators by scanning part of a wider type</strong> (as
+  magic_enum does with its default range of -128 to 127): an
+  enumerator outside the scanned range would be missed, and a match
+  that does not handle it would compile as complete.</li>
 <li><strong>Guard <code>operator!</code></strong>: intentionally not provided; rewrite the
   comparison instead (e.g. <code>!(x &lt; y)</code> becomes <code>y &lt;= x</code>).</li>
 <li><strong>Member-call placeholders</strong> (<code>_.size() &gt; 3</code>): not expressible —
