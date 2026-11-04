@@ -153,6 +153,41 @@ TEST(PipelineMatch, DollarBindGuardRejects) {
   EXPECT_EQ(result, -1);
 }
 
+TEST(PipelineMatch, DollarWithValuePatternBindsSubject) {
+  int  x     = 3;
+  auto bound = [](int v) { return v * 10; };
+
+  EXPECT_EQ(match(x) | on($(lit(3)) >> bound, _ >> 0), 30);
+  EXPECT_EQ(match(x) | on($(val<3>) >> bound, _ >> 0), 30);
+  EXPECT_EQ(match(x) | on($(_) >> bound, _ >> 0), 30);
+  EXPECT_EQ(match(x) | on($(any(lit(1), lit(3))) >> bound, _ >> 0),
+            30);
+  EXPECT_EQ(match(x) | on($(neg(lit(0))) >> bound, _ >> 0), 30);
+}
+
+TEST(PipelineMatch, DollarWithValuePatternFallsThroughOnMismatch) {
+  int x = 4;
+
+  EXPECT_EQ(match(x)
+                | on(
+                    $(lit(3)) >> [](int v) { return v; }, _ >> -1),
+            -1);
+}
+
+TEST(PipelineMatch, DollarWithValuePatternAndGuard) {
+  int  x   = 3;
+  auto run = [](int v) {
+    return match(v)
+           | on(
+               $(any(lit(1), lit(3)))[_ > 2] >>
+                   [](int b) { return b; },
+               _ >> -1);
+  };
+
+  EXPECT_EQ(run(x), 3);
+  EXPECT_EQ(run(1), -1);
+}
+
 TEST(PipelineMatch, IsVariableTemplateMatchesType) {
   using V = std::variant<int, std::string>;
   V v     = 42;
