@@ -27,16 +27,98 @@ Feedback on any item is welcome in
 
 ---
 
-## v0.10 — Shorter cases and exhaustiveness checking { data-toc-label="v0.10" }
+## v0.9.6 — Shorter cases { data-toc-label="v0.9.6" }
 
 **Status:** Planned
 
-The goal of this release is to remove the boilerplate that most
-matches carry today, such as the unreachable `_` at the end of a
-complete match, single-expression lambdas and `lit(...)` inside other
-patterns, and to let the compiler check that a match covers every case.
+The goal of this release is to remove boilerplate that most matches
+carry today: an unreachable `_` after a case that already matches
+everything, single-expression lambdas, and `lit(...)` inside other
+patterns. It also collects bug fixes. These are additions, so existing
+matches keep their meaning.
 
-### Exhaustiveness checking
+### `$` as the fallback
+
+`$` can end a case list on its own, instead of being followed by an
+unreachable `_`:
+
+```cpp
+match(roll) | on(
+  lit(3) >> add_fancy_hat,
+  lit(7) >> remove_fancy_hat,
+  $      >> [](int r) { move_player(r); }   // already the fallback
+);
+```
+
+v0.10 extends this to every pattern that matches every value, as part
+of exhaustiveness checking.
+
+### Expression handlers
+
+The right-hand side of `>>` accepts the same expressions as guards, so a
+handler that only computes a value no longer needs a lambda:
+
+```cpp
+constexpr auto pt = has<&Point::x, &Point::y>;
+auto [x, y] = pt;
+
+match(p) | on(
+  $(pt)[x > 0] >> x - y,
+  $(pt)        >> x * x + y * y,
+  _            >> 0
+);
+
+match(n) | on(
+  $(is<int>) >> _ * 2 + 1,
+  _          >> 0
+);
+```
+
+The first version covers the arithmetic, comparison, logical and unary
+operators that guards already support. Calling functions inside an
+expression handler is out of scope; use a lambda for that.
+
+### Plain values inside patterns
+
+Wherever a pattern is expected as an argument, a plain value is treated
+as `lit(value)`. This extends the existing `0 >> handler` shorthand to
+nested positions:
+
+```cpp
+// today
+any(lit('a'), lit('e'), lit('i')) >> "vowel",
+is<int>(lit(0))                   >> "int zero",
+
+// v0.9.6
+any('a', 'e', 'i') >> "vowel",
+is<int>(0)         >> "int zero",
+(lit(' ') || '\n') >> "whitespace",
+```
+
+It applies to the arguments of `any`, `all` and `neg`, to the
+subpatterns of `is<T>(...)` and `alt<I>(...)`, and to the right
+operand of `||` and `&&`. A plain value is a runtime literal; use
+`val<V>` where static dispatch matters.
+
+### Fixes and diagnostics
+
+- `$(pred(...))` binds the matched value, like `$(is<T>)` does.
+- When both sides of `>>` are built-in types (`0 >> 1`, `0 >> func`),
+  C++ applies the built-in shift instead of Patternia's operator. The
+  error now says so and suggests `lit(0) >> ...`, instead of reporting
+  that the case was not created with `>>`.
+- Bugs reported in
+  [GitHub issues](https://github.com/sentomk/patternia/issues) with the
+  `bug` label before the release.
+
+---
+
+## v0.10 — Exhaustiveness checking { data-toc-label="v0.10" }
+
+**Status:** Planned
+
+The goal of this release is to let the compiler check that a match
+covers every case, and to reject cases that can never be selected.
 
 A match no longer needs a trailing `_` when its cases cover every
 possible value of the subject:
@@ -65,7 +147,7 @@ Tip: add the missing cases, or end the list with '_ >> handler'.
 A trailing `_` or `$` after a complete list stays allowed, so existing code
 keeps compiling.
 
-#### Subjects that can be checked
+### Subjects that can be checked
 
 | Subject | Covered when the cases include |
 |---|---|
@@ -119,7 +201,7 @@ checked; see [v0.12](#v012-performance-and-c26-reflection).
 Integers, floating-point values and strings are never exhaustive in
 this release and always need `_`.
 
-#### Patterns that count as coverage
+### Patterns that count as coverage
 
 - `is<T>` and `alt<I>`, with or without `$(...)`.
 - `is<T>(p)` and `alt<I>(p)` when `p` matches every value of that
@@ -134,7 +216,7 @@ coverage. A plain value on the left of `>>`, as in `Coin::Penny >> 1`,
 is a runtime literal, so it does not count either; write
 `val<Coin::Penny>` instead.
 
-#### Redundant cases
+### Redundant cases
 
 A case that can never be selected because earlier cases already cover
 everything it matches becomes a compile-time error. This extends the
@@ -150,7 +232,7 @@ Enumerators that share a value are one case. If `E::Alias` has the
 same value as `E::A`, then `val<E::A>` and `val<E::Alias>` match the
 same value: either one covers it, and writing both is a redundant case.
 
-#### When no case matches at run time
+### When no case matches at run time
 
 Two kinds of values can reach a complete match without matching any of
 its cases:
@@ -171,74 +253,6 @@ enumerators. With
 `enum class Perm : std::uint8_t { Read = 1, Write = 2, Exec = 4 }`, a
 combined value such as `Read | Write` is one of them, so match
 flag-style enumerations with `_`.
-
-### Binding patterns as the fallback
-
-`$` and other patterns that match every value can end a case list on
-their own, instead of being followed by an unreachable `_`:
-
-```cpp
-match(roll) | on(
-  lit(3) >> add_fancy_hat,
-  lit(7) >> remove_fancy_hat,
-  $      >> [](int r) { move_player(r); }   // already the fallback
-);
-```
-
-### Expression handlers
-
-The right-hand side of `>>` accepts the same expressions as guards, so a
-handler that only computes a value no longer needs a lambda:
-
-```cpp
-constexpr auto pt = has<&Point::x, &Point::y>;
-auto [x, y] = pt;
-
-match(p) | on(
-  $(pt)[x > 0] >> x - y,
-  $(pt)        >> x * x + y * y,
-  _            >> 0
-);
-
-match(n) | on(
-  $(is<int>) >> _ * 2 + 1,
-  _          >> 0
-);
-```
-
-The first version covers the arithmetic, comparison, logical and unary
-operators that guards already support. Calling functions inside an
-expression handler is out of scope; use a lambda for that.
-
-### Plain values inside patterns
-
-Wherever a pattern is expected as an argument, a plain value is treated
-as `lit(value)`. This extends the existing `0 >> handler` shorthand to
-nested positions:
-
-```cpp
-// today
-any(lit('a'), lit('e'), lit('i')) >> "vowel",
-is<int>(lit(0))                   >> "int zero",
-
-// v0.10
-any('a', 'e', 'i') >> "vowel",
-is<int>(0)         >> "int zero",
-(lit(' ') || '\n') >> "whitespace",
-```
-
-It applies to the arguments of `any`, `all` and `neg`, to the
-subpatterns of `is<T>(...)` and `alt<I>(...)`, and to the right
-operand of `||` and `&&`. A plain value is a runtime literal; use
-`val<V>` where static dispatch matters.
-
-### Fixes and diagnostics
-
-- `$(pred(...))` binds the matched value, like `$(is<T>)` does.
-- When both sides of `>>` are built-in types (`0 >> 1`, `0 >> func`),
-  C++ applies the built-in shift instead of Patternia's operator. The
-  error now says so and suggests `lit(0) >> ...`, instead of reporting
-  that the case was not created with `>>`.
 
 ---
 
