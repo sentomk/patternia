@@ -15,6 +15,7 @@
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/binding_base.hpp"
 #include "ptn/pattern/base/pattern_base.hpp"
+#include "ptn/pattern/plain_value.hpp"
 
 namespace ptn::pat::detail {
 
@@ -190,11 +191,12 @@ namespace ptn::pat {
         return {};
       }
 
-      // Attach a sub-pattern: is<T>(sub)
+      // Attach a sub-pattern: is<T>(sub). A plain value is treated
+      // as lit(value): is<int>(0).
       template <typename SubPattern>
       constexpr auto operator()(SubPattern &&sub) const {
-        return type_is_pattern<T, std::decay_t<SubPattern>>(
-            std::forward<SubPattern>(sub));
+        return type_is_pattern<T, base::as_pattern_t<SubPattern>>(
+            base::as_pattern(std::forward<SubPattern>(sub)));
       }
     };
 
@@ -209,10 +211,12 @@ namespace ptn::pat {
         return {};
       }
 
+      // Attach a sub-pattern: alt<I>(sub). A plain value is treated
+      // as lit(value).
       template <typename SubPattern>
       constexpr auto operator()(SubPattern &&sub) const {
-        return type_alt_pattern<I, std::decay_t<SubPattern>>(
-            std::forward<SubPattern>(sub));
+        return type_alt_pattern<I, base::as_pattern_t<SubPattern>>(
+            base::as_pattern(std::forward<SubPattern>(sub)));
       }
     };
 

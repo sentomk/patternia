@@ -29,7 +29,7 @@ Feedback on any item is welcome in
 
 ## v0.9.6 — Shorter cases { data-toc-label="v0.9.6" }
 
-**Status:** Planned
+**Status:** In progress
 
 The goal of this release is to remove boilerplate that most matches
 carry today: an unreachable `_` after a case that already matches

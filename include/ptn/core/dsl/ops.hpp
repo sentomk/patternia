@@ -14,6 +14,7 @@
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/dsl/detail/case_expr_impl.hpp"
 #include "ptn/pattern/lit.hpp"
+#include "ptn/pattern/plain_value.hpp"
 
 namespace ptn::pat::base {
 
@@ -83,14 +84,7 @@ namespace ptn::pat::base {
   // to prevent accidental capture.
   template <typename Value,
             typename Handler,
-            std::enable_if_t<
-                !std::is_base_of_v<ptn::pat::base::pattern_tag,
-                                   std::decay_t<Value>>
-                    && (std::is_arithmetic_v<std::decay_t<Value>>
-                        || std::is_enum_v<std::decay_t<Value>>
-                        || std::is_convertible_v<std::decay_t<Value>,
-                                                 std::string_view>),
-                int> = 0>
+            std::enable_if_t<is_plain_value_v<Value>, int> = 0>
   constexpr auto operator>>(Value &&value, Handler &&handler) {
     return ptn::pat::lit(std::forward<Value>(value))
            >> std::forward<Handler>(handler);

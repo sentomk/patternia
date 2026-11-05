@@ -2,8 +2,11 @@
 
 #include <ptn/patternia.hpp>
 
+#include <cstdint>
 #include <string>
 #include <tuple>
+#include <type_traits>
+#include <utility>
 #include <variant>
 
 using namespace ptn;
@@ -447,4 +450,109 @@ TEST(OperatorSugar, FullTruthTable) {
   EXPECT_EQ(run(-1, !ptn::pred(pos) && ptn::pred(even)), 0);
   EXPECT_EQ(run(-4, !ptn::pred(pos) && ptn::pred(even)), 1);
   EXPECT_EQ(run(0, !ptn::pred(pos) || ptn::pred(pos)), 1);
+}
+
+enum class Suit : std::uint8_t {
+  Clubs,
+  Diamonds,
+  Hearts,
+  Spades
+};
+
+TEST(PlainValues, OnlyValueLikeTypesArePlainValues) {
+  using ptn::pat::base::is_plain_value_v;
+
+  auto callable = [](int) { return true; };
+
+  static_assert(is_plain_value_v<int>);
+  static_assert(is_plain_value_v<const char(&)[4]>);
+  static_assert(is_plain_value_v<std::string>);
+  static_assert(is_plain_value_v<Suit>);
+  static_assert(!is_plain_value_v<decltype(lit(1))>);
+  static_assert(!is_plain_value_v<decltype(_)>);
+  static_assert(!is_plain_value_v<decltype(callable)>);
+}
+
+TEST(PlainValues, AnyAcceptsPlainValues) {
+  auto vowel = [](char c) {
+    return match(c) | on(any('a', 'e', 'i', 'o', 'u') >> 1, _ >> 0);
+  };
+
+  EXPECT_EQ(vowel('e'), 1);
+  EXPECT_EQ(vowel('z'), 0);
+}
+
+TEST(PlainValues, AllAndNegAcceptPlainValues) {
+  auto neither = [](int x) {
+    return match(x) | on(all(neg(0), neg(1)) >> 1, _ >> 0);
+  };
+
+  EXPECT_EQ(neither(5), 1);
+  EXPECT_EQ(neither(0), 0);
+  EXPECT_EQ(neither(1), 0);
+}
+
+TEST(PlainValues, MixWithPatterns) {
+  auto run = [](int x) {
+    return match(x) | on(any(val<1>, 2, lit(3)) >> 1, _ >> 0);
+  };
+
+  EXPECT_EQ(run(1), 1);
+  EXPECT_EQ(run(2), 1);
+  EXPECT_EQ(run(3), 1);
+  EXPECT_EQ(run(4), 0);
+}
+
+TEST(PlainValues, EnumerationsAndStrings) {
+  auto is_red = [](Suit s) {
+    return match(s)
+           | on(any(Suit::Diamonds, Suit::Hearts) >> 1, _ >> 0);
+  };
+  auto agrees = [](const std::string &s) {
+    return match(s) | on(any("y", "yes") >> 1, _ >> 0);
+  };
+
+  EXPECT_EQ(is_red(Suit::Hearts), 1);
+  EXPECT_EQ(is_red(Suit::Spades), 0);
+  EXPECT_EQ(agrees("yes"), 1);
+  EXPECT_EQ(agrees("no"), 0);
+}
+
+TEST(PlainValues, RightOperandOfOrAndAnd) {
+  auto space = [](char c) {
+    return match(c) | on((lit(' ') || '\n' || '\t') >> 1, _ >> 0);
+  };
+  auto five = [](int x) {
+    return match(x) | on((!lit(0) && 5) >> 1, _ >> 0);
+  };
+
+  EXPECT_EQ(space(' '), 1);
+  EXPECT_EQ(space('\t'), 1);
+  EXPECT_EQ(space('x'), 0);
+  EXPECT_EQ(five(5), 1);
+  EXPECT_EQ(five(4), 0);
+}
+
+TEST(PlainValues, GuardOperatorsStillBuildGuards) {
+  auto run = [](int x) {
+    return match(x)
+           | on($[_ < 0 || _ > 10] >> 1,
+                $[_ > 2 && _ < 5] >> 2,
+                _ >> 0);
+  };
+
+  EXPECT_EQ(run(-1), 1);
+  EXPECT_EQ(run(11), 1);
+  EXPECT_EQ(run(3), 2);
+  EXPECT_EQ(run(7), 0);
+}
+
+TEST(PlainValues, BoolOperandIsComparedNotTested) {
+  // A bool on the right of && is a plain value like any other, so
+  // (neg(0) && flag) is all(neg(0), lit(flag)): it matches a subject
+  // equal to flag, not every non-zero subject while flag is true.
+  // Checked on the type, so no int == bool comparison is compiled.
+  static_assert(
+      std::is_same_v<decltype(neg(0) && std::declval<bool &>()),
+                     decltype(all(neg(0), lit(true)))>);
 }

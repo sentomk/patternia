@@ -195,3 +195,26 @@ TEST(TypePattern, IsWithSubpatternMatchAndBind) {
                ptn::_ >> 0);
   EXPECT_EQ(r, 6);
 }
+
+TEST(TypePattern, PlainValueSubpattern) {
+  using V = std::variant<int, std::string>;
+
+  auto run = [](const V &v) {
+    return match(v) | on(is<int>(0) >> 1, alt<1>("hi") >> 2, _ >> 0);
+  };
+
+  EXPECT_EQ(run(V{0}), 1);
+  EXPECT_EQ(run(V{std::string("hi")}), 2);
+  EXPECT_EQ(run(V{5}), 0);
+  EXPECT_EQ(run(V{std::string("bye")}), 0);
+}
+
+TEST(TypePattern, BoundPlainValueSubpatternBindsTheAlternative) {
+  std::variant<int, std::string> v = 0;
+
+  int r = match(v)
+          | on(
+              $(is<int>(0)) >> [](int i) { return i + 7; }, _ >> -1);
+
+  EXPECT_EQ(r, 7);
+}
