@@ -205,7 +205,8 @@ this release and always need `_`.
 
 - `is<T>` and `alt<I>`, with or without `$(...)`.
 - `is<T>(p)` and `alt<I>(p)` when `p` matches every value of that
-  alternative, such as `_`, `$`, or `has<...>` without a guard.
+  alternative, such as `_`, `$`, or `has<...>` with no member
+  subpatterns or with member subpatterns that all match every value.
 - `val<V>` for `bool` and for enumerations that can be checked.
 - `any(...)` and `||` cover the union of what their operands cover, so
   `(is<Square> || is<Triangle>)` covers both alternatives.
