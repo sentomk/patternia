@@ -2287,7 +2287,8 @@ this release and always need <code>_</code>.</p>
 <ul>
 <li><code>is&lt;T&gt;</code> and <code>alt&lt;I&gt;</code>, with or without <code>$(...)</code>.</li>
 <li><code>is&lt;T&gt;(p)</code> and <code>alt&lt;I&gt;(p)</code> when <code>p</code> matches every value of that
-  alternative, such as <code>_</code>, <code>$</code>, or <code>has&lt;...&gt;</code> without a guard.</li>
+  alternative, such as <code>_</code>, <code>$</code>, or <code>has&lt;...&gt;</code> with no member
+  subpatterns or with member subpatterns that all match every value.</li>
 <li><code>val&lt;V&gt;</code> for <code>bool</code> and for enumerations that can be checked.</li>
 <li><code>any(...)</code> and <code>||</code> cover the union of what their operands cover, so
   <code>(is&lt;Square&gt; || is&lt;Triangle&gt;)</code> covers both alternatives.</li>
