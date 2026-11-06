@@ -366,6 +366,8 @@ Rules:
 - `is<T>` requires `T` to appear exactly once.
 - `alt<I>` requires `I` to be in range.
 - Use `$(...)` when you want the alternative value bound into the handler.
+- `is<T>(p)` and `alt<I>(p)` also match the alternative against `p`. A plain
+  value is treated as `lit(value)`: `is<int>(0)`, `alt<1>("hi")`.
 
 ---
 
@@ -388,9 +390,12 @@ Properties:
 - Non-binding: handlers receive zero arguments.
 - Sub-patterns are evaluated left-to-right; evaluation stops at the first
   match.
-- Requires at least one sub-pattern; every argument must be a pattern object.
-- Operator sugar: `(a || b)` is equivalent to `any(a, b)`. Note that `>>`
-  binds tighter than `||`, so parenthesize: `(lit(1) || lit(2)) >> handler`.
+- Requires at least one sub-pattern. Each argument is a pattern or a plain
+  value (arithmetic, enumeration or string), which is treated as
+  `lit(value)`: `any('a', 'e', 'i')`.
+- Operator sugar: `(a || b)` is equivalent to `any(a, b)`, and `b` may be a
+  plain value: `(lit(' ') || '\n')`. Note that `>>` binds tighter than
+  `||`, so parenthesize: `(lit(1) || 2) >> handler`.
 
 ### `all(ps...)`
 
@@ -409,9 +414,11 @@ Properties:
 - Non-binding: handlers receive zero arguments.
 - Sub-patterns are evaluated left-to-right; evaluation stops at the first
   mismatch.
-- Requires at least one sub-pattern; every argument must be a pattern object.
-- Operator sugar: `(a && b)` is equivalent to `all(a, b)`. Note that `>>`
-  binds tighter than `&&`, so parenthesize: `(p && q) >> handler`.
+- Requires at least one sub-pattern. Each argument is a pattern or a plain
+  value, which is treated as `lit(value)`: `all(neg(0), neg(1))`.
+- Operator sugar: `(a && b)` is equivalent to `all(a, b)`, and `b` may be a
+  plain value. Note that `>>` binds tighter than `&&`, so parenthesize:
+  `(p && q) >> handler`.
 
 ### `neg(p)`
 
@@ -428,14 +435,21 @@ match(x) | on(
 Properties:
 
 - Non-binding: handlers receive zero arguments.
-- Accepts exactly one sub-pattern (no zero- or multi-argument form).
+- Accepts exactly one sub-pattern (no zero- or multi-argument form). A plain
+  value is treated as `lit(value)`: `neg(0)`.
 - `neg(neg(p))` restores the original match behavior (double negation cancels).
 - Operator sugar: `!p` is equivalent to `neg(p)` and needs no parentheses:
   `!val<200> >> "error"`.
 
-The pattern-level operators only accept pattern operands, so they never
-collide with the guard-level `&&` / `||` (which keep their `pred_and` /
-`pred_or` meaning inside `[...]` guards).
+The pattern-level operators need a pattern on the left, and a pattern or a
+plain value on the right, so they never collide with the guard-level `&&` /
+`||` (which keep their `pred_and` / `pred_or` meaning inside `[...]`
+guards).
+
+A `bool` on the right is a plain value like any other: it is compared with
+the subject, not tested as a condition. `(neg(0) && flag)` is
+`all(neg(0), lit(flag))`, so it matches a subject equal to `flag`, not every
+non-zero subject while `flag` is true. Use a guard to test a condition.
 
 ---
 

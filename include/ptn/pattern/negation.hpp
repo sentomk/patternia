@@ -7,6 +7,7 @@
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/pattern_base.hpp"
 #include "ptn/pattern/base/pattern_traits.hpp"
+#include "ptn/pattern/plain_value.hpp"
 
 namespace ptn::pat {
 
@@ -32,10 +33,11 @@ namespace ptn::pat {
     };
   } // namespace detail
 
+  // A plain value argument is treated as lit(value).
   template <typename P>
   constexpr auto neg(P &&p) {
-    return detail::negation_pattern<std::decay_t<P>>(
-        std::forward<P>(p));
+    return detail::negation_pattern<base::as_pattern_t<P>>(
+        base::as_pattern(std::forward<P>(p)));
   }
 
 } // namespace ptn::pat

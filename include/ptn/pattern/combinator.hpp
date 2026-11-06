@@ -13,6 +13,7 @@
 #include "ptn/pattern/base/fwd.h"
 #include "ptn/pattern/base/pattern_base.hpp"
 #include "ptn/pattern/base/pattern_traits.hpp"
+#include "ptn/pattern/plain_value.hpp"
 
 namespace ptn::pat {
 
@@ -83,35 +84,41 @@ namespace ptn::pat {
   } // namespace detail
 
   // Returns a pattern that succeeds on the first matching
-  // sub-pattern.
+  // sub-pattern. A plain value argument is treated as lit(value).
   template <typename... Patterns>
   constexpr auto any(Patterns &&...patterns) {
     static_assert(
         sizeof...(Patterns) > 0,
         "[Patternia.any]: requires at least one sub-pattern.");
     static_assert(
-        (std::is_base_of_v<base::pattern_tag, std::decay_t<Patterns>>
+        ((std::is_base_of_v<base::pattern_tag,
+                            std::decay_t<Patterns>>
+          || base::is_plain_value_v<Patterns>)
          && ...),
-        "[Patternia.any]: every argument must be a pattern object.");
+        "[Patternia.any]: every argument must be a pattern or a "
+        "plain value (arithmetic, enumeration or string).");
 
-    return detail::any_pattern<std::decay_t<Patterns>...>(
-        std::forward<Patterns>(patterns)...);
+    return detail::any_pattern<base::as_pattern_t<Patterns>...>(
+        base::as_pattern(std::forward<Patterns>(patterns))...);
   }
 
   // Returns a pattern that succeeds only when every sub-pattern
-  // matches.
+  // matches. A plain value argument is treated as lit(value).
   template <typename... Patterns>
   constexpr auto all(Patterns &&...patterns) {
     static_assert(
         sizeof...(Patterns) > 0,
         "[Patternia.all]: requires at least one sub-pattern.");
     static_assert(
-        (std::is_base_of_v<base::pattern_tag, std::decay_t<Patterns>>
+        ((std::is_base_of_v<base::pattern_tag,
+                            std::decay_t<Patterns>>
+          || base::is_plain_value_v<Patterns>)
          && ...),
-        "[Patternia.all]: every argument must be a pattern object.");
+        "[Patternia.all]: every argument must be a pattern or a "
+        "plain value (arithmetic, enumeration or string).");
 
-    return detail::all_pattern<std::decay_t<Patterns>...>(
-        std::forward<Patterns>(patterns)...);
+    return detail::all_pattern<base::as_pattern_t<Patterns>...>(
+        base::as_pattern(std::forward<Patterns>(patterns))...);
   }
 
 } // namespace ptn::pat
@@ -130,6 +137,22 @@ namespace ptn::pat::base {
         && !pat::traits::is_guard_predicate_v<std::decay_t<L>>
         && !pat::traits::is_guard_predicate_v<std::decay_t<R>>;
 
+    // A pattern on the left and a plain value on the right, which
+    // any / all treat as lit(value): `lit(' ') || '\n'`. Only the
+    // right operand may be a plain value.
+    template <typename L, typename R>
+    inline constexpr bool
+        pattern_value_pair_v = std::is_base_of_v<pattern_tag,
+                                                 std::decay_t<L>>
+                               && !pat::traits::is_guard_predicate_v<
+                                   std::decay_t<L>>
+                               && is_plain_value_v<R>;
+
+    template <typename L, typename R>
+    inline constexpr bool
+        combinable_v = pattern_pair_v<L, R>
+                       || pattern_value_pair_v<L, R>;
+
   } // namespace detail
 
   // Operator sugar: `a || b` is equivalent to `any(a, b)`.
@@ -142,7 +165,7 @@ namespace ptn::pat::base {
   // pattern in a case: `(lit(1) || lit(2)) >> handler`.
   template <typename L,
             typename R,
-            std::enable_if_t<detail::pattern_pair_v<L, R>, int> = 0>
+            std::enable_if_t<detail::combinable_v<L, R>, int> = 0>
   constexpr auto operator||(L &&l, R &&r) {
     return pat::any(std::forward<L>(l), std::forward<R>(r));
   }
@@ -153,7 +176,7 @@ namespace ptn::pat::base {
   // pattern in a case: `(p && q) >> handler`.
   template <typename L,
             typename R,
-            std::enable_if_t<detail::pattern_pair_v<L, R>, int> = 0>
+            std::enable_if_t<detail::combinable_v<L, R>, int> = 0>
   constexpr auto operator&&(L &&l, R &&r) {
     return pat::all(std::forward<L>(l), std::forward<R>(r));
   }
