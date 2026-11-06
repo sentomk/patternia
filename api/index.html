@@ -2669,6 +2669,8 @@ Wrap it with <code>$(...)</code> to extract values.</p>
 <li><code>is&lt;T&gt;</code> requires <code>T</code> to appear exactly once.</li>
 <li><code>alt&lt;I&gt;</code> requires <code>I</code> to be in range.</li>
 <li>Use <code>$(...)</code> when you want the alternative value bound into the handler.</li>
+<li><code>is&lt;T&gt;(p)</code> and <code>alt&lt;I&gt;(p)</code> also match the alternative against <code>p</code>. A plain
+  value is treated as <code>lit(value)</code>: <code>is&lt;int&gt;(0)</code>, <code>alt&lt;1&gt;("hi")</code>.</li>
 </ul>
 <hr />
 <h2 id="pattern-combinators">Pattern Combinators<a class="headerlink" href="#pattern-combinators" title="Permanent link">&para;</a></h2>
@@ -2685,9 +2687,12 @@ on the first matching sub-pattern.</p>
 <li>Non-binding: handlers receive zero arguments.</li>
 <li>Sub-patterns are evaluated left-to-right; evaluation stops at the first
   match.</li>
-<li>Requires at least one sub-pattern; every argument must be a pattern object.</li>
-<li>Operator sugar: <code>(a || b)</code> is equivalent to <code>any(a, b)</code>. Note that <code>&gt;&gt;</code>
-  binds tighter than <code>||</code>, so parenthesize: <code>(lit(1) || lit(2)) &gt;&gt; handler</code>.</li>
+<li>Requires at least one sub-pattern. Each argument is a pattern or a plain
+  value (arithmetic, enumeration or string), which is treated as
+  <code>lit(value)</code>: <code>any('a', 'e', 'i')</code>.</li>
+<li>Operator sugar: <code>(a || b)</code> is equivalent to <code>any(a, b)</code>, and <code>b</code> may be a
+  plain value: <code>(lit(' ') || '\n')</code>. Note that <code>&gt;&gt;</code> binds tighter than
+  <code>||</code>, so parenthesize: <code>(lit(1) || 2) &gt;&gt; handler</code>.</li>
 </ul>
 <h3 id="allps"><code>all(ps...)</code><a class="headerlink" href="#allps" title="Permanent link">&para;</a></h3>
 <p>Matches only when every sub-pattern matches (AND semantics). Short-circuits
@@ -2702,9 +2707,11 @@ on the first mismatch.</p>
 <li>Non-binding: handlers receive zero arguments.</li>
 <li>Sub-patterns are evaluated left-to-right; evaluation stops at the first
   mismatch.</li>
-<li>Requires at least one sub-pattern; every argument must be a pattern object.</li>
-<li>Operator sugar: <code>(a &amp;&amp; b)</code> is equivalent to <code>all(a, b)</code>. Note that <code>&gt;&gt;</code>
-  binds tighter than <code>&amp;&amp;</code>, so parenthesize: <code>(p &amp;&amp; q) &gt;&gt; handler</code>.</li>
+<li>Requires at least one sub-pattern. Each argument is a pattern or a plain
+  value, which is treated as <code>lit(value)</code>: <code>all(neg(0), neg(1))</code>.</li>
+<li>Operator sugar: <code>(a &amp;&amp; b)</code> is equivalent to <code>all(a, b)</code>, and <code>b</code> may be a
+  plain value. Note that <code>&gt;&gt;</code> binds tighter than <code>&amp;&amp;</code>, so parenthesize:
+  <code>(p &amp;&amp; q) &gt;&gt; handler</code>.</li>
 </ul>
 <h3 id="negp"><code>neg(p)</code><a class="headerlink" href="#negp" title="Permanent link">&para;</a></h3>
 <p>Negates the match result of a sub-pattern. <code>neg(p)</code> matches when <code>p</code> does
@@ -2717,14 +2724,20 @@ not match, and vice versa.</p>
 <p>Properties:</p>
 <ul>
 <li>Non-binding: handlers receive zero arguments.</li>
-<li>Accepts exactly one sub-pattern (no zero- or multi-argument form).</li>
+<li>Accepts exactly one sub-pattern (no zero- or multi-argument form). A plain
+  value is treated as <code>lit(value)</code>: <code>neg(0)</code>.</li>
 <li><code>neg(neg(p))</code> restores the original match behavior (double negation cancels).</li>
 <li>Operator sugar: <code>!p</code> is equivalent to <code>neg(p)</code> and needs no parentheses:
   <code>!val&lt;200&gt; &gt;&gt; "error"</code>.</li>
 </ul>
-<p>The pattern-level operators only accept pattern operands, so they never
-collide with the guard-level <code>&amp;&amp;</code> / <code>||</code> (which keep their <code>pred_and</code> /
-<code>pred_or</code> meaning inside <code>[...]</code> guards).</p>
+<p>The pattern-level operators need a pattern on the left, and a pattern or a
+plain value on the right, so they never collide with the guard-level <code>&amp;&amp;</code> /
+<code>||</code> (which keep their <code>pred_and</code> / <code>pred_or</code> meaning inside <code>[...]</code>
+guards).</p>
+<p>A <code>bool</code> on the right is a plain value like any other: it is compared with
+the subject, not tested as a condition. <code>(neg(0) &amp;&amp; flag)</code> is
+<code>all(neg(0), lit(flag))</code>, so it matches a subject equal to <code>flag</code>, not every
+non-zero subject while <code>flag</code> is true. Use a guard to test a condition.</p>
 <hr />
 <h2 id="cached-case-packs">Cached Case Packs<a class="headerlink" href="#cached-case-packs" title="Permanent link">&para;</a></h2>
 <h3 id="static_on"><code>static_on(...)</code><a class="headerlink" href="#static_on" title="Permanent link">&para;</a></h3>
