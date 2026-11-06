@@ -29,6 +29,7 @@ add_executable(ptn_tests
   tests_named_placeholder.cpp
   tests_handler_forms.cpp
   tests_member_names.cpp
+  tests_header_first.cpp
 )
 
 target_link_libraries(ptn_tests PRIVATE
