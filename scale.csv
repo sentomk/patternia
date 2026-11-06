@@ -1,0 +1,13 @@
+base_name,scenario,impl,mean_ns,median_ns,stddev_ns,cv_pct,is_patternia,fastest_impl,fastest_mean_ns,impl_vs_fastest_pct,impl_vs_patternia_pct,patternia_impl,patternia_mean_ns,patternia_rank,patternia_vs_fastest_pct,patternia_status
+BM_PatterniaPipe_ScaleN16/min_time:0.500/repeats:20,ScaleN16,PatterniaPipe,1.794598,1.789721,0.119134,6.6385,yes,SwitchIndex,0.924466,94.1228,0.0000,PatterniaPipe,1.794598,2,94.1228,slow
+BM_PatterniaPipe_ScaleN32/min_time:0.500/repeats:20,ScaleN32,PatterniaPipe,2.137098,2.134509,0.009830,0.4600,yes,SwitchIndex,0.902144,136.8909,0.0000,PatterniaPipe,2.137098,2,136.8909,slow
+BM_PatterniaPipe_ScaleN4/min_time:0.500/repeats:20,ScaleN4,PatterniaPipe,1.344962,1.347050,0.009848,0.7322,yes,SwitchIndex,0.903844,48.8047,0.0000,PatterniaPipe,1.344962,3,48.8047,slow
+BM_PatterniaPipe_ScaleN8/min_time:0.500/repeats:20,ScaleN8,PatterniaPipe,1.552774,1.546439,0.024873,1.6018,yes,StdVisit,0.825160,88.1786,0.0000,PatterniaPipe,1.552774,3,88.1786,slow
+BM_StdVisit_ScaleN16/min_time:0.500/repeats:20,ScaleN16,StdVisit,5.537347,5.534048,0.018891,0.3412,no,SwitchIndex,0.924466,498.9782,208.5563,PatterniaPipe,1.794598,2,94.1228,slow
+BM_StdVisit_ScaleN32/min_time:0.500/repeats:20,ScaleN32,StdVisit,6.950217,6.625661,0.524304,7.5437,no,SwitchIndex,0.902144,670.4108,225.2175,PatterniaPipe,2.137098,2,136.8909,slow
+BM_StdVisit_ScaleN4/min_time:0.500/repeats:20,ScaleN4,StdVisit,0.935031,0.934766,0.001487,0.1590,no,SwitchIndex,0.903844,3.4505,-30.4790,PatterniaPipe,1.344962,3,48.8047,slow
+BM_StdVisit_ScaleN8/min_time:0.500/repeats:20,ScaleN8,StdVisit,0.825160,0.824926,0.001775,0.2151,no,StdVisit,0.825160,0.0000,-46.8590,PatterniaPipe,1.552774,3,88.1786,slow
+BM_SwitchIndex_ScaleN16/min_time:0.500/repeats:20,ScaleN16,SwitchIndex,0.924466,0.917342,0.021300,2.3040,no,SwitchIndex,0.924466,0.0000,-48.4862,PatterniaPipe,1.794598,2,94.1228,slow
+BM_SwitchIndex_ScaleN32/min_time:0.500/repeats:20,ScaleN32,SwitchIndex,0.902144,0.902210,0.000971,0.1076,no,SwitchIndex,0.902144,0.0000,-57.7865,PatterniaPipe,2.137098,2,136.8909,slow
+BM_SwitchIndex_ScaleN4/min_time:0.500/repeats:20,ScaleN4,SwitchIndex,0.903844,0.905733,0.006935,0.7673,no,SwitchIndex,0.903844,0.0000,-32.7978,PatterniaPipe,1.344962,3,48.8047,slow
+BM_SwitchIndex_ScaleN8/min_time:0.500/repeats:20,ScaleN8,SwitchIndex,0.902236,0.916845,0.032364,3.5871,no,StdVisit,0.825160,9.3408,-41.8952,PatterniaPipe,1.552774,3,88.1786,slow
