@@ -2136,6 +2136,7 @@ everything, single-expression lambdas, and <code>lit(...)</code> inside other
 patterns. It also collects bug fixes. These are additions, so existing
 matches keep their meaning.</p>
 <h3 id="as-the-fallback"><code>$</code> as the fallback<a class="headerlink" href="#as-the-fallback" title="Permanent link">&para;</a></h3>
+<p>Implemented; pending the v0.9.6 release.</p>
 <p><code>$</code> can end a case list on its own, instead of being followed by an
 unreachable <code>_</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">roll</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
@@ -2144,6 +2145,9 @@ unreachable <code>_</code>:</p>
 <span class="w">  </span><span class="n">$</span><span class="w">      </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">move_player</span><span class="p">(</span><span class="n">r</span><span class="p">);</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// already the fallback</span>
 <span class="p">);</span>
 </code></pre></div>
+<p>The equivalent <code>$()</code> form also works. A guard or subpattern still
+requires a fallback, and existing matches with a trailing <code>_</code> remain
+valid.</p>
 <p>v0.10 extends this to every pattern that matches every value, as part
 of exhaustiveness checking.</p>
 <h3 id="expression-handlers">Expression handlers<a class="headerlink" href="#expression-handlers" title="Permanent link">&para;</a></h3>

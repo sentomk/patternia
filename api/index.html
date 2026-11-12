@@ -2449,7 +2449,7 @@ There is no deferred builder stage.</p>
 </code></pre></div>
 <p>Rules:</p>
 <ul>
-<li>The last case must be a wildcard fallback.</li>
+<li>The last case must be <code>_</code>, <code>$</code> or <code>$()</code> without a guard.</li>
 <li>Each entry must be a <code>pattern &gt;&gt; handler</code> case expression.</li>
 <li>Unreachable wildcard/alt ordering errors are diagnosed at compile time.</li>
 </ul>
@@ -2510,10 +2510,15 @@ consider static dispatch.</p>
 </code></pre></div>
 <p>Examples:</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">  </span><span class="n">$</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">$</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 <span class="p">);</span>
 </code></pre></div>
+<p>An unguarded <code>$</code> (or its equivalent <code>$()</code>) can end the case list:
+it matches every value and binds the whole subject by const reference.
+An existing trailing <code>_</code> remains valid. Guarded bindings such as
+<code>$[_ &gt; 0]</code> and bindings with subpatterns such as <code>$(is&lt;int&gt;)</code> still
+need a fallback.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
 <span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
