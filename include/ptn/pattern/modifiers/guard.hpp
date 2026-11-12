@@ -15,6 +15,7 @@
 #include <utility>
 
 #include "ptn/pattern/base/fwd.h"
+#include "ptn/pattern/base/binding_base.hpp"
 #include "ptn/pattern/base/pattern_base.hpp"
 #include "ptn/pattern/base/pattern_traits.hpp"
 #include "ptn/pattern/modifiers/placeholder.hpp"
@@ -182,6 +183,29 @@ namespace ptn::pat::mod {
   };
 
   // --- operator overloads (arith / cmp / logic / unary) ---
+
+  struct unary_plus_op {
+    template <typename T>
+    constexpr decltype(auto) operator()(T &&value) const {
+      return +std::forward<T>(value);
+    }
+  };
+
+  template <typename X,
+            std::enable_if_t<traits::is_arg_expr_v<X>, int> = 0>
+  constexpr auto operator+(X &&x) {
+    return un_expr<unary_plus_op,
+                   decltype(as_expr(std::forward<X>(x)))>{
+        as_expr(std::forward<X>(x))};
+  }
+
+  template <typename X,
+            std::enable_if_t<traits::is_arg_expr_v<X>, int> = 0>
+  constexpr auto operator-(X &&x) {
+    return un_expr<std::negate<>,
+                   decltype(as_expr(std::forward<X>(x)))>{
+        as_expr(std::forward<X>(x))};
+  }
 
   // Arithmetic operators.
   template <typename L,

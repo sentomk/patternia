@@ -28,6 +28,7 @@ add_executable(ptn_tests
   tests_type_pattern.cpp
   tests_named_placeholder.cpp
   tests_handler_forms.cpp
+  tests_expression_handler.cpp
   tests_member_names.cpp
   tests_header_first.cpp
 )
@@ -55,6 +56,12 @@ if("cxx_std_20" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
 endif()
 
 set(PTN_COMPILE_FAIL_CASES
+  compile_fail/expression_handler_requires_binding.cpp
+  compile_fail/expression_handler_result_requires_binding.cpp
+  compile_fail/expression_handler_foreign_member.cpp
+  compile_fail/expression_handler_non_structural_member.cpp
+  compile_fail/expression_handler_out_of_range.cpp
+  compile_fail/expression_handler_comparison_requires_binding.cpp
   compile_fail/chained_when_removed.cpp
   compile_fail/chained_otherwise_removed.cpp
   compile_fail/chained_end_removed.cpp

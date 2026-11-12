@@ -74,8 +74,50 @@ Handler forms:
 
 - `pattern >> value`
 - `pattern >> callable`
+- `pattern >> expression`
 
 Bindings are determined entirely by the pattern.
+
+### Expression handlers
+
+An expression on the right of `>>` is evaluated only when its case
+matches and its guard passes. It uses the same bound values as a
+lambda handler. Arithmetic results keep their value type; comparisons
+and logical expressions return `bool`. Expression handlers return by
+value, so a bare placeholder does not leak a reference to a temporary
+binding.
+
+```cpp
+match(n) | on(
+  $[_ > 0] >> _ * 2 + 1,
+  $        >> -_
+);
+
+constexpr auto pt = has<&Point::x, &Point::y>;
+auto [x, y] = pt;
+match(p) | on(
+  $(pt)[x > 0] >> x - y,
+  $(pt)        >> x * x + y * y,
+  _            >> 0
+);
+```
+
+- `_` refers to the first bound value. Use `$ >> _` to return the
+  subject, or `$(is<int>) >> _ * 2` to compute from an alternative.
+  An expression needs bindings: `_ >> _ + 1` is invalid because the
+  wildcard on the left binds nothing.
+- Member names resolve against the handler's pattern, including when
+  it has guards. Reordering the listed members does not change what a
+  name refers to. A member absent from the pattern is a compile error.
+- Supported operators are `+`, `-`, `*`, `/`, `%`, unary `+` and `-`,
+  comparisons, and the guard `&&` / `||` forms, with short-circuiting.
+  As in guards, logical `!` is not provided.
+- Parenthesize comparisons and logical expressions after `>>`, for
+  example `$ >> (_ > 0)` or `$ >> (_ >= 0 && _ <= 10)`, because C++
+  gives `>>` higher precedence than those operators.
+- Ordinary operands are stored by value when the case is built.
+  Use a lambda for function calls or values that should be read from
+  external state each time the handler runs.
 
 ---
 

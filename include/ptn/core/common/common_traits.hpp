@@ -274,40 +274,43 @@ namespace ptn::core::traits {
     using full_invoke_args_tuple = bound_args_tuple;
 
   public:
-    // Helper to deduce the result type of a case handler.
-    //
-    // Design note:
-    //   - If the handler is invocable with the bound arguments, use
-    //   that.
-    //   - Otherwise, if it is invocable with no arguments, treat it
-    //   as
-    //     intentionally ignoring bound values.
-    //   - Otherwise, let diagnostics/static-asserts report the
-    //   mismatch.
+    // Keep result deduction type-only. Select lazily so invalid
+    // handlers report the same diagnostic before match validation
+    // on every compiler, without forming an invalid invoke_result.
+    template <bool Invocable, typename H>
+    struct nullary_result {
+      static_assert(Invocable,
+                    "[Patternia.match] Handler signature does not "
+                    "match the pattern's binding result.");
+      using type = void;
+    };
+
+    template <typename H>
+    struct nullary_result<true, H> : std::invoke_result<H> {};
+
+    template <bool BoundInvocable, typename H, typename... Args>
+    struct select_result
+        : nullary_result<std::is_invocable_v<H>, H> {};
+
+    template <typename H, typename... Args>
+    struct select_result<true, H, Args...>
+        : std::invoke_result<H, Args...> {};
+
     template <typename H, typename Tuple, std::size_t... Is>
-    static constexpr auto invoke_result_with_tuple_impl(
-        std::index_sequence<Is...>)
-        -> std::invoke_result_t<H,
-                                std::tuple_element_t<Is, Tuple>...>;
-
-    template <typename H, typename Tuple>
-    using invoke_result_with_tuple_t =
-        decltype(invoke_result_with_tuple_impl<H, Tuple>(
-            std::make_index_sequence<std::tuple_size_v<Tuple>>{}));
-
-    template <typename H, typename Tuple>
-    static constexpr auto get_case_result_impl(int)
-        -> invoke_result_with_tuple_t<H, Tuple>;
-
-    template <typename H, typename Tuple>
-    static constexpr auto
-    get_case_result_impl(...) -> std::invoke_result_t<H>;
+    static auto get_case_result_impl(std::index_sequence<Is...>)
+        -> select_result<
+            std::is_invocable_v<H,
+                                std::tuple_element_t<Is, Tuple>...>,
+            H,
+            std::tuple_element_t<Is, Tuple>...>;
 
   public:
     // The result type when the handler is invoked.
-    using type = decltype(get_case_result_impl<
-                          handler_type,
-                          full_invoke_args_tuple>(0));
+    using type = typename decltype(get_case_result_impl<
+                                   handler_type,
+                                   full_invoke_args_tuple>(
+        std::make_index_sequence<
+            std::tuple_size_v<full_invoke_args_tuple>>{}))::type;
   };
 
   template <typename Subject, typename Case>
