@@ -2580,6 +2580,9 @@ it matches every value and binds the whole subject by const reference.
 An existing trailing <code>_</code> remains valid. Guarded bindings such as
 <code>$[_ &gt; 0]</code> and bindings with subpatterns such as <code>$(is&lt;int&gt;)</code> still
 need a fallback.</p>
+<p>Rvalue subjects and consuming bindings are planned for
+<a href="../roadmap/#move-aware-matching">v0.9.6</a>; they are not implemented yet.
+The const-reference behavior above describes the current API.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
 <span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
