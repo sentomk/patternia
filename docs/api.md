@@ -204,6 +204,10 @@ An existing trailing `_` remains valid. Guarded bindings such as
 `$[_ > 0]` and bindings with subpatterns such as `$(is<int>)` still
 need a fallback.
 
+Rvalue subjects and consuming bindings are planned for
+[v0.9.6](roadmap.md#move-aware-matching); they are not implemented yet.
+The const-reference behavior above describes the current API.
+
 ```cpp
 match(v) | on(
   $(is<std::string>) >> [](const std::string &s) {
