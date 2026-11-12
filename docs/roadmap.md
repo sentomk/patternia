@@ -10,8 +10,9 @@ grouped by the version they are expected to ship in. It describes
 direction, not a promise: scope, names and syntax can still change
 before a release, and a feature can move to a later version.
 
-Syntax shown for unreleased features is the current design. It is not
-available in any release yet.
+Syntax shown for unreleased features is the current design. A section
+marked implemented is available on the development branch; other
+examples are proposals, not APIs available today.
 
 Each version has one status:
 
@@ -27,15 +28,32 @@ Feedback on any item is welcome in
 
 ---
 
-## v0.9.6 — Shorter cases { data-toc-label="v0.9.6" }
+## Delivery sequence
+
+| Version | Main additions |
+|---|---|
+| v0.9.6 | Shorter cases, move-aware matching, and binding/copy performance work |
+| v0.9.7 | Explicit result types and lazy construction/function expressions |
+| v0.10 | Exhaustiveness, checked intervals, and complete enum domains |
+| v0.11 | Nested patterns, multiple subjects, and structural coverage |
+| v0.12 | Broader performance work, reflection, and positional constructor patterns |
+
+Move-aware binding comes before lazy expressions; finite-domain
+coverage comes before the nested pattern-matrix analysis. These are
+delivery dependencies, not claims that the planned APIs exist today.
+
+---
+
+## v0.9.6 — Shorter cases, moves, and performance {#v096-shorter-cases data-toc-label="v0.9.6" }
 
 **Status:** In progress
 
 The goal of this release is to remove boilerplate that most matches
 carry today: an unreachable `_` after a case that already matches
 everything, single-expression lambdas, and `lit(...)` inside other
-patterns. It also collects bug fixes. These are additions, so existing
-matches keep their meaning.
+patterns. It also adds ownership-aware matching and targets avoidable
+copies and repeated binding. Existing borrowed, read-only matches
+keep their meaning; consuming a subject is explicit.
 
 ### `$` as the fallback
 
@@ -90,6 +108,8 @@ is out of scope; use a lambda for that.
 
 ### Plain values inside patterns
 
+Implemented; pending the v0.9.6 release.
+
 Wherever a pattern is expected as an argument, a plain value is treated
 as `lit(value)`. This extends the existing `0 >> handler` shorthand to
 nested positions:
@@ -110,16 +130,127 @@ subpatterns of `is<T>(...)` and `alt<I>(...)`, and to the right
 operand of `||` and `&&`. A plain value is a runtime literal; use
 `val<V>` where static dispatch matters.
 
+### Move-aware matching
+
+Planned; not implemented yet.
+
+Accept temporary and explicitly moved subjects, including move-only
+values. The match context owns an rvalue subject for its lifetime;
+matching an lvalue continues to borrow it without copying.
+
+```cpp
+auto task = std::make_unique<Task>();
+
+match(std::move(task)) | on(
+  $ >> [](std::unique_ptr<Task> owned) { enqueue(std::move(owned)); }
+);
+```
+
+The ownership contract is:
+
+- Borrowed lvalues keep today's const-reference bindings. This release
+  does not silently make existing handlers mutate their subjects.
+- A non-const rvalue is owned by the context and can be forwarded to
+  the selected handler. Moving into the context may consume the source
+  immediately; rejected cases must not consume the context's value.
+- Pattern tests and guards only observe bindings. A failed guard or
+  failed arm of a combinator leaves the owned value available to later
+  cases. Forwarding for consumption happens only after a case wins.
+- Constness is preserved. Matching a const rvalue does not grant
+  permission to move from a const object as if it were mutable.
+- Structural and variant bindings preserve the ownership policy of
+  the subject. A custom binding that materializes a value must keep it
+  alive through the guard and handler. Results must not accidentally
+  reference storage destroyed with the match context.
+
+Acceptance tests cover move-only subjects and handlers, rejected
+guards followed by a consuming fallback, combinator short-circuiting,
+const subjects, temporary lifetimes, and copy/move counts. User
+handlers remain responsible for references they deliberately return.
+
+### Performance work
+
+Planned alongside move semantics, rather than deferred to v0.12:
+
+- Remove avoidable subject, case-pack, and handler copies, including
+  support for move-only callables in one-shot matches.
+- Avoid repeated extraction/binding on the selected guard/handler
+  path where the binding contract permits it; do not change predicate
+  order, invocation counts, or first-match-wins behavior to do so.
+- Measure owning and borrowed matches, rejected guards, structural
+  bindings, and generic versus optimized dispatch. Keep semantic
+  tests separate from timing benchmarks.
+- Record compile time and binary size as well as run time. Publish
+  reproducible before/after measurements; do not promise a speedup
+  before measuring it.
+
+Broader dispatch optimization and benchmarks for nested matching stay
+in v0.12. Optimizations must preserve the new ownership contract.
+
 ### Fixes and diagnostics
 
-- `$(pred(...))` binds the matched value, like `$(is<T>)` does.
-- When both sides of `>>` are built-in types (`0 >> 1`, `0 >> func`),
-  C++ applies the built-in shift instead of Patternia's operator. The
-  error now says so and suggests `lit(0) >> ...`, instead of reporting
-  that the case was not created with `>>`.
+- Implemented: `$(pred(...))` binds the matched value, like
+  `$(is<T>)` does.
+- Planned: improve the diagnostic when both sides of `>>` are
+  built-in types (`0 >> 1`, `0 >> func`). C++ applies the built-in
+  shift instead of Patternia's operator. Explain that distinction and
+  suggest `lit(0) >> ...`, rather than only reporting that the case
+  was not created with `>>`.
 - Bugs reported in
   [GitHub issues](https://github.com/sentomk/patternia/issues) with the
   `bug` label before the release.
+
+---
+
+## v0.9.7 — Result types and lazy expressions { data-toc-label="v0.9.7" }
+
+**Status:** Planned
+
+Reduce repeated result wrappers and single-expression lambdas without
+hiding complex business operations inside the DSL.
+
+### Explicit result type
+
+`on<R>(...)` fixes the match result type once. Every selected handler
+result must be convertible to `R`; deduced `on(...)` remains available.
+
+```cpp
+enum class Action { Start, Stop };
+using Result = std::variant<Started, Stopped>;
+
+match(action) | on<Result>(
+  val<Action::Start> >> Started{},
+  _                 >> Stopped{}
+);
+```
+
+Result typing is independent of coverage: `on<R>` neither supplies a
+fallback nor makes a partial match exhaustive. Invalid branch results
+must be diagnosed even if that branch is not selected at run time.
+
+### Lazy construction and calls
+
+`make<T>(expressions...)` constructs `T{...}` after its case wins.
+`call(f, expressions...)` invokes a callable at that same point. Both
+compose with existing arithmetic and named binding expressions.
+
+```cpp
+struct Point { int x; int y; };
+
+match(n) | on($ >> make<Point>(_, _ * 2));
+match(text) | on($ >> call(parse, _));
+```
+
+An ordinary value handler is still eager: `p >> build()` evaluates
+`build()` while constructing the case pack; `p >> call(build)` waits
+until that case is selected. Unselected expression handlers perform
+no calls or result construction.
+
+These expressions use v0.9.6's ownership rules. Reads may reuse a
+binding, but expression forwarding must not silently consume the same
+bound value twice. Define argument evaluation order and diagnose
+unsupported repeated consumption before freezing the API. Complex
+control flow and ambiguous ownership remain ordinary lambda code.
 
 ---
 
@@ -129,6 +260,9 @@ operand of `||` and `&&`. A plain value is a runtime literal; use
 
 The goal of this release is to let the compiler check that a match
 covers every case, and to reject cases that can never be selected.
+Two distinct pipeline stages provide domains that cannot be inferred
+from the subject type: `within<L, H>` for an integer interval and
+`domain<E>` for a complete enum value set.
 
 A match no longer needs a trailing `_` when its cases cover every
 possible value of the subject:
@@ -154,8 +288,8 @@ Missing alternatives: Triangle.
 Tip: add the missing cases, or end the list with '_ >> handler'.
 ```
 
-A trailing `_` or `$` after a complete list stays allowed, so existing code
-keeps compiling.
+A trailing `_` or `$` after a complete list stays allowed, so existing
+code keeps compiling.
 
 ### Subjects that can be checked
 
@@ -163,7 +297,8 @@ keeps compiling.
 |---|---|
 | `std::variant<Ts...>` | every alternative, by type or by index |
 | `bool` | `val<true>` and `val<false>` |
-| Enumeration with a one-byte underlying type | `val<E::x>` for every enumerator |
+| Enumeration with complete compile-time metadata | `val<E::x>` for every distinct enumerator value |
+| Integer constrained by `within<L, H>` | static literals/ranges covering every value in `[L, H)` |
 | Any subject | a case that matches every value, such as `_` or `$` |
 
 An enumeration can be checked when it has a fixed underlying type of
@@ -202,14 +337,108 @@ Clang, MSVC and clang-cl), and the release notes will list the ones
 verified. Code that must build everywhere should keep `_` until all of
 its compilers are listed.
 
-Other enumerations still need `_`. This includes an `enum class` with
-the default `int` underlying type and an unscoped `enum` without a
-fixed underlying type. To opt in, give the enumeration a one-byte
-underlying type. With C++26 reflection every enumeration can be
-checked; see [v0.12](#v012-performance-and-c26-reflection).
+One-byte detection is an optional metadata source, not an API
+requirement. Ordinary `enum class E` with the default `int` underlying
+type is supported through a complete compile-time metadata provider:
+an adapter to existing enum metadata or an explicit enumerator list.
+The customization spelling is to be finalized during implementation.
+Do not require applications to change an enum's representation to use
+Patternia.
 
-Integers, floating-point values and strings are never exhaustive in
-this release and always need `_`.
+An explicit list is a completeness contract maintained by its author;
+C++17 cannot detect a newly declared enumerator omitted from that
+list. Automatic detection and reflection avoid that maintenance gap.
+With C++26 reflection, complete metadata no longer needs registration;
+see [v0.12](#v012-performance-and-c26-reflection).
+
+Without reliable metadata, an ordinary enum match still needs a
+fallback, and requesting `domain<E>` is a compile-time error naming
+the missing metadata. Scanning part of a wide underlying type never
+counts as complete discovery.
+
+Unconstrained integers, floating-point values and strings still need
+a total fallback such as `_` or `$` in this release.
+
+### Checked integer intervals: `within<L, H>`
+
+This stage restricts an integral subject to the half-open interval
+`[L, H)` and preserves its value type. Bounds are compile-time values;
+empty, reversed, or incompatible bounds are rejected.
+
+```cpp
+match(n % 3u) | within<0u, 3u> | on(
+  val<0u> >> "zero",
+  val<1u> >> "one",
+  val<2u> >> "two"
+);
+```
+
+The companion static pattern `range<L, H>` matches an integer
+interval, so a large domain does not need one case per value:
+
+```cpp
+match(score) | within<0, 101> | on(
+  range<0, 60>   >> "retry",
+  range<60, 101> >> "pass"
+);
+```
+
+`within` constrains the input; `range` is a case pattern. Both use
+half-open bounds. Existing `rng(lo, hi)` remains a runtime predicate
+with its existing range modes and does not prove static coverage.
+Coverage uses interval operations, not one template instantiation
+per integer. Signedness and boundary checks must not narrow or wrap
+values before deciding whether they are in range.
+
+### Complete enum domains: `domain<E>`
+
+This stage validates membership in all declared values of `E`, then
+supplies an `E` subject to the case pack. It accepts enum or integral
+input and requires complete metadata for the target enum.
+
+```cpp
+enum class Status { Ok = 0, Retry = 10, Failed = 100 };
+// Supply complete enum metadata on C++17, or use C++26 reflection.
+
+match(code) | domain<Status> | on(
+  val<Status::Ok>     >> handle_ok,
+  val<Status::Retry>  >> retry,
+  val<Status::Failed> >> handle_failure
+);
+```
+
+The domain above is `{0, 10, 100}`, not the interval `[0, 101)`.
+Aliases with equal values count once. Membership is checked before
+conversion to the enum's underlying type: a large integer must not
+wrap into a valid enumerator. No particular underlying type, including
+`std::uint8_t`, is required by `domain<E>`.
+
+For a subject already of type `E`, `match(e) | on(...)` can infer the
+domain from the same metadata without an explicit stage. An explicit
+`domain<E>` additionally enforces membership before case evaluation.
+
+### Domain contracts and pipeline boundaries
+
+Both stages validate input before any case or handler runs. A value
+outside the declared interval/set is a runtime error, even if the
+case pack has `_`; the fallback covers the declared domain, not a
+broken domain contract. Error handling must also be specified for
+builds with exceptions disabled before the release.
+
+The proof's domain comes from the type or an independent declaration,
+never from the case list itself: inferring `{0, 1}` from cases for 0
+and 1 would hide a missing case for 2. A guard cannot serve as an
+unchecked assertion about the domain.
+
+`on(...)` remains the terminal stage that sees the subject, its domain,
+and the complete case list. No extra `end` stage is needed. Domain
+stages belong between `match(...)` and `on(...)`.
+
+Acceptance tests cover missing values, overlapping static intervals,
+enum aliases, absent metadata, negative/unsigned boundaries, and
+integers that would become valid only after truncation. They also
+verify that a domain violation runs no selected handler and cannot be
+hidden by `_`, and that guards do not create false coverage proofs.
 
 ### Patterns that count as coverage
 
@@ -218,6 +447,8 @@ this release and always need `_`.
   alternative, such as `_`, `$`, or `has<...>` with no member
   subpatterns or with member subpatterns that all match every value.
 - `val<V>` for `bool` and for enumerations that can be checked.
+- `val<V>` and `range<L, H>` cover integer values inside a domain
+  established by `within`. Interval unions can prove full coverage.
 - `any(...)` and `||` cover the union of what their operands cover, so
   `(is<Square> || is<Triangle>)` covers both alternatives.
 
@@ -257,7 +488,9 @@ its cases:
   error and never falls through silently. Whether it throws or aborts
   will be decided before the release.
 
-In a match with `_`, both go to `_`, as they do today.
+Without an explicit domain stage, a match with `_` sends both to `_`,
+as it does today. An explicit `domain<E>` instead rejects an invalid
+enum value before dispatch, even when `_` is present.
 
 Flag-style enumerations routinely hold values that are not
 enumerators. With
@@ -310,9 +543,10 @@ for (int i = 1; i <= 100; ++i) {
 }
 ```
 
-`match` also accepts rvalue subjects, such as `match(make())` and
-`match(i % 3, i % 5)`, which today must be lvalues. A temporary subject
-is stored by value for the duration of the match.
+Multiple subjects extend the ownership rules introduced in v0.9.6:
+each lvalue is borrowed and each rvalue is owned for the duration of
+the match. Nested bindings preserve that policy. Failed subpatterns
+and guards must leave owned values available to later cases.
 
 ### `some` / `none`
 
@@ -359,7 +593,9 @@ check stops at a fixed limit and asks for `_` instead.
 
 **Status:** Planned
 
-### Performance
+### Broader performance work
+
+This extends the ownership and binding work scheduled for v0.9.6.
 
 - Benchmarks for the default and call spellings, variants with 9 to 15
   alternatives, binding patterns, and nested and multi-subject matches.
@@ -381,12 +617,38 @@ auto [x, y] = pt;
 
 Reflection mode also enables:
 
-- exhaustiveness checking for enumerations of any underlying type, not
-  only one-byte ones,
+- complete enum metadata for any underlying type without registration,
+  shared by ordinary matches and `domain<E>`,
 - positional destructuring of aggregates without listing members.
 
 Reflection mode is off by default and does not change behavior in
 C++17 or C++20.
+
+### Constructor-style patterns (experimental)
+
+`of<T>(patterns...)` is the candidate spelling for matching a type and
+its positional fields together. For a variant it first selects `T`;
+for a direct `T` subject it destructures that object. It lowers to the
+same structural patterns, bindings, and coverage analysis as `has`.
+
+```cpp
+match(event) | on(
+  (is<Quit> || of<Key>('q', true)) >> quit,
+  of<Key>($(any('h', 'j', 'k', 'l')), false) >> navigate,
+  (is<Resize> || is<Expose>) >> redraw,
+  _ >> ignore
+);
+```
+
+Here `Key` has fields `code` and `ctrl` in that order; `navigate`
+receives the bound character. Field order is part of the pattern's
+contract. Prefer named member patterns for larger or evolving types.
+
+C++26 reflection supplies aggregate decomposition. A C++17 path may
+use an explicit decomposition adapter; its protocol must be settled
+before shipping it. Unregistered, unrestricted aggregate reflection
+is not promised for C++17. Keep this syntax separate from `is<T>(p)`,
+whose single subpattern continues to match the whole alternative.
 
 ---
 
@@ -420,20 +682,19 @@ concrete use case first.
   alternative is to wait for reflection mode.
 - **Sequence patterns.** Matching the head and rest of a `vector` or
   `array`.
-- **Calls inside expression handlers.** Helpers such as `call(f, e...)`
-  and `iif(cond, a, b)` for handlers that are not plain arithmetic.
+- **Conditional expression handlers.** `iif(cond, a, b)` would evaluate
+  only the chosen expression. Calls and construction are scheduled for
+  v0.9.7; conditional evaluation still needs a concrete use case.
 - **More value types on the left of `>>`.** Accepting any
   equality-comparable type, not only arithmetic, enum and string
   types.
-- **Exhaustive integer matches.** A compile-time range pattern, so that
-  integer cases can cover the full range of their type, and a way to
-  state the values one match can see, such as `0`, `1` and `2` for
-  `i % 3`. A value outside the stated values is a run-time error, not
-  a silent fall-through.
-- **Declared enumerators.** An opt-in list of the enumerators of an
-  enumeration that cannot use a one-byte underlying type, for code that
-  cannot wait for reflection. It repeats every enumerator, so it waits
-  for a concrete use case.
+- **Values carrying domain metadata.** A customization point could
+  let a bounded business type supply its own complete domain, avoiding
+  a repeated `within` stage. An unsigned `mod<N>(x)` could return such
+  a value with domain `[0, N)`. The name and ownership protocol are
+  exploratory; signed remainder semantics and valid nonzero divisors
+  must be explicit. Do not grow a general arithmetic DSL merely to
+  remove one domain declaration.
 
 ---
 
