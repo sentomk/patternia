@@ -919,6 +919,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#expression-handlers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expression handlers
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2001,6 +2012,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#expression-handlers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expression handlers
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2463,8 +2485,47 @@ There is no deferred builder stage.</p>
 <ul>
 <li><code>pattern &gt;&gt; value</code></li>
 <li><code>pattern &gt;&gt; callable</code></li>
+<li><code>pattern &gt;&gt; expression</code></li>
 </ul>
 <p>Bindings are determined entirely by the pattern.</p>
+<h3 id="expression-handlers">Expression handlers<a class="headerlink" href="#expression-handlers" title="Permanent link">&para;</a></h3>
+<p>An expression on the right of <code>&gt;&gt;</code> is evaluated only when its case
+matches and its guard passes. It uses the same bound values as a
+lambda handler. Arithmetic results keep their value type; comparisons
+and logical expressions return <code>bool</code>. Expression handlers return by
+value, so a bare placeholder does not leak a reference to a temporary
+binding.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">$</span><span class="w">        </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">-</span><span class="n">_</span>
+<span class="p">);</span>
+
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pt</span><span class="p">;</span>
+<span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">pt</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y</span><span class="p">,</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span><span class="w">        </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w">            </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<ul>
+<li><code>_</code> refers to the first bound value. Use <code>$ &gt;&gt; _</code> to return the
+  subject, or <code>$(is&lt;int&gt;) &gt;&gt; _ * 2</code> to compute from an alternative.
+  An expression needs bindings: <code>_ &gt;&gt; _ + 1</code> is invalid because the
+  wildcard on the left binds nothing.</li>
+<li>Member names resolve against the handler's pattern, including when
+  it has guards. Reordering the listed members does not change what a
+  name refers to. A member absent from the pattern is a compile error.</li>
+<li>Supported operators are <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code>, unary <code>+</code> and <code>-</code>,
+  comparisons, and the guard <code>&amp;&amp;</code> / <code>||</code> forms, with short-circuiting.
+  As in guards, logical <code>!</code> is not provided.</li>
+<li>Parenthesize comparisons and logical expressions after <code>&gt;&gt;</code>, for
+  example <code>$ &gt;&gt; (_ &gt; 0)</code> or <code>$ &gt;&gt; (_ &gt;= 0 &amp;&amp; _ &lt;= 10)</code>, because C++
+  gives <code>&gt;&gt;</code> higher precedence than those operators.</li>
+<li>Ordinary operands are stored by value when the case is built.
+  Use a lambda for function calls or values that should be read from
+  external state each time the handler runs.</li>
+</ul>
 <hr />
 <h2 id="wildcard">Wildcard<a class="headerlink" href="#wildcard" title="Permanent link">&para;</a></h2>
 <h3 id="_-wildcard"><code>_</code><a class="headerlink" href="#_-wildcard" title="Permanent link">&para;</a></h3>

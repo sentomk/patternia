@@ -2151,6 +2151,7 @@ valid.</p>
 <p>v0.10 extends this to every pattern that matches every value, as part
 of exhaustiveness checking.</p>
 <h3 id="expression-handlers">Expression handlers<a class="headerlink" href="#expression-handlers" title="Permanent link">&para;</a></h3>
+<p>Implemented; pending the v0.9.6 release.</p>
 <p>The right-hand side of <code>&gt;&gt;</code> accepts the same expressions as guards, so a
 handler that only computes a value no longer needs a lambda:</p>
 <div class="highlight"><pre><span></span><code><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">;</span>
@@ -2167,9 +2168,11 @@ handler that only computes a value no longer needs a lambda:</p>
 <span class="w">  </span><span class="n">_</span><span class="w">          </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
 <span class="p">);</span>
 </code></pre></div>
-<p>The first version covers the arithmetic, comparison, logical and unary
-operators that guards already support. Calling functions inside an
-expression handler is out of scope; use a lambda for that.</p>
+<p>The first version covers arithmetic, comparison and logical guard
+expressions, plus unary <code>+</code> and <code>-</code> in both handlers and guards.
+Comparisons and logical expressions after <code>&gt;&gt;</code> need parentheses,
+such as <code>$ &gt;&gt; (_ &gt; 0)</code>. Calling functions inside an expression handler
+is out of scope; use a lambda for that.</p>
 <h3 id="plain-values-inside-patterns">Plain values inside patterns<a class="headerlink" href="#plain-values-inside-patterns" title="Permanent link">&para;</a></h3>
 <p>Wherever a pattern is expected as an argument, a plain value is treated
 as <code>lit(value)</code>. This extends the existing <code>0 &gt;&gt; handler</code> shorthand to
