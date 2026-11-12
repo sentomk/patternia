@@ -76,6 +76,11 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/all_requires_pattern_args.cpp
   compile_fail/static_on_with_capture.cpp
   compile_fail/on_pipeline_without_wildcard.cpp
+  compile_fail/on_pipeline_guarded_dollar_without_fallback.cpp
+  compile_fail/on_pipeline_guarded_dollar_call_without_fallback.cpp
+  compile_fail/on_pipeline_subpattern_without_fallback.cpp
+  compile_fail/on_pipeline_dollar_not_last.cpp
+  compile_fail/on_pipeline_wildcard_before_dollar.cpp
   compile_fail/val_requires_compile_time_constant.cpp
   compile_fail/member_placeholder_not_in_pattern.cpp
   compile_fail/member_placeholder_non_structural.cpp

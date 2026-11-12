@@ -23,6 +23,10 @@ namespace ptn::core::dsl::detail {
 
 namespace ptn::pat::detail {
   struct wildcard_t;
+  struct binding_pattern;
+} // namespace ptn::pat::detail
+namespace ptn::pat {
+  struct bind_factory;
 }
 // End of forward declarations.
 
@@ -108,6 +112,17 @@ namespace ptn::core::traits {
   template <typename Case>
   inline constexpr bool is_fallback_case_v = is_pattern_fallback_v<
       case_pattern_t<Case>>;
+
+  // Only the bare binding forms `$` and `$()` are unconditional.
+  // Keep this separate from fallback_semantics: existing case lists
+  // may contain more cases (including `_`) after a binding pattern.
+  template <typename T>
+  inline constexpr bool
+      is_unconditional_binding_v = std::is_same_v<std::decay_t<T>,
+                                                  pat::bind_factory>
+                                   || std::is_same_v<
+                                       std::decay_t<T>,
+                                       pat::detail::binding_pattern>;
 
   // Handler Invocability Check (C++17)
 

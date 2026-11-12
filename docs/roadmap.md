@@ -39,6 +39,8 @@ matches keep their meaning.
 
 ### `$` as the fallback
 
+Implemented; pending the v0.9.6 release.
+
 `$` can end a case list on its own, instead of being followed by an
 unreachable `_`:
 
@@ -49,6 +51,10 @@ match(roll) | on(
   $      >> [](int r) { move_player(r); }   // already the fallback
 );
 ```
+
+The equivalent `$()` form also works. A guard or subpattern still
+requires a fallback, and existing matches with a trailing `_` remain
+valid.
 
 v0.10 extends this to every pattern that matches every value, as part
 of exhaustiveness checking.

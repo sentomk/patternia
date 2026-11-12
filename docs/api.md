@@ -56,7 +56,7 @@ match(x) | on(
 
 Rules:
 
-- The last case must be a wildcard fallback.
+- The last case must be `_`, `$` or `$()` without a guard.
 - Each entry must be a `pattern >> handler` case expression.
 - Unreachable wildcard/alt ordering errors are diagnosed at compile time.
 
@@ -151,10 +151,16 @@ Examples:
 
 ```cpp
 match(x) | on(
-  $ >> [](int v) { return v; },
-  _ >> 0
+  lit(0) >> -1,
+  $ >> [](int v) { return v; }
 );
 ```
+
+An unguarded `$` (or its equivalent `$()`) can end the case list:
+it matches every value and binds the whole subject by const reference.
+An existing trailing `_` remains valid. Guarded bindings such as
+`$[_ > 0]` and bindings with subpatterns such as `$(is<int>)` still
+need a fallback.
 
 ```cpp
 match(v) | on(

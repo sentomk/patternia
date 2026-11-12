@@ -59,9 +59,23 @@ namespace ptn::core::engine::detail {
           (traits::is_pattern_fallback_v<
                traits::case_pattern_t<Cases>>
            || ...);
-      static_assert(has_pattern_fallback_in_on,
-                    "[Patternia.on]: missing wildcard '_' fallback. "
-                    "Tip: add '_ >> handler' as the last case.");
+      constexpr bool ends_with_binding_fallback = [] {
+        if constexpr (sizeof...(Cases) == 0) {
+          return false;
+        }
+        else {
+          using last_case = std::tuple_element_t<
+              sizeof...(Cases) - 1,
+              std::tuple<Cases...>>;
+          return traits::is_unconditional_binding_v<
+              traits::case_pattern_t<last_case>>;
+        }
+      }();
+      static_assert(
+          has_pattern_fallback_in_on || ends_with_binding_fallback,
+          "[Patternia.on]: missing fallback. "
+          "Tip: add '_ >> handler' or '$ >> handler' "
+          "as the last case (without a guard).");
 
       auto dummy_fallback = [](auto &&...)
           -> ptn::core::traits::detail::unreachable_t { return {}; };
