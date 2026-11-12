@@ -91,6 +91,7 @@ PTN_JOIN_HEADERS(PTN_HEADERS
   include/ptn/core/dsl/case_expr.hpp
   include/ptn/core/dsl/ops.hpp
   include/ptn/core/dsl/detail/case_expr_impl.hpp
+  include/ptn/core/dsl/detail/expression_handler.hpp
 
   # Meta Utils
   include/ptn/meta/meta.hpp

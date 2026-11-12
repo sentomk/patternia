@@ -61,6 +61,8 @@ of exhaustiveness checking.
 
 ### Expression handlers
 
+Implemented; pending the v0.9.6 release.
+
 The right-hand side of `>>` accepts the same expressions as guards, so a
 handler that only computes a value no longer needs a lambda:
 
@@ -80,9 +82,11 @@ match(n) | on(
 );
 ```
 
-The first version covers the arithmetic, comparison, logical and unary
-operators that guards already support. Calling functions inside an
-expression handler is out of scope; use a lambda for that.
+The first version covers arithmetic, comparison and logical guard
+expressions, plus unary `+` and `-` in both handlers and guards.
+Comparisons and logical expressions after `>>` need parentheses,
+such as `$ >> (_ > 0)`. Calling functions inside an expression handler
+is out of scope; use a lambda for that.
 
 ### Plain values inside patterns
 

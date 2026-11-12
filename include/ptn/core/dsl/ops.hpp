@@ -13,6 +13,7 @@
 
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/dsl/detail/case_expr_impl.hpp"
+#include "ptn/core/dsl/detail/expression_handler.hpp"
 #include "ptn/pattern/lit.hpp"
 #include "ptn/pattern/plain_value.hpp"
 
@@ -23,7 +24,7 @@ namespace ptn::pat::base {
   // Pattern >> Handler / Pattern >> Value operator.
   //
   // Creates case expressions by connecting patterns with handlers or
-  // values. Supports two distinct modes:
+  // values. Supports three distinct modes:
   //
   // 1. Value mode: If Handler is a value type (int, enum, string,
   // etc.),
@@ -36,6 +37,9 @@ namespace ptn::pat::base {
   //    treats it as a proper handler that receives bound arguments.
   //    Enables syntax like `pattern >> [](auto x) { return x * 2;
   //    }`.
+  //
+  // 3. Expression mode: placeholder expressions are evaluated on
+  //    the pattern's bindings, as in `$ >> _ * 2 + 1`.
   //
   // This distinction prevents parameterized lambdas from being
   // misidentified as values, avoiding closure type issues in
@@ -55,7 +59,16 @@ namespace ptn::pat::base {
     using P = ptn::pat::base::canonical_pattern_t<Pattern>;
     using H = std::decay_t<Handler>;
 
-    if constexpr (ptn::core::traits::detail::is_value_like_v<H>) {
+    if constexpr (traits::is_arg_expr_v<H>
+                  || traits::is_guard_predicate_v<H>) {
+      auto
+          expression = core::dsl::detail::make_expression_handler<P>(
+              std::forward<Handler>(handler));
+      return core::dsl::detail::case_expr<P, decltype(expression)>{
+          P(std::forward<Pattern>(pattern)), std::move(expression)};
+    }
+    else if constexpr (ptn::core::traits::detail::is_value_like_v<
+                           H>) {
       // Value Mode: Pattern >> Value syntax sugar
       using value_handler_t = core::dsl::detail::value_handler<H>;
 
