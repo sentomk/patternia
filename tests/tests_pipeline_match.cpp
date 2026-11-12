@@ -2,6 +2,7 @@
 
 #include <ptn/patternia.hpp>
 
+#include <memory>
 #include <string>
 #include <variant>
 
@@ -135,6 +136,91 @@ TEST(PipelineMatch, DollarBindCapturesSubject) {
                | on($ >> [](int v) { return v * 2; }, _ >> 0);
 
   EXPECT_EQ(result, 84);
+}
+
+TEST(PipelineMatch, DollarFallbackPreservesFirstMatch) {
+  int  calls = 0;
+  auto run   = [&calls](int x) {
+    return match(x)
+           | on(
+               lit(1) >> 10, $ >> [&calls](int v) {
+                 ++calls;
+                 return v * 2;
+               });
+  };
+
+  EXPECT_EQ(run(1), 10);
+  EXPECT_EQ(calls, 0);
+  EXPECT_EQ(run(3), 6);
+  EXPECT_EQ(calls, 1);
+}
+
+TEST(PipelineMatch, DollarFallbackBindsSubjectByConstReference) {
+  const std::string  value = "subject";
+  const std::string *bound = nullptr;
+  ptn::match(value)
+      | ptn::on(ptn::$ >> [&](const std::string &v) { bound = &v; });
+  EXPECT_EQ(bound, &value);
+}
+
+TEST(PipelineMatch, DollarFallbackSupportsValueHandlers) {
+  int x = 3;
+  EXPECT_EQ(match(x) | on($ >> 7), 7);
+  EXPECT_EQ(match(x) | on($() >> 8), 8);
+  EXPECT_EQ(match(x)
+                | on(
+                    lit(1) >> 0, $() >> [](int v) { return v * 2; }),
+            6);
+}
+
+TEST(PipelineMatch,
+     DollarFallbackSupportsStoredCasesAndMoveOnlyHandler) {
+  int  x     = 3;
+  auto cases = on(lit(1) >> 0, $ >> [](int v) { return v; });
+  EXPECT_EQ(match(x) | cases, 3);
+  x = 1;
+  EXPECT_EQ(match(x) | cases, 0);
+  EXPECT_EQ(match(x)
+                | on($ >> [p = std::make_unique<int>(4)](
+                              int v) { return *p + v; }),
+            5);
+}
+
+TEST(PipelineMatch, DollarFallbackAfterRejectedGuard) {
+  auto run = [](int x) {
+    return match(x)
+           | on($[_ > 0] >> 1, $ >> [](int v) { return v - 1; });
+  };
+  EXPECT_EQ(run(2), 1);
+  EXPECT_EQ(run(-2), -3);
+}
+
+TEST(PipelineMatch, DollarFallbackBindsWholeVariant) {
+  using V    = std::variant<int, std::string>;
+  V    value = std::string("hello");
+  auto cases = on(
+      is<int> >> 1, $ >> [&value](const V &v) {
+        EXPECT_EQ(&v, &value);
+        return static_cast<int>(std::get<std::string>(v).size());
+      });
+  EXPECT_EQ(match(value) | cases, 5);
+  value = 42;
+  EXPECT_EQ(match(value) | cases, 1);
+}
+
+TEST(PipelineMatch, DollarFallbackPreservesTrailingWildcard) {
+  int x              = 3;
+  int wildcard_calls = 0;
+  EXPECT_EQ(match(x)
+                | on(
+                    $ >> [](int v) { return v; },
+                    _ >>
+                        [&] {
+                          ++wildcard_calls;
+                          return -1;
+                        }),
+            3);
+  EXPECT_EQ(wildcard_calls, 0);
 }
 
 TEST(PipelineMatch, DollarBindWithGuard) {
