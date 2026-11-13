@@ -91,18 +91,27 @@ namespace ptn::core::common {
                   "binding result.");
   }
 
+  // Validate case syntax before inspecting patterns or handlers.
+  // In particular, two integer operands make >> a built-in shift,
+  // so the case pack receives an integer rather than a case_expr.
+  template <typename Case>
+  constexpr void static_assert_case_expression() {
+    static_assert(
+        traits::is_case_expr_v<Case>,
+        "[Patternia.on]: expected a case created with 'pattern >> "
+        "handler'. If you wrote '0 >> 1', C++ evaluates a built-in "
+        "bit shift. Write 'lit(0) >> 1' instead.");
+  }
+
   // Validates a single case expression structure and handler
-  // compatibility.
+  // compatibility without instantiating binding traits for
+  // non-cases.
   template <typename Case, typename Subject>
   constexpr void static_assert_valid_case() {
-    // (A) Match inputs must be case expressions.
-    constexpr bool is_case_expr = traits::is_case_expr_v<Case>;
-    static_assert(
-        is_case_expr,
-        "[Patternia.match]: each case must be created with the '>>' "
-        "operator.");
-    // (B) And its handler must be callable with bound values.
-    static_assert_valid_handler<Case, Subject>();
+    static_assert_case_expression<Case>();
+    if constexpr (traits::is_case_expr_v<Case>) {
+      static_assert_valid_handler<Case, Subject>();
+    }
   }
 
   // Validates that a type satisfies the pattern requirements.

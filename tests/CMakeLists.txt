@@ -29,6 +29,8 @@ add_executable(ptn_tests
   tests_named_placeholder.cpp
   tests_handler_forms.cpp
   tests_expression_handler.cpp
+  tests_dispatch_fallback.cpp
+  tests_dispatch_metadata.cpp
   tests_member_names.cpp
   tests_header_first.cpp
 )
@@ -56,6 +58,11 @@ if("cxx_std_20" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
 endif()
 
 set(PTN_COMPILE_FAIL_CASES
+  compile_fail/on_builtin_shift.cpp
+  compile_fail/on_builtin_shift_stored.cpp
+  compile_fail/on_non_case.cpp
+  compile_fail/on_non_case_lvalue.cpp
+  compile_fail/on_non_case_validation.cpp
   compile_fail/expression_handler_requires_binding.cpp
   compile_fail/expression_handler_result_requires_binding.cpp
   compile_fail/expression_handler_foreign_member.cpp

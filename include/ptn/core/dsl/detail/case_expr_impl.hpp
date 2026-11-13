@@ -4,11 +4,13 @@
 #include <type_traits>
 #include <utility>
 
+#include "ptn/core/common/diagnostics.hpp"
+
 // Internal implementation of case expressions.
 //
-// This header contains the internal case expression structure that represents
-// pattern-handler pairs created by the >> operator. This is an implementation
-// detail and should not be used directly.
+// This header contains the internal case expression structure that
+// represents pattern-handler pairs created by the >> operator. This
+// is an implementation detail and should not be used directly.
 
 namespace ptn::core::dsl::detail {
 
@@ -31,9 +33,12 @@ namespace ptn::core::dsl::detail {
     using pattern_type = Pattern;
     using handler_type = Handler;
 
-#if defined(__cpp_no_unique_address) && __cpp_no_unique_address >= 201803L
-    [[no_unique_address]] Pattern pattern; // The pattern to match against.
-    [[no_unique_address]] Handler handler; // The handler to execute if matched.
+#if defined(__cpp_no_unique_address)                                \
+    && __cpp_no_unique_address >= 201803L
+    [[no_unique_address]] Pattern
+        pattern; // The pattern to match against.
+    [[no_unique_address]] Handler
+        handler; // The handler to execute if matched.
 #else
     Pattern pattern; // The pattern to match against.
     Handler handler; // The handler to execute if matched.
@@ -57,9 +62,8 @@ namespace ptn::core::dsl::detail {
   struct is_value_handler<value_handler<T>> : std::true_type {};
 
   template <typename Handler>
-  inline constexpr bool
-      is_value_handler_v = is_value_handler<std::remove_cv_t<
-          std::remove_reference_t<Handler>>>::value;
+  inline constexpr bool is_value_handler_v = is_value_handler<
+      std::remove_cv_t<std::remove_reference_t<Handler>>>::value;
 
   template <typename T>
   struct is_on : std::false_type {};
@@ -68,8 +72,8 @@ namespace ptn::core::dsl::detail {
   struct is_on<on<Cases...>> : std::true_type {};
 
   template <typename T>
-  inline constexpr bool
-      is_on_v = is_on<std::remove_cv_t<std::remove_reference_t<T>>>::value;
+  inline constexpr bool is_on_v = is_on<
+      std::remove_cv_t<std::remove_reference_t<T>>>::value;
 
   // Compact case pack used by `match(x) | on(...)`.
   template <typename... Cases>
@@ -79,9 +83,11 @@ namespace ptn::core::dsl::detail {
     tuple_type cases;
 
     template <typename... Exprs,
-              typename = std::enable_if_t<sizeof...(Exprs) == sizeof...(Cases)>>
+              typename = std::enable_if_t<sizeof...(Exprs)
+                                          == sizeof...(Cases)>>
     constexpr explicit on(Exprs &&...exprs)
         : cases(std::forward<Exprs>(exprs)...) {
+      (core::common::static_assert_case_expression<Cases>(), ...);
     }
   };
 

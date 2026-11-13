@@ -191,3 +191,30 @@ TEST(GuardExpression, AllComparisonOperatorsOnMembers) {
                ptn::_ >> 0);
   EXPECT_EQ(r, 1);
 }
+
+TEST(Guard, HalfOpenRangeEndpointsAndOutsideValues) {
+  using namespace ptn::pat::mod;
+  auto left_open  = on($[rng(0, 10, open_closed)] >> 1, _ >> 0);
+  auto right_open = on($[rng(0, 10, closed_open)] >> 1, _ >> 0);
+  for (int value : {-1, 0, 1, 9, 10, 11}) {
+    EXPECT_EQ(match(value) | left_open, value > 0 && value <= 10);
+    EXPECT_EQ(match(value) | right_open, value >= 0 && value < 10);
+  }
+}
+
+TEST(Guard, ComposedGuardSkipsPredicateWhenInnerPatternRejects) {
+  int  calls     = 0;
+  auto guarded   = $(lit(5))[([&](int) {
+    ++calls;
+    return true;
+  })];
+  auto cases     = on(any(guarded, lit(7)) >> 1, _ >> 0);
+  int  hit       = 5;
+  int  other_hit = 7;
+  int  miss      = 9;
+  EXPECT_EQ(match(hit) | cases, 1);
+  EXPECT_EQ(calls, 1);
+  EXPECT_EQ(match(other_hit) | cases, 1);
+  EXPECT_EQ(match(miss) | cases, 0);
+  EXPECT_EQ(calls, 1);
+}

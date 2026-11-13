@@ -39,6 +39,23 @@ namespace ptn::core::engine::detail {
     template <typename... Cases, typename CasesStorage>
     constexpr decltype(auto)
     eval_on_cases(CasesStorage &&pipeline_cases) && {
+      if constexpr ((traits::is_case_expr_v<Cases> && ...)) {
+        return std::move(*this)
+            .template eval_valid_on_cases<Cases...>(
+                std::forward<CasesStorage>(pipeline_cases));
+      }
+      else {
+        // Stop before handler deduction and dispatch planning can
+        // produce unrelated errors for a malformed case pack.
+        (ptn::core::common::static_assert_case_expression<Cases>(),
+         ...);
+        return traits::detail::unreachable_t{};
+      }
+    }
+
+    template <typename... Cases, typename CasesStorage>
+    constexpr decltype(auto)
+    eval_valid_on_cases(CasesStorage &&pipeline_cases) && {
       (ptn::core::common::static_assert_valid_case<Cases,
                                                    subject_type>(),
        ...);
