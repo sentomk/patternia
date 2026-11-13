@@ -60,6 +60,11 @@ Rules:
 - Each entry must be a `pattern >> handler` case expression.
 - Unreachable wildcard/alt ordering errors are diagnosed at compile time.
 
+With two integer operands, `0 >> 1` is C++'s built-in bit shift,
+not a case expression. `on(...)` rejects its result and suggests
+`lit(0) >> 1`. Use `lit(0) >> func` for a function-pointer handler
+as well: C++ rejects `0 >> func` before Patternia can validate it.
+
 ### `pattern >> handler` {#pattern-handler}
 
 This is the core case-expression form.

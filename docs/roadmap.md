@@ -191,11 +191,11 @@ in v0.12. Optimizations must preserve the new ownership contract.
 
 - Implemented: `$(pred(...))` binds the matched value, like
   `$(is<T>)` does.
-- Planned: improve the diagnostic when both sides of `>>` are
-  built-in types (`0 >> 1`, `0 >> func`). C++ applies the built-in
-  shift instead of Patternia's operator. Explain that distinction and
-  suggest `lit(0) >> ...`, rather than only reporting that the case
-  was not created with `>>`.
+- Implemented: `on(...)` rejects non-case arguments before handler
+  deduction and dispatch planning. For `0 >> 1`, the diagnostic
+  explains C++'s built-in bit shift and suggests `lit(0) >> 1`.
+  C++ rejects `0 >> func` itself when `func` is a function pointer;
+  use `lit(0) >> func` to select Patternia's operator.
 - Bugs reported in
   [GitHub issues](https://github.com/sentomk/patternia/issues) with the
   `bug` label before the release.
