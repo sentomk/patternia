@@ -30,11 +30,12 @@ namespace ptn::core::dsl::detail {
             "[Patternia.handler]: placeholder is out of range "
             "for the pattern's bound values.");
         if constexpr (in_range) {
-          auto bound = std::forward_as_tuple(args...);
+          auto bound = std::forward_as_tuple(
+              std::forward<Args>(args)...);
           if constexpr (ValueExpression) {
             // Materialize the result before a pattern's temporary
             // binding tuple is destroyed by the invocation layer.
-            return pat::mod::eval(predicate.expr, bound);
+            return pat::mod::eval(predicate.expr, std::move(bound));
           }
           else {
             return predicate(bound);

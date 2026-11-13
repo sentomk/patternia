@@ -1,3 +1,5 @@
+#pragma once
+
 // Public API and implementation for type-based patterns
 // (`is<T>()`). Provides variant alternative matching by type,
 // with optional sub-pattern matching for binding or structural

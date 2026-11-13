@@ -49,9 +49,17 @@ namespace ptn::core::dsl::detail {
   struct value_handler {
     T value;
 
-    template <typename... Args>
-    constexpr T operator()(Args &&...) const {
+    template <typename... Args,
+              typename Value        = T,
+              std::enable_if_t<std::is_copy_constructible_v<Value>,
+                               int> = 0>
+    constexpr T operator()(Args &&...) const & {
       return value;
+    }
+
+    template <typename... Args>
+    constexpr T operator()(Args &&...) && {
+      return std::move(value);
     }
   };
 

@@ -297,24 +297,14 @@ namespace ptn::core::common {
         "the later alt<I>(...) case, or reorder cases.");
   }
 
-  // Checks if the subject type is valid for pattern matching (must
-  // be an lvalue reference). This is a variable template because
-  // class bodies can only use static_assert with constant boolean
-  // conditions, not function calls.
+  // Context storage is either a borrowed lvalue reference or an
+  // owned object. Never store an rvalue reference to a temporary.
   template <typename Subject>
   inline constexpr bool
-      is_subject_type_valid_v = std::is_lvalue_reference_v<Subject>;
-
-  // Emits a diagnostic if subject is not an lvalue reference.
-  template <typename Subject>
-  struct subject_type_validator {
-    static constexpr bool
-        is_lvalue_ref = is_subject_type_valid_v<Subject>;
-    static_assert(
-        is_lvalue_ref,
-        "[Patternia.match]: subject must be an lvalue reference. "
-        "Tip: pass an lvalue (match(v)), not std::move(v).");
-  };
+      is_subject_type_valid_v = std::is_object_v<
+                                    std::remove_reference_t<Subject>>
+                                && !std::is_rvalue_reference_v<
+                                    Subject>;
 
   // ------------------------------------------------------------
   // Literal Pattern Validation

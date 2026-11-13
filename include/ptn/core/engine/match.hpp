@@ -15,14 +15,16 @@ namespace ptn {
 
   // Entry for pipeline matching.
   //
-  // Subject type is automatically deduced as `T&`.
+  // Lvalues are borrowed; rvalues are owned by the match context.
   // Usage:
   //   - match(value) | on(case1, case2, ..., _ >> fallback)
   template <typename T>
-  constexpr auto match(T &value) {
-    using V = T &;
+  constexpr auto match(T &&value) {
+    using V = std::conditional_t<std::is_lvalue_reference_v<T>,
+                                 T,
+                                 std::remove_reference_t<T>>;
     return core::engine::detail::pipeline_match_context<V>::create(
-        V(value));
+        std::forward<T>(value));
   }
 
   // Caches an `on(...)` matcher behind a stateless factory.
