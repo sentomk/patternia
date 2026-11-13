@@ -2513,11 +2513,11 @@ in v0.12. Optimizations must preserve the new ownership contract.</p>
 <ul>
 <li>Implemented: <code>$(pred(...))</code> binds the matched value, like
   <code>$(is&lt;T&gt;)</code> does.</li>
-<li>Planned: improve the diagnostic when both sides of <code>&gt;&gt;</code> are
-  built-in types (<code>0 &gt;&gt; 1</code>, <code>0 &gt;&gt; func</code>). C++ applies the built-in
-  shift instead of Patternia's operator. Explain that distinction and
-  suggest <code>lit(0) &gt;&gt; ...</code>, rather than only reporting that the case
-  was not created with <code>&gt;&gt;</code>.</li>
+<li>Implemented: <code>on(...)</code> rejects non-case arguments before handler
+  deduction and dispatch planning. For <code>0 &gt;&gt; 1</code>, the diagnostic
+  explains C++'s built-in bit shift and suggests <code>lit(0) &gt;&gt; 1</code>.
+  C++ rejects <code>0 &gt;&gt; func</code> itself when <code>func</code> is a function pointer;
+  use <code>lit(0) &gt;&gt; func</code> to select Patternia's operator.</li>
 <li>Bugs reported in
   <a href="https://github.com/sentomk/patternia/issues">GitHub issues</a> with the
   <code>bug</code> label before the release.</li>

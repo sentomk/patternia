@@ -2475,6 +2475,10 @@ There is no deferred builder stage.</p>
 <li>Each entry must be a <code>pattern &gt;&gt; handler</code> case expression.</li>
 <li>Unreachable wildcard/alt ordering errors are diagnosed at compile time.</li>
 </ul>
+<p>With two integer operands, <code>0 &gt;&gt; 1</code> is C++'s built-in bit shift,
+not a case expression. <code>on(...)</code> rejects its result and suggests
+<code>lit(0) &gt;&gt; 1</code>. Use <code>lit(0) &gt;&gt; func</code> for a function-pointer handler
+as well: C++ rejects <code>0 &gt;&gt; func</code> before Patternia can validate it.</p>
 <h3 id="pattern-handler"><code>pattern &gt;&gt; handler</code><a class="headerlink" href="#pattern-handler" title="Permanent link">&para;</a></h3>
 <p>This is the core case-expression form.</p>
 <div class="highlight"><pre><span></span><code><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">42</span>
