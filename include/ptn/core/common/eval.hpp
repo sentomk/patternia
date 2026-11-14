@@ -121,6 +121,15 @@ namespace ptn::core::common {
 
   namespace detail {
 
+    // Forward each element independently. Casting the tuple to an
+    // rvalue exposes rvalue elements without moving the tuple
+    // itself.
+    template <std::size_t I, typename Tuple>
+    constexpr decltype(auto)
+    forward_bound_element(std::remove_reference_t<Tuple> &tuple) {
+      return std::get<I>(std::forward<Tuple>(tuple));
+    }
+
     // MSVC-friendly tuple invocation
     // Avoids: std::apply + dependent lambda + if constexpr
     template <typename F, typename Tuple, std::size_t... I>
@@ -129,14 +138,16 @@ namespace ptn::core::common {
 
       using result_t = std::invoke_result_t<
           F,
-          decltype(std::get<I>(std::forward<Tuple>(t)))...>;
+          decltype(forward_bound_element<I, Tuple>(t))...>;
 
       if constexpr (std::is_void_v<result_t>) {
-        std::invoke(std::forward<F>(f), std::get<I>(t)...);
+        std::invoke(std::forward<F>(f),
+                    forward_bound_element<I, Tuple>(t)...);
         return;
       }
       else {
-        return std::invoke(std::forward<F>(f), std::get<I>(t)...);
+        return std::invoke(std::forward<F>(f),
+                           forward_bound_element<I, Tuple>(t)...);
       }
     }
 
@@ -158,16 +169,18 @@ namespace ptn::core::common {
   //   handler( pattern.bind(subject)... )
   //   The subject itself is not passed as an extra first argument
   template <typename Case, typename Subject>
-  constexpr decltype(auto) invoke_handler(const Case &c,
-                                          Subject    &subject) {
+  constexpr decltype(auto) invoke_handler(Case    &c,
+                                          Subject &subject) {
     using pattern_type = traits::case_pattern_t<Case>;
 
     ptn::core::common::static_assert_pattern_has_bind<
         detail::has_bind_member_v<pattern_type, Subject &>>();
 
     // Extract bound values from the pattern
-    auto &&bound_values = c.pattern.bind(subject);
-    return detail::invoke_from_tuple(c.handler, bound_values);
+    auto &&bound_values = std::as_const(c.pattern).bind(subject);
+    return detail::invoke_from_tuple(
+        c.handler,
+        std::forward<decltype(bound_values)>(bound_values));
   }
 
   // Case-sequence evaluation.
@@ -411,7 +424,8 @@ namespace ptn::core::common {
       if (guarded.inner.match(subject)) {
         auto &&bound = guarded.inner.bind(subject);
         if (guard_predicate_holds(guarded, bound)) {
-          return std::forward<OnGuardHit>(on_guard_hit)(bound);
+          return std::forward<OnGuardHit>(on_guard_hit)(
+              std::forward<decltype(bound)>(bound));
         }
       }
 
@@ -506,9 +520,10 @@ namespace ptn::core::common {
         return eval_guarded_case(
             current_case,
             subject,
-            [&](auto &bound) -> Result {
+            [&](auto &&bound) -> Result {
               return static_cast<Result>(detail::invoke_from_tuple(
-                  current_case.handler, bound));
+                  current_case.handler,
+                  std::forward<decltype(bound)>(bound)));
             },
             std::forward<OnMiss>(on_miss));
       }

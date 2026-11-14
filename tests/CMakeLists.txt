@@ -31,6 +31,7 @@ add_executable(ptn_tests
   tests_expression_handler.cpp
   tests_dispatch_fallback.cpp
   tests_dispatch_metadata.cpp
+  tests_move_matching.cpp
   tests_member_names.cpp
   tests_header_first.cpp
 )
@@ -58,6 +59,13 @@ if("cxx_std_20" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
 endif()
 
 set(PTN_COMPILE_FAIL_CASES
+  compile_fail/owned_guard_cannot_consume.cpp
+  compile_fail/owned_mixed_void_results.cpp
+  compile_fail/owned_incompatible_results.cpp
+  compile_fail/owned_const_binding_cannot_mutate.cpp
+  compile_fail/owned_lvalue_pack_rvalue_handler.cpp
+  compile_fail/owned_lvalue_pack_move_only_value.cpp
+  compile_fail/borrowed_subject_cannot_move.cpp
   compile_fail/on_builtin_shift.cpp
   compile_fail/on_builtin_shift_stored.cpp
   compile_fail/on_non_case.cpp

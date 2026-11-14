@@ -132,7 +132,7 @@ operand of `||` and `&&`. A plain value is a runtime literal; use
 
 ### Move-aware matching
 
-Planned; not implemented yet.
+Implemented; pending the v0.9.6 release.
 
 Accept temporary and explicitly moved subjects, including move-only
 values. The match context owns an rvalue subject for its lifetime;
@@ -168,6 +168,10 @@ guards followed by a consuming fallback, combinator short-circuiting,
 const subjects, temporary lifetimes, and copy/move counts. User
 handlers remain responsible for references they deliberately return.
 
+Owned subjects currently use source-order evaluation. Move-only
+callables and materialized bindings are supported; measuring and
+optimizing the owning path remains part of the performance work below.
+
 ### Performance work
 
 Planned alongside move semantics, rather than deferred to v0.12:
@@ -180,6 +184,8 @@ Planned alongside move semantics, rather than deferred to v0.12:
 - Measure owning and borrowed matches, rejected guards, structural
   bindings, and generic versus optimized dispatch. Keep semantic
   tests separate from timing benchmarks.
+- Measure continuation stack depth and temporary binding lifetimes
+  across rejected owned guards before flattening their evaluation.
 - Record compile time and binary size as well as run time. Publish
   reproducible before/after measurements; do not promise a speedup
   before measuring it.

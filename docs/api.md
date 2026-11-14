@@ -38,9 +38,68 @@ auto r = match(x) | on(
 
 Rules:
 
-- `subject` must be an lvalue.
+- Lvalue subjects are borrowed without copying; built-in bindings
+  remain const references.
+- Temporary subjects and `std::move(subject)` are owned by the context.
+  A non-const owned subject can be consumed by the selected handler.
 - Cases are evaluated in source order.
 - Matching uses first-match-wins semantics.
+
+### Owning a subject {#owning-a-subject}
+
+```cpp
+auto task = std::make_unique<Task>();
+match(std::move(task)) | on(
+  $[([](const auto& p) { return p && p->ready(); })]
+    >> [](std::unique_ptr<Task> p) { run(std::move(p)); },
+  $ >> [](std::unique_ptr<Task> p) { defer(std::move(p)); }
+);
+```
+
+Construction of the context moves `task` immediately. Patterns and
+guards then observe the context's value through const references.
+A rejected case leaves that value available to later cases. Only the
+selected handler receives consuming bindings. The same rules apply
+to structural members and variant alternatives, including nested
+guards and `any`, `all`, and `neg` combinations.
+
+The context owns its subject even if evaluation is delayed:
+
+```cpp
+auto pending = match(std::make_unique<Task>());
+// The temporary is now stored in pending.
+std::move(pending) | on(
+  $ >> [](std::unique_ptr<Task> p) { run(std::move(p)); }
+);
+```
+
+Constness is preserved. A const rvalue normally needs a copy to become
+an owned subject, and its bindings remain const. Move-only mutable
+callables are supported; for an owned match, a temporary or explicitly
+moved `on(...)` pack also permits an `operator() &&` handler or a
+move-only value on the right of `>>`. A stored lvalue case pack keeps
+its handlers as lvalues for reuse.
+
+Custom patterns retain their `bind(const Subject&)` contract. Values
+materialized by a binding stay alive through the guard and handler,
+and can move into the selected handler. References returned by custom
+bindings retain their declared qualifiers; Patternia does not cast
+away constness to consume them.
+
+Compatibility note: this forwarding also applies to materialized
+custom bindings in borrowed matches. If `bind()` returns `tuple<T>`
+by value, a handler now receives `T&&`, rather than the previous
+`T&`. Such handlers should accept `T`, `T&&`, or `const T&`.
+Built-in borrowed bindings remain const references.
+
+Owning match results are materialized by value before the context is
+destroyed. A handler that deliberately returns a pointer, view, or
+reference wrapper must still ensure that the referenced storage
+outlives the result.
+
+Owned subjects currently use source-order evaluation. Performance
+measurement and further dispatch optimization are tracked separately
+in the [v0.9.6 performance work](roadmap.md#performance-work).
 
 ### `on(case1, case2, ...)` {#oncases}
 
@@ -204,14 +263,12 @@ match(x) | on(
 ```
 
 An unguarded `$` (or its equivalent `$()`) can end the case list:
-it matches every value and binds the whole subject by const reference.
+it matches every value and binds the whole subject. Borrowed subjects
+bind by const reference; owned subjects follow the
+[ownership rules](#owning-a-subject).
 An existing trailing `_` remains valid. Guarded bindings such as
 `$[_ > 0]` and bindings with subpatterns such as `$(is<int>)` still
 need a fallback.
-
-Rvalue subjects and consuming bindings are planned for
-[v0.9.6](roadmap.md#move-aware-matching); they are not implemented yet.
-The const-reference behavior above describes the current API.
 
 ```cpp
 match(v) | on(

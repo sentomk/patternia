@@ -3,8 +3,8 @@
 // Implementation of the pipeline-only match context.
 //
 // This header contains the internal object returned by
-// `match(subject)`. It exists solely to support immediate evaluation
-// through `match(subject) | on(...)`.
+// `match(subject)`. It borrows lvalue subjects and owns rvalue
+// subjects until evaluation through `std::move(context) | on(...)`.
 
 #include <tuple>
 #include <type_traits>
@@ -12,6 +12,7 @@
 
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/common/diagnostics.hpp"
+#include "ptn/core/common/owned_eval.hpp"
 #include "ptn/core/dsl/detail/case_expr_impl.hpp"
 #include "ptn/core/engine/detail/match_impl.hpp"
 
@@ -29,9 +30,10 @@ namespace ptn::core::engine::detail {
 
   public:
     using subject_type = TV;
-
-    using subject_type_check = ptn::core::common::
-        subject_type_validator<subject_type>;
+    static_assert(
+        core::common::is_subject_type_valid_v<subject_type>,
+        "[Patternia.match]: context must borrow an lvalue or "
+        "own a subject object.");
 
   private:
     subject_type subject_;
@@ -56,10 +58,6 @@ namespace ptn::core::engine::detail {
     template <typename... Cases, typename CasesStorage>
     constexpr decltype(auto)
     eval_valid_on_cases(CasesStorage &&pipeline_cases) && {
-      (ptn::core::common::static_assert_valid_case<Cases,
-                                                   subject_type>(),
-       ...);
-
       ptn::core::common::
           static_assert_no_unreachable_alt_after_plain_alt<
               Cases...>();
@@ -94,38 +92,64 @@ namespace ptn::core::engine::detail {
           "Tip: add '_ >> handler' or '$ >> handler' "
           "as the last case (without a guard).");
 
-      auto dummy_fallback = [](auto &&...)
-          -> ptn::core::traits::detail::unreachable_t { return {}; };
-      using dummy_handler_t = decltype(dummy_fallback);
-
-      ptn::core::common::static_assert_valid_match<subject_type,
-                                                   dummy_handler_t,
-                                                   Cases...>();
-
-      using result_type = core::traits::
-          match_result_t<subject_type, dummy_handler_t, Cases...>;
-
-      if constexpr (traits::is_void_like_v<result_type>) {
-        match_impl::eval<result_type>(
-            std::forward<subject_type>(subject_),
-            std::forward<CasesStorage>(pipeline_cases),
-            std::move(dummy_fallback));
+      if constexpr (!std::is_lvalue_reference_v<subject_type>) {
+        // owned_case_result_t validates each handler against the
+        // actual owned bindings and the case pack's value category.
+        using result_info = decltype(core::common::detail::
+                                         owned_result_type<
+                                             subject_type,
+                                             CasesStorage &&>(
+                                             std::index_sequence_for<
+                                                 Cases...>{}));
+        static_assert(
+            result_info::valid,
+            "[Patternia.match]: handlers must all return void or "
+            "values with a common result type.");
+        if constexpr (result_info::valid) {
+          return core::common::detail::eval_owned_cases<
+              typename result_info::type>(
+              subject_, std::forward<CasesStorage>(pipeline_cases));
+        }
       }
       else {
-        return match_impl::eval<result_type>(
-            std::forward<subject_type>(subject_),
-            std::forward<CasesStorage>(pipeline_cases),
-            std::move(dummy_fallback));
+        (ptn::core::common::static_assert_valid_case<Cases,
+                                                     subject_type>(),
+         ...);
+        auto dummy_fallback = [](auto &&...)
+            -> ptn::core::traits::detail::unreachable_t {
+          return {};
+        };
+        using dummy_handler_t = decltype(dummy_fallback);
+
+        ptn::core::common::static_assert_valid_match<subject_type,
+                                                     dummy_handler_t,
+                                                     Cases...>();
+
+        using result_type = core::traits::
+            match_result_t<subject_type, dummy_handler_t, Cases...>;
+
+        if constexpr (traits::is_void_like_v<result_type>) {
+          match_impl::eval<result_type>(
+              std::forward<subject_type>(subject_),
+              std::forward<CasesStorage>(pipeline_cases),
+              std::move(dummy_fallback));
+        }
+        else {
+          return match_impl::eval<result_type>(
+              std::forward<subject_type>(subject_),
+              std::forward<CasesStorage>(pipeline_cases),
+              std::move(dummy_fallback));
+        }
       }
     }
 
   public:
-    static constexpr auto create(subject_type subject) {
+    static constexpr auto create(subject_type &&subject) {
       return pipeline_match_context{
           std::forward<subject_type>(subject)};
     }
 
-    explicit constexpr pipeline_match_context(subject_type subject)
+    explicit constexpr pipeline_match_context(subject_type &&subject)
         : subject_(std::forward<subject_type>(subject)) {
     }
 
