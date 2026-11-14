@@ -202,6 +202,11 @@ in v0.12. Optimizations must preserve the new ownership contract.
   explains C++'s built-in bit shift and suggests `lit(0) >> 1`.
   C++ rejects `0 >> func` itself when `func` is a function pointer;
   use `lit(0) >> func` to select Patternia's operator.
+- Implemented: the dispatch path from `match(x) | on(...)` to the
+  selected handler is always inlined. Without this, a dense literal
+  match wrote its whole case pack to the stack on every call and its
+  cost grew with the number of cases. A codegen check in the test
+  suite now fails when a match stops being fully inlined.
 - Bugs reported in
   [GitHub issues](https://github.com/sentomk/patternia/issues) with the
   `bug` label before the release.
