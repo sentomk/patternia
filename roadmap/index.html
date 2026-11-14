@@ -2461,7 +2461,7 @@ subpatterns of <code>is&lt;T&gt;(...)</code> and <code>alt&lt;I&gt;(...)</code>,
 operand of <code>||</code> and <code>&amp;&amp;</code>. A plain value is a runtime literal; use
 <code>val&lt;V&gt;</code> where static dispatch matters.</p>
 <h3 id="move-aware-matching">Move-aware matching<a class="headerlink" href="#move-aware-matching" title="Permanent link">&para;</a></h3>
-<p>Planned; not implemented yet.</p>
+<p>Implemented; pending the v0.9.6 release.</p>
 <p>Accept temporary and explicitly moved subjects, including move-only
 values. The match context owns an rvalue subject for its lifetime;
 matching an lvalue continues to borrow it without copying.</p>
@@ -2492,6 +2492,9 @@ matching an lvalue continues to borrow it without copying.</p>
 guards followed by a consuming fallback, combinator short-circuiting,
 const subjects, temporary lifetimes, and copy/move counts. User
 handlers remain responsible for references they deliberately return.</p>
+<p>Owned subjects currently use source-order evaluation. Move-only
+callables and materialized bindings are supported; measuring and
+optimizing the owning path remains part of the performance work below.</p>
 <h3 id="performance-work">Performance work<a class="headerlink" href="#performance-work" title="Permanent link">&para;</a></h3>
 <p>Planned alongside move semantics, rather than deferred to v0.12:</p>
 <ul>
@@ -2503,6 +2506,8 @@ handlers remain responsible for references they deliberately return.</p>
 <li>Measure owning and borrowed matches, rejected guards, structural
   bindings, and generic versus optimized dispatch. Keep semantic
   tests separate from timing benchmarks.</li>
+<li>Measure continuation stack depth and temporary binding lifetimes
+  across rejected owned guards before flattening their evaluation.</li>
 <li>Record compile time and binary size as well as run time. Publish
   reproducible before/after measurements; do not promise a speedup
   before measuring it.</li>
