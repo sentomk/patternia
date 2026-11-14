@@ -132,3 +132,28 @@ python3 scripts/ci_changes.py docs/index.md README.md
 ```bash
 python3 -m pip install -r tools/requirements-bench.txt
 ```
+
+## Codegen gate
+
+`check_codegen.py` compiles a probe from `tests/codegen/` to assembly
+and fails when the probe's match is no longer fully inlined: the
+function exceeds its instruction budget or calls out-of-line code.
+It is deterministic, so unlike the timing benchmarks it blocks a pull
+request. CTest runs it as `codegen.<probe>` on GCC and Clang:
+
+```bash
+ctest --test-dir build -R codegen --output-on-failure
+```
+
+Run one probe by hand:
+
+```bash
+python3 scripts/check_codegen.py --compiler g++ --include include \
+  --source tests/codegen/literal_dense_64.cpp --max-instructions 40
+```
+
+Add a probe by creating `tests/codegen/<name>.cpp` with one
+`ptn_codegen_probe` function and listing `<name>:<budget>` in
+`PTN_CODEGEN_PROBES` in `tests/CMakeLists.txt`. Set the budget to a
+few times the current count; it should catch a match that fell out of
+line, not pin exact instruction counts across compiler versions.

@@ -118,7 +118,7 @@ jobs:
       contents: read
       pull-requests: write
     env:
-      BENCH_FILTER: "VariantMixed|VariantAltHot|VariantMixedGuarded|VariantAltHotGuarded|ProtocolRouter|CommandParser|PacketMixed|PacketMixedHeavyBind"
+      BENCH_FILTER: "VariantMixed|VariantAltHot|VariantMixedGuarded|VariantAltHotGuarded|ProtocolRouter|CommandParser|PacketMixed|PacketMixedHeavyBind|LiteralMatch64|LiteralMatchRDense"
       BASE_SHA: ${{ github.event.pull_request.base.sha }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
 
