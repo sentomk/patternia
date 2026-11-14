@@ -163,6 +163,7 @@ set(PTN_CODEGEN_PROBES
   # name[:instruction budget]
   literal_dense_16
   literal_dense_64
+  literal_dense_64_owned
   literal_runtime_8:60
   guard_chain:45
   structural_guard:45

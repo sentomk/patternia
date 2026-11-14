@@ -34,9 +34,10 @@ namespace ptn::core::common {
     return dispatch_static_literal_offset_case<                     \
         Plan,                                                       \
         static_cast<std::size_t>(n),                                \
-        Result>(subject,                                            \
-                std::forward<CasesTuple>(cases),                    \
-                std::forward<Otherwise>(otherwise_handler))
+        Result,                                                     \
+        Entry>(subject,                                             \
+               std::forward<CasesTuple>(cases),                     \
+               std::forward<Otherwise>(otherwise_handler))
 
 #define PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(base)             \
   PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 0);                \
@@ -630,9 +631,26 @@ namespace ptn::core::common {
           std::forward<CasesTuple>(cases));
     }
 
+    // How dense literal dispatch runs the case it selected. Borrowed
+    // subjects call the handler directly; owned subjects supply
+    // their own entry so the handler sees the owned value
+    // categories.
+    struct direct_literal_case_entry {
+      template <std::size_t CaseIndex,
+                typename Result,
+                typename Subject,
+                typename CasesTuple>
+      PTN_DETAIL_ALWAYS_INLINE static constexpr Result
+      invoke(Subject &, CasesTuple &&cases) {
+        return invoke_static_literal_case_entry<CaseIndex, Result>(
+            std::forward<CasesTuple>(cases));
+      }
+    };
+
     template <typename Plan,
               std::size_t Offset,
               typename Result,
+              typename Entry,
               typename Subject,
               typename CasesTuple,
               typename Otherwise>
@@ -649,16 +667,18 @@ namespace ptn::core::common {
             case_index = cache_t::case_index_table[Offset];
 
         if constexpr (case_index != Plan::k_invalid_case_index) {
-          return invoke_static_literal_case_entry<
-              static_cast<std::size_t>(case_index),
-              Result>(std::forward<CasesTuple>(cases));
+          return Entry::template invoke<static_cast<std::size_t>(
+                                            case_index),
+                                        Result>(
+              subject, std::forward<CasesTuple>(cases));
         }
       }
 
       if constexpr (Plan::has_default_case) {
-        return invoke_static_literal_case_entry<
-            static_cast<std::size_t>(Plan::default_case_index),
-            Result>(std::forward<CasesTuple>(cases));
+        return Entry::template invoke<static_cast<std::size_t>(
+                                          Plan::default_case_index),
+                                      Result>(
+            subject, std::forward<CasesTuple>(cases));
       }
       else {
         return invoke_otherwise_typed<Result>(
@@ -672,6 +692,7 @@ namespace ptn::core::common {
     // dense integer switch into a jump table with no call overhead.
     template <typename Plan,
               typename Result,
+              typename Entry,
               typename Subject,
               typename CasesTuple,
               typename Otherwise>
@@ -720,9 +741,9 @@ namespace ptn::core::common {
         PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(496);
       default:
         if constexpr (Plan::has_default_case) {
-          return invoke_static_literal_case_entry<
+          return Entry::template invoke<
               static_cast<std::size_t>(Plan::default_case_index),
-              Result>(std::forward<CasesTuple>(cases));
+              Result>(subject, std::forward<CasesTuple>(cases));
         }
         else {
           return invoke_otherwise_typed<Result>(
@@ -733,6 +754,7 @@ namespace ptn::core::common {
 
     template <typename Plan,
               typename Result,
+              typename Entry,
               typename Subject,
               typename CasesTuple,
               typename Otherwise>
@@ -749,7 +771,7 @@ namespace ptn::core::common {
                               Plan::min_value);
 
       if (offset < Plan::range_size) {
-        return dispatch_static_literal_offset<Plan, Result>(
+        return dispatch_static_literal_offset<Plan, Result, Entry>(
             offset,
             subject,
             std::forward<CasesTuple>(cases),
@@ -757,9 +779,10 @@ namespace ptn::core::common {
       }
 
       if constexpr (Plan::has_default_case) {
-        return invoke_static_literal_case_entry<
-            static_cast<std::size_t>(Plan::default_case_index),
-            Result>(std::forward<CasesTuple>(cases));
+        return Entry::template invoke<static_cast<std::size_t>(
+                                          Plan::default_case_index),
+                                      Result>(
+            subject, std::forward<CasesTuple>(cases));
       }
       else {
         return invoke_otherwise_typed<Result>(
@@ -1160,7 +1183,10 @@ namespace ptn::core::common {
                     || Plan::kind
                            == dispatch_plan_kind::
                                literal_runtime_dense) {
-        return eval_cases_impl_static_literal_dispatch<Plan, Result>(
+        return eval_cases_impl_static_literal_dispatch<
+            Plan,
+            Result,
+            direct_literal_case_entry>(
             subject,
             std::forward<CasesTuple>(cases),
             std::forward<Otherwise>(otherwise_handler));
