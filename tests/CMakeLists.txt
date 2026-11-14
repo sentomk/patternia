@@ -148,3 +148,42 @@ endfunction()
 foreach(_case IN LISTS PTN_COMPILE_FAIL_CASES)
   ptn_add_compile_fail_test("${_case}")
 endforeach()
+
+# Codegen gate: each probe holds one match that must compile down to
+# a few inlined instructions. A match that stops being fully inlined
+# writes its whole case pack to the stack on every call, which this
+# catches deterministically; see scripts/check_codegen.py. The probes
+# are compiled with optimization here, independent of the build type.
+set(PTN_CODEGEN_PROBES
+  # name:instruction budget
+  literal_dense_16:40
+  literal_dense_64:40
+  literal_runtime_8:60
+  guard_chain:45
+  structural_guard:45
+)
+
+find_package(Python3 COMPONENTS Interpreter QUIET)
+
+if(Python3_Interpreter_FOUND
+   AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang"
+   AND NOT MSVC
+   AND NOT CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC"
+   AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64|aarch64|arm64")
+  foreach(_probe IN LISTS PTN_CODEGEN_PROBES)
+    string(REPLACE ":" ";" _probe_fields "${_probe}")
+    list(GET _probe_fields 0 _probe_name)
+    list(GET _probe_fields 1 _probe_budget)
+
+    add_test(
+      NAME "codegen.${_probe_name}"
+      COMMAND
+        ${Python3_EXECUTABLE}
+        ${PROJECT_SOURCE_DIR}/scripts/check_codegen.py
+        --compiler ${CMAKE_CXX_COMPILER}
+        --include ${PROJECT_SOURCE_DIR}/include
+        --source ${CMAKE_CURRENT_LIST_DIR}/codegen/${_probe_name}.cpp
+        --max-instructions ${_probe_budget}
+    )
+  endforeach()
+endif()

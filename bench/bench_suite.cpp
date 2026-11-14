@@ -9,6 +9,20 @@
 
 #include "ptn/patternia.hpp"
 
+// The runner templates below take the routed function as a function
+// pointer, so every route of one signature shares one instantiation.
+// The route is only inlined into the timing loop when the runner is
+// inlined into its benchmark. Left to the inliner's budget, that can
+// flip for the whole file at once and add an indirect call to every
+// implementation, including the hand-written ones.
+#if defined(_MSC_VER)
+#define PTN_BENCH_ALWAYS_INLINE __forceinline
+#elif defined(__GNUC__) || defined(__clang__)
+#define PTN_BENCH_ALWAYS_INLINE inline __attribute__((always_inline))
+#else
+#define PTN_BENCH_ALWAYS_INLINE inline
+#endif
+
 #define PTN_BENCH_MODE_PIPE_STD   1
 #define PTN_BENCH_MODE_PIPE_CHAIN 2
 
@@ -1164,8 +1178,8 @@ namespace {
   }
 
   template <typename F>
-  static void run_variant_alternating_hot(benchmark::State &state,
-                                          F                 fn) {
+  PTN_BENCH_ALWAYS_INLINE static void
+  run_variant_alternating_hot(benchmark::State &state, F fn) {
     // Microbench: isolate dispatch overhead with two prebuilt
     // alternatives.
     static V int_alt = 7;
@@ -1189,7 +1203,7 @@ namespace {
   }
 
   template <typename F>
-  static void
+  PTN_BENCH_ALWAYS_INLINE static void
   run_variant_alt_32_alternating_hot(benchmark::State &state, F fn) {
     // Microbench: isolate dispatch overhead across far-apart
     // alternatives.
@@ -1628,9 +1642,10 @@ namespace {
   }
 
   template <typename T, typename F>
-  static void run_workload(benchmark::State     &state,
-                           const std::vector<T> &workload,
-                           F                     fn) {
+  PTN_BENCH_ALWAYS_INLINE static void
+  run_workload(benchmark::State     &state,
+               const std::vector<T> &workload,
+               F                     fn) {
     std::size_t idx = 0;
     int         acc = 0;
 

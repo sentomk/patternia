@@ -12,6 +12,7 @@
 
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/common/diagnostics.hpp"
+#include "ptn/core/common/inline.hpp"
 #include "ptn/core/common/owned_eval.hpp"
 #include "ptn/core/dsl/detail/case_expr_impl.hpp"
 #include "ptn/core/engine/detail/match_impl.hpp"
@@ -39,7 +40,7 @@ namespace ptn::core::engine::detail {
     subject_type subject_;
 
     template <typename... Cases, typename CasesStorage>
-    constexpr decltype(auto)
+    PTN_DETAIL_ALWAYS_INLINE constexpr decltype(auto)
     eval_on_cases(CasesStorage &&pipeline_cases) && {
       if constexpr ((traits::is_case_expr_v<Cases> && ...)) {
         return std::move(*this)
@@ -56,7 +57,7 @@ namespace ptn::core::engine::detail {
     }
 
     template <typename... Cases, typename CasesStorage>
-    constexpr decltype(auto)
+    PTN_DETAIL_ALWAYS_INLINE constexpr decltype(auto)
     eval_valid_on_cases(CasesStorage &&pipeline_cases) && {
       ptn::core::common::
           static_assert_no_unreachable_alt_after_plain_alt<
@@ -154,14 +155,14 @@ namespace ptn::core::engine::detail {
     }
 
     template <typename... Cases>
-    constexpr decltype(auto)
+    PTN_DETAIL_ALWAYS_INLINE constexpr decltype(auto)
     operator|(core::dsl::detail::on<Cases...> &on_cases) && {
       return std::move(*this).template eval_on_cases<Cases...>(
           on_cases.cases);
     }
 
     template <typename... Cases>
-    constexpr decltype(auto)
+    PTN_DETAIL_ALWAYS_INLINE constexpr decltype(auto)
     operator|(core::dsl::detail::on<Cases...> &&on_cases) && {
       return std::move(*this).template eval_on_cases<Cases...>(
           std::move(on_cases.cases));

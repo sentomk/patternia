@@ -16,6 +16,7 @@
 
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/common/diagnostics.hpp"
+#include "ptn/core/common/inline.hpp"
 #include "ptn/core/common/optimize.hpp"
 #include "ptn/core/dsl/detail/case_expr_impl.hpp"
 
@@ -459,7 +460,8 @@ namespace ptn::core::common {
     template <std::size_t CaseIndex,
               typename Result,
               typename CasesTuple>
-    constexpr Result invoke_direct_case_entry(CasesTuple &&cases) {
+    PTN_DETAIL_ALWAYS_INLINE constexpr Result
+    invoke_direct_case_entry(CasesTuple &&cases) {
       using tuple_t = std::remove_reference_t<CasesTuple>;
       constexpr std::size_t case_count = std::tuple_size_v<tuple_t>;
 
@@ -622,7 +624,7 @@ namespace ptn::core::common {
     template <std::size_t CaseIndex,
               typename Result,
               typename CasesTuple>
-    constexpr Result
+    PTN_DETAIL_ALWAYS_INLINE constexpr Result
     invoke_static_literal_case_entry(CasesTuple &&cases) {
       return invoke_direct_case_entry<CaseIndex, Result>(
           std::forward<CasesTuple>(cases));
@@ -634,7 +636,8 @@ namespace ptn::core::common {
               typename Subject,
               typename CasesTuple,
               typename Otherwise>
-    inline Result dispatch_static_literal_offset_case(
+    PTN_DETAIL_ALWAYS_INLINE Result
+    dispatch_static_literal_offset_case(
         Subject     &subject,
         CasesTuple &&cases,
         Otherwise  &&otherwise_handler) {
@@ -672,7 +675,7 @@ namespace ptn::core::common {
               typename Subject,
               typename CasesTuple,
               typename Otherwise>
-    inline Result
+    PTN_DETAIL_ALWAYS_INLINE Result
     dispatch_static_literal_offset(std::size_t  offset,
                                    Subject     &subject,
                                    CasesTuple &&cases,
@@ -733,7 +736,8 @@ namespace ptn::core::common {
               typename Subject,
               typename CasesTuple,
               typename Otherwise>
-    inline Result eval_cases_impl_static_literal_dispatch(
+    PTN_DETAIL_ALWAYS_INLINE Result
+    eval_cases_impl_static_literal_dispatch(
         Subject     &subject,
         CasesTuple &&cases,
         Otherwise  &&otherwise_handler) {
@@ -1147,7 +1151,7 @@ namespace ptn::core::common {
               typename Subject,
               typename CasesTuple,
               typename Otherwise>
-    constexpr Result
+    PTN_DETAIL_ALWAYS_INLINE constexpr Result
     eval_cases_with_dispatch_plan(Subject     &subject,
                                   CasesTuple &&cases,
                                   Otherwise  &&otherwise_handler) {
@@ -1204,9 +1208,10 @@ namespace ptn::core::common {
             typename Subject,
             typename CasesTuple,
             typename Otherwise>
-  constexpr Result eval_cases_typed(Subject     &subject,
-                                    CasesTuple &&cases,
-                                    Otherwise  &&otherwise_handler) {
+  PTN_DETAIL_ALWAYS_INLINE constexpr Result
+  eval_cases_typed(Subject     &subject,
+                   CasesTuple &&cases,
+                   Otherwise  &&otherwise_handler) {
     using dispatch_plan_t = detail::
         dispatch_plan<Subject, std::remove_reference_t<CasesTuple>>;
 
