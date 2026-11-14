@@ -34,7 +34,12 @@ add_executable(ptn_bench_scale
   bench_scale.cpp
 )
 
-foreach(_ptn_bench_target IN ITEMS ptn_bench ptn_bench_lit ptn_bench_evolution ptn_bench_variant ptn_bench_scale)
+add_executable(ptn_bench_ownership
+  bench_ownership.cpp
+)
+
+foreach(_ptn_bench_target IN ITEMS ptn_bench ptn_bench_lit ptn_bench_evolution ptn_bench_variant ptn_bench_scale
+    ptn_bench_ownership)
   target_link_libraries(${_ptn_bench_target} PRIVATE
     patternia
     benchmark::benchmark
