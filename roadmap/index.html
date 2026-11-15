@@ -2513,9 +2513,19 @@ owning path remains part of the performance work below.</p>
 <li>Record compile time and binary size as well as run time. Publish
   reproducible before/after measurements; do not promise a speedup
   before measuring it.</li>
+<li>Separate selecting a case from running it, so that every keyed
+  dispatch (literals, variant alternatives, owned and borrowed
+  subjects) goes through one index switch instead of a lowering of
+  its own.</li>
+<li>Implemented: variant alternatives. The active index selects the
+    alternative through a <code>switch</code>, as a hand-written visitor would,
+    in place of the earlier comparison chain, comparison tree and
+    function-pointer table.</li>
+<li>Planned: static literals, case packs in static storage
+    (<code>PTN_ON</code>), and <code>lit(...)</code> literals.</li>
 </ul>
-<p>Broader dispatch optimization and benchmarks for nested matching stay
-in v0.12. Optimizations must preserve the new ownership contract.</p>
+<p>Benchmarks for nested matching stay in v0.12. Optimizations must
+preserve the new ownership contract.</p>
 <h3 id="fixes-and-diagnostics">Fixes and diagnostics<a class="headerlink" href="#fixes-and-diagnostics" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Implemented: <code>$(pred(...))</code> binds the matched value, like
