@@ -1532,6 +1532,8 @@
 <span class="p">}</span>
 </code></pre></div></p>
 <p><strong>Caveat:</strong> Lambdas inside <code>PTN_ON</code> must be stateless (no captures), as they are stored in a static context.</p>
+<p>When no handler keeps state, <code>PTN_ON</code> caches the cases as <code>const</code>, so the compiler treats them as constants and a match through <code>PTN_ON</code> compiles to the same code as the same cases written with <code>on(...)</code>. A handler with state (for example a function object with a counter) is still allowed, but its cache stays mutable and the compiler has to read the cases from memory.</p>
+<p>The same applies to a case pack you cache yourself: write <code>static const auto cases = on(...);</code> rather than <code>static auto cases = on(...);</code>. GCC turns a dispatch on a non-const static into a jump table instead of a lookup table, which made a 32-alternative variant match about three times slower in the benchmarks (1.32 against 0.41 ns).</p>
 <h3 id="when-to-use-static_onfactory">When to use <code>static_on(factory)</code><a class="headerlink" href="#when-to-use-static_onfactory" title="Permanent link">&para;</a></h3>
 <p>The <code>static_on</code> function creates a persistent static match object from a factory lambda. It serves as a more explicit version of the caching mechanism used by <code>PTN_ON</code>.</p>
 <p>Use this when you need to store the match object separately from a single call site, such as pre-computing a matcher object at initialization time and then calling it from multiple different locations.</p>

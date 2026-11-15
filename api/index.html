@@ -1303,6 +1303,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#constant-case-packs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constant case packs
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2407,6 +2418,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#constant-case-packs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constant case packs
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2891,15 +2913,34 @@ non-zero subject while <code>flag</code> is true. Use a guard to test a conditio
 <span class="w">  </span><span class="p">);</span>
 <span class="p">});</span>
 </code></pre></div>
+<p>The cases are built on the first call and cached in a static. When
+no handler keeps state (a captureless lambda, a constant such as
+<code>&gt;&gt; 1</code>, or an expression such as <code>&gt;&gt; _ + 1</code>), the cache is <code>const</code>,
+so the compiler can treat the cases as constants. <code>static_on</code> then
+returns a <code>const</code> reference. A handler with state, such as a function
+object with a counter, keeps a mutable cache, and its state persists
+between calls.</p>
 <h3 id="ptn_on"><code>PTN_ON(...)</code><a class="headerlink" href="#ptn_on" title="Permanent link">&para;</a></h3>
-<p>Convenience macro over <code>static_on(...)</code>.</p>
+<p>Convenience macro over <code>static_on(...)</code>, with the same caching rules.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PTN_ON</span><span class="p">(</span>
 <span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
 <span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
 <span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
 <span class="p">);</span>
 </code></pre></div>
-<p>The factory must be stateless.</p>
+<p>The factory must be stateless. When the cases can be evaluated at
+compile time, the cache is initialized as a constant and needs no
+initialization guard.</p>
+<h3 id="constant-case-packs">Constant case packs<a class="headerlink" href="#constant-case-packs" title="Permanent link">&para;</a></h3>
+<p>A case pack may also be <code>const</code> or <code>constexpr</code> and reused across
+matches:</p>
+<div class="highlight"><pre><span></span><code><span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">classify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">on</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">classify</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">compute</span><span class="p">())</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">classify</span><span class="p">;</span>
+</code></pre></div>
+<p>Handlers of a <code>const</code> case pack are called through a <code>const</code>
+reference.</p>
 <hr />
 <h2 id="namespace-summary">Namespace Summary<a class="headerlink" href="#namespace-summary" title="Permanent link">&para;</a></h2>
 <p>The public surface is available through <code>namespace ptn</code>, plus the macros listed
