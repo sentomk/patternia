@@ -2,6 +2,7 @@
 
 #include <ptn/patternia.hpp>
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <stdexcept>
@@ -625,4 +626,135 @@ TEST(MoveMatching, MoveOnlyMutableGuardStillObservesConstBindings) {
                         [](std::unique_ptr<int> p) { return *p; },
                     _ >> 0),
             73);
+}
+
+// Dense static literals on an owned subject use keyed dispatch
+// instead of source-order evaluation. The selected case and the
+// handler contract must be the same either way.
+namespace {
+  enum class Color : std::uint8_t {
+    Red,
+    Green,
+    Blue,
+    Other
+  };
+
+  int dense_literal_owned(int v) {
+    return match(int(v))
+           | on(val<1> >> 11,
+                val<2> >> 22,
+                val<3> >> 33,
+                val<4> >> 44,
+                val<5> >> 55,
+                val<6> >> 66,
+                val<7> >> 77,
+                val<8> >> 88,
+                _ >> 0);
+  }
+
+  int dense_literal_borrowed(const int &v) {
+    return match(v)
+           | on(val<1> >> 11,
+                val<2> >> 22,
+                val<3> >> 33,
+                val<4> >> 44,
+                val<5> >> 55,
+                val<6> >> 66,
+                val<7> >> 77,
+                val<8> >> 88,
+                _ >> 0);
+  }
+
+  struct NullaryRvalueHandler {
+    std::unique_ptr<int> value;
+    explicit NullaryRvalueHandler(int v)
+        : value(std::make_unique<int>(v)) {
+    }
+    NullaryRvalueHandler(NullaryRvalueHandler &&)      = default;
+    NullaryRvalueHandler(const NullaryRvalueHandler &) = delete;
+    int operator()() && {
+      return *value;
+    }
+  };
+} // namespace
+
+TEST(MoveMatching, OwnedDenseLiteralsSelectTheSameCaseAsBorrowed) {
+  for (int v :
+       {-1000, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 600, 100000}) {
+    EXPECT_EQ(dense_literal_owned(v), dense_literal_borrowed(v))
+        << "subject " << v;
+  }
+  EXPECT_EQ(dense_literal_owned(5), 55);
+  EXPECT_EQ(dense_literal_owned(9), 0);
+}
+
+TEST(MoveMatching, OwnedDenseLiteralsWorkOnEnums) {
+  auto name = [](Color c) {
+    return match(Color(c))
+           | on(val<Color::Red> >> 1,
+                val<Color::Green> >> 2,
+                val<Color::Blue> >> 3,
+                _ >> -1);
+  };
+  EXPECT_EQ(name(Color::Red), 1);
+  EXPECT_EQ(name(Color::Green), 2);
+  EXPECT_EQ(name(Color::Blue), 3);
+  EXPECT_EQ(name(Color::Other), -1);
+}
+
+TEST(MoveMatching, OwnedDenseLiteralRunsOnlyTheSelectedHandler) {
+  int  calls[4] = {};
+  auto run      = [&](int v) {
+    match(int(v))
+        | on(
+            val<1> >> [&] { ++calls[0]; },
+            val<2> >> [&] { ++calls[1]; },
+            val<3> >> [&] { ++calls[2]; },
+            _ >> [&] { ++calls[3]; });
+  };
+  run(2);
+  run(3);
+  run(3);
+  run(42);
+  EXPECT_EQ(calls[0], 0);
+  EXPECT_EQ(calls[1], 1);
+  EXPECT_EQ(calls[2], 2);
+  EXPECT_EQ(calls[3], 1);
+}
+
+TEST(MoveMatching, OwnedDenseLiteralKeepsOneShotHandlerContract) {
+  EXPECT_EQ(match(2)
+                | on(val<1> >> NullaryRvalueHandler(10),
+                     val<2> >> NullaryRvalueHandler(20),
+                     val<3> >> NullaryRvalueHandler(30),
+                     _ >> NullaryRvalueHandler(0)),
+            20);
+  EXPECT_EQ(match(9)
+                | on(val<1> >> NullaryRvalueHandler(10),
+                     val<2> >> NullaryRvalueHandler(20),
+                     val<3> >> NullaryRvalueHandler(30),
+                     _ >> NullaryRvalueHandler(0)),
+            0);
+
+  std::unique_ptr<int>
+      owned = match(3)
+              | on(val<1> >> std::make_unique<int>(1),
+                   val<2> >> std::make_unique<int>(2),
+                   val<3> >> std::make_unique<int>(3),
+                   _ >> std::unique_ptr<int>());
+  ASSERT_NE(owned, nullptr);
+  EXPECT_EQ(*owned, 3);
+}
+
+TEST(MoveMatching, OwnedDenseLiteralReusesAnLvalueCasePack) {
+  int  calls = 0;
+  auto cases = on(
+      val<1> >> [&] { return ++calls; },
+      val<2> >> [&] { return calls += 10; },
+      val<3> >> [&] { return calls += 100; },
+      _ >> [&] { return calls; });
+  EXPECT_EQ(match(1) | cases, 1);
+  EXPECT_EQ(match(2) | cases, 11);
+  EXPECT_EQ(match(2) | cases, 21);
+  EXPECT_EQ(match(7) | cases, 21);
 }

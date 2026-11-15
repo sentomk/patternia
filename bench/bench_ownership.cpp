@@ -7,7 +7,8 @@
 //             and can use optimized dispatch.
 //   Owned     match(rvalue): the context owns the subject and
 //   evaluates
-//             the cases in source order.
+//             the cases in source order, except for dense static
+//             literals, which use keyed dispatch.
 //   Manual    hand-written C++ with the same semantics.
 //
 // The owned variants copy the workload item into a temporary first,
@@ -88,6 +89,64 @@ namespace {
   const std::vector<int> &wl_literal() {
     static const std::vector<int> data = {
         1, 8, 3, 9, 5, 2, 7, 0, 4, 6, 12, 8, 1, 5, 3, 7};
+    return data;
+  }
+
+  // ---- Scenario 1b: 64 dense static literals ----
+  //
+  // Unlike `lit(...)`, `val<N>` puts the value in the type, so the
+  // planner can use keyed dispatch. Owned subjects must get it too.
+
+#define PTN_BENCH_DENSE_CASE(n) ptn::val<n> >> ((n) * 3)
+#define PTN_BENCH_DENSE_BLOCK_4(b)                                  \
+  PTN_BENCH_DENSE_CASE((b) + 0), PTN_BENCH_DENSE_CASE((b) + 1),     \
+      PTN_BENCH_DENSE_CASE((b) + 2), PTN_BENCH_DENSE_CASE((b) + 3)
+#define PTN_BENCH_DENSE_BLOCK_16(b)                                 \
+  PTN_BENCH_DENSE_BLOCK_4((b) + 0),                                 \
+      PTN_BENCH_DENSE_BLOCK_4((b) + 4),                             \
+      PTN_BENCH_DENSE_BLOCK_4((b) + 8),                             \
+      PTN_BENCH_DENSE_BLOCK_4((b) + 12)
+#define PTN_BENCH_DENSE_CASES                                       \
+  PTN_BENCH_DENSE_BLOCK_16(1), PTN_BENCH_DENSE_BLOCK_16(17),        \
+      PTN_BENCH_DENSE_BLOCK_16(33), PTN_BENCH_DENSE_BLOCK_16(49)
+
+  int dense_borrowed(const int &v) {
+    return match(v) | on(PTN_BENCH_DENSE_CASES, _ >> 0);
+  }
+
+  int dense_owned(const int &v) {
+    return match(int(v)) | on(PTN_BENCH_DENSE_CASES, _ >> 0);
+  }
+
+#define PTN_BENCH_DENSE_SWITCH_CASE(n)                              \
+  case (n):                                                         \
+    return (n) * 3
+#define PTN_BENCH_DENSE_SWITCH_4(b)                                 \
+  PTN_BENCH_DENSE_SWITCH_CASE((b) + 0);                             \
+  PTN_BENCH_DENSE_SWITCH_CASE((b) + 1);                             \
+  PTN_BENCH_DENSE_SWITCH_CASE((b) + 2);                             \
+  PTN_BENCH_DENSE_SWITCH_CASE((b) + 3)
+#define PTN_BENCH_DENSE_SWITCH_16(b)                                \
+  PTN_BENCH_DENSE_SWITCH_4((b) + 0);                                \
+  PTN_BENCH_DENSE_SWITCH_4((b) + 4);                                \
+  PTN_BENCH_DENSE_SWITCH_4((b) + 8);                                \
+  PTN_BENCH_DENSE_SWITCH_4((b) + 12)
+
+  int dense_manual(const int &v) {
+    switch (v) {
+      PTN_BENCH_DENSE_SWITCH_16(1);
+      PTN_BENCH_DENSE_SWITCH_16(17);
+      PTN_BENCH_DENSE_SWITCH_16(33);
+      PTN_BENCH_DENSE_SWITCH_16(49);
+    default:
+      return 0;
+    }
+  }
+
+  // Hits spread over the whole range, plus two misses.
+  const std::vector<int> &wl_dense() {
+    static const std::vector<int> data = {
+        1, 64, 17, 40, 9, 55, 33, 0, 48, 5, 70, 23, 61, 12, 36, 28};
     return data;
   }
 
@@ -413,6 +472,10 @@ namespace {
   DEF_BENCH(Borrowed_Literal, wl_literal, literal_borrowed);
   DEF_BENCH(Owned_Literal, wl_literal, literal_owned);
   DEF_BENCH(Manual_Literal, wl_literal, literal_manual);
+
+  DEF_BENCH(Borrowed_LiteralDense, wl_dense, dense_borrowed);
+  DEF_BENCH(Owned_LiteralDense, wl_dense, dense_owned);
+  DEF_BENCH(Manual_LiteralDense, wl_dense, dense_manual);
 
   DEF_BENCH(Borrowed_Variant, wl_variant, variant_borrowed);
   DEF_BENCH(Owned_Variant, wl_variant, variant_owned);

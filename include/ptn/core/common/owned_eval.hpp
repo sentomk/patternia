@@ -409,7 +409,8 @@ namespace ptn::core::common::detail {
             std::size_t I = 0,
             typename S,
             typename Cases>
-  constexpr Result eval_owned_cases(S &subject, Cases &&cases) {
+  constexpr Result eval_owned_cases_in_order(S      &subject,
+                                             Cases &&cases) {
     if constexpr (I
                   == std::tuple_size_v<
                       std::remove_reference_t<Cases>>) {
@@ -430,9 +431,69 @@ namespace ptn::core::common::detail {
                     std::remove_reference_t<decltype(bound)>>>{}));
           },
           [&]() -> Result {
-            return eval_owned_cases<Result, I + 1>(
+            return eval_owned_cases_in_order<Result, I + 1>(
                 subject, std::forward<Cases>(cases));
           });
+    }
+  }
+
+  // Runs the case that dense literal dispatch selected for an owned
+  // subject. A literal case binds nothing, so its handler is invoked
+  // directly; the trailing fallback goes through the ordinary owned
+  // visit so it still receives the subject as an rvalue.
+  struct owned_literal_case_entry {
+    template <std::size_t CaseIndex,
+              typename Result,
+              typename S,
+              typename Cases>
+    PTN_DETAIL_ALWAYS_INLINE static constexpr Result
+    invoke(S &subject, Cases &&cases) {
+      using pattern = traits::case_pattern_t<
+          std::tuple_element_t<CaseIndex,
+                               std::remove_reference_t<Cases>>>;
+      if constexpr (is_static_literal_pattern_v<pattern>) {
+        return static_cast<Result>(invoke_owned_handler(
+            std::get<CaseIndex>(std::forward<Cases>(cases)),
+            std::tuple<>{},
+            std::index_sequence<>{}));
+      }
+      else {
+        return eval_owned_cases_in_order<Result, CaseIndex>(
+            subject, std::forward<Cases>(cases));
+      }
+    }
+  };
+
+  // Owned subjects are matched in source order, except where the
+  // planner proves that a keyed dispatch selects the same case: a
+  // dense run of static literals followed by a fallback. Those cases
+  // have no guards and no bindings, so jumping straight to the first
+  // case with the subject's value is not observable.
+  template <typename Result, typename S, typename Cases>
+  PTN_DETAIL_ALWAYS_INLINE constexpr Result
+  eval_owned_cases(S &subject, Cases &&cases) {
+    using plan = dispatch_plan<S, std::remove_reference_t<Cases>>;
+    constexpr bool
+        keyed = plan::kind
+                    == dispatch_plan_kind::static_literal_dense
+                || plan::kind
+                       == dispatch_plan_kind::literal_runtime_dense;
+    if constexpr (keyed) {
+      if constexpr (plan::has_default_case) {
+        return eval_cases_impl_static_literal_dispatch<
+            plan,
+            Result,
+            owned_literal_case_entry>(
+            subject, std::forward<Cases>(cases), [] {});
+      }
+      else {
+        return eval_owned_cases_in_order<Result>(
+            subject, std::forward<Cases>(cases));
+      }
+    }
+    else {
+      return eval_owned_cases_in_order<Result>(
+          subject, std::forward<Cases>(cases));
     }
   }
 } // namespace ptn::core::common::detail

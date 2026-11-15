@@ -168,9 +168,11 @@ guards followed by a consuming fallback, combinator short-circuiting,
 const subjects, temporary lifetimes, and copy/move counts. User
 handlers remain responsible for references they deliberately return.
 
-Owned subjects currently use source-order evaluation. Move-only
-callables and materialized bindings are supported; measuring and
-optimizing the owning path remains part of the performance work below.
+Owned subjects use source-order evaluation, except for a dense run
+of `val<N>` literals followed by a fallback, which uses the same keyed
+dispatch as a borrowed subject. Move-only callables and materialized
+bindings are supported; measuring and optimizing the rest of the
+owning path remains part of the performance work below.
 
 ### Performance work
 
