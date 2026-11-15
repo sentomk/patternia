@@ -450,6 +450,106 @@ namespace {
     }
   }
 
+  // ---- Scenario 7: how the first handler treats its binding ----
+  //
+  // Same guards as scenario 6, which never select the first case.
+  // Only that case's handler differs: scenario 6 takes the string by
+  // value and discards it, Keep returns it, and NoArg takes nothing.
+  // The first case never runs, so any difference between these is
+  // code generation, not work done by the guards.
+
+  void consume_guarded_keep_owned(std::string &slot) {
+    slot = match(std::move(slot))
+           | on(
+               $[([](const std::string &s) { return s.empty(); })] >>
+                   [](std::string s) { return s; },
+               $[([](const std::string &s) { return s.size() < 8; })]
+                   >> [](std::string s) { return s; },
+               $ >> [](std::string s) { return s; });
+  }
+
+  void consume_guarded_noarg_owned(std::string &slot) {
+    slot = match(std::move(slot))
+           | on(
+               $[([](const std::string &s) { return s.empty(); })] >>
+                   [] { return std::string(); },
+               $[([](const std::string &s) { return s.size() < 8; })]
+                   >> [](std::string s) { return s; },
+               $ >> [](std::string s) { return s; });
+  }
+
+  // Manual counterpart of scenario 6 that also hands the string to a
+  // by-value function that discards it.
+  void consume_guarded_discard_manual(std::string &slot) {
+    const auto  take  = [](std::string s) { return s; };
+    const auto  drop  = [](std::string) { return std::string(); };
+    std::string owned = std::move(slot);
+    if (owned.empty()) {
+      slot = drop(std::move(owned));
+    }
+    else if (owned.size() < 8) {
+      slot = take(std::move(owned));
+    }
+    else {
+      slot = take(std::move(owned));
+    }
+  }
+
+  // Manual counterpart with the shape a match expression has: every
+  // branch returns the result by value and one assignment stores it.
+  std::string consume_guarded_route(std::string &&src) {
+    const auto  take  = [](std::string s) { return s; };
+    const auto  drop  = [](std::string) { return std::string(); };
+    std::string owned = std::move(src);
+    if (owned.empty()) {
+      return drop(std::move(owned));
+    }
+    if (owned.size() < 8) {
+      return take(std::move(owned));
+    }
+    return take(std::move(owned));
+  }
+
+  void consume_guarded_expr_manual(std::string &slot) {
+    slot = consume_guarded_route(std::move(slot));
+  }
+
+  // ---- Scenario 8: number of rejected guards ----
+  //
+  // One, two and four guards fail before the fallback takes the
+  // string. Owned_Consume is the zero-guard point of this series.
+
+#define PTN_REJECTED_SIZE_GUARD(N)                                  \
+  $[([](const std::string &s) { return s.size() < (N); })] >>       \
+      [](std::string s) { return s; }
+
+  void consume_guards1_owned(std::string &slot) {
+    slot = match(std::move(slot))
+           | on(
+               PTN_REJECTED_SIZE_GUARD(8),
+               $ >> [](std::string s) { return s; });
+  }
+
+  void consume_guards2_owned(std::string &slot) {
+    slot = match(std::move(slot))
+           | on(
+               PTN_REJECTED_SIZE_GUARD(4),
+               PTN_REJECTED_SIZE_GUARD(8),
+               $ >> [](std::string s) { return s; });
+  }
+
+  void consume_guards4_owned(std::string &slot) {
+    slot = match(std::move(slot))
+           | on(
+               PTN_REJECTED_SIZE_GUARD(2),
+               PTN_REJECTED_SIZE_GUARD(4),
+               PTN_REJECTED_SIZE_GUARD(6),
+               PTN_REJECTED_SIZE_GUARD(8),
+               $ >> [](std::string s) { return s; });
+  }
+
+#undef PTN_REJECTED_SIZE_GUARD
+
 #define PTN_OWNERSHIP_BENCH(Name)                                   \
   BENCHMARK(BM_##Name)                                              \
       ->Unit(benchmark::kNanosecond)                                \
@@ -497,5 +597,19 @@ namespace {
                     consume_guarded_borrowed);
   DEF_CONSUME_BENCH(Owned_ConsumeGuarded, consume_guarded_owned);
   DEF_CONSUME_BENCH(Manual_ConsumeGuarded, consume_guarded_manual);
+
+  DEF_CONSUME_BENCH(Owned_ConsumeGuardedKeep,
+                    consume_guarded_keep_owned);
+  DEF_CONSUME_BENCH(Owned_ConsumeGuardedNoArg,
+                    consume_guarded_noarg_owned);
+  DEF_CONSUME_BENCH(Manual_ConsumeGuardedDiscard,
+                    consume_guarded_discard_manual);
+
+  DEF_CONSUME_BENCH(Manual_ConsumeGuardedExpr,
+                    consume_guarded_expr_manual);
+
+  DEF_CONSUME_BENCH(Owned_ConsumeGuards1, consume_guards1_owned);
+  DEF_CONSUME_BENCH(Owned_ConsumeGuards2, consume_guards2_owned);
+  DEF_CONSUME_BENCH(Owned_ConsumeGuards4, consume_guards4_owned);
 
 } // namespace
