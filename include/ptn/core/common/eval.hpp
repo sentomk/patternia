@@ -1115,8 +1115,14 @@ namespace ptn::core::common {
                                      CasesTuple &cases,
                                      Otherwise &&otherwise_handler) {
       if (active_index >= Plan::alt_count) {
-        return invoke_otherwise_typed<Result>(
-            subject, std::forward<Otherwise>(otherwise_handler));
+        // valueless_by_exception(): no alternative is active, so the
+        // plan has nothing to select. Evaluate the cases in source
+        // order instead; type patterns reject the subject and the
+        // fallback runs, as it does for an owned subject.
+        return eval_cases_impl_typed<0, Result>(
+            subject,
+            cases,
+            std::forward<Otherwise>(otherwise_handler));
       }
 
       // Executes the same plan through different runtime shapes
