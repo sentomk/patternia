@@ -101,11 +101,6 @@ namespace ptn::core::common {
         std::remove_cv_t<std::remove_reference_t<T>>>::value;
 
     constexpr std::size_t
-        k_variant_inline_dispatch_alt_threshold = 8;
-    constexpr std::size_t
-        k_variant_segmented_dispatch_alt_threshold        = 64;
-    constexpr std::size_t k_variant_dispatch_segment_size = 16;
-    constexpr std::size_t
         k_static_literal_dense_dispatch_max_cases = 256;
     constexpr std::size_t
         k_static_literal_dense_dispatch_max_span = 512;
@@ -120,72 +115,6 @@ namespace ptn::core::common {
         k_runtime_literal_dense_dispatch_max_density = 8;
     constexpr std::size_t
         k_runtime_literal_dense_dispatch_min_cases = 4;
-
-    enum class variant_dispatch_tier : std::uint8_t {
-      hot_inline,
-      warm_segmented,
-      cold_compact
-    };
-
-    template <std::size_t AltCount>
-    constexpr variant_dispatch_tier
-    variant_dispatch_tier_for_alt_count() {
-      if constexpr (AltCount
-                    <= k_variant_inline_dispatch_alt_threshold) {
-        return variant_dispatch_tier::hot_inline;
-      }
-      else if constexpr (
-          AltCount <= k_variant_segmented_dispatch_alt_threshold) {
-        return variant_dispatch_tier::warm_segmented;
-      }
-      else {
-        return variant_dispatch_tier::cold_compact;
-      }
-    }
-
-    // Compile-time binary dispatcher for variant alternative
-    // indexes. Keeps lowering analysis in optimize.hpp while
-    // evaluators provide concrete on-hit / on-miss behavior.
-    template <std::size_t BeginAlt,
-              std::size_t EndAlt,
-              std::size_t AltCount>
-    struct variant_binary_alt_dispatch {
-      template <typename OnHit, typename OnMiss>
-      static constexpr decltype(auto)
-      dispatch(std::size_t active_index,
-               OnHit     &&on_hit,
-               OnMiss    &&on_miss) {
-        if constexpr (BeginAlt >= EndAlt || BeginAlt >= AltCount) {
-          return std::forward<OnMiss>(on_miss)();
-        }
-        else if constexpr ((EndAlt - BeginAlt) == 1) {
-          if (active_index == BeginAlt) {
-            return std::forward<OnHit>(on_hit)(
-                std::integral_constant<std::size_t, BeginAlt>{});
-          }
-
-          return std::forward<OnMiss>(on_miss)();
-        }
-        else {
-          constexpr std::size_t mid = BeginAlt
-                                      + ((EndAlt - BeginAlt) / 2);
-
-          if (active_index < mid) {
-            return variant_binary_alt_dispatch<
-                BeginAlt,
-                mid,
-                AltCount>::dispatch(active_index,
-                                    std::forward<OnHit>(on_hit),
-                                    std::forward<OnMiss>(on_miss));
-          }
-
-          return variant_binary_alt_dispatch<mid, EndAlt, AltCount>::
-              dispatch(active_index,
-                       std::forward<OnHit>(on_hit),
-                       std::forward<OnMiss>(on_miss));
-        }
-      }
-    };
 
     // Matches `is<T>()` with no subpattern/binding.
     template <typename Pattern>
@@ -1558,8 +1487,6 @@ namespace ptn::core::common {
       static constexpr std::size_t
           case_count = metadata_t::case_count;
       static constexpr std::size_t used_alt_count = AltCount;
-      static constexpr variant_dispatch_tier
-          tier = variant_dispatch_tier_for_alt_count<AltCount>();
       // Maps each alternative directly to the terminal case chosen
       // for it.
       static constexpr auto
@@ -1617,8 +1544,6 @@ namespace ptn::core::common {
           case_count = metadata_t::case_count;
       static constexpr std::size_t
           used_alt_count = metadata_t::used_alt_count;
-      static constexpr variant_dispatch_tier
-          tier = variant_dispatch_tier_for_alt_count<AltCount>();
       // The evaluator uses this map only on the cold path.
       static constexpr auto
           compact_alt_index_map = metadata_t::compact_alt_index_map;

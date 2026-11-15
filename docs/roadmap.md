@@ -191,9 +191,19 @@ Planned alongside move semantics, rather than deferred to v0.12:
 - Record compile time and binary size as well as run time. Publish
   reproducible before/after measurements; do not promise a speedup
   before measuring it.
+- Separate selecting a case from running it, so that every keyed
+  dispatch (literals, variant alternatives, owned and borrowed
+  subjects) goes through one index switch instead of a lowering of
+  its own.
+  - Implemented: variant alternatives. The active index selects the
+    alternative through a `switch`, as a hand-written visitor would,
+    in place of the earlier comparison chain, comparison tree and
+    function-pointer table.
+  - Planned: static literals, case packs in static storage
+    (`PTN_ON`), and `lit(...)` literals.
 
-Broader dispatch optimization and benchmarks for nested matching stay
-in v0.12. Optimizations must preserve the new ownership contract.
+Benchmarks for nested matching stay in v0.12. Optimizations must
+preserve the new ownership contract.
 
 ### Fixes and diagnostics
 

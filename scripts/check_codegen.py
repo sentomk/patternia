@@ -8,8 +8,9 @@ the function
 
 - calls or tail-jumps to another function,
 - reserves more stack than its limit,
-- writes to the stack more often than its limit, or
-- has more instructions than its budget, when a budget is given.
+- writes to the stack more often than its limit,
+- has more conditional branches than its limit, when one is given, or
+- has more instructions than its budget, when one is given.
 
 The first three are the signature of a match that stayed partly out of
 line. The compiler can then no longer treat the case pack as constants:
@@ -22,6 +23,11 @@ lookup table (a handful of instructions) or a jump table (about two
 instructions per case); both are fine and neither touches the stack.
 The instruction budget is therefore optional and meant only for probes
 whose code size does not grow with the number of cases.
+
+The branch limit catches the other way a keyed match can degrade: a
+chain or tree of comparisons instead of one indexed jump. That uses no
+stack and makes no call, but it has a conditional branch per step,
+while a table has only its bounds check however it is lowered.
 
 Unlike a timing benchmark this check is deterministic, so it can block a
 pull request.
@@ -47,6 +53,11 @@ CALL_RE = re.compile(r"^(call[a-z]*|bl|blr)$")
 # jumps (``jmp *%rax``, ``br x0``) are jump tables and stay inside it.
 JUMP_RE = re.compile(r"^(j[a-z]+|b|b\.[a-z]+)$")
 LOCAL_TARGET_RE = re.compile(r"^(\*|\.?L|\d)")
+# Conditional branches: x86 `jcc` (every `j...` except `jmp`) and the
+# AArch64 `b.cond`, compare-and-branch and test-and-branch forms.
+CONDITIONAL_RE = re.compile(
+    r"^(j(?!mp)[a-z]+|b\.[a-z]+|cbn?z|tbn?z)$"
+)
 LABEL_RE = re.compile(r"^[^\s#;/]\S*:")
 # ``#`` starts a comment only when followed by a space or another ``#``;
 # on AArch64 it also introduces an immediate (``#144``).
@@ -161,6 +172,13 @@ def stack_stores(found: list[str]) -> list[str]:
     return stores
 
 
+def conditional_branches(found: list[str]) -> list[str]:
+    """Instructions that branch on a condition."""
+    return [
+        text for text in found if CONDITIONAL_RE.match(text.split()[0])
+    ]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--compiler", required=True)
@@ -172,6 +190,7 @@ def main() -> int:
     parser.add_argument("--function", default=DEFAULT_FUNCTION)
     parser.add_argument("--max-stack-bytes", type=int, default=64)
     parser.add_argument("--max-stack-stores", type=int, default=8)
+    parser.add_argument("--max-branches", type=int, default=None)
     parser.add_argument("--max-instructions", type=int, default=None)
     args = parser.parse_args()
 
@@ -186,6 +205,7 @@ def main() -> int:
     reserved = stack_bytes(found)
     stores = stack_stores(found)
     escapes = [text for text in found if is_escape(text)]
+    branches = conditional_branches(found)
     problems = []
 
     if escapes:
@@ -204,6 +224,14 @@ def main() -> int:
             f"{args.max_stack_stores}"
         )
     if (
+        args.max_branches is not None
+        and len(branches) > args.max_branches
+    ):
+        problems.append(
+            f"{len(branches)} conditional branches, limit is "
+            f"{args.max_branches}"
+        )
+    if (
         args.max_instructions is not None
         and len(found) > args.max_instructions
     ):
@@ -214,7 +242,8 @@ def main() -> int:
 
     print(
         f"{args.source}: {len(found)} instructions, {reserved} stack "
-        f"bytes, {len(stores)} stack writes, {len(escapes)} calls"
+        f"bytes, {len(stores)} stack writes, {len(branches)} "
+        f"branches, {len(escapes)} calls"
     )
     if not problems:
         return 0
@@ -222,8 +251,9 @@ def main() -> int:
     for problem in problems:
         print(f"FAIL: {problem}")
     print(
-        "The match is no longer fully inlined. See "
-        "include/ptn/core/common/inline.hpp."
+        "The match is no longer fully inlined or no longer uses "
+        "keyed dispatch. See include/ptn/core/common/inline.hpp and "
+        "index_switch.hpp."
     )
     print("--- generated code (first 60 instructions) ---")
     for text in found[:60]:
