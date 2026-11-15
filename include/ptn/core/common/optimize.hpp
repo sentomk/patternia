@@ -1692,10 +1692,12 @@ namespace ptn::core::common {
                                                    kind>::type;
     };
 
+    // A const case pack (PTN_ON, static_on, a constexpr on(...))
+    // plans exactly like a mutable one.
     template <typename Subject, typename CasesTuple>
     using dispatch_plan = typename dispatch_plan_selector<
         Subject,
-        CasesTuple>::type;
+        std::remove_cv_t<CasesTuple>>::type;
 
   } // namespace detail
 

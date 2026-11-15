@@ -75,14 +75,23 @@ namespace ptn {
 
 // Optional sugar for the statically cached `on(...)` factory form.
 //
-// Expands to an immediately-invoked lambda that caches the matcher
-// in a function-local static. This avoids both the matcher
-// construction cost on every evaluation and the function-call
-// boundary of `static_on`.
+// Builds the cases on first use and caches them in a function-local
+// static, so there is no construction cost on later evaluations.
+// When no handler keeps state, the cache is const and the compiler
+// can treat the cases as constants.
+//
+// The factory is a constexpr local, so the static is initialized
+// from a constant expression whenever the cases allow it and needs
+// no initialization guard.
 #ifndef PTN_ON
 #define PTN_ON(...)                                                 \
   ([]() -> auto & {                                                 \
-    static auto _ptn_cases = ::ptn::on(__VA_ARGS__);                \
+    constexpr auto _ptn_make = [] {                                 \
+      return ::ptn::on(__VA_ARGS__);                                \
+    };                                                              \
+    static ::ptn::core::engine::detail::cached_cases_t<             \
+        decltype(_ptn_make())>                                      \
+        _ptn_cases = _ptn_make();                                   \
     return _ptn_cases;                                              \
   }())
 #endif

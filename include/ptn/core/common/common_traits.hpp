@@ -57,7 +57,8 @@ namespace ptn::core::traits {
   };
 
   template <typename Case>
-  using case_pattern_t = typename case_pattern<Case>::type;
+  using case_pattern_t = typename case_pattern<
+      std::remove_cv_t<Case>>::type;
 
   // Extracts the `Handler` type from a `case_expr`.
   template <typename Case>
@@ -71,7 +72,8 @@ namespace ptn::core::traits {
   };
 
   template <typename Case>
-  using case_handler_t = typename case_handler<Case>::type;
+  using case_handler_t = typename case_handler<
+      std::remove_cv_t<Case>>::type;
 
   // Fallback Semantics (pattern-level vs match-level)
 

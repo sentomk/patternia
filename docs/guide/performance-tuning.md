@@ -17,6 +17,10 @@ int classify(int x) {
 
 **Caveat:** Lambdas inside `PTN_ON` must be stateless (no captures), as they are stored in a static context.
 
+When no handler keeps state, `PTN_ON` caches the cases as `const`, so the compiler treats them as constants and a match through `PTN_ON` compiles to the same code as the same cases written with `on(...)`. A handler with state (for example a function object with a counter) is still allowed, but its cache stays mutable and the compiler has to read the cases from memory.
+
+The same applies to a case pack you cache yourself: write `static const auto cases = on(...);` rather than `static auto cases = on(...);`. GCC turns a dispatch on a non-const static into a jump table instead of a lookup table, which made a 32-alternative variant match about three times slower in the benchmarks (1.32 against 0.41 ns).
+
 ### When to use `static_on(factory)`
 The `static_on` function creates a persistent static match object from a factory lambda. It serves as a more explicit version of the caching mechanism used by `PTN_ON`.
 
