@@ -2,7 +2,9 @@
 
 #include <ptn/patternia.hpp>
 
+#include <stdexcept>
 #include <string>
+#include <utility>
 #include <variant>
 
 using namespace ptn;
@@ -217,4 +219,99 @@ TEST(TypePattern, BoundPlainValueSubpatternBindsTheAlternative) {
               $(is<int>(0)) >> [](int i) { return i + 7; }, _ >> -1);
 
   EXPECT_EQ(r, 7);
+}
+
+// A variant left valueless by an exception has no active
+// alternative. A borrowed match must still reach its fallback,
+// whichever dispatch shape the planner picks for the case list.
+namespace {
+  struct ThrowsOnMove {
+    ThrowsOnMove() = default;
+    // Deliberately throw to create a valueless variant for the test.
+    // NOLINTNEXTLINE(bugprone-unsafe-to-allow-exceptions)
+    ThrowsOnMove(ThrowsOnMove &&) noexcept(false) {
+      throw std::runtime_error("test");
+    }
+    ThrowsOnMove &operator=(ThrowsOnMove &&) = default;
+  };
+
+  template <typename V>
+  V make_valueless() {
+    V source(std::in_place_type<ThrowsOnMove>);
+    V subject;
+    EXPECT_THROW(subject = std::move(source), std::runtime_error);
+    return subject;
+  }
+
+  struct A0 {};
+  struct A1 {};
+  struct A2 {};
+  struct A3 {};
+  struct A4 {};
+  struct A5 {};
+  struct A6 {};
+  struct A7 {};
+  struct A8 {};
+} // namespace
+
+TEST(TypePattern, ValuelessVariantReachesWildcardFallback) {
+  using V   = std::variant<int, ThrowsOnMove>;
+  V subject = make_valueless<V>();
+  ASSERT_TRUE(subject.valueless_by_exception());
+
+  EXPECT_EQ(
+      match(subject)
+          | on(is<int>() >> 1, is<ThrowsOnMove>() >> 2, _ >> 3),
+      3);
+}
+
+TEST(TypePattern, ValuelessVariantReachesBindingFallback) {
+  using V   = std::variant<int, ThrowsOnMove>;
+  V subject = make_valueless<V>();
+  ASSERT_TRUE(subject.valueless_by_exception());
+
+  EXPECT_EQ(match(subject)
+                | on(
+                    $(is<int>()) >> [](int i) { return i; },
+                    is<ThrowsOnMove>() >> 2,
+                    $ >>
+                        [](const V &v) {
+                          return v.valueless_by_exception() ? 3 : 4;
+                        }),
+            3);
+}
+
+TEST(TypePattern, ValuelessVariantSkipsGuardedTypeCases) {
+  using V   = std::variant<int, ThrowsOnMove>;
+  V subject = make_valueless<V>();
+  ASSERT_TRUE(subject.valueless_by_exception());
+
+  EXPECT_EQ(match(subject)
+                | on(
+                    $(is<int>())[_ > 0] >> [](int i) { return i; },
+                    $(is<int>()) >> [](int) { return 1; },
+                    is<ThrowsOnMove>() >> 2,
+                    _ >> 3),
+            3);
+}
+
+TEST(TypePattern, ValuelessVariantWithManyAlternatives) {
+  using V = std::
+      variant<A0, A1, A2, A3, A4, A5, A6, A7, A8, ThrowsOnMove>;
+  V subject = make_valueless<V>();
+  ASSERT_TRUE(subject.valueless_by_exception());
+
+  EXPECT_EQ(match(subject)
+                | on(is<A0>() >> 0,
+                     is<A1>() >> 1,
+                     is<A2>() >> 2,
+                     is<A3>() >> 3,
+                     is<A4>() >> 4,
+                     is<A5>() >> 5,
+                     is<A6>() >> 6,
+                     is<A7>() >> 7,
+                     is<A8>() >> 8,
+                     is<ThrowsOnMove>() >> 9,
+                     _ >> -1),
+            -1);
 }
