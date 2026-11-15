@@ -136,12 +136,14 @@ python3 -m pip install -r tools/requirements-bench.txt
 ## Codegen gate
 
 `check_codegen.py` compiles a probe from `tests/codegen/` to assembly
-and fails when the probe's match is no longer fully inlined: the
-function calls out-of-line code, reserves more than 64 bytes of stack
-or writes to the stack more than 8 times. Stack use is the signal
-because it does not depend on how the compiler lowers a `switch`.
-It is deterministic, so unlike the timing benchmarks it blocks a pull
-request. CTest runs it as `codegen.<probe>` on GCC and Clang:
+and fails when the probe's match is no longer fully inlined or no
+longer uses keyed dispatch. Every probe is checked for calls to
+out-of-line code, more than 64 bytes of reserved stack and more than 8
+writes to the stack. A probe can also limit its conditional branches,
+which catches a chain or tree of comparisons where a table is
+expected. None of these depend on how the compiler lowers a `switch`.
+The check is deterministic, so unlike the timing benchmarks it blocks
+a pull request. CTest runs it as `codegen.<probe>` on GCC and Clang:
 
 ```bash
 ctest --test-dir build -R codegen --output-on-failure
@@ -156,8 +158,12 @@ python3 scripts/check_codegen.py --compiler g++ --include include \
 
 Add a probe by creating `tests/codegen/<name>.cpp` with one
 `ptn_codegen_probe` function and listing `<name>` in
-`PTN_CODEGEN_PROBES` in `tests/CMakeLists.txt`. Write `<name>:<budget>`
-to also cap the instruction count, but only when the code size does not
-grow with the number of cases: a dense literal match may become a jump
-table with two instructions per case. Set a budget to a few times the
-current count.
+`PTN_CODEGEN_PROBES` in `tests/CMakeLists.txt`. Options follow the
+name, separated by colons:
+
+- `max-branches=N` for a match that should be keyed. A table has only
+  its bounds check, so a small number is enough.
+- `max-instructions=N` only when the code size does not grow with the
+  number of cases: a dense match may become a jump table with a few
+  instructions per case. Set it to a few times the current count.
+- `skip-libcxx` when the probe is known not to hold with libc++.

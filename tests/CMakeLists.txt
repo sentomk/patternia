@@ -150,23 +150,33 @@ foreach(_case IN LISTS PTN_COMPILE_FAIL_CASES)
 endforeach()
 
 # Codegen gate: each probe holds one match that must compile down to
-# inlined code. A match that stops being fully inlined writes its whole
-# case pack to the stack on every call, which this catches
-# deterministically; see scripts/check_codegen.py. The probes are
+# inlined, keyed code; see scripts/check_codegen.py. The probes are
 # compiled with optimization here, independent of the build type.
 #
-# Every probe is checked for calls and stack use. An instruction budget
-# is added only where code size does not grow with the number of cases:
-# a dense literal match may legitimately become a jump table with two
-# instructions per case.
+# Every probe is checked for calls and stack use: a match that stops
+# being fully inlined writes its whole case pack to the stack on every
+# call. Options after the name add limits:
+#
+#   max-branches=N      conditional branches. A keyed match has only
+#                       its bounds check; a chain or tree of
+#                       comparisons has one branch per step.
+#   max-instructions=N  only where code size does not grow with the
+#                       number of cases: a dense match may legitimately
+#                       become a jump table with a few instructions per
+#                       case.
+#   skip-libcxx         libc++ re-tests the active alternative inside
+#                       each arm of a binding variant match, which the
+#                       optimizer does not fold. Tracked as separate
+#                       work; the probe would only report that.
 set(PTN_CODEGEN_PROBES
-  # name[:instruction budget]
-  literal_dense_16
-  literal_dense_64
-  literal_dense_64_owned
-  literal_runtime_8:60
-  guard_chain:45
-  structural_guard:45
+  literal_dense_16:max-branches=4
+  literal_dense_64:max-branches=4
+  literal_dense_64_owned:max-branches=4
+  literal_runtime_8:max-instructions=60
+  guard_chain:max-instructions=45
+  structural_guard:max-instructions=45
+  variant_simple_16:max-branches=3
+  variant_bind_16:max-branches=3:skip-libcxx
 )
 
 find_package(Python3 COMPONENTS Interpreter QUIET)
@@ -176,25 +186,46 @@ if(Python3_Interpreter_FOUND
    AND NOT MSVC
    AND NOT CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC"
    AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64|aarch64|arm64")
+  include(CheckCXXSourceCompiles)
+  check_cxx_source_compiles("
+    #include <cstddef>
+    #ifndef _LIBCPP_VERSION
+    #error not libc++
+    #endif
+    int main() { return 0; }
+  " PTN_TESTS_USE_LIBCXX)
+
   foreach(_probe IN LISTS PTN_CODEGEN_PROBES)
     string(REPLACE ":" ";" _probe_fields "${_probe}")
     list(GET _probe_fields 0 _probe_name)
-    list(LENGTH _probe_fields _probe_field_count)
-    set(_probe_budget_args "")
-    if(_probe_field_count GREATER 1)
-      list(GET _probe_fields 1 _probe_budget)
-      set(_probe_budget_args --max-instructions ${_probe_budget})
-    endif()
+    list(REMOVE_AT _probe_fields 0)
 
-    add_test(
-      NAME "codegen.${_probe_name}"
-      COMMAND
-        ${Python3_EXECUTABLE}
-        ${PROJECT_SOURCE_DIR}/scripts/check_codegen.py
-        --compiler ${CMAKE_CXX_COMPILER}
-        --include ${PROJECT_SOURCE_DIR}/include
-        --source ${CMAKE_CURRENT_LIST_DIR}/codegen/${_probe_name}.cpp
-        ${_probe_budget_args}
-    )
+    set(_probe_args "")
+    set(_probe_skip OFF)
+    foreach(_probe_option IN LISTS _probe_fields)
+      if(_probe_option STREQUAL "skip-libcxx")
+        if(PTN_TESTS_USE_LIBCXX)
+          set(_probe_skip ON)
+        endif()
+      else()
+        string(REPLACE "=" ";" _probe_pair "${_probe_option}")
+        list(GET _probe_pair 0 _probe_key)
+        list(GET _probe_pair 1 _probe_value)
+        list(APPEND _probe_args "--${_probe_key}" "${_probe_value}")
+      endif()
+    endforeach()
+
+    if(NOT _probe_skip)
+      add_test(
+        NAME "codegen.${_probe_name}"
+        COMMAND
+          ${Python3_EXECUTABLE}
+          ${PROJECT_SOURCE_DIR}/scripts/check_codegen.py
+          --compiler ${CMAKE_CXX_COMPILER}
+          --include ${PROJECT_SOURCE_DIR}/include
+          --source ${CMAKE_CURRENT_LIST_DIR}/codegen/${_probe_name}.cpp
+          ${_probe_args}
+      )
+    endif()
   endforeach()
 endif()

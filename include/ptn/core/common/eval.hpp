@@ -16,6 +16,7 @@
 
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/common/diagnostics.hpp"
+#include "ptn/core/common/index_switch.hpp"
 #include "ptn/core/common/inline.hpp"
 #include "ptn/core/common/optimize.hpp"
 #include "ptn/core/dsl/detail/case_expr_impl.hpp"
@@ -543,7 +544,7 @@ namespace ptn::core::common {
     template <std::size_t CaseIndex,
               typename Result,
               typename CasesTuple>
-    constexpr Result
+    PTN_DETAIL_ALWAYS_INLINE constexpr Result
     invoke_variant_simple_case_entry(CasesTuple &&cases) {
       return invoke_direct_case_entry<CaseIndex, Result>(
           std::forward<CasesTuple>(cases));
@@ -914,7 +915,8 @@ namespace ptn::core::common {
               typename Subject,
               typename CasesTuple,
               typename Otherwise>
-    constexpr Result eval_cases_impl_variant_dispatch_for_alt_hit(
+    PTN_DETAIL_ALWAYS_INLINE constexpr Result
+    eval_cases_impl_variant_dispatch_for_alt_hit(
         Subject    &subject,
         CasesTuple &cases,
         Otherwise &&otherwise_handler) {
@@ -961,41 +963,62 @@ namespace ptn::core::common {
       }
     }
 
-    template <typename Plan,
-              std::size_t ActiveIndex,
-              typename Result,
-              typename Subject,
-              typename CasesTuple,
-              typename Otherwise>
-    constexpr Result eval_cases_impl_variant_dispatch_by_alt_inline(
-        std::size_t active_index,
-        Subject    &subject,
-        CasesTuple &cases,
-        Otherwise &&otherwise_handler) {
-      if constexpr (ActiveIndex >= Plan::alt_count) {
-        // Handles valueless_by_exception() and unsupported indexes.
-        return invoke_otherwise_typed<Result>(
-            subject, std::forward<Otherwise>(otherwise_handler));
+    // Arm of the variant index switch: runs the cases the plan
+    // assigned to one alternative. A variant that is
+    // valueless_by_exception() reports an index past the last
+    // alternative and lands in `miss`.
+    template <typename Plan>
+    struct variant_alt_arm {
+      template <std::size_t AltIndex,
+                typename Result,
+                typename Subject,
+                typename CasesTuple,
+                typename Otherwise>
+      PTN_DETAIL_ALWAYS_INLINE static constexpr Result
+      hit(Subject    &subject,
+          CasesTuple &cases,
+          Otherwise &&otherwise_handler) {
+        return eval_cases_impl_variant_dispatch_for_alt_hit<Plan,
+                                                            AltIndex,
+                                                            Result>(
+            subject,
+            cases,
+            std::forward<Otherwise>(otherwise_handler));
       }
-      else {
-        if (active_index == ActiveIndex) {
-          return eval_cases_impl_variant_dispatch_for_alt_hit<
-              Plan,
-              ActiveIndex,
-              Result>(subject,
-                      cases,
-                      std::forward<Otherwise>(otherwise_handler));
-        }
 
-        return eval_cases_impl_variant_dispatch_by_alt_inline<
-            Plan,
-            ActiveIndex + 1,
-            Result>(active_index,
-                    subject,
-                    cases,
-                    std::forward<Otherwise>(otherwise_handler));
+      template <typename Result,
+                typename Subject,
+                typename CasesTuple,
+                typename Otherwise>
+      PTN_DETAIL_ALWAYS_INLINE static constexpr Result
+      miss(Subject    &subject,
+           CasesTuple &cases,
+           Otherwise &&otherwise_handler) {
+        using tuple_t = std::remove_reference_t<CasesTuple>;
+        constexpr std::size_t
+            case_count = std::tuple_size_v<tuple_t>;
+
+        if constexpr (Plan::kind
+                          == dispatch_plan_kind::variant_simple
+                      && tuple_last_case_is_wildcard<
+                          tuple_t,
+                          case_count>::value) {
+          // Every other case of a simple plan tests the active
+          // alternative, so the trailing wildcard is the only case
+          // that can match.
+          return invoke_direct_case_entry<case_count - 1, Result>(
+              cases);
+        }
+        else {
+          // Evaluate in source order; type patterns reject the
+          // subject and the fallback runs.
+          return eval_cases_impl_typed<0, Result>(
+              subject,
+              cases,
+              std::forward<Otherwise>(otherwise_handler));
+        }
       }
-    }
+    };
 
     template <typename Plan,
               std::size_t AltIndex,
@@ -1047,8 +1070,8 @@ namespace ptn::core::common {
       return table;
     }
 
-    // Caches the cold-path tables derived from the selected variant
-    // plan. Hot and warm tiers bypass this structure entirely.
+    // Caches the trampoline tables for variants with more
+    // alternatives than the index switch handles.
     template <typename Plan,
               typename Result,
               typename Subject,
@@ -1109,61 +1132,29 @@ namespace ptn::core::common {
               typename Subject,
               typename CasesTuple,
               typename Otherwise>
-    inline Result
+    PTN_DETAIL_ALWAYS_INLINE constexpr Result
     eval_cases_impl_variant_dispatch(std::size_t active_index,
                                      Subject    &subject,
                                      CasesTuple &cases,
                                      Otherwise &&otherwise_handler) {
-      if (active_index >= Plan::alt_count) {
-        // valueless_by_exception(): no alternative is active, so the
-        // plan has nothing to select. Evaluate the cases in source
-        // order instead; type patterns reject the subject and the
-        // fallback runs, as it does for an owned subject.
-        return eval_cases_impl_typed<0, Result>(
+      if constexpr (Plan::alt_count <= k_index_switch_max_arms) {
+        // The active alternative is already a dense index, so this
+        // is the switch a hand-written visitor would use.
+        return index_switch<Plan::alt_count,
+                            Result,
+                            variant_alt_arm<Plan>>(
+            active_index,
             subject,
             cases,
             std::forward<Otherwise>(otherwise_handler));
       }
-
-      // Executes the same plan through different runtime shapes
-      // chosen by the plan tier. The semantics are identical; only
-      // code size and branch structure differ.
-      if constexpr (Plan::tier
-                    == variant_dispatch_tier::hot_inline) {
-        return eval_cases_impl_variant_dispatch_by_alt_inline<
-            Plan,
-            0,
-            Result>(active_index,
-                    subject,
-                    cases,
-                    std::forward<Otherwise>(otherwise_handler));
-      }
-      else if constexpr (Plan::tier
-                         == variant_dispatch_tier::warm_segmented) {
-        auto on_hit = [&](auto alt_index_c) -> Result {
-          constexpr std::size_t
-              alt_index = decltype(alt_index_c)::value;
-          return eval_cases_impl_variant_dispatch_for_alt_hit<
-              Plan,
-              alt_index,
-              Result>(subject,
-                      cases,
-                      std::forward<Otherwise>(otherwise_handler));
-        };
-
-        auto on_miss = [&]() -> Result {
-          return invoke_otherwise_typed<Result>(
-              subject, std::forward<Otherwise>(otherwise_handler));
-        };
-
-        return variant_binary_alt_dispatch<
-            0,
-            Plan::alt_count,
-            Plan::alt_count>::dispatch(active_index,
-                                       on_hit,
-                                       on_miss);
-      }
       else {
+        if (active_index >= Plan::alt_count) {
+          return eval_cases_impl_typed<0, Result>(
+              subject,
+              cases,
+              std::forward<Otherwise>(otherwise_handler));
+        }
         return eval_cases_impl_variant_dispatch_cold<Plan, Result>(
             active_index,
             subject,
