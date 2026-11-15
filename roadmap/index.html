@@ -2492,9 +2492,11 @@ matching an lvalue continues to borrow it without copying.</p>
 guards followed by a consuming fallback, combinator short-circuiting,
 const subjects, temporary lifetimes, and copy/move counts. User
 handlers remain responsible for references they deliberately return.</p>
-<p>Owned subjects currently use source-order evaluation. Move-only
-callables and materialized bindings are supported; measuring and
-optimizing the owning path remains part of the performance work below.</p>
+<p>Owned subjects use source-order evaluation, except for a dense run
+of <code>val&lt;N&gt;</code> literals followed by a fallback, which uses the same keyed
+dispatch as a borrowed subject. Move-only callables and materialized
+bindings are supported; measuring and optimizing the rest of the
+owning path remains part of the performance work below.</p>
 <h3 id="performance-work">Performance work<a class="headerlink" href="#performance-work" title="Permanent link">&para;</a></h3>
 <p>Planned alongside move semantics, rather than deferred to v0.12:</p>
 <ul>
