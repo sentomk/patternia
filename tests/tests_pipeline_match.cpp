@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <variant>
 
 using namespace ptn;
@@ -469,4 +470,97 @@ TEST(PipelineMatch, DollarIsWithStringVariant) {
                     _ >> std::string("other"));
 
   EXPECT_EQ(result, "hello world");
+}
+
+// Cached and const case packs.
+//
+// PTN_ON and static_on cache their cases in a static. When no
+// handler keeps state the cache is const, which lets the compiler
+// treat the cases as constants. A stateful handler keeps a mutable
+// cache.
+namespace {
+  struct CountingHandler {
+    int calls = 0;
+    int operator()() {
+      return ++calls;
+    }
+  };
+
+  int cached_stateless(int x) {
+    return match(x) | PTN_ON(val<1> >> 10, val<2> >> 20, _ >> 0);
+  }
+
+  int cached_counting(int x) {
+    return match(x) | PTN_ON(val<1> >> CountingHandler{}, _ >> 0);
+  }
+
+  int static_on_counting(int x) {
+    return match(x) | static_on([] {
+             return on(val<1> >> CountingHandler{}, _ >> 0);
+           });
+  }
+
+  // Keeps no state, but its call operator is not const.
+  struct NonConstCall {
+    int operator()() {
+      return 7;
+    }
+  };
+
+  int cached_non_const_call(int x) {
+    return match(x) | PTN_ON(val<1> >> NonConstCall{}, _ >> 0);
+  }
+
+  constexpr auto k_cases = on(val<1> >> 1, val<2> >> 2, _ >> 0);
+} // namespace
+
+TEST(PipelineMatch, CachedStatelessCasesAreConst) {
+  auto &cached = PTN_ON(val<1> >> 1, _ >> 0);
+  EXPECT_TRUE(
+      std::is_const_v<std::remove_reference_t<decltype(cached)>>);
+
+  auto &factory = static_on([] { return on(val<1> >> 1, _ >> 0); });
+  EXPECT_TRUE(
+      std::is_const_v<std::remove_reference_t<decltype(factory)>>);
+
+  EXPECT_EQ(cached_stateless(1), 10);
+  EXPECT_EQ(cached_stateless(2), 20);
+  EXPECT_EQ(cached_stateless(3), 0);
+}
+
+TEST(PipelineMatch, CachedStatefulHandlerKeepsItsState) {
+  EXPECT_EQ(cached_counting(1), 1);
+  EXPECT_EQ(cached_counting(1), 2);
+  EXPECT_EQ(cached_counting(5), 0);
+  EXPECT_EQ(cached_counting(1), 3);
+
+  EXPECT_EQ(static_on_counting(1), 1);
+  EXPECT_EQ(static_on_counting(1), 2);
+}
+
+TEST(PipelineMatch, CachedHandlerWithNonConstCallStillWorks) {
+  EXPECT_EQ(cached_non_const_call(1), 7);
+  EXPECT_EQ(cached_non_const_call(2), 0);
+  EXPECT_EQ(match(1)
+                | PTN_ON(
+                    val<1> >> []() mutable { return 3; }, _ >> 0),
+            3);
+}
+
+TEST(PipelineMatch, ConstCasePackMatchesBorrowedAndOwnedSubjects) {
+  int borrowed = 2;
+  EXPECT_EQ(match(borrowed) | k_cases, 2);
+  EXPECT_EQ(match(1) | k_cases, 1);
+  EXPECT_EQ(match(7) | k_cases, 0);
+
+  const auto words = on(
+      $(is<std::string>()) >>
+          [](const std::string &s) {
+            return static_cast<int>(s.size());
+          },
+      is<int>() >> -1,
+      _ >> 0);
+  std::variant<int, std::string> v = std::string("four");
+  EXPECT_EQ(match(v) | words, 4);
+  EXPECT_EQ(match(std::variant<int, std::string>(3)) | words, -1);
 }

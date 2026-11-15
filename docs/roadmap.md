@@ -199,8 +199,12 @@ Planned alongside move semantics, rather than deferred to v0.12:
     alternative through a `switch`, as a hand-written visitor would,
     in place of the earlier comparison chain, comparison tree and
     function-pointer table.
-  - Planned: static literals, case packs in static storage
-    (`PTN_ON`), and `lit(...)` literals.
+  - Implemented: case packs cached by `PTN_ON` and `static_on` are
+    `const` when no handler keeps state, and `const` or `constexpr`
+    case packs are accepted. GCC lowers a dispatch on a non-const
+    static to a jump table instead of a lookup table, so a match
+    through `PTN_ON` now compiles to the same code as `on(...)`.
+  - Planned: static literals and `lit(...)` literals.
 
 Benchmarks for nested matching stay in v0.12. Optimizations must
 preserve the new ownership contract.

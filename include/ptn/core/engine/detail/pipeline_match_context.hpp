@@ -163,6 +163,13 @@ namespace ptn::core::engine::detail {
 
     template <typename... Cases>
     PTN_DETAIL_ALWAYS_INLINE constexpr decltype(auto)
+    operator|(const core::dsl::detail::on<Cases...> &on_cases) && {
+      return std::move(*this).template eval_on_cases<Cases...>(
+          on_cases.cases);
+    }
+
+    template <typename... Cases>
+    PTN_DETAIL_ALWAYS_INLINE constexpr decltype(auto)
     operator|(core::dsl::detail::on<Cases...> &&on_cases) && {
       return std::move(*this).template eval_on_cases<Cases...>(
           std::move(on_cases.cases));

@@ -164,6 +164,10 @@ endforeach()
 #                       number of cases: a dense match may legitimately
 #                       become a jump table with a few instructions per
 #                       case.
+#   reference=F         no more instructions than function F in the
+#                       same file, plus a small slack. Compares two
+#                       spellings of one match under each compiler's
+#                       own switch lowering.
 #   skip-libcxx         libc++ re-tests the active alternative inside
 #                       each arm of a binding variant match, which the
 #                       optimizer does not fold. Tracked as separate
@@ -177,6 +181,8 @@ set(PTN_CODEGEN_PROBES
   structural_guard:max-instructions=45
   variant_simple_16:max-branches=3
   variant_bind_16:max-branches=3:skip-libcxx
+  variant_cached_16:max-branches=3:reference=ptn_codegen_reference
+  literal_cached_64:max-branches=4:reference=ptn_codegen_reference
 )
 
 find_package(Python3 COMPONENTS Interpreter QUIET)

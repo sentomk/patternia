@@ -9,8 +9,10 @@ the function
 - calls or tail-jumps to another function,
 - reserves more stack than its limit,
 - writes to the stack more often than its limit,
-- has more conditional branches than its limit, when one is given, or
-- has more instructions than its budget, when one is given.
+- has more conditional branches than its limit, when one is given,
+- has more instructions than its budget, when one is given, or
+- has more instructions than a reference function in the same file,
+  plus a slack, when a reference is given.
 
 The first three are the signature of a match that stayed partly out of
 line. The compiler can then no longer treat the case pack as constants:
@@ -23,6 +25,11 @@ lookup table (a handful of instructions) or a jump table (about two
 instructions per case); both are fine and neither touches the stack.
 The instruction budget is therefore optional and meant only for probes
 whose code size does not grow with the number of cases.
+
+A reference compares two spellings of the same match compiled by the
+same compiler, for example a cached case pack against `on(...)`. That
+follows each compiler's own switch lowering, where a fixed budget would
+not.
 
 The branch limit catches the other way a keyed match can degrade: a
 chain or tree of comparisons instead of one indexed jump. That uses no
@@ -192,9 +199,12 @@ def main() -> int:
     parser.add_argument("--max-stack-stores", type=int, default=8)
     parser.add_argument("--max-branches", type=int, default=None)
     parser.add_argument("--max-instructions", type=int, default=None)
+    parser.add_argument("--reference", default=None)
+    parser.add_argument("--reference-slack", type=int, default=4)
     args = parser.parse_args()
 
-    body = function_body(compile_to_assembly(args), args.function)
+    assembly = compile_to_assembly(args)
+    body = function_body(assembly, args.function)
     if body is None:
         sys.exit(
             f"error: {args.function} not found in the assembly of "
@@ -207,6 +217,20 @@ def main() -> int:
     escapes = [text for text in found if is_escape(text)]
     branches = conditional_branches(found)
     problems = []
+
+    if args.reference is not None:
+        reference_body = function_body(assembly, args.reference)
+        if reference_body is None:
+            sys.exit(
+                f"error: {args.reference} not found in the assembly of "
+                f"{args.source}"
+            )
+        reference_count = len(instructions(reference_body))
+        if len(found) > reference_count + args.reference_slack:
+            problems.append(
+                f"{len(found)} instructions, {args.reference} has "
+                f"{reference_count} (slack {args.reference_slack})"
+            )
 
     if escapes:
         problems.append(

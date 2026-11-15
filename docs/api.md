@@ -583,9 +583,17 @@ match(x) | static_on([] {
 });
 ```
 
+The cases are built on the first call and cached in a static. When
+no handler keeps state (a captureless lambda, a constant such as
+`>> 1`, or an expression such as `>> _ + 1`), the cache is `const`,
+so the compiler can treat the cases as constants. `static_on` then
+returns a `const` reference. A handler with state, such as a function
+object with a counter, keeps a mutable cache, and its state persists
+between calls.
+
 ### `PTN_ON(...)`
 
-Convenience macro over `static_on(...)`.
+Convenience macro over `static_on(...)`, with the same caching rules.
 
 ```cpp
 match(x) | PTN_ON(
@@ -595,7 +603,24 @@ match(x) | PTN_ON(
 );
 ```
 
-The factory must be stateless.
+The factory must be stateless. When the cases can be evaluated at
+compile time, the cache is initialized as a constant and needs no
+initialization guard.
+
+### Constant case packs
+
+A case pack may also be `const` or `constexpr` and reused across
+matches:
+
+```cpp
+constexpr auto classify = on(val<1> >> 1, val<2> >> 2, _ >> 0);
+
+int a = match(x) | classify;
+int b = match(compute()) | classify;
+```
+
+Handlers of a `const` case pack are called through a `const`
+reference.
 
 ---
 

@@ -9,7 +9,89 @@
 #include <type_traits>
 #include <utility>
 
+#include "ptn/core/common/inline.hpp"
+#include "ptn/core/dsl/detail/case_expr_impl.hpp"
+#include "ptn/core/dsl/detail/expression_handler.hpp"
 #include "ptn/core/engine/detail/pipeline_match_context.hpp"
+
+namespace ptn::core::engine::detail {
+
+  template <typename Handler>
+  struct is_expression_handler : std::false_type {};
+
+  template <typename Predicate, bool ValueExpression>
+  struct is_expression_handler<
+      core::dsl::detail::expression_handler<Predicate,
+                                            ValueExpression>>
+      : std::true_type {};
+
+  // True when `&Handler::operator()` names a single call operator
+  // that is not const. Templates and overload sets (generic lambdas,
+  // value handlers) are not inspected; their operators are const.
+  template <typename Handler, typename = void>
+  struct has_non_const_call_operator : std::false_type {};
+
+  template <typename Member>
+  struct is_non_const_member_function : std::false_type {};
+
+  template <typename R, typename C, typename... Args>
+  struct is_non_const_member_function<R (C::*)(Args...)>
+      : std::true_type {};
+
+  template <typename R, typename C, typename... Args>
+  struct is_non_const_member_function<R (C::*)(Args...) noexcept>
+      : std::true_type {};
+
+  template <typename Handler>
+  struct has_non_const_call_operator<
+      Handler,
+      std::void_t<decltype(&Handler::operator())>>
+      : is_non_const_member_function<
+            decltype(&Handler::operator())> {};
+
+  // A handler that keeps no state between calls and can be called
+  // through a const reference: an empty class with a const call
+  // operator (such as a captureless lambda), a constant result, or
+  // an expression.
+  template <typename Handler>
+  inline constexpr bool is_stateless_handler_v =
+      (std::is_empty_v<Handler>
+       && !has_non_const_call_operator<Handler>::value)
+      || core::dsl::detail::is_value_handler_v<Handler>
+      || is_expression_handler<Handler>::value;
+
+  template <typename Cases>
+  struct caches_cases_as_const : std::false_type {};
+
+  template <typename... Cases>
+  struct caches_cases_as_const<core::dsl::detail::on<Cases...>>
+      : std::bool_constant<(
+            is_stateless_handler_v<traits::case_handler_t<Cases>>
+            && ...)> {};
+
+  // The type a cache of `Cases` holds: const when no handler keeps
+  // state, so the compiler can treat the cached cases as constants
+  // (GCC lowers a dispatch on a non-const static to a jump table
+  // instead of a lookup table), and mutable otherwise, so a stateful
+  // handler's state persists between calls.
+  template <typename Cases>
+  using cached_cases_t = std::conditional_t<
+      caches_cases_as_const<std::decay_t<Cases>>::value,
+      const std::decay_t<Cases>,
+      std::decay_t<Cases>>;
+
+  // Builds the cases once, on first use, and returns the cached
+  // object. Each factory type gets its own cache.
+  template <typename Factory>
+  PTN_DETAIL_ALWAYS_INLINE decltype(auto)
+  cached_cases(Factory &&factory) {
+    using factory_t = std::remove_reference_t<Factory>;
+    using cases_t   = std::invoke_result_t<factory_t &>;
+    static cached_cases_t<cases_t> cases = factory();
+    return (cases);
+  }
+
+} // namespace ptn::core::engine::detail
 
 namespace ptn {
 
@@ -55,8 +137,7 @@ namespace ptn {
         core::dsl::detail::is_on_v<cases_t>,
         "[Patternia.static_on]: factory must return on(...).");
 
-    static cases_t cases = std::forward<Factory>(factory)();
-    return (cases);
+    return core::engine::detail::cached_cases(factory);
   }
 
 } // namespace ptn
