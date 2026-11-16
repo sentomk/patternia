@@ -541,6 +541,160 @@ namespace ptn::core::common {
       }
     }
 
+    // Alternative tested by a pattern whose only test on a variant
+    // is "the active alternative is this one": `is<T>()`,
+    // `alt<I>()`, their direct reference bindings, and `$(...)`
+    // around the first two. `binds` says whether the pattern binds
+    // exactly the active alternative, so the binding can be taken
+    // without the pattern.
+    template <typename Pattern, typename Subject, typename = void>
+    struct variant_alt_only_pattern {
+      static constexpr bool value = false;
+      static constexpr bool binds = false;
+    };
+
+    template <typename Pattern, typename Subject>
+    struct variant_alt_only_pattern<
+        Pattern,
+        Subject,
+        std::enable_if_t<is_simple_variant_type_is_pattern_v<Pattern>
+                         || is_variant_type_is_pattern_v<Pattern>>> {
+      static constexpr bool
+          value = is_simple_variant_type_is_pattern_v<Pattern>
+                  || is_variant_direct_ref_bind_pattern_v<Pattern>;
+      static constexpr bool
+          binds = is_variant_direct_ref_bind_pattern_v<Pattern>;
+      static constexpr std::size_t index = std::decay_t<
+          Pattern>::template alt_index<Subject>();
+    };
+
+    template <typename Pattern, typename Subject>
+    struct variant_alt_only_pattern<
+        Pattern,
+        Subject,
+        std::enable_if_t<
+            is_simple_variant_type_alt_pattern_v<Pattern>
+            || is_variant_type_alt_pattern_v<Pattern>>> {
+      static constexpr bool
+          value = is_simple_variant_type_alt_pattern_v<Pattern>
+                  || is_variant_direct_ref_bind_pattern_v<Pattern>;
+      static constexpr bool
+          binds = is_variant_direct_ref_bind_pattern_v<Pattern>;
+      static constexpr std::size_t index = variant_type_alt_index<
+          std::decay_t<Pattern>>::value;
+    };
+
+    template <typename Pattern, typename Subject>
+    struct variant_alt_only_pattern<
+        Pattern,
+        Subject,
+        std::enable_if_t<is_binding_as_pattern_v<Pattern>>> {
+      using sub_t = typename binding_as_sub_pattern<
+          std::decay_t<Pattern>>::type;
+      static constexpr bool
+          value = is_simple_variant_type_is_pattern_v<sub_t>
+                  || is_simple_variant_type_alt_pattern_v<sub_t>;
+      // `$(is<T>)` and `$(alt<I>)` both bind the alternative.
+      static constexpr bool binds = value;
+      static constexpr std::size_t
+          index = variant_alt_only_pattern<sub_t, Subject>::index;
+    };
+
+    // The pattern whose match decides the case: the inner pattern of
+    // a guarded pattern, otherwise the pattern itself.
+    template <typename Pattern, bool = is_guarded_pattern_v<Pattern>>
+    struct variant_tested_pattern {
+      using type = Pattern;
+    };
+
+    template <typename Pattern>
+    struct variant_tested_pattern<Pattern, true> {
+      using type = std::decay_t<
+          typename guarded_inner_pattern<Pattern>::type>;
+    };
+
+    template <typename Pattern>
+    using variant_tested_pattern_t = typename variant_tested_pattern<
+        std::decay_t<Pattern>>::type;
+
+    // Reference to alternative `ActiveIndex`, which the caller knows
+    // is active. Unlike `std::get`, this has no `bad_variant_access`
+    // path, and stating that the pointer is not null lets the
+    // optimizer drop the test of the stored index that `get_if`
+    // makes.
+    template <std::size_t ActiveIndex, typename Subject>
+    PTN_DETAIL_ALWAYS_INLINE constexpr decltype(auto)
+    variant_known_alt_get(Subject &subject) {
+      auto *alt = std::get_if<ActiveIndex>(&subject);
+#if defined(__GNUC__) || defined(__clang__)
+      if (alt == nullptr) {
+        __builtin_unreachable();
+      }
+#elif defined(_MSC_VER)
+      if (alt == nullptr) {
+        __assume(0);
+      }
+#endif
+      return (*alt);
+    }
+
+    // Evaluates one case of the bucket for alternative
+    // `ActiveIndex`, which the index switch has already selected. A
+    // pattern that only tests the alternative is decided at compile
+    // time: it matches if it names `ActiveIndex` and rejects
+    // otherwise, so only its guard, if any, runs. A binding is taken
+    // without testing the index again. The guard and the handler
+    // receive the same one-element tuple as on the general path.
+    // Other patterns are evaluated in full.
+    template <std::size_t ActiveIndex,
+              typename Result,
+              typename Case,
+              typename Subject,
+              typename OnMiss>
+    PTN_DETAIL_ALWAYS_INLINE constexpr Result
+    eval_variant_case_for_known_alt(Case    &current_case,
+                                    Subject &subject,
+                                    OnMiss &&on_miss) {
+      using case_t    = std::remove_reference_t<Case>;
+      using pattern_t = std::decay_t<traits::case_pattern_t<case_t>>;
+      using subject_t = std::remove_cv_t<Subject>;
+
+      constexpr bool
+          guarded      = detail::is_guarded_pattern_v<pattern_t>;
+      using alt_only_t = variant_alt_only_pattern<
+          variant_tested_pattern_t<pattern_t>,
+          subject_t>;
+
+      if constexpr (!alt_only_t::value) {
+        return eval_typed_case_or_else<Result>(
+            current_case, subject, std::forward<OnMiss>(on_miss));
+      }
+      else if constexpr (alt_only_t::index != ActiveIndex) {
+        return std::forward<OnMiss>(on_miss)();
+      }
+      else if constexpr (!alt_only_t::binds) {
+        if constexpr (guarded) {
+          return eval_typed_case_or_else<Result>(
+              current_case, subject, std::forward<OnMiss>(on_miss));
+        }
+        else {
+          return invoke_typed_case_handler<Result>(current_case,
+                                                   subject);
+        }
+      }
+      else {
+        auto bound = std::forward_as_tuple(
+            variant_known_alt_get<ActiveIndex>(subject));
+        if constexpr (guarded) {
+          if (!guard_predicate_holds(current_case.pattern, bound)) {
+            return std::forward<OnMiss>(on_miss)();
+          }
+        }
+        return static_cast<Result>(
+            detail::invoke_from_tuple(current_case.handler, bound));
+      }
+    }
+
     template <std::size_t CaseIndex,
               typename Result,
               typename CasesTuple>
@@ -856,6 +1010,53 @@ namespace ptn::core::common {
       }
     }
 
+    // Source-order evaluation for a variant that is
+    // valueless_by_exception(). It has no active alternative, so a
+    // pattern that only tests the alternative rejects it, guarded or
+    // not, and is skipped at compile time. Other cases are evaluated
+    // in full.
+    template <std::size_t I,
+              typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise,
+              std::size_t N = std::tuple_size_v<
+                  std::remove_reference_t<CasesTuple>>>
+    constexpr Result
+    eval_cases_impl_typed_valueless(Subject    &subject,
+                                    CasesTuple &cases,
+                                    Otherwise &&otherwise_handler) {
+      if constexpr (I >= N) {
+        return invoke_otherwise_typed<Result>(
+            subject, std::forward<Otherwise>(otherwise_handler));
+      }
+      else {
+        auto &current_case = std::get<I>(cases);
+        using pattern_t    = std::decay_t<traits::case_pattern_t<
+               std::remove_reference_t<decltype(current_case)>>>;
+        using subject_t    = std::remove_cv_t<Subject>;
+
+        if constexpr (variant_alt_only_pattern<
+                          variant_tested_pattern_t<pattern_t>,
+                          subject_t>::value) {
+          return eval_cases_impl_typed_valueless<I + 1, Result>(
+              subject,
+              cases,
+              std::forward<Otherwise>(otherwise_handler));
+        }
+        else {
+          return eval_typed_case_or_else<Result>(
+              current_case, subject, [&]() -> Result {
+                return eval_cases_impl_typed_valueless<I + 1,
+                                                       Result>(
+                    subject,
+                    cases,
+                    std::forward<Otherwise>(otherwise_handler));
+              });
+        }
+      }
+    }
+
     template <std::size_t ActiveIndex,
               std::size_t BeginCaseIndex,
               std::size_t EndCaseIndex,
@@ -884,7 +1085,8 @@ namespace ptn::core::common {
                           pattern_t,
                           Subject,
                           ActiveIndex>()) {
-          return eval_typed_case_or_else<
+          return eval_variant_case_for_known_alt<
+              ActiveIndex,
               Result>(current_case, subject, [&]() -> Result {
             return eval_cases_impl_typed_variant_for_alt_case_range<
                 ActiveIndex,
@@ -1010,9 +1212,10 @@ namespace ptn::core::common {
               cases);
         }
         else {
-          // Evaluate in source order; type patterns reject the
-          // subject and the fallback runs.
-          return eval_cases_impl_typed<0, Result>(
+          // Evaluate in source order. Patterns that only test the
+          // alternative reject a valueless variant, so they are
+          // skipped without a test; the fallback runs.
+          return eval_cases_impl_typed_valueless<0, Result>(
               subject,
               cases,
               std::forward<Otherwise>(otherwise_handler));

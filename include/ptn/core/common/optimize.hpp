@@ -34,6 +34,9 @@ namespace ptn::pat::mod {
 namespace ptn::pat::detail {
   struct binding_pattern;
 
+  template <typename Tag, typename SubPattern>
+  struct binding_as_pattern;
+
   struct wildcard_t;
 
   template <typename V, typename Cmp>
@@ -309,6 +312,48 @@ namespace ptn::core::common {
       using type = Inner;
     };
 
+    // `$(p)`: matches exactly when `p` does.
+    template <typename Pattern>
+    struct binding_as_sub_pattern {};
+
+    template <typename Tag, typename Sub>
+    struct binding_as_sub_pattern<
+        ptn::pat::detail::binding_as_pattern<Tag, Sub>> {
+      using type = Sub;
+    };
+
+    template <typename Pattern, typename = void>
+    struct is_binding_as_pattern : std::false_type {};
+
+    template <typename Pattern>
+    struct is_binding_as_pattern<
+        Pattern,
+        std::void_t<typename binding_as_sub_pattern<Pattern>::type>>
+        : std::true_type {};
+
+    template <typename Pattern>
+    constexpr bool is_binding_as_pattern_v = is_binding_as_pattern<
+        std::decay_t<Pattern>>::value;
+
+    // `$(p)` matches exactly when `p` does, so `$(...)` is removed
+    // before asking which alternatives a pattern can match.
+    template <typename Pattern,
+              bool = is_binding_as_pattern_v<Pattern>>
+    struct strip_binding_as {
+      using type = std::decay_t<Pattern>;
+    };
+
+    template <typename Pattern>
+    struct strip_binding_as<Pattern, true> {
+      using type = typename strip_binding_as<
+          typename binding_as_sub_pattern<
+              std::decay_t<Pattern>>::type>::type;
+    };
+
+    template <typename Pattern>
+    using strip_binding_as_t = typename strip_binding_as<
+        Pattern>::type;
+
     // Compile-time matcher for simple variant patterns by active
     // alternative.
     template <typename Pattern,
@@ -344,7 +389,7 @@ namespace ptn::core::common {
               typename Subject,
               std::size_t ActiveIndex>
     constexpr bool variant_pattern_maybe_matches_alt_index() {
-      using pattern_t = std::decay_t<Pattern>;
+      using pattern_t = strip_binding_as_t<Pattern>;
 
       if constexpr (is_wildcard_pattern_v<pattern_t>) {
         return true;

@@ -166,4 +166,8 @@ name, separated by colons:
 - `max-instructions=N` only when the code size does not grow with the
   number of cases: a dense match may become a jump table with a few
   instructions per case. Set it to a few times the current count.
-- `skip-libcxx` when the probe is known not to hold with libc++.
+- `reference=F` to compare with a hand-written function `F` in the
+  same file, and `reference-slack=N` when some compilers in the CI
+  matrix lower the match a little less tightly than the reference.
+  Keep the slack well below the size of the code the probe guards
+  against.

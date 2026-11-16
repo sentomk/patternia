@@ -207,6 +207,13 @@ Planned alongside move semantics, rather than deferred to v0.12:
     case packs are accepted. GCC lowers a dispatch on a non-const
     static to a jump table instead of a lookup table, so a match
     through `PTN_ON` now compiles to the same code as `on(...)`.
+  - Implemented: inside the arm for the active alternative, a case
+    that only tests the alternative (`is<T>`, `alt<I>`, `$(is<T>)`
+    and `$(alt<I>)`, guarded or not) runs without testing the index
+    again, and its binding is read without the `bad_variant_access`
+    path of `std::get`. Only its guard can still reject it. A guarded
+    two-alternative match compiles to about the size of the same
+    branches written with `std::holds_alternative`.
   - Planned: static literals and `lit(...)` literals.
 
 Benchmarks for nested matching stay in v0.12. Optimizations must
