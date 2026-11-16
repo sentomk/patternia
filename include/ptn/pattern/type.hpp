@@ -130,6 +130,15 @@ namespace ptn::pat::detail {
         : subpattern(std::move(sub)) {
     }
 
+    // The alternative this pattern selects, as for type_is_pattern.
+    // `$(alt<I>)` uses it to bind the alternative rather than the
+    // whole variant, like `$(is<T>)` does.
+    template <typename Subject>
+    static constexpr std::size_t alt_index() {
+      core::common::static_assert_variant_alt_index<I, Subject>();
+      return I;
+    }
+
     template <typename Subject>
     constexpr bool match(const Subject &subject) const noexcept {
       core::common::static_assert_variant_alt_index<I, Subject>();
