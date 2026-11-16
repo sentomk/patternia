@@ -168,10 +168,11 @@ endforeach()
 #                       same file, plus a small slack. Compares two
 #                       spellings of one match under each compiler's
 #                       own switch lowering.
-#   skip-libcxx         libc++ re-tests the active alternative inside
-#                       each arm of a binding variant match, which the
-#                       optimizer does not fold. Tracked as separate
-#                       work; the probe would only report that.
+#   reference-slack=N   the slack for `reference`, 4 by default.
+#                       variant_guarded_2 needs more: Clang 14 and 16
+#                       lower it with a few spills (26 and 29
+#                       instructions against 17), while the code it
+#                       guards against was 59 to 91.
 set(PTN_CODEGEN_PROBES
   literal_dense_16:max-branches=4
   literal_dense_64:max-branches=4
@@ -181,7 +182,8 @@ set(PTN_CODEGEN_PROBES
   guard_chain:max-instructions=45
   structural_guard:max-instructions=45
   variant_simple_16:max-branches=3
-  variant_bind_16:max-branches=3:skip-libcxx
+  variant_bind_16:max-branches=3
+  variant_guarded_2:reference=ptn_codegen_reference:reference-slack=14
   variant_cached_16:max-branches=3:reference=ptn_codegen_reference
   literal_cached_64:max-branches=4:reference=ptn_codegen_reference
 )
@@ -193,46 +195,28 @@ if(Python3_Interpreter_FOUND
    AND NOT MSVC
    AND NOT CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC"
    AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64|aarch64|arm64")
-  include(CheckCXXSourceCompiles)
-  check_cxx_source_compiles("
-    #include <cstddef>
-    #ifndef _LIBCPP_VERSION
-    #error not libc++
-    #endif
-    int main() { return 0; }
-  " PTN_TESTS_USE_LIBCXX)
-
   foreach(_probe IN LISTS PTN_CODEGEN_PROBES)
     string(REPLACE ":" ";" _probe_fields "${_probe}")
     list(GET _probe_fields 0 _probe_name)
     list(REMOVE_AT _probe_fields 0)
 
     set(_probe_args "")
-    set(_probe_skip OFF)
     foreach(_probe_option IN LISTS _probe_fields)
-      if(_probe_option STREQUAL "skip-libcxx")
-        if(PTN_TESTS_USE_LIBCXX)
-          set(_probe_skip ON)
-        endif()
-      else()
-        string(REPLACE "=" ";" _probe_pair "${_probe_option}")
-        list(GET _probe_pair 0 _probe_key)
-        list(GET _probe_pair 1 _probe_value)
-        list(APPEND _probe_args "--${_probe_key}" "${_probe_value}")
-      endif()
+      string(REPLACE "=" ";" _probe_pair "${_probe_option}")
+      list(GET _probe_pair 0 _probe_key)
+      list(GET _probe_pair 1 _probe_value)
+      list(APPEND _probe_args "--${_probe_key}" "${_probe_value}")
     endforeach()
 
-    if(NOT _probe_skip)
-      add_test(
-        NAME "codegen.${_probe_name}"
-        COMMAND
-          ${Python3_EXECUTABLE}
-          ${PROJECT_SOURCE_DIR}/scripts/check_codegen.py
-          --compiler ${CMAKE_CXX_COMPILER}
-          --include ${PROJECT_SOURCE_DIR}/include
-          --source ${CMAKE_CURRENT_LIST_DIR}/codegen/${_probe_name}.cpp
-          ${_probe_args}
-      )
-    endif()
+    add_test(
+      NAME "codegen.${_probe_name}"
+      COMMAND
+        ${Python3_EXECUTABLE}
+        ${PROJECT_SOURCE_DIR}/scripts/check_codegen.py
+        --compiler ${CMAKE_CXX_COMPILER}
+        --include ${PROJECT_SOURCE_DIR}/include
+        --source ${CMAKE_CURRENT_LIST_DIR}/codegen/${_probe_name}.cpp
+        ${_probe_args}
+    )
   endforeach()
 endif()
