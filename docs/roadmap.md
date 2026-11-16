@@ -216,6 +216,10 @@ preserve the new ownership contract.
 
 - Implemented: `$(pred(...))` binds the matched value, like
   `$(is<T>)` does.
+- Implemented: `$(alt<I>)` binds the selected alternative, like
+  `$(is<T>)`. A borrowed match used to bind the whole variant, so
+  `$(alt<0>) >> [](int x) { ... }` did not compile; an owned match
+  already bound the alternative.
 - Implemented: `on(...)` rejects non-case arguments before handler
   deduction and dispatch planning. For `0 >> 1`, the diagnostic
   explains C++'s built-in bit shift and suggests `lit(0) >> 1`.

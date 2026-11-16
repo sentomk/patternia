@@ -315,3 +315,109 @@ TEST(TypePattern, ValuelessVariantWithManyAlternatives) {
                      _ >> -1),
             -1);
 }
+
+// `$(alt<I>)` binds the selected alternative, like `$(is<T>)`, for
+// borrowed and owned subjects alike. It used to bind the whole
+// variant when the subject was borrowed.
+namespace {
+  using AltSubject = std::variant<int, std::string>;
+} // namespace
+
+TEST(TypePattern, DollarAltBindsTheAlternative) {
+  const AltSubject i(7);
+  const AltSubject s(std::string("hey"));
+
+  auto run = [](const AltSubject &v) {
+    return match(v)
+           | on(
+               $(alt<0>) >> [](int x) { return x; },
+               $(alt<1>()) >>
+                   [](const std::string &t) {
+                     return static_cast<int>(t.size()) * 100;
+                   },
+               _ >> -1);
+  };
+  EXPECT_EQ(run(i), 7);
+  EXPECT_EQ(run(s), 300);
+}
+
+TEST(TypePattern, DollarAltBindsAReferenceToTheActiveAlternative) {
+  const AltSubject   v(std::string("abc"));
+  const std::string *seen = nullptr;
+  match(v)
+      | on(
+          $(alt<1>) >> [&](const std::string &t) { seen = &t; },
+          _ >> [] {});
+  EXPECT_EQ(seen, std::get_if<1>(&v));
+}
+
+TEST(TypePattern, DollarAltGuardSeesTheAlternative) {
+  auto run = [](const AltSubject &v) {
+    return match(v)
+           | on(
+               $(alt<0>)[_ > 5] >> [](int x) { return x * 10; },
+               $(alt<0>) >> [](int x) { return x; },
+               _ >> -1);
+  };
+  EXPECT_EQ(run(AltSubject(7)), 70);
+  EXPECT_EQ(run(AltSubject(3)), 3);
+  EXPECT_EQ(run(AltSubject(std::string("x"))), -1);
+}
+
+TEST(TypePattern, DollarAltAgreesWithDollarIsAndOwnedSubjects) {
+  auto by_index = [](const AltSubject &v) {
+    return match(v)
+           | on(
+               $(alt<0>(0)) >> [](int x) { return x + 1; },
+               $(alt<0>) >> [](int x) { return x * 2; },
+               _ >> -1);
+  };
+  auto by_type = [](const AltSubject &v) {
+    return match(v)
+           | on(
+               $(is<int>(0)) >> [](int x) { return x + 1; },
+               $(is<int>) >> [](int x) { return x * 2; },
+               _ >> -1);
+  };
+  auto owned = [](AltSubject v) {
+    return match(std::move(v))
+           | on(
+               $(alt<0>(0)) >> [](int x) { return x + 1; },
+               $(alt<0>) >> [](int x) { return x * 2; },
+               _ >> -1);
+  };
+  for (const AltSubject &v : {AltSubject(0),
+                              AltSubject(4),
+                              AltSubject(std::string("s"))}) {
+    EXPECT_EQ(by_index(v), by_type(v));
+    EXPECT_EQ(by_index(v), owned(v));
+  }
+}
+
+TEST(TypePattern, DollarAltSelectsByIndexWithRepeatedTypes) {
+  using Twice = std::variant<int, int>;
+  auto run    = [](const Twice &v) {
+    return match(v)
+           | on(
+               $(alt<1>) >> [](int x) { return 100 + x; },
+               $(alt<0>) >> [](int x) { return x; },
+               _ >> -1);
+  };
+  EXPECT_EQ(run(Twice(std::in_place_index<0>, 3)), 3);
+  EXPECT_EQ(run(Twice(std::in_place_index<1>, 3)), 103);
+}
+
+TEST(TypePattern, DollarAltWithManyAlternatives) {
+  using V  = std::variant<A0, A1, A2, A3, A4, A5, A6, A7, A8, int>;
+  auto run = [](const V &v) {
+    return match(v)
+           | on(
+               $(alt<9>)[_ > 0] >> [](int x) { return x; },
+               $(alt<0>) >> [](const A0 &) { return 0; },
+               _ >> -1);
+  };
+  EXPECT_EQ(run(V(std::in_place_index<9>, 42)), 42);
+  EXPECT_EQ(run(V(std::in_place_index<9>, -1)), -1);
+  EXPECT_EQ(run(V(std::in_place_index<0>)), 0);
+  EXPECT_EQ(run(V(std::in_place_index<3>)), -1);
+}

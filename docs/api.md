@@ -470,7 +470,9 @@ Index-based `std::variant` match.
 ```cpp
 match(v) | on(
   alt<0> >> "first",
-  alt<1> >> "second",
+  $(alt<1>) >> [](const std::string &s) {
+    return "second:" + s;
+  },
   _ >> "other"
 );
 ```
@@ -480,6 +482,7 @@ Rules:
 - `is<T>` requires `T` to appear exactly once.
 - `alt<I>` requires `I` to be in range.
 - Use `$(...)` when you want the alternative value bound into the handler.
+  `$(is<T>)` and `$(alt<I>)` both bind the alternative, not the variant.
 - `is<T>(p)` and `alt<I>(p)` also match the alternative against `p`. A plain
   value is treated as `lit(value)`: `is<int>(0)`, `alt<1>("hi")`.
 
