@@ -170,9 +170,12 @@ handlers remain responsible for references they deliberately return.
 
 Owned subjects use source-order evaluation, except for a dense run
 of `val<N>` literals followed by a fallback, which uses the same keyed
-dispatch as a borrowed subject. Move-only callables and materialized
-bindings are supported; measuring and optimizing the rest of the
-owning path remains part of the performance work below.
+dispatch as a borrowed subject. A run of `lit(...)` literals followed
+by a fallback is compared in order through the same inlined chain as
+a borrowed subject, so the case pack stays out of memory. Move-only
+callables and materialized bindings are supported; measuring and
+optimizing the rest of the owning path remains part of the
+performance work below.
 
 ### Performance work
 

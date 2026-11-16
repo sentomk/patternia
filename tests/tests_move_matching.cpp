@@ -758,3 +758,134 @@ TEST(MoveMatching, OwnedDenseLiteralReusesAnLvalueCasePack) {
   EXPECT_EQ(match(2) | cases, 21);
   EXPECT_EQ(match(7) | cases, 21);
 }
+
+// Runtime `lit(...)` literals on an owned subject are compared in
+// source order through an inlined chain, as on a borrowed subject.
+// The selected case and the handler contract must not change.
+namespace {
+  int runtime_literal_owned(int v) {
+    return match(int(v))
+           | on(lit(1) >> 11,
+                lit(2) >> 22,
+                lit(3) >> 33,
+                lit(40) >> 44,
+                lit(-5) >> 55,
+                lit(2) >> 99,
+                _ >> 0);
+  }
+
+  int runtime_literal_borrowed(const int &v) {
+    return match(v)
+           | on(lit(1) >> 11,
+                lit(2) >> 22,
+                lit(3) >> 33,
+                lit(40) >> 44,
+                lit(-5) >> 55,
+                lit(2) >> 99,
+                _ >> 0);
+  }
+
+  using runtime_literal_cases_t = std::tuple<decltype(lit(1) >> 11),
+                                             decltype(lit(2) >> 22),
+                                             decltype(_ >> 0)>;
+  static_assert(ptn::core::common::dispatch_plan_t<
+                    int,
+                    runtime_literal_cases_t>::kind
+                    == ptn::core::common::detail::
+                        dispatch_plan_kind::literal_linear,
+                "these tests must cover the literal chain");
+} // namespace
+
+TEST(MoveMatching, OwnedRuntimeLiteralsSelectTheSameCaseAsBorrowed) {
+  for (int v : {-1000, -5, -1, 0, 1, 2, 3, 4, 39, 40, 41, 100000}) {
+    EXPECT_EQ(runtime_literal_owned(v), runtime_literal_borrowed(v))
+        << "subject " << v;
+  }
+  // The first matching case wins over a later duplicate.
+  EXPECT_EQ(runtime_literal_owned(2), 22);
+  EXPECT_EQ(runtime_literal_owned(-5), 55);
+  EXPECT_EQ(runtime_literal_owned(7), 0);
+}
+
+TEST(MoveMatching, OwnedRuntimeLiteralsWorkOnEnums) {
+  auto name = [](Color c) {
+    return match(Color(c))
+           | on(lit(Color::Red) >> 1,
+                lit(Color::Green) >> 2,
+                lit(Color::Blue) >> 3,
+                _ >> -1);
+  };
+  EXPECT_EQ(name(Color::Red), 1);
+  EXPECT_EQ(name(Color::Green), 2);
+  EXPECT_EQ(name(Color::Blue), 3);
+  EXPECT_EQ(name(Color::Other), -1);
+}
+
+TEST(MoveMatching, OwnedRuntimeLiteralRunsOnlyTheSelectedHandler) {
+  int  calls[4] = {};
+  auto run      = [&](int v) {
+    match(int(v))
+        | on(
+            lit(1) >> [&] { ++calls[0]; },
+            lit(2) >> [&] { ++calls[1]; },
+            lit(3) >> [&] { ++calls[2]; },
+            _ >> [&] { ++calls[3]; });
+  };
+  run(2);
+  run(3);
+  run(3);
+  run(42);
+  EXPECT_EQ(calls[0], 0);
+  EXPECT_EQ(calls[1], 1);
+  EXPECT_EQ(calls[2], 2);
+  EXPECT_EQ(calls[3], 1);
+}
+
+TEST(MoveMatching, OwnedRuntimeLiteralKeepsOneShotHandlerContract) {
+  EXPECT_EQ(match(2)
+                | on(lit(1) >> NullaryRvalueHandler(10),
+                     lit(2) >> NullaryRvalueHandler(20),
+                     lit(3) >> NullaryRvalueHandler(30),
+                     _ >> NullaryRvalueHandler(0)),
+            20);
+  EXPECT_EQ(match(9)
+                | on(lit(1) >> NullaryRvalueHandler(10),
+                     lit(2) >> NullaryRvalueHandler(20),
+                     lit(3) >> NullaryRvalueHandler(30),
+                     _ >> NullaryRvalueHandler(0)),
+            0);
+
+  std::unique_ptr<int> owned = match(3)
+                               | on(lit(1)
+                                        >> std::make_unique<int>(1),
+                                    lit(2)
+                                        >> std::make_unique<int>(2),
+                                    lit(3)
+                                        >> std::make_unique<int>(3),
+                                    _ >> std::unique_ptr<int>());
+  ASSERT_NE(owned, nullptr);
+  EXPECT_EQ(*owned, 3);
+}
+
+TEST(MoveMatching, OwnedRuntimeLiteralReusesAnLvalueCasePack) {
+  int  calls = 0;
+  auto cases = on(
+      lit(1) >> [&] { return ++calls; },
+      lit(2) >> [&] { return calls += 10; },
+      lit(3) >> [&] { return calls += 100; },
+      _ >> [&] { return calls; });
+  EXPECT_EQ(match(1) | cases, 1);
+  EXPECT_EQ(match(2) | cases, 11);
+  EXPECT_EQ(match(2) | cases, 21);
+  EXPECT_EQ(match(7) | cases, 21);
+}
+
+TEST(MoveMatching, OwnedRuntimeLiteralWorksOnAConstSubject) {
+  const int three = 3;
+  // The move is deliberate: it makes the subject a const rvalue.
+  // NOLINTBEGIN(performance-move-const-arg)
+  EXPECT_EQ(
+      match(std::move(three)) | on(lit(1) >> 1, lit(3) >> 3, _ >> 0),
+      3);
+  // NOLINTEND(performance-move-const-arg)
+}

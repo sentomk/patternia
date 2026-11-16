@@ -437,10 +437,11 @@ namespace ptn::core::common::detail {
     }
   }
 
-  // Runs the case that dense literal dispatch selected for an owned
-  // subject. A literal case binds nothing, so its handler is invoked
-  // directly; the trailing fallback goes through the ordinary owned
-  // visit so it still receives the subject as an rvalue.
+  // Runs the literal case that dense literal dispatch or the literal
+  // chain selected for an owned subject. A literal case binds
+  // nothing, so its handler is invoked directly; the trailing
+  // fallback goes through the ordinary owned visit so it still
+  // receives the subject as an rvalue.
   struct owned_literal_case_entry {
     template <std::size_t CaseIndex,
               typename Result,
@@ -451,7 +452,8 @@ namespace ptn::core::common::detail {
       using pattern = traits::case_pattern_t<
           std::tuple_element_t<CaseIndex,
                                std::remove_reference_t<Cases>>>;
-      if constexpr (is_static_literal_pattern_v<pattern>) {
+      if constexpr (is_static_literal_pattern_v<pattern>
+                    || is_simple_literal_pattern_v<pattern>) {
         return static_cast<Result>(invoke_owned_handler(
             std::get<CaseIndex>(std::forward<Cases>(cases)),
             std::tuple<>{},
@@ -464,11 +466,51 @@ namespace ptn::core::common::detail {
     }
   };
 
+  // Compares an owned subject with a run of runtime `lit(...)`
+  // literals, in source order, as the borrowed literal chain does.
+  // The cases bind nothing and have no guards, so each test is a
+  // plain comparison; the selected handler still runs through the
+  // owned entry. Every step is inlined so the case pack stays out of
+  // memory.
+  template <typename Result,
+            std::size_t I = 0,
+            typename S,
+            typename Cases>
+  PTN_DETAIL_ALWAYS_INLINE constexpr Result
+  eval_owned_literal_chain(S &subject, Cases &&cases) {
+    if constexpr (I
+                  == std::tuple_size_v<
+                      std::remove_reference_t<Cases>>) {
+      return unreachable_result<Result>();
+    }
+    else {
+      using pattern = traits::case_pattern_t<
+          std::tuple_element_t<I, std::remove_reference_t<Cases>>>;
+      if constexpr (is_simple_literal_pattern_v<pattern>) {
+        if (std::get<I>(cases).pattern.match(
+                std::as_const(subject))) {
+          return owned_literal_case_entry::template invoke<I,
+                                                           Result>(
+              subject, std::forward<Cases>(cases));
+        }
+        return eval_owned_literal_chain<Result, I + 1>(
+            subject, std::forward<Cases>(cases));
+      }
+      else {
+        // The fallback: `_` matches everything.
+        return owned_literal_case_entry::template invoke<I, Result>(
+            subject, std::forward<Cases>(cases));
+      }
+    }
+  }
+
   // Owned subjects are matched in source order, except where the
   // planner proves that a keyed dispatch selects the same case: a
   // dense run of static literals followed by a fallback. Those cases
   // have no guards and no bindings, so jumping straight to the first
-  // case with the subject's value is not observable.
+  // case with the subject's value is not observable. A run of
+  // runtime literals is still compared in order, but through the
+  // same inlined chain as a borrowed subject.
   template <typename Result, typename S, typename Cases>
   PTN_DETAIL_ALWAYS_INLINE constexpr Result
   eval_owned_cases(S &subject, Cases &&cases) {
@@ -478,7 +520,11 @@ namespace ptn::core::common::detail {
                     == dispatch_plan_kind::static_literal_dense
                 || plan::kind
                        == dispatch_plan_kind::literal_runtime_dense;
-    if constexpr (keyed) {
+    if constexpr (plan::kind == dispatch_plan_kind::literal_linear) {
+      return eval_owned_literal_chain<Result>(
+          subject, std::forward<Cases>(cases));
+    }
+    else if constexpr (keyed) {
       if constexpr (plan::has_default_case) {
         return eval_cases_impl_static_literal_dispatch<
             plan,
