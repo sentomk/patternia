@@ -2529,6 +2529,13 @@ performance work below.</p>
     case packs are accepted. GCC lowers a dispatch on a non-const
     static to a jump table instead of a lookup table, so a match
     through <code>PTN_ON</code> now compiles to the same code as <code>on(...)</code>.</li>
+<li>Implemented: inside the arm for the active alternative, a case
+    that only tests the alternative (<code>is&lt;T&gt;</code>, <code>alt&lt;I&gt;</code>, <code>$(is&lt;T&gt;)</code>
+    and <code>$(alt&lt;I&gt;)</code>, guarded or not) runs without testing the index
+    again, and its binding is read without the <code>bad_variant_access</code>
+    path of <code>std::get</code>. Only its guard can still reject it. A guarded
+    two-alternative match compiles to about the size of the same
+    branches written with <code>std::holds_alternative</code>.</li>
 <li>Planned: static literals and <code>lit(...)</code> literals.</li>
 </ul>
 <p>Benchmarks for nested matching stay in v0.12. Optimizations must
