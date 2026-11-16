@@ -2823,7 +2823,9 @@ Wrap it with <code>$(...)</code> to extract values.</p>
 <p>Index-based <code>std::variant</code> match.</p>
 <div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
 <span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"first"</span><span class="p">,</span>
-<span class="w">  </span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"second"</span><span class="p">,</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">alt</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">"second:"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
+<span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span>
 <span class="p">);</span>
 </code></pre></div>
@@ -2831,7 +2833,8 @@ Wrap it with <code>$(...)</code> to extract values.</p>
 <ul>
 <li><code>is&lt;T&gt;</code> requires <code>T</code> to appear exactly once.</li>
 <li><code>alt&lt;I&gt;</code> requires <code>I</code> to be in range.</li>
-<li>Use <code>$(...)</code> when you want the alternative value bound into the handler.</li>
+<li>Use <code>$(...)</code> when you want the alternative value bound into the handler.
+  <code>$(is&lt;T&gt;)</code> and <code>$(alt&lt;I&gt;)</code> both bind the alternative, not the variant.</li>
 <li><code>is&lt;T&gt;(p)</code> and <code>alt&lt;I&gt;(p)</code> also match the alternative against <code>p</code>. A plain
   value is treated as <code>lit(value)</code>: <code>is&lt;int&gt;(0)</code>, <code>alt&lt;1&gt;("hi")</code>.</li>
 </ul>

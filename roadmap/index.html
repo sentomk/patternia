@@ -2537,6 +2537,10 @@ preserve the new ownership contract.</p>
 <ul>
 <li>Implemented: <code>$(pred(...))</code> binds the matched value, like
   <code>$(is&lt;T&gt;)</code> does.</li>
+<li>Implemented: <code>$(alt&lt;I&gt;)</code> binds the selected alternative, like
+  <code>$(is&lt;T&gt;)</code>. A borrowed match used to bind the whole variant, so
+  <code>$(alt&lt;0&gt;) &gt;&gt; [](int x) { ... }</code> did not compile; an owned match
+  already bound the alternative.</li>
 <li>Implemented: <code>on(...)</code> rejects non-case arguments before handler
   deduction and dispatch planning. For <code>0 &gt;&gt; 1</code>, the diagnostic
   explains C++'s built-in bit shift and suggests <code>lit(0) &gt;&gt; 1</code>.
