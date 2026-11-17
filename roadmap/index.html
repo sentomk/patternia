@@ -2548,7 +2548,13 @@ performance work below.</p>
     functions in the translation unit. The same literal match could
     compile to a table in one file and to a tree of comparisons in
     another.</li>
-<li>Planned: static literals.</li>
+<li>Implemented: static literals. A dense <code>val&lt;N&gt;</code> match indexes the
+    index switch with the subject's offset from the smallest literal,
+    computed in the key's own unsigned width, and the switch's
+    default is the only range check. A separate range check in front
+    of the switch made GCC compare twice: <code>val&lt;1&gt;</code> to <code>val&lt;64&gt;</code>
+    mapped to themselves now compiles to the same code as the
+    <code>switch</code> written by hand on x86-64 GCC 13.</li>
 </ul>
 <p>Benchmarks for nested matching stay in v0.12. Optimizations must
 preserve the new ownership contract.</p>
