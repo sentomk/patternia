@@ -26,3 +26,17 @@
 #else
 #define PTN_DETAIL_ALWAYS_INLINE inline
 #endif
+
+// The same request for a lambda, written after its parameter list:
+// `[&](auto &&x) PTN_DETAIL_LAMBDA_ALWAYS_INLINE -> T { ... }`.
+// Continuations passed between the owned evaluation functions are
+// lambdas, and GCC inlines a callee early only once it has processed
+// it, which depends on the order of functions in the translation
+// unit. MSVC has no portable spelling, so it relies on the
+// heuristic.
+#if defined(__GNUC__) || defined(__clang__)
+#define PTN_DETAIL_LAMBDA_ALWAYS_INLINE                             \
+  __attribute__((always_inline))
+#else
+#define PTN_DETAIL_LAMBDA_ALWAYS_INLINE
+#endif

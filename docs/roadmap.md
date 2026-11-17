@@ -186,6 +186,10 @@ Planned alongside move semantics, rather than deferred to v0.12:
 - Avoid repeated extraction/binding on the selected guard/handler
   path where the binding contract permits it; do not change predicate
   order, invocation counts, or first-match-wins behavior to do so.
+  - Checked: a borrowed structural match with several guards reads
+    each member once and compiles to the same code as the same
+    branches written by hand. On an owned subject GCC kept the
+    guards' constants in memory, which the next item fixes.
 - Measure owning and borrowed matches, rejected guards, structural
   bindings, and generic versus optimized dispatch. Keep semantic
   tests separate from timing benchmarks.
@@ -263,6 +267,13 @@ preserve the new ownership contract.
   match wrote its whole case pack to the stack on every call and its
   cost grew with the number of cases. A codegen check in the test
   suite now fails when a match stops being fully inlined.
+- Implemented: the owned evaluation path, including the
+  continuations it passes between patterns, is always inlined as
+  well. GCC inlines a callee early only once it has processed it, so
+  at `-O2` an owned match with guard and handler expressions kept its
+  constants on the stack (26 instructions against 13 written by
+  hand), and on GCC 11 a dense owned literal match compiled to 135
+  instructions instead of 7.
 - Bugs reported in
   [GitHub issues](https://github.com/sentomk/patternia/issues) with the
   `bug` label before the release.

@@ -23,7 +23,7 @@ namespace ptn::core::common::detail {
         std::declval<const Subject &>()));
 
     template <typename P, typename S, typename Hit, typename Miss>
-    static constexpr decltype(auto)
+    PTN_DETAIL_ALWAYS_INLINE static constexpr decltype(auto)
     visit(P &pattern, S &subject, Hit &&hit, Miss &&miss) {
       if (std::as_const(pattern).match(std::as_const(subject))) {
         auto &&bound = std::as_const(pattern).bind(
@@ -44,7 +44,7 @@ namespace ptn::core::common::detail {
     using bindings = std::tuple<S &&>;
 
     template <typename P, typename S, typename Hit, typename Miss>
-    static constexpr decltype(auto)
+    PTN_DETAIL_ALWAYS_INLINE static constexpr decltype(auto)
     visit(P &, S &subject, Hit &&hit, Miss &&) {
       return std::forward<Hit>(hit)(
           std::forward_as_tuple(std::move(subject)));
@@ -61,7 +61,8 @@ namespace ptn::core::common::detail {
   struct owned_pattern<pat::detail::structural_bind_pattern<
       pat::detail::has_pattern<Ms...>>> {
     template <auto M, typename S>
-    static constexpr auto member(S &subject) {
+    PTN_DETAIL_ALWAYS_INLINE static constexpr auto
+    member(S &subject) {
       if constexpr (std::is_null_pointer_v<decltype(M)>) {
         return std::tuple<>{};
       }
@@ -75,7 +76,7 @@ namespace ptn::core::common::detail {
         member<Ms>(std::declval<S &>())...));
 
     template <typename P, typename S, typename Hit, typename Miss>
-    static constexpr decltype(auto)
+    PTN_DETAIL_ALWAYS_INLINE static constexpr decltype(auto)
     visit(P &pattern, S &subject, Hit &&hit, Miss &&) {
       // Structural patterns always match; instantiate their member
       // validation before extracting the bindings.
@@ -86,16 +87,15 @@ namespace ptn::core::common::detail {
   };
 
   template <typename Tuple, std::size_t... I>
-  constexpr auto observe_bindings(Tuple &bound,
-                                  std::index_sequence<I...>) {
+  PTN_DETAIL_ALWAYS_INLINE constexpr auto
+  observe_bindings(Tuple &bound, std::index_sequence<I...>) {
     return std::forward_as_tuple(
         std::as_const(std::get<I>(bound))...);
   }
 
   template <typename P, typename Bound, std::size_t... I>
-  constexpr bool owned_guard_holds(P     &pattern,
-                                   Bound &observed,
-                                   std::index_sequence<I...>) {
+  PTN_DETAIL_ALWAYS_INLINE constexpr bool owned_guard_holds(
+      P &pattern, Bound &observed, std::index_sequence<I...>) {
     if constexpr (pat::traits::is_tuple_guard_predicate_v<
                       decltype(pattern.pred)>) {
       return guard_predicate_holds(pattern, observed);
@@ -122,12 +122,13 @@ namespace ptn::core::common::detail {
     using bindings = owned_bindings_t<Inner, S>;
 
     template <typename P, typename S, typename Hit, typename Miss>
-    static constexpr decltype(auto)
+    PTN_DETAIL_ALWAYS_INLINE static constexpr decltype(auto)
     visit(P &pattern, S &subject, Hit &&hit, Miss &&miss) {
       return owned_pattern<Inner>::visit(
           pattern.inner,
           subject,
-          [&](auto &&bound) -> decltype(auto) {
+          [&](auto &&bound) PTN_DETAIL_LAMBDA_ALWAYS_INLINE
+          -> decltype(auto) {
             auto observed = observe_bindings(
                 bound,
                 std::make_index_sequence<std::tuple_size_v<
@@ -172,7 +173,7 @@ namespace ptn::core::common::detail {
     using bindings = typename binding_type<S>::type;
 
     template <typename P, typename S, typename Hit, typename Miss>
-    static constexpr decltype(auto)
+    PTN_DETAIL_ALWAYS_INLINE static constexpr decltype(auto)
     visit(P &pattern, S &subject, Hit &&hit, Miss &&miss) {
       constexpr auto index = Pattern::template alt_index<S>();
       if (subject.index() != index) {
@@ -207,7 +208,7 @@ namespace ptn::core::common::detail {
     using bindings = typename owned_variant_pattern<selector, Sub>::
         template bindings<S>;
     template <typename P, typename S, typename Hit, typename Miss>
-    static constexpr decltype(auto)
+    PTN_DETAIL_ALWAYS_INLINE static constexpr decltype(auto)
     visit(P &pattern, S &subject, Hit &&hit, Miss &&miss) {
       return owned_variant_pattern<selector, Sub>::visit(
           pattern,
@@ -231,7 +232,7 @@ namespace ptn::core::common::detail {
     using bindings = typename owned_variant_pattern<selector, Sub>::
         template bindings<S>;
     template <typename P, typename S, typename Hit, typename Miss>
-    static constexpr decltype(auto)
+    PTN_DETAIL_ALWAYS_INLINE static constexpr decltype(auto)
     visit(P &pattern, S &subject, Hit &&hit, Miss &&miss) {
       return owned_variant_pattern<selector, Sub>::visit(
           pattern,
@@ -242,8 +243,8 @@ namespace ptn::core::common::detail {
   };
 
   template <typename Bound, std::size_t... I>
-  constexpr auto forward_bindings(Bound &&bound,
-                                  std::index_sequence<I...>) {
+  PTN_DETAIL_ALWAYS_INLINE constexpr auto
+  forward_bindings(Bound &&bound, std::index_sequence<I...>) {
     return std::forward_as_tuple(
         forward_bound_element<I, Bound>(bound)...);
   }
@@ -251,7 +252,8 @@ namespace ptn::core::common::detail {
   template <typename Tag, typename Sub>
   struct owned_pattern<pat::detail::binding_as_pattern<Tag, Sub>> {
     template <typename S, typename Bound>
-    static constexpr auto combine(S &subject, Bound &&bound) {
+    PTN_DETAIL_ALWAYS_INLINE static constexpr auto
+    combine(S &subject, Bound &&bound) {
       if constexpr ((pat::detail::has_alt_index<Sub, S>::value
                      || is_variant_type_alt_pattern_v<Sub>)
                     && std::tuple_size_v<
@@ -280,26 +282,28 @@ namespace ptn::core::common::detail {
         std::declval<S &>(),
         std::declval<owned_bindings_t<Sub, S>>()));
     template <typename P, typename S, typename Hit, typename Miss>
-    static constexpr decltype(auto)
+    PTN_DETAIL_ALWAYS_INLINE static constexpr decltype(auto)
     visit(P &pattern, S &subject, Hit &&hit, Miss &&miss) {
       return owned_pattern<Sub>::visit(
           pattern.subpattern,
           subject,
-          [&](auto &&bound) -> decltype(auto) {
-            return std::forward<Hit>(hit)(combine(
-                subject, std::forward<decltype(bound)>(bound)));
-          },
+          [&](auto &&bound)
+              PTN_DETAIL_LAMBDA_ALWAYS_INLINE -> decltype(auto) {
+                return std::forward<Hit>(hit)(combine(
+                    subject, std::forward<decltype(bound)>(bound)));
+              },
           std::forward<Miss>(miss));
     }
   };
 
   template <typename P, typename S>
-  constexpr bool owned_matches(P &pattern, S &subject) {
+  PTN_DETAIL_ALWAYS_INLINE constexpr bool owned_matches(P &pattern,
+                                                        S &subject) {
     return owned_pattern<std::decay_t<P>>::visit(
         pattern,
         subject,
-        [](auto &&) { return true; },
-        [] { return false; });
+        [](auto &&) PTN_DETAIL_LAMBDA_ALWAYS_INLINE { return true; },
+        []() PTN_DETAIL_LAMBDA_ALWAYS_INLINE { return false; });
   }
 
   template <bool All>
@@ -307,7 +311,7 @@ namespace ptn::core::common::detail {
     template <typename S>
     using bindings = std::tuple<>;
     template <typename P, typename S, typename Hit, typename Miss>
-    static constexpr decltype(auto)
+    PTN_DETAIL_ALWAYS_INLINE static constexpr decltype(auto)
     visit(P &pattern, S &subject, Hit &&hit, Miss &&miss) {
       const bool matched = std::apply(
           [&](auto &...parts) {
@@ -336,7 +340,7 @@ namespace ptn::core::common::detail {
               typename S,
               typename Hit,
               typename Miss>
-    static constexpr decltype(auto)
+    PTN_DETAIL_ALWAYS_INLINE static constexpr decltype(auto)
     visit(Pattern &pattern, S &subject, Hit &&hit, Miss &&miss) {
       if (!owned_matches(pattern.sub, subject)) {
         return std::forward<Hit>(hit)(std::tuple<>{});
@@ -346,8 +350,10 @@ namespace ptn::core::common::detail {
   };
 
   template <typename Case, typename Bound, std::size_t... I>
-  constexpr decltype(auto) invoke_owned_handler(
-      Case &&current, Bound &&bound, std::index_sequence<I...>) {
+  PTN_DETAIL_ALWAYS_INLINE constexpr decltype(auto)
+  invoke_owned_handler(Case  &&current,
+                       Bound &&bound,
+                       std::index_sequence<I...>) {
     auto &&handler  = std::forward<Case>(current).handler;
     using handler_t = decltype(handler);
     if constexpr (std::is_invocable_v<
@@ -547,8 +553,8 @@ namespace ptn::core::common::detail {
             typename Filter = owned_every_case,
             typename S,
             typename Cases>
-  constexpr Result eval_owned_cases_in_order(S      &subject,
-                                             Cases &&cases) {
+  PTN_DETAIL_ALWAYS_INLINE constexpr Result
+  eval_owned_cases_in_order(S &subject, Cases &&cases) {
     if constexpr (I
                   == std::tuple_size_v<
                       std::remove_reference_t<Cases>>) {
@@ -567,7 +573,8 @@ namespace ptn::core::common::detail {
       auto &current = ptn::core::dsl::detail::case_get<I>(cases);
       using pattern = traits::case_pattern_t<
           std::decay_t<decltype(current)>>;
-      auto on_hit = [&](auto &&bound) -> Result {
+      auto on_hit = [&](auto &&bound)
+                        PTN_DETAIL_LAMBDA_ALWAYS_INLINE -> Result {
         return static_cast<Result>(invoke_owned_handler(
             ptn::core::dsl::detail::case_get<I>(
                 std::forward<Cases>(cases)),
@@ -575,7 +582,8 @@ namespace ptn::core::common::detail {
             std::make_index_sequence<std::tuple_size_v<
                 std::remove_reference_t<decltype(bound)>>>{}));
       };
-      auto on_miss = [&]() -> Result {
+      auto on_miss = [&]()
+                         PTN_DETAIL_LAMBDA_ALWAYS_INLINE -> Result {
         return eval_owned_cases_in_order<Result, I + 1, Filter>(
             subject, std::forward<Cases>(cases));
       };

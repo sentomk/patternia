@@ -3,6 +3,7 @@
 #include <ptn/patternia.hpp>
 
 #include <cstdint>
+#include <iterator>
 #include <memory>
 #include <string>
 #include <stdexcept>
@@ -1064,4 +1065,35 @@ TEST(MoveMatching, OwnedConstVariantKeepsConstBindings) {
                   _ >> 0);
   // NOLINTEND(performance-move-const-arg)
   EXPECT_EQ(size, 5);
+}
+
+namespace {
+  struct Point2 {
+    int x;
+    int y;
+  };
+
+  // Guard and handler expressions over structural bindings: the
+  // shape whose owned path GCC did not inline early before the owned
+  // evaluation path was always inlined.
+  template <typename Subject>
+  int route_point(Subject &&point) {
+    constexpr auto pt = has<&Point2::x, &Point2::y>;
+    auto [x, y]       = pt;
+    return match(std::forward<Subject>(point))
+           | on($(pt)[x > 0 && y > 0] >> x + y,
+                $(pt)[x > 0] >> x - y,
+                $(pt) >> x * x + y * y,
+                _ >> 0);
+  }
+} // namespace
+
+TEST(MoveMatching, OwnedStructuralExpressionsMatchBorrowed) {
+  const Point2 points[] = {
+      {1, 2}, {3, -4}, {-5, 6}, {0, 0}, {7, 0}, {0, 5}, {-2, -3}};
+  const int expected[] = {3, 7, 61, 0, 7, 25, 13};
+  for (std::size_t i = 0; i < std::size(points); ++i) {
+    EXPECT_EQ(route_point(points[i]), expected[i]) << i;
+    EXPECT_EQ(route_point(Point2(points[i])), expected[i]) << i;
+  }
 }
