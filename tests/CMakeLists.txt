@@ -190,6 +190,7 @@ set(PTN_CODEGEN_PROBES
   structural_guard:max-instructions=45
   variant_simple_16:max-branches=3
   variant_bind_16:max-branches=3
+  variant_owned_16:max-branches=3
   variant_guarded_2:reference=ptn_codegen_reference:reference-slack=14
   variant_cached_16:max-branches=3:reference=ptn_codegen_reference
   literal_cached_64:max-branches=4:reference=ptn_codegen_reference:reference-slack=6

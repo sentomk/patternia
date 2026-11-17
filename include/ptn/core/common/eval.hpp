@@ -520,10 +520,14 @@ namespace ptn::core::common {
     // around the first two. `binds` says whether the pattern binds
     // exactly the active alternative, so the binding can be taken
     // without the pattern.
+    // `index` is meaningful only when `value` is true. It is defined
+    // here too so that `$(p)` around any `p` can read it: MSVC
+    // evaluates that initializer whenever the class is instantiated.
     template <typename Pattern, typename Subject, typename = void>
     struct variant_alt_only_pattern {
-      static constexpr bool value = false;
-      static constexpr bool binds = false;
+      static constexpr bool        value = false;
+      static constexpr bool        binds = false;
+      static constexpr std::size_t index = 0;
     };
 
     template <typename Pattern, typename Subject>
