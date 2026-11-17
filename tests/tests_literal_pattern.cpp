@@ -3,6 +3,8 @@
 #include <ptn/patternia.hpp>
 
 #include <array>
+#include <cstdint>
+#include <limits>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -389,4 +391,99 @@ TEST(LiteralPattern, CasePackKeepsValueCategoryOfHandlers) {
   int one = 1;
   EXPECT_EQ(match(one) | named, "one");
   EXPECT_EQ(match(one) | named, "one");
+}
+
+namespace {
+  namespace dispatch = ptn::core::common::detail;
+
+  template <typename Subject, typename Cases>
+  constexpr bool is_dense_literal_plan_v =
+      dispatch::dispatch_plan<Subject,
+                              typename Cases::tuple_type>::kind
+      == dispatch::dispatch_plan_kind::static_literal_dense;
+
+} // namespace
+
+// Dense dispatch computes the subject's offset from the smallest
+// literal in the key's own unsigned width and lets the switch reject
+// offsets past the span. These cases put the span at the ends of the
+// key's range, where the subtraction wraps.
+TEST(LiteralPattern, DenseDispatchAtTheLowEndOfASignedByte) {
+  auto cases = on(val<std::int8_t(-128)> >> 1,
+                  val<std::int8_t(-127)> >> 2,
+                  val<std::int8_t(-126)> >> 3,
+                  _ >> 0);
+  static_assert(
+      is_dense_literal_plan_v<std::int8_t, decltype(cases)>);
+
+  for (int i = -128; i <= 127; ++i) {
+    std::int8_t value    = static_cast<std::int8_t>(i);
+    const int   expected = i <= -126 ? i + 129 : 0;
+    EXPECT_EQ(match(value) | cases, expected) << i;
+    EXPECT_EQ(match(std::int8_t(value)) | cases, expected) << i;
+  }
+}
+
+TEST(LiteralPattern, DenseDispatchAtTheHighEndOfAnUnsignedByte) {
+  auto cases = on(val<std::uint8_t(253)> >> 1,
+                  val<std::uint8_t(255)> >> 3,
+                  _ >> 0);
+  static_assert(
+      is_dense_literal_plan_v<std::uint8_t, decltype(cases)>);
+
+  for (int i = 0; i <= 255; ++i) {
+    std::uint8_t value    = static_cast<std::uint8_t>(i);
+    const int    expected = i == 253 ? 1 : i == 255 ? 3 : 0;
+    EXPECT_EQ(match(value) | cases, expected) << i;
+    EXPECT_EQ(match(std::uint8_t(value)) | cases, expected) << i;
+  }
+}
+
+TEST(LiteralPattern, DenseDispatchAtTheEndsOfSixtyFourBitKeys) {
+  using i64         = std::int64_t;
+  using u64         = std::uint64_t;
+  constexpr i64 lo  = std::numeric_limits<i64>::min();
+  constexpr i64 hi  = std::numeric_limits<i64>::max();
+  constexpr u64 top = std::numeric_limits<u64>::max();
+
+  auto low = on(
+      val<lo> >> 1, val<lo + 1> >> 2, val<lo + 2> >> 3, _ >> 0);
+  auto high = on(
+      val<top - 2> >> 1, val<top - 1> >> 2, val<top> >> 3, _ >> 0);
+  static_assert(is_dense_literal_plan_v<i64, decltype(low)>);
+  static_assert(is_dense_literal_plan_v<u64, decltype(high)>);
+
+  for (i64 value :
+       {lo, lo + 1, lo + 2, lo + 3, i64{-1}, i64{0}, hi - 1, hi}) {
+    const int expected = value == lo       ? 1
+                         : value == lo + 1 ? 2
+                         : value == lo + 2 ? 3
+                                           : 0;
+    EXPECT_EQ(match(value) | low, expected) << value;
+  }
+  for (u64 value : {u64{0},
+                    u64{1},
+                    u64{3},
+                    top / 2,
+                    top - 3,
+                    top - 2,
+                    top - 1,
+                    top}) {
+    const int expected = value == top - 2   ? 1
+                         : value == top - 1 ? 2
+                         : value == top     ? 3
+                                            : 0;
+    EXPECT_EQ(match(value) | high, expected) << value;
+  }
+}
+
+TEST(LiteralPattern, DenseDispatchOnBoolKeys) {
+  // bool has no std::make_unsigned; its offset uses unsigned char.
+  auto flags = on(val<false> >> 1, val<true> >> 2, _ >> 0);
+  static_assert(is_dense_literal_plan_v<bool, decltype(flags)>);
+  bool no  = false;
+  bool yes = true;
+  EXPECT_EQ(match(no) | flags, 1);
+  EXPECT_EQ(match(yes) | flags, 2);
+  EXPECT_EQ(match(true) | flags, 2);
 }

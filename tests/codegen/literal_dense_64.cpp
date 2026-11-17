@@ -25,3 +25,29 @@ extern "C" int ptn_codegen_probe(int x) {
               PROBE_BLOCK_16(49),
               _ >> 0);
 }
+
+#define REFERENCE_CASE(n)                                           \
+  case (n):                                                         \
+    return (n) * 3
+#define REFERENCE_BLOCK_4(b)                                        \
+  REFERENCE_CASE((b) + 0);                                          \
+  REFERENCE_CASE((b) + 1);                                          \
+  REFERENCE_CASE((b) + 2);                                          \
+  REFERENCE_CASE((b) + 3)
+#define REFERENCE_BLOCK_16(b)                                       \
+  REFERENCE_BLOCK_4((b) + 0);                                       \
+  REFERENCE_BLOCK_4((b) + 4);                                       \
+  REFERENCE_BLOCK_4((b) + 8);                                       \
+  REFERENCE_BLOCK_4((b) + 12)
+
+// The same mapping written as a `switch`.
+extern "C" int ptn_codegen_reference(int x) {
+  switch (x) {
+    REFERENCE_BLOCK_16(1);
+    REFERENCE_BLOCK_16(17);
+    REFERENCE_BLOCK_16(33);
+    REFERENCE_BLOCK_16(49);
+  default:
+    return 0;
+  }
+}

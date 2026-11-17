@@ -172,10 +172,16 @@ endforeach()
 #                       variant_guarded_2 needs more: Clang 14 and 16
 #                       lower it with a few spills (26 and 29
 #                       instructions against 17), while the code it
-#                       guards against was 59 to 91.
+#                       guards against was 59 to 91. literal_cached_64
+#                       too: Clang 14 and 16 do not fold loads from the
+#                       static case pack PTN_ON caches, so its match
+#                       reads each result through a table of addresses
+#                       into the pack (12 instructions), while on(...)
+#                       folds to 6. A match that stops being inlined
+#                       is hundreds of instructions.
 set(PTN_CODEGEN_PROBES
   literal_dense_16:max-branches=4
-  literal_dense_64:max-branches=4
+  literal_dense_64:max-branches=4:reference=ptn_codegen_reference
   literal_dense_64_owned:max-branches=4
   literal_runtime_8:max-instructions=60
   literal_runtime_8_owned:max-instructions=60
@@ -186,7 +192,7 @@ set(PTN_CODEGEN_PROBES
   variant_bind_16:max-branches=3
   variant_guarded_2:reference=ptn_codegen_reference:reference-slack=14
   variant_cached_16:max-branches=3:reference=ptn_codegen_reference
-  literal_cached_64:max-branches=4:reference=ptn_codegen_reference
+  literal_cached_64:max-branches=4:reference=ptn_codegen_reference:reference-slack=6
 )
 
 find_package(Python3 COMPONENTS Interpreter QUIET)
