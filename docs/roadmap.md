@@ -214,7 +214,19 @@ Planned alongside move semantics, rather than deferred to v0.12:
     path of `std::get`. Only its guard can still reject it. A guarded
     two-alternative match compiles to about the size of the same
     branches written with `std::holds_alternative`.
-  - Planned: static literals and `lit(...)` literals.
+  - Implemented: `lit(...)` literals. The match first finds the
+    earliest case whose value equals the subject and then runs that
+    case through the index switch, so a sparse `lit(...)` match
+    compiles like the same `switch` written by hand.
+  - Implemented: `on(...)` stores its cases in a tuple-like type whose
+    element access is always inlined, instead of `std::tuple`. GCC
+    builds a jump or lookup table only when every access to the cases
+    has been inlined before its early switch passes, and whether
+    `std::get` was inlined that early depended on the order of the
+    functions in the translation unit. The same literal match could
+    compile to a table in one file and to a tree of comparisons in
+    another.
+  - Planned: static literals.
 
 Benchmarks for nested matching stay in v0.12. Optimizations must
 preserve the new ownership contract.

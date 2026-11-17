@@ -3,7 +3,10 @@
 #include <ptn/patternia.hpp>
 
 #include <array>
+#include <memory>
 #include <string>
+#include <tuple>
+#include <type_traits>
 #include <utility>
 
 using namespace ptn;
@@ -298,4 +301,92 @@ TEST(LiteralPattern,
                 int,
                 cases::tuple_type>()),
             table);
+}
+
+TEST(LiteralPattern, LitChainSelectsFirstMatchingCase) {
+  namespace detail = ptn::core::common::detail;
+  const int three  = 3;
+  auto      cases  = on(lit(1) >> 10,
+                  lit(three) >> 20,
+                  lit(3) >> 30,
+                  lit(1) >> 40,
+                  _ >> -1);
+  using plan       = detail::dispatch_plan<int,
+                                           decltype(cases)::tuple_type>;
+  static_assert(plan::kind
+                == detail::dispatch_plan_kind::literal_linear);
+
+  // The selection runs before any handler, so duplicate values must
+  // still resolve to the earliest case, on borrowed and owned
+  // subjects alike.
+  int one = 1;
+  int x   = 3;
+  int y   = 4;
+  EXPECT_EQ(match(one) | cases, 10);
+  EXPECT_EQ(match(x) | cases, 20);
+  EXPECT_EQ(match(y) | cases, -1);
+  EXPECT_EQ(match(1) | cases, 10);
+  EXPECT_EQ(match(3) | cases, 20);
+  EXPECT_EQ(match(4) | cases, -1);
+}
+
+TEST(LiteralPattern, LitChainRunsOnlyTheSelectedHandler) {
+  int  calls[4] = {};
+  int  fallback = 0;
+  auto cases    = on(
+      lit(5) >> [&] { return ++calls[0]; },
+      lit(6) >> [&] { return ++calls[1]; },
+      lit(5) >> [&] { return ++calls[2]; },
+      lit(7) >> [&] { return ++calls[3]; },
+      _ >> [&] { return -(++fallback); });
+
+  for (int value : {5, 6, 7, 8, 5}) {
+    match(value) | cases;
+  }
+  EXPECT_EQ(calls[0], 2);
+  EXPECT_EQ(calls[1], 1);
+  EXPECT_EQ(calls[2], 0);
+  EXPECT_EQ(calls[3], 1);
+  EXPECT_EQ(fallback, 1);
+}
+
+TEST(LiteralPattern, LitChainWithOnlyAFallback) {
+  int value = 9;
+  EXPECT_EQ(match(value) | on(_ >> 1), 1);
+  EXPECT_EQ(match(9) | on(_ >> 2), 2);
+}
+
+TEST(LiteralPattern, CasePackIsTupleLike) {
+  using pack = decltype(on(lit(1) >> 1, _ >> 2))::tuple_type;
+  static_assert(std::tuple_size_v<pack> == 2);
+  static_assert(std::tuple_size_v<const pack> == 2);
+  static_assert(std::is_same_v<std::tuple_element_t<1, pack>,
+                               std::decay_t<decltype(_ >> 2)>>);
+}
+
+TEST(LiteralPattern, CasePackKeepsValueCategoryOfHandlers) {
+  // A temporary pack hands its handlers over as rvalues, so a
+  // value handler can move its value out and a move-only capture
+  // stays usable. A named pack is only read.
+  int  value = 2;
+  auto owned = match(value)
+               | on(lit(1) >> std::string("one"),
+                    lit(2) >> std::string("two"),
+                    _ >> std::string("other"));
+  EXPECT_EQ(owned, "two");
+
+  auto pointer = std::make_unique<int>(42);
+  EXPECT_EQ(
+      match(value)
+          | on(
+              lit(2) >> [p = std::move(pointer)] { return *p; },
+              _ >> 0),
+      42);
+
+  const auto named = on(lit(1) >> std::string("one"),
+                        _ >> std::string("other"));
+  EXPECT_EQ(match(value) | named, "other");
+  int one = 1;
+  EXPECT_EQ(match(one) | named, "one");
+  EXPECT_EQ(match(one) | named, "one");
 }

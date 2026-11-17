@@ -402,7 +402,8 @@ namespace ptn::core::common::detail {
       -> owned_common_result<
           void,
           owned_case_result_t<
-              decltype(std::get<I>(std::declval<Cases>())),
+              decltype(ptn::core::dsl::detail::case_get<I>(
+                  std::declval<Cases>())),
               S>...>;
 
   template <typename Result,
@@ -417,7 +418,7 @@ namespace ptn::core::common::detail {
       return unreachable_result<Result>();
     }
     else {
-      auto &current = std::get<I>(cases);
+      auto &current = ptn::core::dsl::detail::case_get<I>(cases);
       using pattern = traits::case_pattern_t<
           std::decay_t<decltype(current)>>;
       return owned_pattern<pattern>::visit(
@@ -425,7 +426,8 @@ namespace ptn::core::common::detail {
           subject,
           [&](auto &&bound) -> Result {
             return static_cast<Result>(invoke_owned_handler(
-                std::get<I>(std::forward<Cases>(cases)),
+                ptn::core::dsl::detail::case_get<I>(
+                    std::forward<Cases>(cases)),
                 std::forward<decltype(bound)>(bound),
                 std::make_index_sequence<std::tuple_size_v<
                     std::remove_reference_t<decltype(bound)>>>{}));
@@ -455,7 +457,8 @@ namespace ptn::core::common::detail {
       if constexpr (is_static_literal_pattern_v<pattern>
                     || is_simple_literal_pattern_v<pattern>) {
         return static_cast<Result>(invoke_owned_handler(
-            std::get<CaseIndex>(std::forward<Cases>(cases)),
+            ptn::core::dsl::detail::case_get<CaseIndex>(
+                std::forward<Cases>(cases)),
             std::tuple<>{},
             std::index_sequence<>{}));
       }
@@ -487,7 +490,7 @@ namespace ptn::core::common::detail {
       using pattern = traits::case_pattern_t<
           std::tuple_element_t<I, std::remove_reference_t<Cases>>>;
       if constexpr (is_simple_literal_pattern_v<pattern>) {
-        if (std::get<I>(cases).pattern.match(
+        if (ptn::core::dsl::detail::case_get<I>(cases).pattern.match(
                 std::as_const(subject))) {
           return owned_literal_case_entry::template invoke<I,
                                                            Result>(

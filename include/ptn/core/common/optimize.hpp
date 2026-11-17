@@ -943,10 +943,12 @@ namespace ptn::core::common {
     struct is_simple_variant_dispatch_cases_tuple : std::false_type {
     };
 
-    template <typename Subject, typename... Cases>
-    struct is_simple_variant_dispatch_cases_tuple<
-        Subject,
-        std::tuple<Cases...>>
+    template <typename Subject,
+              template <typename...>
+              class Pack,
+              typename... Cases>
+    struct is_simple_variant_dispatch_cases_tuple<Subject,
+                                                  Pack<Cases...>>
         : std::bool_constant<(
               is_simple_variant_dispatch_case<Cases, Subject>::value
               && ...)> {};
@@ -961,10 +963,12 @@ namespace ptn::core::common {
     struct is_simple_literal_dispatch_cases_tuple : std::false_type {
     };
 
-    template <typename Subject, typename... Cases>
-    struct is_simple_literal_dispatch_cases_tuple<
-        Subject,
-        std::tuple<Cases...>>
+    template <typename Subject,
+              template <typename...>
+              class Pack,
+              typename... Cases>
+    struct is_simple_literal_dispatch_cases_tuple<Subject,
+                                                  Pack<Cases...>>
         : std::bool_constant<(
               is_simple_literal_dispatch_case<Cases, Subject>::value
               && ...)> {};
@@ -1015,10 +1019,12 @@ namespace ptn::core::common {
     struct is_static_literal_dispatch_cases_tuple : std::false_type {
     };
 
-    template <typename Subject, typename... Cases>
-    struct is_static_literal_dispatch_cases_tuple<
-        Subject,
-        std::tuple<Cases...>>
+    template <typename Subject,
+              template <typename...>
+              class Pack,
+              typename... Cases>
+    struct is_static_literal_dispatch_cases_tuple<Subject,
+                                                  Pack<Cases...>>
         : std::bool_constant<is_static_literal_dispatch_sequence<
               Subject,
               std::tuple<Cases...>>::value> {};
@@ -1309,8 +1315,12 @@ namespace ptn::core::common {
     template <typename Subject, typename CasesTuple>
     struct case_sequence_ir;
 
-    template <typename Subject, typename... Cases>
-    struct case_sequence_ir<Subject, std::tuple<Cases...>> {
+    // Pack is std::tuple or the case_pack that `on(...)` stores.
+    template <typename Subject,
+              template <typename...>
+              class Pack,
+              typename... Cases>
+    struct case_sequence_ir<Subject, Pack<Cases...>> {
       using subject_t = std::remove_cv_t<
           std::remove_reference_t<Subject>>;
       // Retains per-case IR so future planners can inspect the whole
