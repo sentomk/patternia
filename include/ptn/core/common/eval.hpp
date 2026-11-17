@@ -210,9 +210,10 @@ namespace ptn::core::common {
         }
       }
       else {
-        auto &current_case = std::get<I>(cases);
-        using case_t       = std::remove_reference_t<
-                  decltype(current_case)>;
+        auto &current_case = ptn::core::dsl::detail::case_get<I>(
+            cases);
+        using case_t = std::remove_reference_t<
+            decltype(current_case)>;
 
         if (case_matcher<case_t, Subject>::matches(current_case,
                                                    subject)) {
@@ -474,8 +475,8 @@ namespace ptn::core::common {
         // Reuses the case object directly so temporary `on(...)`
         // packs can stay on the rvalue fast path when the selected
         // plan does not need general matching state.
-        auto &&current_case = std::get<CaseIndex>(
-            std::forward<CasesTuple>(cases));
+        auto &&current_case = ptn::core::dsl::detail::case_get<
+            CaseIndex>(std::forward<CasesTuple>(cases));
 
         if constexpr (core::dsl::detail::is_value_handler_v<
                           handler_t>) {
@@ -961,7 +962,8 @@ namespace ptn::core::common {
             subject, std::forward<Otherwise>(otherwise_handler));
       }
       else {
-        auto &current_case = std::get<I>(cases);
+        auto &current_case = ptn::core::dsl::detail::case_get<I>(
+            cases);
         return eval_typed_case_or_else<Result>(
             current_case, subject, [&]() -> Result {
               return eval_cases_impl_typed<I + 1, Result>(
@@ -972,41 +974,110 @@ namespace ptn::core::common {
       }
     }
 
-    template <std::size_t I,
-              typename Result,
-              typename Subject,
+    // `true` if case `I` of a literal plan accepts the subject: a
+    // `lit(...)` case compares, the trailing `_` always accepts.
+    template <std::size_t I, typename Subject, typename CasesTuple>
+    PTN_DETAIL_ALWAYS_INLINE constexpr bool
+    literal_case_accepts(const Subject &subject, CasesTuple &cases) {
+      using case_t = std::remove_reference_t<
+          std::tuple_element_t<I, std::remove_cv_t<CasesTuple>>>;
+      if constexpr (is_wildcard_pattern_v<
+                        traits::case_pattern_t<case_t>>) {
+        return true;
+      }
+      else {
+        return ptn::core::dsl::detail::case_get<I>(cases)
+            .pattern.match(subject);
+      }
+    }
+
+    // Index of the first case of a literal plan that accepts the
+    // subject, or the number of cases if none does. The cases are
+    // tested in source order and the test stops at the first match.
+    //
+    // Selecting an index and running the case are kept apart: every
+    // branch of this chain ends in the same place with a constant,
+    // which is the shape compilers turn into a jump or lookup table.
+    // A chain that returns from each case directly does not have it
+    // once inlined, and GCC keeps it as a series of comparisons.
+    template <typename Subject,
               typename CasesTuple,
-              typename Otherwise,
-              std::size_t N = std::tuple_size_v<
-                  std::remove_reference_t<CasesTuple>>>
-    constexpr Result eval_cases_impl_literal_simple_dispatch(
-        Subject    &subject,
-        CasesTuple &cases,
-        Otherwise &&otherwise_handler) {
-      if constexpr (I >= N) {
+              std::size_t... I>
+    PTN_DETAIL_ALWAYS_INLINE constexpr std::size_t
+    select_literal_case(const Subject &subject,
+                        CasesTuple    &cases,
+                        std::index_sequence<I...>) {
+      std::size_t selected = sizeof...(I);
+      static_cast<void>(((literal_case_accepts<I>(subject, cases)
+                          && (selected = I, true))
+                         || ...));
+      return selected;
+    }
+
+    template <typename Subject, typename CasesTuple>
+    PTN_DETAIL_ALWAYS_INLINE constexpr std::size_t
+    select_literal_case(const Subject &subject, CasesTuple &cases) {
+      return select_literal_case(
+          subject,
+          cases,
+          std::make_index_sequence<
+              std::tuple_size_v<std::remove_cv_t<CasesTuple>>>{});
+    }
+
+    // Arm of the index switch that runs the case a literal plan
+    // selected on a borrowed subject. The cases bind nothing.
+    struct literal_case_arm {
+      template <std::size_t I,
+                typename Result,
+                typename Subject,
+                typename CasesTuple,
+                typename Otherwise>
+      PTN_DETAIL_ALWAYS_INLINE static constexpr Result
+      hit(Subject &, CasesTuple &cases, Otherwise &&) {
+        return static_cast<Result>(
+            ptn::core::dsl::detail::case_get<I>(cases).handler());
+      }
+
+      template <typename Result,
+                typename Subject,
+                typename CasesTuple,
+                typename Otherwise>
+      PTN_DETAIL_ALWAYS_INLINE static constexpr Result
+      miss(Subject &subject,
+           CasesTuple &,
+           Otherwise &&otherwise_handler) {
         return invoke_otherwise_typed<Result>(
             subject, std::forward<Otherwise>(otherwise_handler));
       }
+    };
+
+    template <typename Result,
+              typename Subject,
+              typename CasesTuple,
+              typename Otherwise>
+    PTN_DETAIL_ALWAYS_INLINE constexpr Result
+    eval_cases_impl_literal_simple_dispatch(
+        Subject    &subject,
+        CasesTuple &cases,
+        Otherwise &&otherwise_handler) {
+      constexpr std::size_t case_count = std::tuple_size_v<
+          std::remove_cv_t<CasesTuple>>;
+      if constexpr (case_count == 0) {
+        return invoke_otherwise_typed<Result>(
+            subject, std::forward<Otherwise>(otherwise_handler));
+      }
+      else if constexpr (case_count <= k_index_switch_max_arms) {
+        return index_switch<case_count, Result, literal_case_arm>(
+            select_literal_case(std::as_const(subject), cases),
+            subject,
+            cases,
+            std::forward<Otherwise>(otherwise_handler));
+      }
       else {
-        auto &current_case = std::get<I>(cases);
-        using case_t       = std::remove_reference_t<
-                  decltype(current_case)>;
-        using pattern_t = traits::case_pattern_t<case_t>;
-
-        if constexpr (is_wildcard_pattern_v<pattern_t>) {
-          return static_cast<Result>(current_case.handler());
-        }
-        else {
-          if (subject == current_case.pattern.v) {
-            return static_cast<Result>(current_case.handler());
-          }
-
-          return eval_cases_impl_literal_simple_dispatch<I + 1,
-                                                         Result>(
-              subject,
-              cases,
-              std::forward<Otherwise>(otherwise_handler));
-        }
+        return eval_cases_impl_typed<0, Result>(
+            subject,
+            cases,
+            std::forward<Otherwise>(otherwise_handler));
       }
     }
 
@@ -1031,10 +1102,11 @@ namespace ptn::core::common {
             subject, std::forward<Otherwise>(otherwise_handler));
       }
       else {
-        auto &current_case = std::get<I>(cases);
-        using pattern_t    = std::decay_t<traits::case_pattern_t<
-               std::remove_reference_t<decltype(current_case)>>>;
-        using subject_t    = std::remove_cv_t<Subject>;
+        auto &current_case = ptn::core::dsl::detail::case_get<I>(
+            cases);
+        using pattern_t = std::decay_t<traits::case_pattern_t<
+            std::remove_reference_t<decltype(current_case)>>>;
+        using subject_t = std::remove_cv_t<Subject>;
 
         if constexpr (variant_alt_only_pattern<
                           variant_tested_pattern_t<pattern_t>,
@@ -1076,9 +1148,10 @@ namespace ptn::core::common {
             subject, std::forward<Otherwise>(otherwise_handler));
       }
       else {
-        auto &current_case = std::get<I>(cases);
-        using case_t       = std::remove_reference_t<
-                  decltype(current_case)>;
+        auto &current_case = ptn::core::dsl::detail::case_get<I>(
+            cases);
+        using case_t = std::remove_reference_t<
+            decltype(current_case)>;
         using pattern_t = traits::case_pattern_t<case_t>;
 
         if constexpr (variant_pattern_maybe_matches_alt_index<
@@ -1396,7 +1469,7 @@ namespace ptn::core::common {
 
         if constexpr (Plan::kind
                       == dispatch_plan_kind::literal_linear) {
-          return eval_cases_impl_literal_simple_dispatch<0, Result>(
+          return eval_cases_impl_literal_simple_dispatch<Result>(
               subject,
               cases_ref,
               std::forward<Otherwise>(otherwise_handler));
