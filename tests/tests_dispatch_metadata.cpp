@@ -134,3 +134,53 @@ TEST(DispatchMetadata, DirectTableKeepsFirstDuplicateAlternative) {
           std::make_index_sequence<3>{})),
       expected);
 }
+
+TEST(DispatchMetadata, StaticLiteralSummaryCountsKeysAndRange) {
+  // Unordered keys, negatives, a duplicate and the default slot.
+  using mixed      = decltype(on(val<5> >> 1,
+                            val<-3> >> 2,
+                            val<2> >> 3,
+                            val<-3> >> 4,
+                            _ >> 0))::tuple_type;
+  using mixed_meta = detail::static_literal_dispatch_metadata<int,
+                                                              mixed>;
+  static_assert(mixed_meta::literal_case_count == 4);
+  static_assert(mixed_meta::has_literal_cases);
+  static_assert(mixed_meta::min_value == -3);
+  static_assert(mixed_meta::max_value == 5);
+  static_assert(mixed_meta::range_size == 9);
+
+  // The ends of an unsigned key.
+  using top      = decltype(on(val<std::uint8_t(255)> >> 1,
+                          val<std::uint8_t(0)> >> 2,
+                          _ >> 0))::tuple_type;
+  using top_meta = detail::
+      static_literal_dispatch_metadata<std::uint8_t, top>;
+  static_assert(top_meta::min_value == 0);
+  static_assert(top_meta::max_value == 255);
+  static_assert(top_meta::range_size == 256);
+
+  // A bool key, and a runtime literal that is not a static key.
+  using flags      = decltype(on(
+      val<true> >> 1, val<false> >> 2, _ >> 0))::tuple_type;
+  using flags_meta = detail::static_literal_dispatch_metadata<bool,
+                                                              flags>;
+  static_assert(!flags_meta::min_value && flags_meta::max_value);
+  static_assert(flags_meta::range_size == 2);
+
+  using runtime      = decltype(on(
+      lit(7) >> 1, val<3> >> 2, _ >> 0))::tuple_type;
+  using runtime_meta = detail::
+      static_literal_dispatch_metadata<int, runtime>;
+  static_assert(runtime_meta::literal_case_count == 1);
+  static_assert(runtime_meta::min_value == 3
+                && runtime_meta::max_value == 3);
+
+  using none      = decltype(on(lit(7) >> 1, _ >> 0))::tuple_type;
+  using none_meta = detail::static_literal_dispatch_metadata<int,
+                                                             none>;
+  static_assert(none_meta::literal_case_count == 0);
+  static_assert(!none_meta::has_literal_cases);
+  static_assert(none_meta::range_size == 0);
+  SUCCEED();
+}

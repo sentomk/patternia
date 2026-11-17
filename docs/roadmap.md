@@ -274,6 +274,16 @@ preserve the new ownership contract.
   constants on the stack (26 instructions against 13 written by
   hand), and on GCC 11 a dense owned literal match compiled to 135
   instructions instead of 7.
+- Implemented: GCC writes much less debug information for keyed
+  matches. Each arm of a dispatch used to be a function template
+  whose name spells out the whole case pack, and some planner traits
+  recursed once per case with the pack in every name; GCC writes the
+  name of every instantiation, so a 64-case dense literal match
+  produced 12 MB of debug information at `-O2 -g` (56 MB with the
+  `pubnames` GCC emits on macOS). Arms are now lambdas and the traits
+  are computed in one function, which brings it to 1.3 MB (5.5 MB).
+  `tests/tests_literal_pattern.cpp` went from 513 MB and 12 s to 19 MB
+  and 3.7 s with GCC 13 on macOS.
 - Bugs reported in
   [GitHub issues](https://github.com/sentomk/patternia/issues) with the
   `bug` label before the release.

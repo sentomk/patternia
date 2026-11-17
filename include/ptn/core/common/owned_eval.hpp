@@ -676,6 +676,35 @@ namespace ptn::core::common::detail {
             subject, std::forward<Cases>(cases));
       }
     }
+
+    // The same, as the generic lambda dense literal dispatch calls
+    // with `std::integral_constant<std::size_t, CaseIndex>`; see
+    // direct_literal_case_entry.
+    template <typename Result, typename S, typename Cases>
+    PTN_DETAIL_ALWAYS_INLINE static constexpr auto
+    runner(S &subject, Cases &&cases) {
+      auto *owned = &subject;
+      auto *pack  = &cases;
+      return [owned,
+              pack](auto case_index) PTN_DETAIL_LAMBDA_ALWAYS_INLINE
+             -> Result {
+        constexpr std::size_t I = decltype(case_index)::value;
+        using pattern           = traits::case_pattern_t<
+                      std::tuple_element_t<I, std::remove_reference_t<Cases>>>;
+        if constexpr (is_static_literal_pattern_v<pattern>
+                      || is_simple_literal_pattern_v<pattern>) {
+          return static_cast<Result>(invoke_owned_handler(
+              ptn::core::dsl::detail::case_get<I>(
+                  std::forward<Cases>(*pack)),
+              std::tuple<>{},
+              std::index_sequence<>{}));
+        }
+        else {
+          return eval_owned_cases_in_order<Result, I>(
+              *owned, std::forward<Cases>(*pack));
+        }
+      };
+    }
   };
 
   // Compares an owned subject with a run of runtime `lit(...)`
@@ -767,10 +796,18 @@ namespace ptn::core::common::detail {
       if constexpr (plan::alt_count
                         >= k_owned_variant_switch_min_alts
                     && plan::alt_count <= k_index_switch_max_arms) {
-        return index_switch<plan::alt_count,
-                            Result,
-                            owned_variant_alt_arm>(
-            subject.index(), subject, std::forward<Cases>(cases));
+        auto hit = [&](auto alt)
+                       PTN_DETAIL_LAMBDA_ALWAYS_INLINE -> Result {
+          return owned_variant_alt_arm::
+              template hit<decltype(alt)::value, Result>(
+                  subject, std::forward<Cases>(cases));
+        };
+        auto miss = [&]() PTN_DETAIL_LAMBDA_ALWAYS_INLINE -> Result {
+          return owned_variant_alt_arm::template miss<Result>(
+              subject, std::forward<Cases>(cases));
+        };
+        return index_visit<plan::alt_count, Result>(
+            subject.index(), hit, miss);
       }
       else {
         return eval_owned_cases_in_order<Result>(
