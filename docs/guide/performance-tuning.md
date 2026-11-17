@@ -1,60 +1,155 @@
-## Performance Tuning
+# Performance Tuning
 
-### When to use `PTN_ON(...)` macro
-The `PTN_ON` macro caches the case pack in a function-local static. This ensures zero construction overhead on hot paths, as the matcher object is only built once during the first execution.
+A Patternia match is meant to cost what the same branches cost when
+written by hand. For the common shapes it does: a dense literal match
+compiles to the code of a `switch`, and a variant match to the code of
+a `switch` on `index()`. This page explains which matches take those
+paths, what keeps them there, and how to check.
 
-Use this when the same case pack is called repeatedly in a loop or a frequently invoked function. It provides the best performance for local, repeated matching logic.
+## How a match is evaluated
 
-Example:
+The case list is planned at compile time. The plan depends only on the
+subject's type and on the patterns, never on the values:
+
+| Case list | Plan | Cost |
+|---|---|---|
+| `val<N>` literals on an integral or unscoped-enum subject, keys close together, an optional `_` last | Dense table: the subject's offset from the smallest key indexes one `switch` | One compare, then a jump or lookup table; independent of the number of cases |
+| `lit(v)` literals on an integral or enum subject, an optional `_` last | The first case whose value equals the subject is found by comparisons that each yield a constant, then run through the same `switch` | Like a hand-written `switch`: compilers build a table when the keys allow it |
+| A `std::variant` subject with `is<T>`, `alt<I>`, `$(is<T>)`, `$(alt<I>)` cases, guarded or not, among any others | A `switch` on `index()`; each alternative runs only the cases that can match it, in source order | One switch, then the cases of one alternative; inside it, cases that only test the alternative do not test it again |
+| Anything else: guards on other patterns, structural patterns, predicates, strings | Source order | One test per case until a case matches, like an `if` chain |
+
+All plans keep first-match-wins semantics: a case runs only if no
+earlier case matches, and guards are called in the same order and the
+same number of times as in source order.
+
+A dense table is used when the case list has at most 256 cases and the
+keys span at most 512 values and at most 4 values per literal (8 per
+literal from 4 literals up). `val<1>` to `val<64>` qualifies;
+`val<0>, val<1000>` does not and is compared in order.
+
+## Writing matches that stay keyed
+
+- Use `val<N>` for compile-time constants. `val<N>` keys are known to
+  the planner and can form a dense table; `lit(v)` values are only
+  known at run time and are compared first.
+- Keep the fallback last. `_` (or `$`) after literal cases is the
+  table's default slot.
+- Mixing a guard or a non-literal pattern into a literal list moves the
+  whole list to source order, and so does mixing `val<N>` with `lit(v)`
+  in one list. Put the literal cases in their own match if the rest
+  needs guards.
+- `val<N>` dense tables apply to integral and unscoped `enum`
+  subjects. On a scoped `enum class` subject, `val<e>` is currently
+  compared in source order; use `lit(e)` there, which gets the
+  compare-then-switch plan.
+- For variants, any mix of cases is fine: the switch on `index()`
+  happens first, and only the cases that can match the active
+  alternative are tested.
+- Expression handlers (`$ >> _ * 2`) and guards (`$[_ > 0]`) compile to
+  the same code as the equivalent lambdas.
+
+## Borrowed and owned subjects
+
+An lvalue subject is borrowed: `match(x)` reads `x` through a
+reference. An rvalue is owned: `match(std::move(x))` or
+`match(make_x())` moves the value into the match context first.
+
+Owned subjects use the same plans as borrowed ones, with one exception:
+a variant with four or fewer alternatives is evaluated in source order,
+because compilers already turn those few index tests into tight code
+and some (Apple Clang 17) compiled the switch into a tree of compares.
+From five alternatives on, an owned variant match switches on
+`index()` like a borrowed one.
+
+The move into the context is the only extra cost. Moving a
+`std::string` or a `std::unique_ptr` is cheap; matching an rvalue that
+is expensive to move costs that move.
+
+## Caching case packs
+
+`match(x) | on(...)` builds its case pack on every call. When the
+patterns and handlers are integers, captureless lambdas or
+expressions, the compiler folds the construction away and nothing
+remains. Caching matters when building the cases does work: a handler
+such as `>> std::string("unknown")` constructs a string on every call,
+and a `lit(std::string(...))` pattern stores one.
+
+- `PTN_ON(...)` caches the case pack in a function-local static on the
+  first call. Lambdas inside it must not capture.
+- `static_on(factory)` does the same with an explicit factory, so the
+  cached pack can be returned from a function and used elsewhere.
+- A case pack you cache yourself should be `const`:
+  `static const auto cases = on(...);`, or `constexpr` when the cases
+  allow it.
+
+`PTN_ON` and `static_on` cache the cases as `const` when no handler
+keeps state, so the compiler treats them as constants, and a match
+through `PTN_ON` compiles to the same code as `on(...)`. A handler
+with state, such as a function object with a counter, keeps a mutable
+cache, and the cases are read from memory. GCC turns a dispatch on a
+non-`const` static into a jump table instead of a lookup table, which
+made a 32-alternative variant match about three times slower in the
+benchmarks (1.32 against 0.41 ns).
+
 ```cpp
 int classify(int x) {
   return match(x) | PTN_ON(
-    lit(0) >> 0, lit(1) >> 1, lit(2) >> 2,
+    val<0> >> 0, val<1> >> 1, val<2> >> 2,
     _ >> -1
   );
 }
+
+constexpr auto parity = on(val<0> >> "even", val<1> >> "odd", _ >> "?");
+const char *p = match(n % 2) | parity;
 ```
 
-**Caveat:** Lambdas inside `PTN_ON` must be stateless (no captures), as they are stored in a static context.
+## Compilers and build settings
 
-When no handler keeps state, `PTN_ON` caches the cases as `const`, so the compiler treats them as constants and a match through `PTN_ON` compiles to the same code as the same cases written with `on(...)`. A handler with state (for example a function object with a counter) is still allowed, but its cache stays mutable and the compiler has to read the cases from memory.
+- Build with optimization (`-O2` or `-O3`, `/O2`). The plans above
+  describe optimized code; without optimization, every step of a
+  match is a separate function call.
+- The dispatch path is marked always-inline (`__attribute__((always_inline))`
+  on GCC and Clang, `__forceinline` on MSVC). This keeps the case pack
+  out of memory regardless of the inliner's size estimates, which on
+  GCC also depend on the order of functions in the translation unit.
+- Debug information: GCC writes the name of every template
+  instantiation, with its arguments, into the debug information.
+  Patternia keeps the case pack's type out of per-case names, so a
+  64-case dense literal match costs about 1.3 MB of debug information
+  with GCC 13 (`-O2 -g`, without `pubnames` as on Linux) and 0.3 MB
+  with Clang. On macOS, GCC also writes
+  `pubnames` by default; `-gno-pubnames` removes most of the rest.
+- MSVC has no portable way to force a lambda inline; the dispatch
+  functions themselves are forced, and MSVC's inliner decides for the
+  continuations.
 
-The same applies to a case pack you cache yourself: write `static const auto cases = on(...);` rather than `static auto cases = on(...);`. GCC turns a dispatch on a non-const static into a jump table instead of a lookup table, which made a 32-alternative variant match about three times slower in the benchmarks (1.32 against 0.41 ns).
+## Checking the generated code
 
-### When to use `static_on(factory)`
-The `static_on` function creates a persistent static match object from a factory lambda. It serves as a more explicit version of the caching mechanism used by `PTN_ON`.
+`scripts/check_codegen.py` compiles a function containing one match
+and checks the machine code: no calls, no stack use, at most a given
+number of conditional branches or instructions, or no more
+instructions than a reference function written by hand in the same
+file. The probes in `tests/codegen/` run in CTest with the compiler of
+the build:
 
-Use this when you need to store the match object separately from a single call site, such as pre-computing a matcher object at initialization time and then calling it from multiple different locations.
-
-Example:
-```cpp
-auto get_matcher() {
-  return static_on([] {
-    return on(
-      lit("start") >> Action::Start,
-      lit("stop") >> Action::Stop,
-      _ >> Action::Unknown
-    );
-  });
-}
-
-void process(const std::string& cmd) {
-  auto result = match(cmd) | get_matcher();
-}
+```bash
+python3 scripts/check_codegen.py --compiler g++ --include include \
+  --source tests/codegen/literal_dense_64.cpp \
+  --reference ptn_codegen_reference
 ```
 
-### When raw `match(x) | on(...)` is fine
-The raw pipeline form constructs the case objects on every call. While this adds a small amount of overhead, Patternia's dispatch system is highly optimized and fast enough for most scenarios without explicit caching.
+To check a match of your own, put it in an `extern "C" int
+ptn_codegen_probe(...)` function, optionally with the hand-written
+equivalent as `ptn_codegen_reference`, and run the script on it. See
+[`scripts/README.md`](https://github.com/sentomk/patternia/blob/main/scripts/README.md).
 
-Use the raw form when:
-- The call is not on a hot path.
-- The overhead is negligible (small case packs or infrequent calls).
-- You need to capture local variables in your handlers.
+## Benchmarks
 
-### Dispatch tiers and their effect
-Patternia uses different dispatch strategies based on the patterns provided:
-
-- **Literal Dense/Runtime Dense:** Used for contiguous literal values. These are lowered to efficient jump tables or direct indexing.
-- **Variant Inline/Segmented/Compact:** Optimized strategies for `std::variant`. Inline dispatch is used for small variants, while segmented or compact forms handle larger or more complex type distributions.
-
-The current benchmark report is published on the [`bench-charts` branch](https://github.com/sentomk/patternia/blob/bench-charts/latest.md) after every push to `main`. It normalizes each scenario to the fastest implementation, and Patternia is not the fastest in every scenario. See [Performance Notes](../performance/index.md) for methodology and per-release results.
+The benchmark report is published on the
+[`bench-charts` branch](https://github.com/sentomk/patternia/blob/bench-charts/latest.md)
+after every push to `main` (GCC 13 on a GitHub-hosted x86-64 runner).
+It normalizes each scenario to the fastest implementation, and
+Patternia is not the fastest in every scenario. Pull requests get a
+base-against-PR comparison with a noise estimate. See
+[Performance Notes](../performance/index.md) for per-release
+measurements and methods.

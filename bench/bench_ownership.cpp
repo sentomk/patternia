@@ -3,12 +3,11 @@
 // Each scenario runs the same case list three ways:
 //
 //   Borrowed  match(lvalue): the subject is observed by const
-//   reference
-//             and can use optimized dispatch.
-//   Owned     match(rvalue): the context owns the subject and
-//   evaluates
-//             the cases in source order, except for dense static
-//             literals, which use keyed dispatch.
+//             reference.
+//   Owned     match(rvalue): the context owns the subject. It uses
+//             the same dispatch plans as a borrowed subject, except
+//             that variants with four or fewer alternatives are
+//             evaluated in source order.
 //   Manual    hand-written C++ with the same semantics.
 //
 // The owned variants copy the workload item into a temporary first,

@@ -32,7 +32,6 @@ Feedback on any item is welcome in
 
 | Version | Main additions |
 |---|---|
-| v0.9.6 | Shorter cases, move-aware matching, and binding/copy performance work |
 | v0.9.7 | Explicit result types and lazy construction/function expressions |
 | v0.10 | Exhaustiveness, checked intervals, and complete enum domains |
 | v0.11 | Nested patterns, multiple subjects, and structural coverage |
@@ -41,252 +40,6 @@ Feedback on any item is welcome in
 Move-aware binding comes before lazy expressions; finite-domain
 coverage comes before the nested pattern-matrix analysis. These are
 delivery dependencies, not claims that the planned APIs exist today.
-
----
-
-## v0.9.6 — Shorter cases, moves, and performance {#v096-shorter-cases data-toc-label="v0.9.6" }
-
-**Status:** In progress
-
-The goal of this release is to remove boilerplate that most matches
-carry today: an unreachable `_` after a case that already matches
-everything, single-expression lambdas, and `lit(...)` inside other
-patterns. It also adds ownership-aware matching and targets avoidable
-copies and repeated binding. Existing borrowed, read-only matches
-keep their meaning; consuming a subject is explicit.
-
-### `$` as the fallback
-
-Implemented; pending the v0.9.6 release.
-
-`$` can end a case list on its own, instead of being followed by an
-unreachable `_`:
-
-```cpp
-match(roll) | on(
-  lit(3) >> add_fancy_hat,
-  lit(7) >> remove_fancy_hat,
-  $      >> [](int r) { move_player(r); }   // already the fallback
-);
-```
-
-The equivalent `$()` form also works. A guard or subpattern still
-requires a fallback, and existing matches with a trailing `_` remain
-valid.
-
-v0.10 extends this to every pattern that matches every value, as part
-of exhaustiveness checking.
-
-### Expression handlers
-
-Implemented; pending the v0.9.6 release.
-
-The right-hand side of `>>` accepts the same expressions as guards, so a
-handler that only computes a value no longer needs a lambda:
-
-```cpp
-constexpr auto pt = has<&Point::x, &Point::y>;
-auto [x, y] = pt;
-
-match(p) | on(
-  $(pt)[x > 0] >> x - y,
-  $(pt)        >> x * x + y * y,
-  _            >> 0
-);
-
-match(n) | on(
-  $(is<int>) >> _ * 2 + 1,
-  _          >> 0
-);
-```
-
-The first version covers arithmetic, comparison and logical guard
-expressions, plus unary `+` and `-` in both handlers and guards.
-Comparisons and logical expressions after `>>` need parentheses,
-such as `$ >> (_ > 0)`. Calling functions inside an expression handler
-is out of scope; use a lambda for that.
-
-### Plain values inside patterns
-
-Implemented; pending the v0.9.6 release.
-
-Wherever a pattern is expected as an argument, a plain value is treated
-as `lit(value)`. This extends the existing `0 >> handler` shorthand to
-nested positions:
-
-```cpp
-// today
-any(lit('a'), lit('e'), lit('i')) >> "vowel",
-is<int>(lit(0))                   >> "int zero",
-
-// v0.9.6
-any('a', 'e', 'i') >> "vowel",
-is<int>(0)         >> "int zero",
-(lit(' ') || '\n') >> "whitespace",
-```
-
-It applies to the arguments of `any`, `all` and `neg`, to the
-subpatterns of `is<T>(...)` and `alt<I>(...)`, and to the right
-operand of `||` and `&&`. A plain value is a runtime literal; use
-`val<V>` where static dispatch matters.
-
-### Move-aware matching
-
-Implemented; pending the v0.9.6 release.
-
-Accept temporary and explicitly moved subjects, including move-only
-values. The match context owns an rvalue subject for its lifetime;
-matching an lvalue continues to borrow it without copying.
-
-```cpp
-auto task = std::make_unique<Task>();
-
-match(std::move(task)) | on(
-  $ >> [](std::unique_ptr<Task> owned) { enqueue(std::move(owned)); }
-);
-```
-
-The ownership contract is:
-
-- Borrowed lvalues keep today's const-reference bindings. This release
-  does not silently make existing handlers mutate their subjects.
-- A non-const rvalue is owned by the context and can be forwarded to
-  the selected handler. Moving into the context may consume the source
-  immediately; rejected cases must not consume the context's value.
-- Pattern tests and guards only observe bindings. A failed guard or
-  failed arm of a combinator leaves the owned value available to later
-  cases. Forwarding for consumption happens only after a case wins.
-- Constness is preserved. Matching a const rvalue does not grant
-  permission to move from a const object as if it were mutable.
-- Structural and variant bindings preserve the ownership policy of
-  the subject. A custom binding that materializes a value must keep it
-  alive through the guard and handler. Results must not accidentally
-  reference storage destroyed with the match context.
-
-Acceptance tests cover move-only subjects and handlers, rejected
-guards followed by a consuming fallback, combinator short-circuiting,
-const subjects, temporary lifetimes, and copy/move counts. User
-handlers remain responsible for references they deliberately return.
-
-Owned subjects use source-order evaluation, except for a dense run
-of `val<N>` literals followed by a fallback, which uses the same keyed
-dispatch as a borrowed subject. A run of `lit(...)` literals followed
-by a fallback is compared in order through the same inlined chain as
-a borrowed subject, so the case pack stays out of memory. Move-only
-callables and materialized bindings are supported; measuring and
-optimizing the rest of the owning path remains part of the
-performance work below.
-
-### Performance work
-
-Planned alongside move semantics, rather than deferred to v0.12:
-
-- Remove avoidable subject, case-pack, and handler copies, including
-  support for move-only callables in one-shot matches.
-- Avoid repeated extraction/binding on the selected guard/handler
-  path where the binding contract permits it; do not change predicate
-  order, invocation counts, or first-match-wins behavior to do so.
-  - Checked: a borrowed structural match with several guards reads
-    each member once and compiles to the same code as the same
-    branches written by hand. On an owned subject GCC kept the
-    guards' constants in memory, which the next item fixes.
-- Measure owning and borrowed matches, rejected guards, structural
-  bindings, and generic versus optimized dispatch. Keep semantic
-  tests separate from timing benchmarks.
-- Measure continuation stack depth and temporary binding lifetimes
-  across rejected owned guards before flattening their evaluation.
-- Record compile time and binary size as well as run time. Publish
-  reproducible before/after measurements; do not promise a speedup
-  before measuring it.
-- Separate selecting a case from running it, so that every keyed
-  dispatch (literals, variant alternatives, owned and borrowed
-  subjects) goes through one index switch instead of a lowering of
-  its own.
-  - Implemented: variant alternatives. The active index selects the
-    alternative through a `switch`, as a hand-written visitor would,
-    in place of the earlier comparison chain, comparison tree and
-    function-pointer table.
-  - Implemented: case packs cached by `PTN_ON` and `static_on` are
-    `const` when no handler keeps state, and `const` or `constexpr`
-    case packs are accepted. GCC lowers a dispatch on a non-const
-    static to a jump table instead of a lookup table, so a match
-    through `PTN_ON` now compiles to the same code as `on(...)`.
-  - Implemented: inside the arm for the active alternative, a case
-    that only tests the alternative (`is<T>`, `alt<I>`, `$(is<T>)`
-    and `$(alt<I>)`, guarded or not) runs without testing the index
-    again, and its binding is read without the `bad_variant_access`
-    path of `std::get`. Only its guard can still reject it. A guarded
-    two-alternative match compiles to about the size of the same
-    branches written with `std::holds_alternative`.
-  - Implemented: `lit(...)` literals. The match first finds the
-    earliest case whose value equals the subject and then runs that
-    case through the index switch, so a sparse `lit(...)` match
-    compiles like the same `switch` written by hand.
-  - Implemented: `on(...)` stores its cases in a tuple-like type whose
-    element access is always inlined, instead of `std::tuple`. GCC
-    builds a jump or lookup table only when every access to the cases
-    has been inlined before its early switch passes, and whether
-    `std::get` was inlined that early depended on the order of the
-    functions in the translation unit. The same literal match could
-    compile to a table in one file and to a tree of comparisons in
-    another.
-  - Implemented: static literals. A dense `val<N>` match indexes the
-    index switch with the subject's offset from the smallest literal,
-    computed in the key's own unsigned width, and the switch's
-    default is the only range check. A separate range check in front
-    of the switch made GCC compare twice: `val<1>` to `val<64>`
-    mapped to themselves now compiles to the same code as the
-    `switch` written by hand on x86-64 GCC 13.
-  - Implemented: owned variant subjects. `match(std::move(v))` on a
-    variant with five or more alternatives switches on the active
-    alternative and runs, in source order, only the cases that can
-    match it; a case that only tests the alternative binds it without
-    testing the index again. GCC tested the alternatives one by one
-    before (15 compares for 16 alternatives). Up to four
-    alternatives, the cases stay in source order, which compilers
-    already lower well.
-
-Benchmarks for nested matching stay in v0.12. Optimizations must
-preserve the new ownership contract.
-
-### Fixes and diagnostics
-
-- Implemented: `$(pred(...))` binds the matched value, like
-  `$(is<T>)` does.
-- Implemented: `$(alt<I>)` binds the selected alternative, like
-  `$(is<T>)`. A borrowed match used to bind the whole variant, so
-  `$(alt<0>) >> [](int x) { ... }` did not compile; an owned match
-  already bound the alternative.
-- Implemented: `on(...)` rejects non-case arguments before handler
-  deduction and dispatch planning. For `0 >> 1`, the diagnostic
-  explains C++'s built-in bit shift and suggests `lit(0) >> 1`.
-  C++ rejects `0 >> func` itself when `func` is a function pointer;
-  use `lit(0) >> func` to select Patternia's operator.
-- Implemented: the dispatch path from `match(x) | on(...)` to the
-  selected handler is always inlined. Without this, a dense literal
-  match wrote its whole case pack to the stack on every call and its
-  cost grew with the number of cases. A codegen check in the test
-  suite now fails when a match stops being fully inlined.
-- Implemented: the owned evaluation path, including the
-  continuations it passes between patterns, is always inlined as
-  well. GCC inlines a callee early only once it has processed it, so
-  at `-O2` an owned match with guard and handler expressions kept its
-  constants on the stack (26 instructions against 13 written by
-  hand), and on GCC 11 a dense owned literal match compiled to 135
-  instructions instead of 7.
-- Implemented: GCC writes much less debug information for keyed
-  matches. Each arm of a dispatch used to be a function template
-  whose name spells out the whole case pack, and some planner traits
-  recursed once per case with the pack in every name; GCC writes the
-  name of every instantiation, so a 64-case dense literal match
-  produced 12 MB of debug information at `-O2 -g` (56 MB with the
-  `pubnames` GCC emits on macOS). Arms are now lambdas and the traits
-  are computed in one function, which brings it to 1.3 MB (5.5 MB).
-  `tests/tests_literal_pattern.cpp` went from 513 MB and 12 s to 19 MB
-  and 3.7 s with GCC 13 on macOS.
-- Bugs reported in
-  [GitHub issues](https://github.com/sentomk/patternia/issues) with the
-  `bug` label before the release.
 
 ---
 
@@ -683,7 +436,7 @@ check stops at a fixed limit and asks for `_` instead.
 
 ### Broader performance work
 
-This extends the ownership and binding work scheduled for v0.9.6.
+This extends the ownership and binding work introduced in v0.9.6.
 
 - Benchmarks for the default and call spellings, variants with 9 to 15
   alternatives, binding patterns, and nested and multi-subject matches.
@@ -793,6 +546,7 @@ Recent releases. Earlier versions are in the
 
 | Version | Highlights |
 |---|---|
+| [v0.9.6](changelog/v0.9.6.md) | `$` as the final fallback; expression handlers; plain values inside patterns; `match(std::move(x))` owns the subject; literal and variant matches compile like a hand-written `switch` on GCC |
 | [v0.9.5](changelog/v0.9.5.md) | `has<...>` is tuple-like for macro-free member names; `PTN_BIND` deprecated; bare `is<T>` / `alt<I>` reach static dispatch; handler classification no longer instantiates generic lambdas |
 | [v0.9.4](changelog/v0.9.4.md) | `PTN_BIND` member-anchored guard names; operator sugar for `neg`, `any` and `all` |
 | [v0.9.3](changelog/v0.9.3.md) | `pred(callable)` predicate pattern; `neg(p)` |
