@@ -754,69 +754,39 @@ namespace ptn::core::common {
               CasesTuple>();
     };
 
-    template <std::size_t CaseIndex,
-              typename Result,
-              typename CasesTuple>
-    PTN_DETAIL_ALWAYS_INLINE constexpr Result
-    invoke_static_literal_case_entry(CasesTuple &&cases) {
-      return invoke_direct_case_entry<CaseIndex, Result>(
-          std::forward<CasesTuple>(cases));
-    }
-
     // How dense literal dispatch runs the case it selected. Borrowed
     // subjects call the handler directly; owned subjects supply
     // their own entry so the handler sees the owned value
     // categories.
+    //
+    // `runner` returns a generic lambda that runs case `I` when
+    // called with `std::integral_constant<std::size_t, I>`. Its
+    // instantiations, one per case, have short debug names; a
+    // function template over the case index would repeat the case
+    // pack's type in each of them.
     struct direct_literal_case_entry {
-      template <std::size_t CaseIndex,
-                typename Result,
+      template <typename Result,
                 typename Subject,
                 typename CasesTuple>
-      PTN_DETAIL_ALWAYS_INLINE static constexpr Result
-      invoke(Subject &, CasesTuple &&cases) {
-        return invoke_static_literal_case_entry<CaseIndex, Result>(
-            std::forward<CasesTuple>(cases));
+      PTN_DETAIL_ALWAYS_INLINE static constexpr auto
+      runner(Subject &, CasesTuple &&cases) {
+        auto *pack = &cases;
+        return
+            [pack](auto case_index) PTN_DETAIL_LAMBDA_ALWAYS_INLINE
+            -> Result {
+              constexpr std::size_t I = decltype(case_index)::value;
+              auto &&current = ptn::core::dsl::detail::case_get<I>(
+                  std::forward<CasesTuple>(*pack));
+              if constexpr (core::dsl::detail::is_value_handler_v<
+                                decltype(current.handler)>) {
+                return static_cast<Result>(current.handler.value);
+              }
+              else {
+                return static_cast<Result>(current.handler());
+              }
+            };
       }
     };
-
-    template <typename Plan,
-              std::size_t Offset,
-              typename Result,
-              typename Entry,
-              typename Subject,
-              typename CasesTuple,
-              typename Otherwise>
-    PTN_DETAIL_ALWAYS_INLINE Result
-    dispatch_static_literal_offset_case(
-        Subject     &subject,
-        CasesTuple &&cases,
-        Otherwise  &&otherwise_handler) {
-      if constexpr (Offset < Plan::range_size) {
-        using cache_t = static_literal_dispatch_cache<Plan,
-                                                      Subject,
-                                                      CasesTuple>;
-        constexpr auto
-            case_index = cache_t::case_index_table[Offset];
-
-        if constexpr (case_index != Plan::k_invalid_case_index) {
-          return Entry::template invoke<static_cast<std::size_t>(
-                                            case_index),
-                                        Result>(
-              subject, std::forward<CasesTuple>(cases));
-        }
-      }
-
-      if constexpr (Plan::has_default_case) {
-        return Entry::template invoke<static_cast<std::size_t>(
-                                          Plan::default_case_index),
-                                      Result>(
-            subject, std::forward<CasesTuple>(cases));
-      }
-      else {
-        return invoke_otherwise_typed<Result>(
-            subject, std::forward<Otherwise>(otherwise_handler));
-      }
-    }
 
     // Unsigned type of the key's width, in which a dense literal
     // plan computes the subject's offset. `bool` has no
@@ -834,49 +804,6 @@ namespace ptn::core::common {
     template <typename Key>
     using static_literal_offset_t = typename static_literal_offset<
         Key>::type;
-
-    // Arm of the index switch over the offset of a dense literal
-    // plan. Every offset in the span selects its case or the
-    // default; an offset outside the span reaches `miss`.
-    template <typename Plan, typename Entry>
-    struct static_literal_offset_arm {
-      template <std::size_t Offset,
-                typename Result,
-                typename Subject,
-                typename CasesTuple,
-                typename Otherwise>
-      PTN_DETAIL_ALWAYS_INLINE static Result
-      hit(Subject     &subject,
-          CasesTuple &&cases,
-          Otherwise  &&otherwise) {
-        return dispatch_static_literal_offset_case<Plan,
-                                                   Offset,
-                                                   Result,
-                                                   Entry>(
-            subject,
-            std::forward<CasesTuple>(cases),
-            std::forward<Otherwise>(otherwise));
-      }
-
-      template <typename Result,
-                typename Subject,
-                typename CasesTuple,
-                typename Otherwise>
-      PTN_DETAIL_ALWAYS_INLINE static Result
-      miss(Subject     &subject,
-           CasesTuple &&cases,
-           Otherwise  &&otherwise) {
-        if constexpr (Plan::has_default_case) {
-          return Entry::template invoke<
-              static_cast<std::size_t>(Plan::default_case_index),
-              Result>(subject, std::forward<CasesTuple>(cases));
-        }
-        else {
-          return invoke_otherwise_typed<Result>(
-              subject, std::forward<Otherwise>(otherwise));
-        }
-      }
-    };
 
     // Dense literal dispatch: the subject's offset from the smallest
     // literal indexes a switch with one arm per offset in the span.
@@ -918,13 +845,42 @@ namespace ptn::core::common {
               static_cast<offset_t>(static_cast<key_t>(subject))
               - static_cast<offset_t>(Plan::min_value)));
 
-      return index_switch<Plan::range_size,
-                          Result,
-                          static_literal_offset_arm<Plan, Entry>>(
-          offset,
-          subject,
-          std::forward<CasesTuple>(cases),
-          std::forward<Otherwise>(otherwise_handler));
+      using cache_t = static_literal_dispatch_cache<
+          Plan,
+          Subject,
+          std::remove_reference_t<CasesTuple>>;
+      auto run_case = Entry::template runner<Result>(
+          subject, std::forward<CasesTuple>(cases));
+
+      // The default case, or the otherwise handler without one.
+      auto miss = [&]() PTN_DETAIL_LAMBDA_ALWAYS_INLINE -> Result {
+        if constexpr (Plan::has_default_case) {
+          return run_case(std::integral_constant<
+                          std::size_t,
+                          static_cast<std::size_t>(
+                              Plan::default_case_index)>{});
+        }
+        else {
+          return invoke_otherwise_typed<Result>(
+              subject, std::forward<Otherwise>(otherwise_handler));
+        }
+      };
+      // The case at an offset in the span, or `miss` for a gap.
+      auto hit = [&](auto slot)
+                     PTN_DETAIL_LAMBDA_ALWAYS_INLINE -> Result {
+        constexpr auto case_index = cache_t::case_index_table
+            [decltype(slot)::value];
+        if constexpr (case_index != Plan::k_invalid_case_index) {
+          return run_case(std::integral_constant<
+                          std::size_t,
+                          static_cast<std::size_t>(case_index)>{});
+        }
+        else {
+          return miss();
+        }
+      };
+      return index_visit<Plan::range_size, Result>(
+          offset, hit, miss);
     }
 
     template <std::size_t I,
@@ -955,82 +911,27 @@ namespace ptn::core::common {
       }
     }
 
-    // `true` if case `I` of a literal plan accepts the subject: a
-    // `lit(...)` case compares, the trailing `_` always accepts.
-    template <std::size_t I, typename Subject, typename CasesTuple>
-    PTN_DETAIL_ALWAYS_INLINE constexpr bool
-    literal_case_accepts(const Subject &subject, CasesTuple &cases) {
-      using case_t = std::remove_reference_t<
-          std::tuple_element_t<I, std::remove_cv_t<CasesTuple>>>;
-      if constexpr (is_wildcard_pattern_v<
-                        traits::case_pattern_t<case_t>>) {
-        return true;
-      }
-      else {
-        return ptn::core::dsl::detail::case_get<I>(cases)
-            .pattern.match(subject);
-      }
-    }
-
-    // Index of the first case of a literal plan that accepts the
-    // subject, or the number of cases if none does. The cases are
-    // tested in source order and the test stops at the first match.
+    // Index of the first `I` for which `accepts` holds, or the
+    // number of indices if none does. The indices are tested in
+    // order and the test stops at the first one that holds.
     //
-    // Selecting an index and running the case are kept apart: every
-    // branch of this chain ends in the same place with a constant,
-    // which is the shape compilers turn into a jump or lookup table.
-    // A chain that returns from each case directly does not have it
-    // once inlined, and GCC keeps it as a series of comparisons.
-    template <typename Subject,
-              typename CasesTuple,
-              std::size_t... I>
+    // A literal plan selects its case this way, then runs it through
+    // index_visit. Selecting an index and running the case are kept
+    // apart: every branch of this chain ends in the same place with
+    // a constant, which is the shape compilers turn into a jump or
+    // lookup table. A chain that returns from each case directly
+    // does not have it once inlined, and GCC keeps it as a series of
+    // comparisons.
+    template <typename Accepts, std::size_t... I>
     PTN_DETAIL_ALWAYS_INLINE constexpr std::size_t
-    select_literal_case(const Subject &subject,
-                        CasesTuple    &cases,
-                        std::index_sequence<I...>) {
+    select_first_index(Accepts &accepts, std::index_sequence<I...>) {
       std::size_t selected = sizeof...(I);
-      static_cast<void>(((literal_case_accepts<I>(subject, cases)
-                          && (selected = I, true))
-                         || ...));
+      static_cast<void>(
+          ((accepts(std::integral_constant<std::size_t, I>{})
+            && (selected = I, true))
+           || ...));
       return selected;
     }
-
-    template <typename Subject, typename CasesTuple>
-    PTN_DETAIL_ALWAYS_INLINE constexpr std::size_t
-    select_literal_case(const Subject &subject, CasesTuple &cases) {
-      return select_literal_case(
-          subject,
-          cases,
-          std::make_index_sequence<
-              std::tuple_size_v<std::remove_cv_t<CasesTuple>>>{});
-    }
-
-    // Arm of the index switch that runs the case a literal plan
-    // selected on a borrowed subject. The cases bind nothing.
-    struct literal_case_arm {
-      template <std::size_t I,
-                typename Result,
-                typename Subject,
-                typename CasesTuple,
-                typename Otherwise>
-      PTN_DETAIL_ALWAYS_INLINE static constexpr Result
-      hit(Subject &, CasesTuple &cases, Otherwise &&) {
-        return static_cast<Result>(
-            ptn::core::dsl::detail::case_get<I>(cases).handler());
-      }
-
-      template <typename Result,
-                typename Subject,
-                typename CasesTuple,
-                typename Otherwise>
-      PTN_DETAIL_ALWAYS_INLINE static constexpr Result
-      miss(Subject &subject,
-           CasesTuple &,
-           Otherwise &&otherwise_handler) {
-        return invoke_otherwise_typed<Result>(
-            subject, std::forward<Otherwise>(otherwise_handler));
-      }
-    };
 
     template <typename Result,
               typename Subject,
@@ -1048,11 +949,36 @@ namespace ptn::core::common {
             subject, std::forward<Otherwise>(otherwise_handler));
       }
       else if constexpr (case_count <= k_index_switch_max_arms) {
-        return index_switch<case_count, Result, literal_case_arm>(
-            select_literal_case(std::as_const(subject), cases),
-            subject,
-            cases,
-            std::forward<Otherwise>(otherwise_handler));
+        using tuple_t = std::remove_cv_t<CasesTuple>;
+        // A `lit(...)` case compares; the trailing `_` accepts.
+        auto accepts = [&](auto i) PTN_DETAIL_LAMBDA_ALWAYS_INLINE {
+          constexpr std::size_t I = decltype(i)::value;
+          if constexpr (is_wildcard_pattern_v<traits::case_pattern_t<
+                            std::tuple_element_t<I, tuple_t>>>) {
+            return true;
+          }
+          else {
+            return ptn::core::dsl::detail::case_get<I>(cases)
+                .pattern.match(std::as_const(subject));
+          }
+        };
+        // The selected case binds nothing.
+        auto hit = [&](auto i)
+                       PTN_DETAIL_LAMBDA_ALWAYS_INLINE -> Result {
+          return static_cast<Result>(
+              ptn::core::dsl::detail::case_get<decltype(i)::value>(
+                  cases)
+                  .handler());
+        };
+        auto miss = [&]() PTN_DETAIL_LAMBDA_ALWAYS_INLINE -> Result {
+          return invoke_otherwise_typed<Result>(
+              subject, std::forward<Otherwise>(otherwise_handler));
+        };
+        return index_visit<case_count, Result>(
+            select_first_index(
+                accepts, std::make_index_sequence<case_count>{}),
+            hit,
+            miss);
       }
       else {
         return eval_cases_impl_typed<0, Result>(
@@ -1397,13 +1323,23 @@ namespace ptn::core::common {
       if constexpr (Plan::alt_count <= k_index_switch_max_arms) {
         // The active alternative is already a dense index, so this
         // is the switch a hand-written visitor would use.
-        return index_switch<Plan::alt_count,
-                            Result,
-                            variant_alt_arm<Plan>>(
-            active_index,
-            subject,
-            cases,
-            std::forward<Otherwise>(otherwise_handler));
+        auto hit = [&](auto alt)
+                       PTN_DETAIL_LAMBDA_ALWAYS_INLINE -> Result {
+          return eval_cases_impl_variant_dispatch_for_alt_hit<
+              Plan,
+              decltype(alt)::value,
+              Result>(subject,
+                      cases,
+                      std::forward<Otherwise>(otherwise_handler));
+        };
+        auto miss = [&]() PTN_DETAIL_LAMBDA_ALWAYS_INLINE -> Result {
+          return variant_alt_arm<Plan>::template miss<Result>(
+              subject,
+              cases,
+              std::forward<Otherwise>(otherwise_handler));
+        };
+        return index_visit<Plan::alt_count, Result>(
+            active_index, hit, miss);
       }
       else {
         if (active_index >= Plan::alt_count) {

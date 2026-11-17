@@ -503,83 +503,43 @@ namespace ptn::core::common {
               std::make_index_sequence<AltCount>{});
     };
 
-    template <typename Subject,
-              typename CasesTuple,
-              std::size_t ActiveIndex,
-              std::size_t I = 0,
-              std::size_t N = std::tuple_size_v<
-                  std::remove_reference_t<CasesTuple>>>
-    struct variant_typed_case_first_match_index_for_alt {
-      using tuple_t   = std::remove_reference_t<CasesTuple>;
-      using case_t    = std::tuple_element_t<I, tuple_t>;
-      using pattern_t = traits::case_pattern_t<case_t>;
-
-      static constexpr std::size_t
-          value = variant_pattern_maybe_matches_alt_index<
-                      pattern_t,
-                      Subject,
-                      ActiveIndex>()
-                      ? I
-                      : variant_typed_case_first_match_index_for_alt<
-                            Subject,
-                            CasesTuple,
-                            ActiveIndex,
-                            I + 1,
-                            N>::value;
+    // The cases that can match while alternative `ActiveIndex` is
+    // active span `[begin, end)`: from the first to one past the
+    // last case that variant_pattern_maybe_matches_alt_index keeps,
+    // or an empty range. Computed in one function over the case
+    // indices, rather than by recursing over them, so that each
+    // alternative instantiates one template: every instantiation's
+    // debug name repeats the case pack's type.
+    struct variant_case_index_range {
+      std::size_t begin;
+      std::size_t end;
     };
 
     template <typename Subject,
-              typename CasesTuple,
+              typename Tuple,
               std::size_t ActiveIndex,
-              std::size_t N>
-    struct variant_typed_case_first_match_index_for_alt<Subject,
-                                                        CasesTuple,
-                                                        ActiveIndex,
-                                                        N,
-                                                        N> {
-      static constexpr std::size_t value = N;
-    };
-
-    template <typename Subject,
-              typename CasesTuple,
-              std::size_t ActiveIndex,
-              std::size_t I = 0,
-              std::size_t N = std::tuple_size_v<
-                  std::remove_reference_t<CasesTuple>>>
-    struct variant_typed_case_last_match_index_exclusive_for_alt {
-      using tuple_t   = std::remove_reference_t<CasesTuple>;
-      using case_t    = std::tuple_element_t<I, tuple_t>;
-      using pattern_t = traits::case_pattern_t<case_t>;
-
-      static constexpr std::size_t tail =
-          variant_typed_case_last_match_index_exclusive_for_alt<
+              std::size_t... I>
+    constexpr variant_case_index_range
+    variant_typed_case_range(std::index_sequence<I...>) {
+      constexpr bool may_match[] = {
+          variant_pattern_maybe_matches_alt_index<
+              traits::case_pattern_t<std::tuple_element_t<I, Tuple>>,
               Subject,
-              CasesTuple,
-              ActiveIndex,
-              I + 1,
-              N>::value;
-
-      static constexpr std::size_t
-          value = variant_pattern_maybe_matches_alt_index<
-                      pattern_t,
-                      Subject,
-                      ActiveIndex>()
-                      ? (tail > (I + 1) ? tail : (I + 1))
-                      : tail;
-    };
-
-    template <typename Subject,
-              typename CasesTuple,
-              std::size_t ActiveIndex,
-              std::size_t N>
-    struct variant_typed_case_last_match_index_exclusive_for_alt<
-        Subject,
-        CasesTuple,
-        ActiveIndex,
-        N,
-        N> {
-      static constexpr std::size_t value = 0;
-    };
+              ActiveIndex>()...,
+          false};
+      constexpr std::size_t count = sizeof...(I);
+      std::size_t           begin = count;
+      std::size_t           end   = 0;
+      for (std::size_t i = 0; i < count; ++i) {
+        if (may_match[i]) {
+          if (begin == count) {
+            begin = i;
+          }
+          end = i + 1;
+        }
+      }
+      return {begin, end};
+    }
 
     template <typename Subject,
               typename CasesTuple,
@@ -587,17 +547,14 @@ namespace ptn::core::common {
               std::size_t CaseCount = std::tuple_size_v<
                   std::remove_reference_t<CasesTuple>>>
     struct variant_typed_case_range_for_alt {
-      static constexpr std::size_t
-          begin = variant_typed_case_first_match_index_for_alt<
+      static constexpr variant_case_index_range
+          range = variant_typed_case_range<
               Subject,
-              CasesTuple,
-              ActiveIndex>::value;
+              std::remove_cv_t<std::remove_reference_t<CasesTuple>>,
+              ActiveIndex>(std::make_index_sequence<CaseCount>{});
 
-      static constexpr std::size_t end =
-          variant_typed_case_last_match_index_exclusive_for_alt<
-              Subject,
-              CasesTuple,
-              ActiveIndex>::value;
+      static constexpr std::size_t begin = range.begin;
+      static constexpr std::size_t end   = range.end;
 
       static constexpr bool has_any = begin < end
                                       && begin < CaseCount;
@@ -1035,33 +992,6 @@ namespace ptn::core::common {
             Subject,
             std::remove_reference_t<CasesTuple>>::value;
 
-    template <typename Subject,
-              typename CasesTuple,
-              std::size_t I = 0,
-              std::size_t N = std::tuple_size_v<
-                  std::remove_reference_t<CasesTuple>>>
-    struct static_literal_case_count {
-      using tuple_t   = std::remove_reference_t<CasesTuple>;
-      using case_t    = std::tuple_element_t<I, tuple_t>;
-      using pattern_t = traits::case_pattern_t<case_t>;
-
-      // Counts only actual static-literal cases. Wildcards
-      // contribute to the default slot, but not to the dense literal
-      // table density.
-      static constexpr std::size_t
-          value = (is_static_literal_pattern_v<pattern_t>
-                       ? std::size_t{1}
-                       : std::size_t{0})
-                  + static_literal_case_count<Subject,
-                                              CasesTuple,
-                                              I + 1,
-                                              N>::value;
-    };
-
-    template <typename Subject, typename CasesTuple, std::size_t N>
-    struct static_literal_case_count<Subject, CasesTuple, N, N>
-        : std::integral_constant<std::size_t, 0> {};
-
     template <typename Key>
     constexpr std::size_t static_literal_range_width(Key min_value,
                                                      Key max_value) {
@@ -1080,106 +1010,80 @@ namespace ptn::core::common {
       }
     }
 
-    template <typename Subject,
-              typename CasesTuple,
-              std::size_t I = 0,
-              std::size_t N = std::tuple_size_v<
-                  std::remove_reference_t<CasesTuple>>>
-    struct static_literal_value_range;
+    // The key of a static literal case pattern, for summarizing the
+    // literals of a case pack.
+    template <typename Pattern,
+              typename Subject,
+              bool = is_static_literal_pattern_v<Pattern>>
+    struct static_literal_key_of {
+      using key_t = literal_subject_key_t<
+          std::remove_cv_t<std::remove_reference_t<Subject>>>;
+      static constexpr bool  is_literal = false;
+      static constexpr key_t value      = key_t{};
+    };
 
-    template <typename Subject,
-              typename CasesTuple,
-              std::size_t I,
-              std::size_t N,
-              bool        IsLiteral>
-    struct static_literal_value_range_case;
-
-    template <typename Subject,
-              typename CasesTuple,
-              std::size_t I,
-              std::size_t N>
-    struct static_literal_value_range_case<Subject,
-                                           CasesTuple,
-                                           I,
-                                           N,
-                                           true> {
-      using tuple_t   = std::remove_reference_t<CasesTuple>;
-      using subject_t = std::remove_cv_t<
-          std::remove_reference_t<Subject>>;
-      using key_t     = literal_subject_key_t<subject_t>;
-      using case_t    = std::tuple_element_t<I, tuple_t>;
-      using pattern_t = traits::case_pattern_t<case_t>;
-      using tail_t    = static_literal_value_range<Subject,
-                                                   CasesTuple,
-                                                   I + 1,
-                                                   N>;
-
-      // Folds the current static literal into the tail min/max
-      // summary.
+    template <typename Pattern, typename Subject>
+    struct static_literal_key_of<Pattern, Subject, true> {
+      using key_t = literal_subject_key_t<
+          std::remove_cv_t<std::remove_reference_t<Subject>>>;
+      static constexpr bool is_literal = true;
       static constexpr key_t
-          current_value = static_literal_case_value<pattern_t,
-                                                    Subject>::value;
-      static constexpr bool has_any = true;
-
-      static constexpr key_t min = tail_t::has_any
-                                       ? (current_value < tail_t::min
-                                              ? current_value
-                                              : tail_t::min)
-                                       : current_value;
-
-      static constexpr key_t max = tail_t::has_any
-                                       ? (current_value > tail_t::max
-                                              ? current_value
-                                              : tail_t::max)
-                                       : current_value;
+          value = static_literal_case_value<Pattern, Subject>::value;
     };
 
-    template <typename Subject,
-              typename CasesTuple,
-              std::size_t I,
-              std::size_t N>
-    struct static_literal_value_range_case<Subject,
-                                           CasesTuple,
-                                           I,
-                                           N,
-                                           false> {
-      using tail_t = static_literal_value_range<Subject,
-                                                CasesTuple,
-                                                I + 1,
-                                                N>;
-      using key_t  = typename tail_t::key_t;
-
-      // Non-literal cases do not affect the dense-table key range.
-      static constexpr bool  has_any = tail_t::has_any;
-      static constexpr key_t min     = tail_t::min;
-      static constexpr key_t max     = tail_t::max;
+    // Number of static literal cases and the range of their keys.
+    // Wildcards contribute to the default slot, but not to the dense
+    // table's density or span.
+    template <typename Key>
+    struct static_literal_summary {
+      std::size_t count   = 0;
+      bool        has_any = false;
+      Key         min{};
+      Key         max{};
     };
 
-    template <typename Subject,
-              typename CasesTuple,
-              std::size_t I,
-              std::size_t N>
-    struct static_literal_value_range
-        : static_literal_value_range_case<
-              Subject,
-              CasesTuple,
-              I,
-              N,
-              is_static_literal_pattern_v<
-                  traits::case_pattern_t<std::tuple_element_t<
-                      I,
-                      std::remove_reference_t<CasesTuple>>>>> {};
+    // Computed in one function over the case indices, rather than by
+    // recursing over them: every instantiation of a template over
+    // the case pack repeats the pack's type in its debug name, and
+    // the recursion instantiated one per case and per step, so a
+    // 64-case match carried 20 MB of these names in GCC's debug
+    // information.
+    template <typename Subject, typename Tuple, std::size_t... I>
+    constexpr auto
+    summarize_static_literals(std::index_sequence<I...>) {
+      using key_t = literal_subject_key_t<
+          std::remove_cv_t<std::remove_reference_t<Subject>>>;
+      constexpr bool is_literal[] = {
+          static_literal_key_of<
+              traits::case_pattern_t<std::tuple_element_t<I, Tuple>>,
+              Subject>::is_literal...,
+          false};
+      constexpr key_t value[] = {
+          static_literal_key_of<
+              traits::case_pattern_t<std::tuple_element_t<I, Tuple>>,
+              Subject>::value...,
+          key_t{}};
 
-    template <typename Subject, typename CasesTuple, std::size_t N>
-    struct static_literal_value_range<Subject, CasesTuple, N, N> {
-      using subject_t = std::remove_cv_t<
-          std::remove_reference_t<Subject>>;
-      using key_t = literal_subject_key_t<subject_t>;
-
-      static constexpr bool  has_any = false;
-      static constexpr key_t min     = key_t{};
-      static constexpr key_t max     = key_t{};
-    };
+      static_literal_summary<key_t> summary{};
+      for (std::size_t i = 0; i < sizeof...(I); ++i) {
+        if (!is_literal[i]) {
+          continue;
+        }
+        if (!summary.has_any) {
+          summary.has_any = true;
+          summary.min     = value[i];
+          summary.max     = value[i];
+        }
+        else {
+          summary.min = value[i] < summary.min ? value[i]
+                                               : summary.min;
+          summary.max = value[i] > summary.max ? value[i]
+                                               : summary.max;
+        }
+        ++summary.count;
+      }
+      return summary;
+    }
 
     template <typename Tuple, std::size_t N>
     struct tuple_last_case_is_wildcard
@@ -1203,21 +1107,21 @@ namespace ptn::core::common {
       // present.
       static constexpr std::size_t
           case_count = std::tuple_size_v<tuple_t>;
-      // `literal_case_count` counts only keyed literal entries.
-      static constexpr std::size_t
-          literal_case_count = static_literal_case_count<
+      static constexpr static_literal_summary<key_t>
+          summary = summarize_static_literals<
               Subject,
-              CasesTuple>::value;
+              std::remove_cv_t<tuple_t>>(
+              std::make_index_sequence<case_count>{});
+
+      // `literal_case_count` counts only keyed literal entries.
+      static constexpr std::size_t literal_case_count = summary
+                                                            .count;
       using case_index_t = variant_case_index_t<case_count>;
 
-      using value_range_t = static_literal_value_range<Subject,
-                                                       CasesTuple>;
-
       // These values describe the dense candidate key span.
-      static constexpr bool
-          has_literal_cases            = value_range_t::has_any;
-      static constexpr key_t min_value = value_range_t::min;
-      static constexpr key_t max_value = value_range_t::max;
+      static constexpr bool  has_literal_cases = summary.has_any;
+      static constexpr key_t min_value         = summary.min;
+      static constexpr key_t max_value         = summary.max;
       static constexpr std::size_t
           range_size = has_literal_cases
                            ? static_literal_range_width(min_value,
