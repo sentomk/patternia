@@ -2536,7 +2536,19 @@ performance work below.</p>
     path of <code>std::get</code>. Only its guard can still reject it. A guarded
     two-alternative match compiles to about the size of the same
     branches written with <code>std::holds_alternative</code>.</li>
-<li>Planned: static literals and <code>lit(...)</code> literals.</li>
+<li>Implemented: <code>lit(...)</code> literals. The match first finds the
+    earliest case whose value equals the subject and then runs that
+    case through the index switch, so a sparse <code>lit(...)</code> match
+    compiles like the same <code>switch</code> written by hand.</li>
+<li>Implemented: <code>on(...)</code> stores its cases in a tuple-like type whose
+    element access is always inlined, instead of <code>std::tuple</code>. GCC
+    builds a jump or lookup table only when every access to the cases
+    has been inlined before its early switch passes, and whether
+    <code>std::get</code> was inlined that early depended on the order of the
+    functions in the translation unit. The same literal match could
+    compile to a table in one file and to a tree of comparisons in
+    another.</li>
+<li>Planned: static literals.</li>
 </ul>
 <p>Benchmarks for nested matching stay in v0.12. Optimizations must
 preserve the new ownership contract.</p>
