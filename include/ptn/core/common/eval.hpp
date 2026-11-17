@@ -928,7 +928,8 @@ namespace ptn::core::common {
       std::size_t selected = sizeof...(I);
       static_cast<void>(
           ((accepts(std::integral_constant<std::size_t, I>{})
-            && (selected = I, true))
+                ? (selected = I, true)
+                : false)
            || ...));
       return selected;
     }

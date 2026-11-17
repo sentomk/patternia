@@ -184,3 +184,83 @@ TEST(DispatchMetadata, StaticLiteralSummaryCountsKeysAndRange) {
   static_assert(none_meta::range_size == 0);
   SUCCEED();
 }
+
+namespace {
+  // Calls through a pointer so that the summaries are also computed
+  // at run time, not only during constant evaluation.
+  template <typename Subject, typename Tuple, std::size_t... I>
+  detail::static_literal_summary<
+      detail::literal_subject_key_t<Subject>>
+  summarize_at_run_time(std::index_sequence<I...> indices) {
+    auto *volatile summarize = &detail::summarize_static_literals<
+        Subject,
+        Tuple,
+        I...>;
+    return summarize(indices);
+  }
+
+  template <typename Subject,
+            typename Tuple,
+            std::size_t ActiveIndex,
+            std::size_t... I>
+  detail::variant_case_index_range
+  case_range_at_run_time(std::index_sequence<I...> indices) {
+    auto *volatile range = &detail::variant_typed_case_range<
+        Subject,
+        Tuple,
+        ActiveIndex,
+        I...>;
+    return range(indices);
+  }
+} // namespace
+
+TEST(DispatchMetadata, StaticLiteralSummaryAtRunTime) {
+  using mixed        = decltype(on(val<5> >> 1,
+                            val<-3> >> 2,
+                            lit(9) >> 3,
+                            val<2> >> 4,
+                            val<-3> >> 5,
+                            _ >> 0))::tuple_type;
+  const auto summary = summarize_at_run_time<int, mixed>(
+      std::make_index_sequence<6>{});
+  EXPECT_EQ(summary.count, 4u);
+  EXPECT_TRUE(summary.has_any);
+  EXPECT_EQ(summary.min, -3);
+  EXPECT_EQ(summary.max, 5);
+
+  // Ascending, so each key raises the maximum.
+  using rising  = decltype(on(
+      val<1> >> 1, val<4> >> 2, _ >> 0))::tuple_type;
+  const auto up = summarize_at_run_time<int, rising>(
+      std::make_index_sequence<3>{});
+  EXPECT_EQ(up.min, 1);
+  EXPECT_EQ(up.max, 4);
+
+  using none       = decltype(on(lit(7) >> 1, _ >> 0))::tuple_type;
+  const auto empty = summarize_at_run_time<int, none>(
+      std::make_index_sequence<2>{});
+  EXPECT_EQ(empty.count, 0u);
+  EXPECT_FALSE(empty.has_any);
+}
+
+TEST(DispatchMetadata, VariantCaseRangeAtRunTime) {
+  using V        = std::variant<int, std::string, double, bool>;
+  auto all_cases = std::make_tuple(
+      is<int>(0) >> 1,
+      is<int>(pred([](int value) { return value < 0; })) >> 2,
+      is<std::string> >> 3,
+      is<int>(pred([](int value) { return value > 0; })) >> 4);
+  using cases     = decltype(all_cases);
+  const auto ints = case_range_at_run_time<V, cases, 0>(
+      std::make_index_sequence<4>{});
+  EXPECT_EQ(ints.begin, 0u);
+  EXPECT_EQ(ints.end, 4u);
+  const auto strings = case_range_at_run_time<V, cases, 1>(
+      std::make_index_sequence<4>{});
+  EXPECT_EQ(strings.begin, 2u);
+  EXPECT_EQ(strings.end, 3u);
+  const auto doubles = case_range_at_run_time<V, cases, 2>(
+      std::make_index_sequence<4>{});
+  EXPECT_EQ(doubles.begin, 4u);
+  EXPECT_EQ(doubles.end, 0u);
+}
