@@ -233,6 +233,14 @@ Planned alongside move semantics, rather than deferred to v0.12:
     of the switch made GCC compare twice: `val<1>` to `val<64>`
     mapped to themselves now compiles to the same code as the
     `switch` written by hand on x86-64 GCC 13.
+  - Implemented: owned variant subjects. `match(std::move(v))` on a
+    variant with five or more alternatives switches on the active
+    alternative and runs, in source order, only the cases that can
+    match it; a case that only tests the alternative binds it without
+    testing the index again. GCC tested the alternatives one by one
+    before (15 compares for 16 alternatives). Up to four
+    alternatives, the cases stay in source order, which compilers
+    already lower well.
 
 Benchmarks for nested matching stay in v0.12. Optimizations must
 preserve the new ownership contract.

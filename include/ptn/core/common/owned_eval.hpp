@@ -406,8 +406,145 @@ namespace ptn::core::common::detail {
                   std::declval<Cases>())),
               S>...>;
 
+  // Case filters for eval_owned_cases_in_order. A filter only skips
+  // cases that cannot match, so the first matching case is the same
+  // with or without it.
+  struct owned_every_case {
+    static constexpr bool        knows_alt = false;
+    static constexpr std::size_t known_alt = 0;
+
+    template <typename Pattern, typename S>
+    static constexpr bool may_match() {
+      return true;
+    }
+  };
+
+  // The cases that can match while alternative `AltIndex` is active:
+  // a case whose pattern names another alternative is skipped.
+  template <std::size_t AltIndex>
+  struct owned_cases_for_alt {
+    static constexpr bool        knows_alt = true;
+    static constexpr std::size_t known_alt = AltIndex;
+
+    template <typename Pattern, typename S>
+    static constexpr bool may_match() {
+      return variant_pattern_maybe_matches_alt_index<Pattern,
+                                                     S,
+                                                     AltIndex>();
+    }
+  };
+
+  // Owned bindings of a pattern that only tests the alternative,
+  // while alternative `AltIndex` is known to be active: none for
+  // `is<T>` and `alt<I>`, the alternative as an rvalue for `$(...)`
+  // and a direct reference binding, as the general visit binds them.
+  template <std::size_t AltIndex, bool Binds, typename S>
+  PTN_DETAIL_ALWAYS_INLINE constexpr auto
+  owned_known_alt_bindings(S &subject) {
+    if constexpr (Binds) {
+      return std::forward_as_tuple(
+          std::move(variant_known_alt_get<AltIndex>(subject)));
+    }
+    else {
+      return std::tuple<>{};
+    }
+  }
+
+  // `true` if case pattern `Pattern` only tests the alternative and
+  // its known-alternative bindings have the same type as those of
+  // the general owned visit, so the case can skip the index test.
+  template <std::size_t AltIndex, typename Pattern, typename S>
+  constexpr bool owned_case_is_known_alt() {
+    using pattern_t  = std::decay_t<Pattern>;
+    using tested_t   = variant_tested_pattern_t<pattern_t>;
+    using alt_only_t = variant_alt_only_pattern<tested_t,
+                                                std::remove_cv_t<S>>;
+    if constexpr (!alt_only_t::value) {
+      return false;
+    }
+    else if constexpr (alt_only_t::index != AltIndex) {
+      return false;
+    }
+    else {
+      return std::is_same_v<
+          decltype(owned_known_alt_bindings<AltIndex,
+                                            alt_only_t::binds>(
+              std::declval<S &>())),
+          owned_bindings_t<tested_t, S>>;
+    }
+  }
+
+  // `true` if `Filter` knows the active alternative and the case can
+  // use it. owned_case_is_known_alt is instantiated only in an arm
+  // of the owned variant switch, never for other subjects.
+  template <typename Filter,
+            typename Pattern,
+            typename S,
+            bool = Filter::knows_alt>
+  struct owned_case_takes_known_alt : std::false_type {};
+
+  template <typename Filter, typename Pattern, typename S>
+  struct owned_case_takes_known_alt<Filter, Pattern, S, true>
+      : std::bool_constant<owned_case_is_known_alt<Filter::known_alt,
+                                                   Pattern,
+                                                   S>()> {};
+
+  // Visits a case that owned_case_is_known_alt accepts: binds
+  // without testing the index, then runs the guard, if any, on
+  // read-only views of the bindings as the general guarded visit
+  // does.
+  template <std::size_t AltIndex,
+            typename P,
+            typename S,
+            typename Hit,
+            typename Miss>
+  PTN_DETAIL_ALWAYS_INLINE constexpr decltype(auto)
+  owned_visit_known_alt(P     &pattern,
+                        S     &subject,
+                        Hit  &&hit,
+                        Miss &&miss) {
+    using pattern_t  = std::decay_t<P>;
+    using alt_only_t = variant_alt_only_pattern<
+        variant_tested_pattern_t<pattern_t>,
+        std::remove_cv_t<S>>;
+    auto bound = owned_known_alt_bindings<AltIndex,
+                                          alt_only_t::binds>(
+        subject);
+    if constexpr (is_guarded_pattern_v<pattern_t>) {
+      auto observed = observe_bindings(
+          bound,
+          std::make_index_sequence<
+              std::tuple_size_v<decltype(bound)>>{});
+      if (!owned_guard_holds(
+              pattern,
+              observed,
+              std::make_index_sequence<
+                  std::tuple_size_v<decltype(observed)>>{})) {
+        return std::forward<Miss>(miss)();
+      }
+    }
+    return std::forward<Hit>(hit)(std::move(bound));
+  }
+
+  // The cases that can match a variant that is
+  // valueless_by_exception(): it has no active alternative, so a
+  // pattern that only tests the alternative rejects it, guarded or
+  // not, and is skipped.
+  struct owned_cases_for_valueless {
+    static constexpr bool        knows_alt = false;
+    static constexpr std::size_t known_alt = 0;
+
+    template <typename Pattern, typename S>
+    static constexpr bool may_match() {
+      return !variant_alt_only_pattern<
+          variant_tested_pattern_t<std::decay_t<Pattern>>,
+          std::remove_cv_t<S>>::value;
+    }
+  };
+
   template <typename Result,
-            std::size_t I = 0,
+            std::size_t I   = 0,
+            typename Filter = owned_every_case,
             typename S,
             typename Cases>
   constexpr Result eval_owned_cases_in_order(S      &subject,
@@ -417,27 +554,91 @@ namespace ptn::core::common::detail {
                       std::remove_reference_t<Cases>>) {
       return unreachable_result<Result>();
     }
+    else if constexpr (!Filter::template may_match<
+                           traits::case_pattern_t<
+                               std::tuple_element_t<
+                                   I,
+                                   std::remove_reference_t<Cases>>>,
+                           S>()) {
+      return eval_owned_cases_in_order<Result, I + 1, Filter>(
+          subject, std::forward<Cases>(cases));
+    }
     else {
       auto &current = ptn::core::dsl::detail::case_get<I>(cases);
       using pattern = traits::case_pattern_t<
           std::decay_t<decltype(current)>>;
-      return owned_pattern<pattern>::visit(
-          current.pattern,
-          subject,
-          [&](auto &&bound) -> Result {
-            return static_cast<Result>(invoke_owned_handler(
-                ptn::core::dsl::detail::case_get<I>(
-                    std::forward<Cases>(cases)),
-                std::forward<decltype(bound)>(bound),
-                std::make_index_sequence<std::tuple_size_v<
-                    std::remove_reference_t<decltype(bound)>>>{}));
-          },
-          [&]() -> Result {
-            return eval_owned_cases_in_order<Result, I + 1>(
-                subject, std::forward<Cases>(cases));
-          });
+      auto on_hit = [&](auto &&bound) -> Result {
+        return static_cast<Result>(invoke_owned_handler(
+            ptn::core::dsl::detail::case_get<I>(
+                std::forward<Cases>(cases)),
+            std::forward<decltype(bound)>(bound),
+            std::make_index_sequence<std::tuple_size_v<
+                std::remove_reference_t<decltype(bound)>>>{}));
+      };
+      auto on_miss = [&]() -> Result {
+        return eval_owned_cases_in_order<Result, I + 1, Filter>(
+            subject, std::forward<Cases>(cases));
+      };
+      if constexpr (owned_case_takes_known_alt<Filter, pattern, S>::
+                        value) {
+        return owned_visit_known_alt<Filter::known_alt>(
+            current.pattern, subject, on_hit, on_miss);
+      }
+      else {
+        return owned_pattern<pattern>::visit(
+            current.pattern, subject, on_hit, on_miss);
+      }
     }
   }
+
+  // Smallest number of alternatives for which an owned variant match
+  // switches on the active alternative; see eval_owned_cases.
+  constexpr std::size_t k_owned_variant_switch_min_alts = 5;
+
+  [[noreturn]] PTN_DETAIL_ALWAYS_INLINE void
+  variant_alt_unreachable() {
+#if defined(__GNUC__) || defined(__clang__)
+    __builtin_unreachable();
+#elif defined(_MSC_VER)
+    __assume(0);
+#endif
+  }
+
+  // Arm of the index switch over the active alternative of an owned
+  // variant subject. Each arm evaluates, in source order, only the
+  // cases that can match its alternative. A variant that is
+  // valueless_by_exception() reports `variant_npos` and lands in
+  // `miss`, which skips the cases that only test the alternative.
+  struct owned_variant_alt_arm {
+    template <std::size_t AltIndex,
+              typename Result,
+              typename S,
+              typename Cases>
+    PTN_DETAIL_ALWAYS_INLINE static constexpr Result
+    hit(S &subject, Cases &&cases) {
+      // The switch has selected this arm on `index()`. Stating it
+      // lets the compiler drop the index tests of the cases below
+      // and the `bad_variant_access` path of their `std::get`, as
+      // long as nothing writes to the subject in between.
+      if (subject.index() != AltIndex) {
+        variant_alt_unreachable();
+      }
+      return eval_owned_cases_in_order<
+          Result,
+          0,
+          owned_cases_for_alt<AltIndex>>(subject,
+                                         std::forward<Cases>(cases));
+    }
+
+    template <typename Result, typename S, typename Cases>
+    PTN_DETAIL_ALWAYS_INLINE static constexpr Result
+    miss(S &subject, Cases &&cases) {
+      return eval_owned_cases_in_order<Result,
+                                       0,
+                                       owned_cases_for_valueless>(
+          subject, std::forward<Cases>(cases));
+    }
+  };
 
   // Runs the literal case that dense literal dispatch or the literal
   // chain selected for an owned subject. A literal case binds
@@ -513,7 +714,10 @@ namespace ptn::core::common::detail {
   // have no guards and no bindings, so jumping straight to the first
   // case with the subject's value is not observable. A run of
   // runtime literals is still compared in order, but through the
-  // same inlined chain as a borrowed subject.
+  // same inlined chain as a borrowed subject. A variant subject
+  // switches on its active alternative and then runs, in source
+  // order, only the cases that can match that alternative; skipping
+  // the others is not observable either.
   template <typename Result, typename S, typename Cases>
   PTN_DETAIL_ALWAYS_INLINE constexpr Result
   eval_owned_cases(S &subject, Cases &&cases) {
@@ -534,6 +738,31 @@ namespace ptn::core::common::detail {
             Result,
             owned_literal_case_entry>(
             subject, std::forward<Cases>(cases), [] {});
+      }
+      else {
+        return eval_owned_cases_in_order<Result>(
+            subject, std::forward<Cases>(cases));
+      }
+    }
+    else if constexpr (plan::kind
+                           == dispatch_plan_kind::variant_simple
+                       || plan::kind
+                              == dispatch_plan_kind::
+                                  variant_alt_bucketed) {
+      // The borrowed path's variant plan, with the owned evaluation
+      // of each case. Up to four alternatives, the cases stay in
+      // source order: compilers already merge those few index tests
+      // well, and Apple Clang 17 lowers a 4-case switch to a tree of
+      // compares where the source-order tests become branchless
+      // selects. Past that, GCC kept one compare per alternative in
+      // source order (15 for 16 alternatives).
+      if constexpr (plan::alt_count
+                        >= k_owned_variant_switch_min_alts
+                    && plan::alt_count <= k_index_switch_max_arms) {
+        return index_switch<plan::alt_count,
+                            Result,
+                            owned_variant_alt_arm>(
+            subject.index(), subject, std::forward<Cases>(cases));
       }
       else {
         return eval_owned_cases_in_order<Result>(

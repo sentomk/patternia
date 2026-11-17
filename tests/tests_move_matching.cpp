@@ -889,3 +889,179 @@ TEST(MoveMatching, OwnedRuntimeLiteralWorksOnAConstSubject) {
       3);
   // NOLINTEND(performance-move-const-arg)
 }
+
+namespace {
+  namespace dispatch = ptn::core::common::detail;
+
+  // `true` if an owned match of `Subject` against `Cases` switches
+  // on the active alternative rather than testing cases in order:
+  // the planner picks a variant plan and the variant has enough
+  // alternatives.
+  template <typename Subject, typename Cases>
+  constexpr bool uses_owned_variant_switch_v = [] {
+    using plan = dispatch::dispatch_plan<Subject,
+                                         typename Cases::tuple_type>;
+    if constexpr (plan::kind
+                      == dispatch::dispatch_plan_kind::variant_simple
+                  || plan::kind
+                         == dispatch::dispatch_plan_kind::
+                             variant_alt_bucketed) {
+      return plan::alt_count
+             >= dispatch::k_owned_variant_switch_min_alts;
+    }
+    else {
+      return false;
+    }
+  }();
+
+  using Mixed = std::variant<int, std::string, double, char, long>;
+
+  auto mixed_cases() {
+    return on(
+        $(is<int>)[_ > 10] >> [](int n) { return n * 10; },
+        is<std::string>(std::string("skip")) >> -2,
+        $(alt<2>) >>
+            [](double d) { return static_cast<int>(d) + 1; },
+        $(is<std::string>) >>
+            [](const std::string &s) {
+              return static_cast<int>(s.size());
+            },
+        $(is<int>) >> [](int n) { return -n; },
+        _ >> 0);
+  }
+} // namespace
+
+TEST(MoveMatching, OwnedVariantSelectsTheSameCaseAsBorrowed) {
+  static_assert(
+      uses_owned_variant_switch_v<Mixed, decltype(mixed_cases())>);
+  const Mixed inputs[] = {Mixed(3),
+                          Mixed(30),
+                          Mixed(std::string("skip")),
+                          Mixed(std::string("abcd")),
+                          Mixed(2.5)};
+  for (const Mixed &input : inputs) {
+    const int borrowed = match(input) | mixed_cases();
+    EXPECT_EQ(match(Mixed(input)) | mixed_cases(), borrowed)
+        << input.index();
+  }
+  EXPECT_EQ(match(Mixed(30)) | mixed_cases(), 300);
+  EXPECT_EQ(match(Mixed(3)) | mixed_cases(), -3);
+  EXPECT_EQ(match(Mixed(std::string("skip"))) | mixed_cases(), -2);
+  EXPECT_EQ(match(Mixed(std::string("abcd"))) | mixed_cases(), 4);
+  EXPECT_EQ(match(Mixed(2.5)) | mixed_cases(), 3);
+}
+
+TEST(MoveMatching, OwnedVariantRunsOnlyTheActiveAlternativesGuards) {
+  int  int_guards = 0;
+  int  str_guards = 0;
+  auto cases      = on(
+      $(is<int>)[([&](int n) { return ++int_guards, n > 5; })] >> 1,
+      $(is<std::string>)[([&](const std::string &) {
+        return ++str_guards, false;
+      })] >> 2,
+      $(is<int>)[([&](int) { return ++int_guards, true; })] >> 3,
+      _ >> 4);
+  static_assert(uses_owned_variant_switch_v<Mixed, decltype(cases)>);
+
+  EXPECT_EQ(match(Mixed(1)) | cases, 3);
+  EXPECT_EQ(int_guards, 2);
+  EXPECT_EQ(str_guards, 0);
+  EXPECT_EQ(match(Mixed(9)) | cases, 1);
+  EXPECT_EQ(int_guards, 3);
+  EXPECT_EQ(match(Mixed(std::string("x"))) | cases, 4);
+  EXPECT_EQ(str_guards, 1);
+  EXPECT_EQ(int_guards, 3);
+  EXPECT_EQ(match(Mixed(1.0)) | cases, 4);
+  EXPECT_EQ(int_guards + str_guards, 4);
+}
+
+TEST(MoveMatching, OwnedVariantMovesTheSelectedAlternativeOnce) {
+  using V = std::variant<int, Tracked, char, double, long>;
+  Counts counts;
+  {
+    const Tracked *seen  = nullptr;
+    auto           cases = on(
+        $(is<int>) >> [](int) { return -1; },
+        $(is<Tracked>)[([&](const Tracked &t) {
+          seen = &t;
+          return t.value > 0;
+        })] >>
+            [&](Tracked &&t) {
+              EXPECT_EQ(&t, seen);
+              Tracked kept(std::move(t));
+              return kept.value;
+            },
+        _ >> 0);
+    static_assert(uses_owned_variant_switch_v<V, decltype(cases)>);
+    EXPECT_EQ(match(V(std::in_place_index<1>, counts, 21)) | cases,
+              21);
+  }
+  EXPECT_EQ(counts.copies, 0);
+  EXPECT_EQ(counts.live, 0);
+
+  using P = std::
+      variant<int, std::unique_ptr<int>, char, double, long>;
+  auto take = on(
+      $(alt<1>)[([](const std::unique_ptr<int> &p) { return !p; })]
+          >> [](std::unique_ptr<int>) { return -1; },
+      $(alt<1>) >> [](std::unique_ptr<int> p) { return *p; },
+      _ >> 0);
+  static_assert(uses_owned_variant_switch_v<P, decltype(take)>);
+  EXPECT_EQ(match(P(std::make_unique<int>(8))) | take, 8);
+}
+
+TEST(MoveMatching, OwnedVariantWithRepeatedAlternativeTypes) {
+  using V    = std::variant<int, int, int, int, int>;
+  auto cases = on(
+      $(alt<1>)[_ > 4] >> [](int n) { return n + 100; },
+      alt<0> >> 1,
+      $(alt<1>) >> [](int n) { return n; },
+      _ >> 0);
+  static_assert(uses_owned_variant_switch_v<V, decltype(cases)>);
+  EXPECT_EQ(match(V(std::in_place_index<0>, 9)) | cases, 1);
+  EXPECT_EQ(match(V(std::in_place_index<1>, 9)) | cases, 109);
+  EXPECT_EQ(match(V(std::in_place_index<1>, 2)) | cases, 2);
+}
+
+TEST(MoveMatching, OwnedValuelessVariantStillRunsOtherCases) {
+  using V = std::
+      variant<std::monostate, ThrowingMove, int, char, double>;
+  V source(std::in_place_index<1>);
+  V subject;
+  EXPECT_THROW(subject = std::move(source), std::runtime_error);
+  ASSERT_TRUE(subject.valueless_by_exception());
+
+  int  seen  = 0;
+  auto cases = on(
+      is<ThrowingMove> >> 1,
+      $[([&](const V &v) {
+        ++seen;
+        return v.valueless_by_exception();
+      })] >>
+          [](V &&) { return 2; },
+      alt<0> >> 3,
+      _ >> 4);
+  static_assert(uses_owned_variant_switch_v<V, decltype(cases)>);
+  EXPECT_EQ(match(std::move(subject)) | cases, 2);
+  EXPECT_EQ(seen, 1);
+  EXPECT_EQ(match(V()) | cases, 3);
+  EXPECT_EQ(seen, 2);
+}
+
+TEST(MoveMatching, OwnedConstVariantKeepsConstBindings) {
+  const Mixed value(std::string("const"));
+  static_assert(uses_owned_variant_switch_v<
+                const Mixed,
+                decltype(on($(is<std::string>) >> 0, _ >> 0))>);
+  // The move is deliberate: it makes the subject a const rvalue.
+  // NOLINTBEGIN(performance-move-const-arg)
+  auto size = match(std::move(value))
+              | on(
+                  $(is<std::string>) >>
+                      [](const std::string &s) {
+                        return static_cast<int>(s.size());
+                      },
+                  _ >> 0);
+  // NOLINTEND(performance-move-const-arg)
+  EXPECT_EQ(size, 5);
+}
