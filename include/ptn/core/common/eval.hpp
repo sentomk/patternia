@@ -100,7 +100,7 @@ namespace ptn::core::common {
     // rvalue exposes rvalue elements without moving the tuple
     // itself.
     template <std::size_t I, typename Tuple>
-    constexpr decltype(auto)
+    PTN_DETAIL_ALWAYS_INLINE constexpr decltype(auto)
     forward_bound_element(std::remove_reference_t<Tuple> &tuple) {
       return std::get<I>(std::forward<Tuple>(tuple));
     }

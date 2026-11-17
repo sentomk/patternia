@@ -182,12 +182,13 @@ endforeach()
 set(PTN_CODEGEN_PROBES
   literal_dense_16:max-branches=4
   literal_dense_64:max-branches=4:reference=ptn_codegen_reference
-  literal_dense_64_owned:max-branches=4
+  literal_dense_64_owned:max-branches=4:max-instructions=40
   literal_runtime_8:max-instructions=60
   literal_runtime_8_owned:max-instructions=60
   literal_sparse_15:max-branches=4:reference=ptn_codegen_reference
   guard_chain:max-instructions=45
   structural_guard:max-instructions=45
+  structural_guard_owned:max-instructions=45:reference=ptn_codegen_reference
   variant_simple_16:max-branches=3
   variant_bind_16:max-branches=3
   variant_owned_16:max-branches=3
