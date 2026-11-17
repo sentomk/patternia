@@ -226,7 +226,13 @@ Planned alongside move semantics, rather than deferred to v0.12:
     functions in the translation unit. The same literal match could
     compile to a table in one file and to a tree of comparisons in
     another.
-  - Planned: static literals.
+  - Implemented: static literals. A dense `val<N>` match indexes the
+    index switch with the subject's offset from the smallest literal,
+    computed in the key's own unsigned width, and the switch's
+    default is the only range check. A separate range check in front
+    of the switch made GCC compare twice: `val<1>` to `val<64>`
+    mapped to themselves now compiles to the same code as the
+    `switch` written by hand on x86-64 GCC 13.
 
 Benchmarks for nested matching stay in v0.12. Optimizations must
 preserve the new ownership contract.

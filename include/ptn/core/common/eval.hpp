@@ -30,34 +30,6 @@ namespace ptn::core::common {
 #define PTN_DETAIL_NOINLINE
 #endif
 
-#define PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE(n)                    \
-  case n:                                                           \
-    return dispatch_static_literal_offset_case<                     \
-        Plan,                                                       \
-        static_cast<std::size_t>(n),                                \
-        Result,                                                     \
-        Entry>(subject,                                             \
-               std::forward<CasesTuple>(cases),                     \
-               std::forward<Otherwise>(otherwise_handler))
-
-#define PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(base)             \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 0);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 1);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 2);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 3);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 4);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 5);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 6);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 7);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 8);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 9);                \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 10);               \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 11);               \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 12);               \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 13);               \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 14);               \
-  PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE((base) + 15)
-
   // SFINAE Helper for C++17
   namespace detail {
     // Helper type to provide void type for SFINAE expressions
@@ -842,60 +814,54 @@ namespace ptn::core::common {
       }
     }
 
-    // Dispatches to the offset-specific handler through a dense jump
-    // table.  The switch is kept small because the lowering analysis
-    // already limits range_size to 512, and the compiler turns a
-    // dense integer switch into a jump table with no call overhead.
-    template <typename Plan,
-              typename Result,
-              typename Entry,
-              typename Subject,
-              typename CasesTuple,
-              typename Otherwise>
-    PTN_DETAIL_ALWAYS_INLINE Result
-    dispatch_static_literal_offset(std::size_t  offset,
-                                   Subject     &subject,
-                                   CasesTuple &&cases,
-                                   Otherwise  &&otherwise_handler) {
-      static_assert(Plan::range_size
-                        <= k_static_literal_dense_dispatch_max_span,
-                    "static literal dense dispatch span exceeds "
-                    "configured limit");
+    // Unsigned type of the key's width, in which a dense literal
+    // plan computes the subject's offset. `bool` has no
+    // std::make_unsigned.
+    template <typename Key, bool = std::is_same_v<Key, bool>>
+    struct static_literal_offset {
+      using type = std::make_unsigned_t<Key>;
+    };
 
-      switch (offset) {
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(0);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(16);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(32);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(48);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(64);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(80);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(96);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(112);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(128);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(144);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(160);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(176);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(192);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(208);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(224);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(240);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(256);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(272);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(288);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(304);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(320);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(336);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(352);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(368);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(384);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(400);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(416);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(432);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(448);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(464);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(480);
-        PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16(496);
-      default:
+    template <typename Key>
+    struct static_literal_offset<Key, true> {
+      using type = unsigned char;
+    };
+
+    template <typename Key>
+    using static_literal_offset_t = typename static_literal_offset<
+        Key>::type;
+
+    // Arm of the index switch over the offset of a dense literal
+    // plan. Every offset in the span selects its case or the
+    // default; an offset outside the span reaches `miss`.
+    template <typename Plan, typename Entry>
+    struct static_literal_offset_arm {
+      template <std::size_t Offset,
+                typename Result,
+                typename Subject,
+                typename CasesTuple,
+                typename Otherwise>
+      PTN_DETAIL_ALWAYS_INLINE static Result
+      hit(Subject     &subject,
+          CasesTuple &&cases,
+          Otherwise  &&otherwise) {
+        return dispatch_static_literal_offset_case<Plan,
+                                                   Offset,
+                                                   Result,
+                                                   Entry>(
+            subject,
+            std::forward<CasesTuple>(cases),
+            std::forward<Otherwise>(otherwise));
+      }
+
+      template <typename Result,
+                typename Subject,
+                typename CasesTuple,
+                typename Otherwise>
+      PTN_DETAIL_ALWAYS_INLINE static Result
+      miss(Subject     &subject,
+           CasesTuple &&cases,
+           Otherwise  &&otherwise) {
         if constexpr (Plan::has_default_case) {
           return Entry::template invoke<
               static_cast<std::size_t>(Plan::default_case_index),
@@ -903,11 +869,21 @@ namespace ptn::core::common {
         }
         else {
           return invoke_otherwise_typed<Result>(
-              subject, std::forward<Otherwise>(otherwise_handler));
+              subject, std::forward<Otherwise>(otherwise));
         }
       }
-    }
+    };
 
+    // Dense literal dispatch: the subject's offset from the smallest
+    // literal indexes a switch with one arm per offset in the span.
+    //
+    // The switch is the only range check. A value below the span
+    // wraps around to a large offset, and any offset past the span
+    // takes the switch's default, like the default of the same
+    // `switch` written by hand. A separate `offset < range_size`
+    // test in front of it made GCC split the first offset off from
+    // the others: a 64-case identity mapping compiled to two
+    // compare-and-branch pairs instead of one compare and a `cmov`.
     template <typename Plan,
               typename Result,
               typename Entry,
@@ -919,31 +895,32 @@ namespace ptn::core::common {
         Subject     &subject,
         CasesTuple &&cases,
         Otherwise  &&otherwise_handler) {
-      using key_t = typename Plan::key_t;
+      static_assert(Plan::range_size
+                        <= k_static_literal_dense_dispatch_max_span,
+                    "static literal dense dispatch span exceeds "
+                    "configured limit");
+      static_assert(Plan::range_size <= k_index_switch_max_arms);
 
-      const key_t value  = static_cast<key_t>(subject);
-      const auto  offset = static_cast<std::size_t>(value)
-                          - static_cast<std::size_t>(
-                              Plan::min_value);
+      using key_t    = typename Plan::key_t;
+      using offset_t = static_literal_offset_t<key_t>;
 
-      if (offset < Plan::range_size) {
-        return dispatch_static_literal_offset<Plan, Result, Entry>(
-            offset,
-            subject,
-            std::forward<CasesTuple>(cases),
-            std::forward<Otherwise>(otherwise_handler));
-      }
+      // Subtract in the key's own unsigned width. The difference
+      // wraps modulo 2^bits, so a value outside the span still lands
+      // outside it. A `size_t` offset made GCC sign-extend the key
+      // and lower `val<1>..val<64>` mapping to themselves with a
+      // branch where the `switch` written by hand gets a `cmov`.
+      const auto offset = static_cast<std::size_t>(
+          static_cast<offset_t>(
+              static_cast<offset_t>(static_cast<key_t>(subject))
+              - static_cast<offset_t>(Plan::min_value)));
 
-      if constexpr (Plan::has_default_case) {
-        return Entry::template invoke<static_cast<std::size_t>(
-                                          Plan::default_case_index),
-                                      Result>(
-            subject, std::forward<CasesTuple>(cases));
-      }
-      else {
-        return invoke_otherwise_typed<Result>(
-            subject, std::forward<Otherwise>(otherwise_handler));
-      }
+      return index_switch<Plan::range_size,
+                          Result,
+                          static_literal_offset_arm<Plan, Entry>>(
+          offset,
+          subject,
+          std::forward<CasesTuple>(cases),
+          std::forward<Otherwise>(otherwise_handler));
     }
 
     template <std::size_t I,
@@ -1523,5 +1500,3 @@ namespace ptn::core::common {
 } // namespace ptn::core::common
 
 #undef PTN_DETAIL_NOINLINE
-#undef PTN_DETAIL_STATIC_LITERAL_SWITCH_BLOCK_16
-#undef PTN_DETAIL_STATIC_LITERAL_SWITCH_CASE
