@@ -27,8 +27,9 @@
 <br>
 
 **Patternia** is a header-only pattern matching library for C++17 and later.
-Match literals, `std::variant` alternatives, and struct members, bind the
-values you need, and guard them, all in one expression:
+Match literals, `std::variant` alternatives and struct members, bind the
+values you need, guard them, and compute the result, all in one
+expression:
 
 ```cpp
 #include <ptn/patternia.hpp>
@@ -40,7 +41,7 @@ using Value = std::variant<int, std::string>;
 
 std::string describe(const Value &v) {
   return match(v) | on(
-    is<int>(lit(0))             >> "zero",
+    is<int>(0)                  >> "zero",
     $(is<int>)[_ < 0]           >> [](int n) { return "negative " + std::to_string(n); },
     $(is<int>)                  >> [](int n) { return "positive " + std::to_string(n); },
     $(is<std::string>)[_ != ""] >> [](const std::string &s) { return "text: " + s; },
@@ -49,39 +50,78 @@ std::string describe(const Value &v) {
 }
 ```
 
-`$(...)` binds the matched value and passes it to the handler, `[...]` is a
-guard that must also hold, and the first matching case wins.
+Cases are tried in order and the first match wins. `$(...)` binds the
+matched value and passes it to the handler, `[...]` is a guard that must
+also hold, and `_` matches anything.
+
+The match is planned at compile time. This one switches on the
+variant's active alternative first and then tries only that
+alternative's cases; a list of integer literals compiles to the same
+code as a hand-written `switch`.
 
 ## Highlights
 
-- **One DSL for many shapes**: runtime and compile-time literals, ASCII
-  case-insensitive strings, struct members, and `std::variant`
-  alternatives (by type or by index).
-- **Expression-oriented**: `match(subject) | on(...)` returns a value;
-  cases are ordered and first-match-wins, with a required `_` fallback.
+- **One DSL for many shapes**: literals (runtime, compile-time and ASCII
+  case-insensitive), struct members, and `std::variant` alternatives by
+  type or by index. Plain values such as `0`, `'a'` or `"hi"` can stand
+  wherever a pattern is expected.
+- **Expressions all the way**: `match(x) | on(...)` returns a value.
+  Guards (`$[_ > 0 && _ < 10]`) and handlers (`$ >> _ * 2`) can be
+  written as expressions over the bound values instead of lambdas.
 - **Explicit binding**: nothing binds implicitly. `$` binds the subject,
   `$(pattern)` binds what a subpattern exposes, and handler parameters
-  follow binding order.
-- **Declarative guards**: `$[_ > 0 && _ < 10]`, `rng(lo, hi)`, named
-  struct-member placeholders via C++17 structured bindings, or any
-  callable.
-- **Pattern algebra**: `any`, `all`, `neg`, with operator sugar
-  `(a || b)`, `(a && b)`, and `!p`.
-- **Compile-time checks**: a missing `_` fallback, unreachable cases,
-  out-of-range `has<...>` indices, and invalid member names are
-  diagnosed at compile time.
-- **Zero-overhead goals**: no RTTI, no virtual dispatch, no heap
-  allocation; static dispatch lowering for compile-time literals and
-  variant cases, and `PTN_ON(...)` to cache case packs on hot paths.
+  follow binding order. Structured bindings give struct members names
+  you can use in guards and handlers.
+- **Owning matches**: `match(std::move(x))` moves the subject into the
+  match. Patterns and guards only look at it; the selected handler can
+  take it over, so move-only types such as `std::unique_ptr` work.
+- **Compile-time checks**: a missing fallback, unreachable cases,
+  out-of-range `has<...>` indices, invalid member names and malformed
+  cases are diagnosed at compile time.
+- **Costs what hand-written code costs**: no RTTI, no virtual dispatch,
+  no heap allocation. Literal and variant matches compile to a `switch`
+  on GCC and Clang, and a codegen check in CI keeps them that way.
 - **No dependencies**: just headers. Packaged for vcpkg and exported as
   a CMake target.
+
+## Performance
+
+A match costs what the same branches cost when written by hand. The case
+list is planned at compile time from the subject's type and the patterns:
+
+| Case list | Compiles to |
+|---|---|
+| `val<N>` literals close together, on an integer | A `switch` on the subject's offset: one compare, then a table |
+| `lit(v)` literals, on an integer or enum | Comparisons that pick a case index, then the same `switch` |
+| `std::variant` alternatives, any mix of cases | A `switch` on `index()`, then only that alternative's cases (an owned variant needs five or more alternatives) |
+| Anything else | The cases in order, like an `if` chain |
+
+Measured time per match in ns (v0.9.6, Apple M5 Pro, Apple Clang 17,
+`-O2`; lower is better):
+
+| Scenario | Patternia | Hand-written | `std::visit` |
+|---|---:|---:|---:|
+| 64 dense integer literals | 0.92 | 0.92 (`switch`) | — |
+| 32-alternative variant | 0.90 | 0.91 (`switch` on `index()`) | — |
+| 16-alternative event variant | 1.31 | 1.32 | 2.19 |
+| Protocol router (variant with guards) | 0.89 | 0.83 (`if` chain) | 1.00 |
+| Packet classification (struct members, guards) | 1.15 | 1.56 (`switch`) | — |
+
+`scripts/check_codegen.py` compiles representative matches in CI and fails
+when one makes a call, touches the stack or grows past a hand-written
+reference. The [Performance Tuning guide](https://patternia.cc/guide/performance-tuning/)
+explains which matches take which path; the
+[Performance Notes](https://patternia.cc/performance/) have per-release
+measurements, GCC results and methods, and the
+[benchmark report](https://github.com/sentomk/patternia/blob/bench-charts/latest.md)
+is updated by CI on every push to `main`.
 
 ## Quick Tour
 
 All examples assume `#include <ptn/patternia.hpp>`, the standard headers
 they use, and `using namespace ptn;`.
 
-### Literals and value guards
+### Literals, guards and expressions
 
 ```cpp
 const char *bucket(int x) {
@@ -93,26 +133,43 @@ const char *bucket(int x) {
   );
 }
 
-int classify(int x) {
-  return match(x) | on(
-    lit(0) >> 0,   // runtime literal
-    val<1> >> 1,   // compile-time literal (eligible for static dispatch)
-    _      >> -1   // required fallback
+int collatz_step(int n) {
+  return match(n) | on(
+    $[_ % 2 == 0] >> _ / 2,
+    $             >> (_ * 3 + 1)   // `$` alone can be the last case
   );
 }
 
-int greet(const std::string &s) {
+int operand_count(int opcode) {
+  return match(opcode) | on(
+    val<0x00> >> 0,   // compile-time literals close together
+    val<0x01> >> 2,   // compile to a jump table
+    val<0x02> >> 2,
+    val<0x03> >> 1,
+    val<0x05> >> 1,
+    _         >> -1
+  );
+}
+
+bool is_greeting(const std::string &s) {
   return match(s) | on(
-    lit_ci("hello") >> 1,   // ASCII case-insensitive
-    _               >> 0
+    lit_ci("hello") >> true,   // ASCII case-insensitive
+    _               >> false
   );
 }
 ```
 
+`lit(v)` compares against a value known at run time; `val<V>` puts the
+value in the type, so the planner can build a table from it.
+
+In a handler, comparisons need parentheses (`$ >> (_ > 0)`), because C++
+gives `>>` higher precedence. GCC's `-Wall` also asks for them around
+`+` and `-`, as in `(_ * 3 + 1)` above.
+
 ### Structs
 
-`has<&T::member...>` describes structure; wrap it in `$(...)` to pass the
-listed members to the handler, in the order you list them.
+`has<&T::member...>` describes structure. Wrap it in `$(...)` to pass the
+listed members to the handler, in the order you list them:
 
 ```cpp
 struct Point { int x; int y; };
@@ -127,62 +184,113 @@ int magnitude2(const Point &p) {
 }
 ```
 
-### Named placeholders in guards
-
-A `has<...>` pattern is tuple-like, so a C++17 structured binding gives its
-members names you can use directly in guard expressions:
+A `has<...>` pattern is tuple-like, so a C++17 structured binding gives
+its members names. Use them in guards and in handlers:
 
 ```cpp
-struct Point { int x; int y; };
-
 constexpr auto pt = has<&Point::x, &Point::y>;
 auto [x, y] = pt;   // placeholders, not values
 
-bool on_circle_radius5(const Point &p) {
+int quadrant(const Point &p) {
   return match(p) | on(
-    $(pt)[x * x + y * y == 25] >> true,
-    _                          >> false
+    $(pt)[x == 0 || y == 0] >> 0,
+    $(pt)[x > 0 && y > 0]   >> 1,
+    $(pt)[x < 0 && y > 0]   >> 2,
+    $(pt)[x < 0]            >> 3,
+    _                       >> 4
+  );
+}
+
+int manhattan(const Point &p) {
+  return match(p) | on(
+    $(pt)[x >= 0 && y >= 0] >> (x + y),
+    $(pt)                   >> [](int px, int py) {
+      return (px < 0 ? -px : px) + (py < 0 ? -py : py);
+    },
+    _ >> 0
   );
 }
 ```
 
 ### `std::variant`
 
-Match an alternative by type with `is<T>` or by index with `alt<I>`; wrap it
-in `$(...)` to pass the held value to the handler (see the example at the top).
+Match an alternative by type with `is<T>` or by index with `alt<I>`. Wrap
+it in `$(...)` to pass the held value to the handler, and give it a
+subpattern to look inside:
 
 ```cpp
 using Value = std::variant<int, std::string>;
 
 const char *kind(const Value &v) {
   return match(v) | on(
-    is<int> >> "int",      // by type
-    alt<1>  >> "string",   // by index
-    _       >> "other"
+    is<int>(0)         >> "int zero",
+    is<int>            >> "int",      // by type
+    alt<1>("")         >> "empty string",
+    alt<1>             >> "string",   // by index
+    _                  >> "valueless"
+  );
+}
+
+int doubled(const Value &v) {
+  return match(v) | on(
+    $(is<int>) >> _ * 2,
+    _          >> 0
   );
 }
 ```
+
+A variant match switches on `index()` first and then tries only the cases
+that can match that alternative.
 
 ### Combinators
 
 ```cpp
 const char *char_kind(char c) {
   return match(c) | on(
-    any(lit('a'), lit('e'), lit('i'), lit('o'), lit('u')) >> "vowel",
-    (lit(' ') || lit('\n')) >> "whitespace",   // same as any(...)
-    !lit('\0')              >> "other",        // same as neg(...)
-    _                       >> "end"
+    any('a', 'e', 'i', 'o', 'u') >> "vowel",
+    (lit(' ') || '\n')           >> "whitespace",   // same as any(...)
+    !lit('\0')                   >> "other",        // same as neg(...)
+    _                            >> "end"
   );
 }
 ```
 
 `>>` binds tighter than `||` and `&&`, so combined patterns need
-parentheses; unary `!` does not.
+parentheses; unary `!` does not. `!` needs a pattern operand
+(`!lit('\0')`, or `neg('\0')`), because `!` on a plain `char` is the
+built-in operator.
+
+### Owning the subject
+
+An lvalue subject is borrowed: patterns, guards and handlers see it
+through `const` references. An rvalue is owned: `match(std::move(x))` or
+`match(make_x())` moves it into the match. Guards still only look at it,
+a rejected case leaves it intact, and the handler of the selected case
+receives it by value:
+
+```cpp
+struct Job { int priority; };
+void run(std::unique_ptr<Job> job);
+void queue(std::unique_ptr<Job> job);
+
+void schedule(std::unique_ptr<Job> job) {
+  match(std::move(job)) | on(
+    $[([](const auto &j) { return j && j->priority > 5; })]
+      >> [](std::unique_ptr<Job> j) { run(std::move(j)); },
+    $ >> [](std::unique_ptr<Job> j) { queue(std::move(j)); }
+  );
+}
+```
+
+The same holds inside variants (`$(is<T>)` hands over the alternative)
+and struct members. Owned matches use the same compiled dispatch as
+borrowed ones, except that an owned variant with four or fewer
+alternatives is matched in source order.
 
 ### Putting it together: event dispatch
 
-Variant dispatch, structural binding, named-field guards, and a combinator in
-one match:
+Variant dispatch, structural binding, named-field guards and a combinator
+in one match:
 
 ```cpp
 struct Click  { int x, y; };
@@ -193,14 +301,14 @@ using Event = std::variant<Click, Key, Resize, Quit>;
 
 constexpr auto click = has<&Click::x, &Click::y>;
 constexpr auto key   = has<&Key::code, &Key::ctrl>;
-auto [x, y]       = click;   // name the fields once,
+auto [cx, cy]     = click;   // name the fields once,
 auto [code, ctrl] = key;     // then use them in guards
 
 std::string handle(const Event &e) {
   return match(e) | on(
-    is<Click>($(click))[x < 0 || y < 0]         >> "click outside",
-    is<Click>($(click)) >> [](int cx, int cy) {
-      return "click at " + std::to_string(cx) + "," + std::to_string(cy);
+    is<Click>($(click))[cx < 0 || cy < 0]       >> "click outside",
+    is<Click>($(click)) >> [](int x, int y) {
+      return "click at " + std::to_string(x) + "," + std::to_string(y);
     },
     is<Key>($(key))[ctrl == true && code == 'q'] >> "quit",
     (is<Resize> || is<Quit>)                     >> "window event",
@@ -209,10 +317,19 @@ std::string handle(const Event &e) {
 }
 ```
 
-### Cached case packs for hot paths
+### Reusing case lists
 
-`PTN_ON(...)` wraps `static_on(...)` so the matcher is built once instead
-of on every call:
+A case list is a value. Keep one in a `constexpr` (or `static const`)
+variable to build it once and reuse it:
+
+```cpp
+constexpr auto parity = on(val<0> >> "even", val<1> >> "odd", _ >> "?");
+
+const char *parity_of(int n) { return match(n % 2) | parity; }
+```
+
+`PTN_ON(...)` does the same inline, caching the list in a function-local
+static on the first call:
 
 ```cpp
 int fast_classify(int x) {
@@ -224,6 +341,10 @@ int fast_classify(int x) {
 }
 ```
 
+Caching matters when building the cases does work, such as constructing a
+`std::string`. With integers and captureless lambdas, the compiler folds
+`on(...)` away on its own.
+
 `PTN_ON` uses a captureless lambda, so function-local structured-binding
 names are not visible inside it. Declare the pattern and its names at
 namespace scope (as above), use `static` declarations in C++20, or keep the
@@ -234,16 +355,16 @@ deprecated `PTN_BIND` in C++17. See
 
 | Construct | Meaning |
 |---|---|
-| `match(subject)` | Starts a match on an lvalue subject. |
-| `on(cases...)` | Ordered case list; the last case must be the `_` fallback. |
-| `pattern >> handler` | One case. The handler is a value or a callable. |
-| `_` | Wildcard / fallback, and the single-value guard placeholder. |
-| `lit(v)`, `val<V>`, `lit_ci(s)` | Runtime, compile-time, and ASCII case-insensitive literals. |
+| `match(subject)` | Starts a match. An lvalue subject is borrowed; an rvalue is moved in and owned. |
+| `on(cases...)` | Ordered case list. The last case must be `_` or an unguarded `$`. |
+| `pattern >> handler` | One case. The handler is a value, a callable, or an expression over the bound values. |
+| `_` | Wildcard and fallback; inside guards and expression handlers, the first bound value. |
+| `lit(v)`, `val<V>`, `lit_ci(s)` | Runtime, compile-time and ASCII case-insensitive literals. A plain value inside a pattern means `lit(value)`. |
 | `$`, `$(p)` | Bind the whole subject, or the values exposed by subpattern `p`. |
 | `p[guard]` | Run `guard` after `p` matches and binds; failure falls through to the next case. |
 | `rng(lo, hi[, mode])` | Range guard helper. |
-| `has<&T::m...>` | Structural pattern over the listed data members. |
-| `is<T>`, `alt<I>` | `std::variant` alternative by type or by index. |
+| `has<&T::m...>` | Structural pattern over the listed data members; tuple-like for named placeholders. |
+| `is<T>`, `alt<I>` | `std::variant` alternative by type or by index, optionally with a subpattern. |
 | `any`, `all`, `neg` | Pattern combinators (`\|\|`, `&&`, `!`). |
 | `static_on`, `PTN_ON` | Cached case packs. |
 
@@ -333,19 +454,6 @@ indexing target for top-level builds, not installed; on by default), and
 `PTN_SKIP_COMPILER_CHECK`. Tests, samples, and benchmarks are on by
 default only when Patternia is the top-level project.
 
-## Performance
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/sentomk/patternia/bench-charts/latest.png" alt="Patternia benchmark comparison" width="90%">
-</p>
-
-<p align="center"><em>Patternia gap map across key scenarios. Each row is normalized to the fastest implementation in that scenario.</em></p>
-
-See the [Performance Notes](https://patternia.cc/performance/) for full
-reports, methodology, and per-version results, and the
-[Performance Tuning guide](https://patternia.cc/guide/performance-tuning/)
-for hot-path advice.
-
 ## Documentation
 
 - [Getting Started](https://patternia.cc/guide/getting-started/)
@@ -353,6 +461,7 @@ for hot-path advice.
 - [API Reference](https://patternia.cc/api/)
 - [Design Overview](https://patternia.cc/design-overview/)
 - [Tutorials](https://patternia.cc/tutorials/from-control-flow/)
+- [Performance Tuning](https://patternia.cc/guide/performance-tuning/)
 - [Performance Notes](https://patternia.cc/performance/)
 - [Release Notes](https://patternia.cc/changelog/releases/)
 - [Samples](samples/)
