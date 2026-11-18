@@ -52,16 +52,6 @@ function(PTN_GENERATE_DUMMY_SOURCE OUT_ABS_PATH)
   set(${OUT_ABS_PATH} "${_path}" PARENT_SCOPE)
 endfunction()
 
-function(PTN_JOIN_HEADERS OUT_VAR)
-  set(_accum)
-
-  foreach(_h IN LISTS ARGN)
-    list(APPEND _accum "${_h}")
-  endforeach()
-
-  set(${OUT_VAR} "${_accum}" PARENT_SCOPE)
-endfunction()
-
 # ========== Master project detection and defaulted options ==========
 PTN_IS_MASTER_PROJECT(_PTN_MASTER_PROJECT)
 PTN_SET_IF_UNDEFINED(PTN_MASTER_PROJECT ${_PTN_MASTER_PROJECT})
@@ -76,52 +66,15 @@ option(PTN_DEV_INDEX "Create local indexable target for IDEs (not installed)" ON
 option(PTN_SKIP_COMPILER_CHECK "Skip compiler version check" OFF)
 
 # ========== Public headers ==========
-PTN_JOIN_HEADERS(PTN_HEADERS
-  include/ptn/patternia.hpp
-
-  # Core Layer
-  include/ptn/core/fwd.h
-  include/ptn/core/common/common_traits.hpp
-  include/ptn/core/common/diagnostics.hpp
-  include/ptn/core/common/eval.hpp
-  include/ptn/core/common/optimize.hpp
-  include/ptn/core/engine/match.hpp
-  include/ptn/core/engine/detail/pipeline_match_context.hpp
-  include/ptn/core/engine/detail/match_impl.hpp
-  include/ptn/core/dsl/case_expr.hpp
-  include/ptn/core/dsl/ops.hpp
-  include/ptn/core/dsl/detail/case_expr_impl.hpp
-  include/ptn/core/dsl/detail/expression_handler.hpp
-
-  # Meta Utils
-  include/ptn/meta/meta.hpp
-  include/ptn/meta/base/traits.hpp
-  include/ptn/meta/dsa/algorithms.hpp
-  include/ptn/meta/dsa/type_list.hpp
-  include/ptn/meta/query/index.hpp
-  include/ptn/meta/query/template_info.hpp
-
-  # Pattern Base
-  include/ptn/pattern/base/fwd.h
-  include/ptn/pattern/base/binding_base.hpp
-  include/ptn/pattern/base/binding_traits.hpp
-  include/ptn/pattern/base/pattern_base.hpp
-  include/ptn/pattern/base/pattern_kind.hpp
-  include/ptn/pattern/base/pattern_traits.hpp
-
-  # Pattern Module Headers
-  include/ptn/pattern/lit.hpp
-  include/ptn/pattern/bind.hpp
-  include/ptn/pattern/type.hpp
-  include/ptn/pattern/wildcard.hpp
-  include/ptn/pattern/structural.hpp
-  include/ptn/pattern/combinator.hpp
-  include/ptn/pattern/pred.hpp
-  include/ptn/pattern/negation.hpp
-  include/ptn/pattern/modifiers/guard.hpp
-  include/ptn/pattern/modifiers/placeholder.hpp
-  include/ptn/pattern/modifiers/fwd.h
+# Collected from the tree so that every header is installed. A
+# hand-written list missed four headers in v0.9.6.
+file(GLOB_RECURSE PTN_HEADERS
+  CONFIGURE_DEPENDS
+  RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/ptn/*.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/ptn/*.h"
 )
+list(SORT PTN_HEADERS)
 
 # ========== Public interface target ==========
 add_library(patternia INTERFACE)
