@@ -229,3 +229,21 @@ if(Python3_Interpreter_FOUND
     )
   endforeach()
 endif()
+
+# Install the package into a scratch prefix and build a consumer
+# against it with find_package(), so a header left out of the install
+# fails here rather than for users of the package.
+if(PTN_INSTALL AND NOT CMAKE_VERSION VERSION_LESS 3.15)
+  add_test(
+    NAME install.consumer
+    COMMAND
+      ${CMAKE_COMMAND}
+      -DBUILD_DIR=${PROJECT_BINARY_DIR}
+      -DSOURCE_DIR=${PROJECT_SOURCE_DIR}
+      -DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/install_test
+      -DCXX_COMPILER=${CMAKE_CXX_COMPILER}
+      "-DGENERATOR=${CMAKE_GENERATOR}"
+      -DCONFIG=$<CONFIG>
+      -P ${CMAKE_CURRENT_LIST_DIR}/install/run_install_test.cmake
+  )
+endif()
