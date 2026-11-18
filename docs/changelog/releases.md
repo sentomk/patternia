@@ -5,6 +5,7 @@ normalized where necessary so examples reflect the current supported API
 surface.
 
 ## 0.9.x
+- [v0.9.7](v0.9.7.md) - November 2026 (Hotfix)
 - [v0.9.6](v0.9.6.md) - November 2026
 - [v0.9.5](v0.9.5.md) - October 2026
 - [v0.9.4](v0.9.4.md) - August 2026

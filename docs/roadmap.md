@@ -32,7 +32,7 @@ Feedback on any item is welcome in
 
 | Version | Main additions |
 |---|---|
-| v0.9.7 | Explicit result types and lazy construction/function expressions |
+| v0.9.8 | Explicit result types and lazy construction/function expressions |
 | v0.10 | Exhaustiveness, checked intervals, and complete enum domains |
 | v0.11 | Nested patterns, multiple subjects, and structural coverage |
 | v0.12 | Broader performance work, reflection, and positional constructor patterns |
@@ -43,7 +43,7 @@ delivery dependencies, not claims that the planned APIs exist today.
 
 ---
 
-## v0.9.7 — Result types and lazy expressions { data-toc-label="v0.9.7" }
+## v0.9.8 — Result types and lazy expressions { data-toc-label="v0.9.8" }
 
 **Status:** Planned
 
@@ -525,7 +525,7 @@ concrete use case first.
   `array`.
 - **Conditional expression handlers.** `iif(cond, a, b)` would evaluate
   only the chosen expression. Calls and construction are scheduled for
-  v0.9.7; conditional evaluation still needs a concrete use case.
+  v0.9.8; conditional evaluation still needs a concrete use case.
 - **More value types on the left of `>>`.** Accepting any
   equality-comparable type, not only arithmetic, enum and string
   types.
@@ -546,6 +546,7 @@ Recent releases. Earlier versions are in the
 
 | Version | Highlights |
 |---|---|
+| [v0.9.7](changelog/v0.9.7.md) | Hotfix: the installed package includes every header (v0.9.6 left four out) |
 | [v0.9.6](changelog/v0.9.6.md) | `$` as the final fallback; expression handlers; plain values inside patterns; `match(std::move(x))` owns the subject; literal and variant matches compile like a hand-written `switch` on GCC |
 | [v0.9.5](changelog/v0.9.5.md) | `has<...>` is tuple-like for macro-free member names; `PTN_BIND` deprecated; bare `is<T>` / `alt<I>` reach static dispatch; handler classification no longer instantiates generic lambdas |
 | [v0.9.4](changelog/v0.9.4.md) | `PTN_BIND` member-anchored guard names; operator sugar for `neg`, `any` and `all` |
