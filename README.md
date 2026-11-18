@@ -20,7 +20,7 @@
 [![License](https://img.shields.io/github/license/SentoMK/patternia?style=flat-square)](LICENSE)
 [![Version](https://img.shields.io/github/v/release/SentoMK/patternia?style=flat-square&color=orange)](https://github.com/SentoMK/patternia/releases)
 [![Coverage](https://img.shields.io/codecov/c/github/SentoMK/patternia?style=flat-square&branch=main)](https://codecov.io/gh/SentoMK/patternia)
-[![Docs](https://img.shields.io/badge/docs-online-blue?style=flat-square)](https://patternia.tech)
+[![Docs](https://img.shields.io/badge/docs-online-blue?style=flat-square)](https://patternia.cc)
 
 </div>
 
@@ -228,7 +228,7 @@ int fast_classify(int x) {
 names are not visible inside it. Declare the pattern and its names at
 namespace scope (as above), use `static` declarations in C++20, or keep the
 deprecated `PTN_BIND` in C++17. See
-[Scope and cached matchers](https://patternia.tech/api/#scope-and-cached-matchers).
+[Scope and cached matchers](https://patternia.cc/api/#scope-and-cached-matchers).
 
 ## Core Concepts
 
@@ -247,7 +247,7 @@ deprecated `PTN_BIND` in C++17. See
 | `any`, `all`, `neg` | Pattern combinators (`\|\|`, `&&`, `!`). |
 | `static_on`, `PTN_ON` | Cached case packs. |
 
-The full reference is in the [API documentation](https://patternia.tech/api/).
+The full reference is in the [API documentation](https://patternia.cc/api/).
 
 ## Requirements
 
@@ -316,7 +316,7 @@ Add the repository as a subdirectory (for example a Git submodule) with
 `add_subdirectory(extern/patternia)`, or simply put `include/` on your
 include path and `#include <ptn/patternia.hpp>`.
 
-See the [Installation Guide](https://patternia.tech/guide/installation/)
+See the [Installation Guide](https://patternia.cc/guide/installation/)
 for CPM.cmake, vcpkg manifest mode, and more detail.
 
 ## Building the Tests
@@ -341,20 +341,20 @@ default only when Patternia is the top-level project.
 
 <p align="center"><em>Patternia gap map across key scenarios. Each row is normalized to the fastest implementation in that scenario.</em></p>
 
-See the [Performance Notes](https://patternia.tech/performance/) for full
+See the [Performance Notes](https://patternia.cc/performance/) for full
 reports, methodology, and per-version results, and the
-[Performance Tuning guide](https://patternia.tech/guide/performance-tuning/)
+[Performance Tuning guide](https://patternia.cc/guide/performance-tuning/)
 for hot-path advice.
 
 ## Documentation
 
-- [Getting Started](https://patternia.tech/guide/getting-started/)
-- [Installation](https://patternia.tech/guide/installation/)
-- [API Reference](https://patternia.tech/api/)
-- [Design Overview](https://patternia.tech/design-overview/)
-- [Tutorials](https://patternia.tech/tutorials/from-control-flow/)
-- [Performance Notes](https://patternia.tech/performance/)
-- [Release Notes](https://patternia.tech/changelog/releases/)
+- [Getting Started](https://patternia.cc/guide/getting-started/)
+- [Installation](https://patternia.cc/guide/installation/)
+- [API Reference](https://patternia.cc/api/)
+- [Design Overview](https://patternia.cc/design-overview/)
+- [Tutorials](https://patternia.cc/tutorials/from-control-flow/)
+- [Performance Notes](https://patternia.cc/performance/)
+- [Release Notes](https://patternia.cc/changelog/releases/)
 - [Samples](samples/)
 
 ## Contributing
