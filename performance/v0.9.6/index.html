@@ -1,0 +1,2530 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Patternia — expressive pattern matching for modern C++.">
+      
+      
+        <meta name="author" content="Y.F. Guo">
+      
+      
+        <link rel="canonical" href="https://sentomk.github.io/patternia/performance/v0.9.6/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../v0.9.5/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>v0.9.6 - Patternia</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../overrides/styles.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#patternia-performance-v096" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Patternia" class="md-header__button md-logo" aria-label="Patternia" data-md-component="logo">
+      
+  <img src="../../assets/favicon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Patternia
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              v0.9.6
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sentomk/patternia" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sentomk/patternia
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/from-control-flow/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guide/getting-started/" class="md-tabs__link">
+          
+  
+  
+  Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+  Performance
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../changelog/releases/" class="md-tabs__link">
+          
+  
+  
+  Changelog
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../roadmap/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Roadmap
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Patternia" class="md-nav__button md-logo" aria-label="Patternia" data-md-component="logo">
+      
+  <img src="../../assets/favicon.svg" alt="logo">
+
+    </a>
+    Patternia
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sentomk/patternia" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sentomk/patternia
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/from-control-flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From Control Flow to Pattern Matching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/other-languages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pattern Matching in Other Languages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/predicate-guards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Predicate Guards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/policy-constraint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Example - Policy Constraint Matching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/sphere-constraint/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Example - Geometric Constraint Matching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/performance-tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance Tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Patternia API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Performance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.6
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.6
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generated-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generated code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run time
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Run time">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#apple-clang" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Apple Clang
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gcc-in-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GCC in CI
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#owned-subjects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Owned subjects
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debug-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debug information
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#outcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Outcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.9.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.9.3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Changelog
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/releases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Releases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.9.6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.6
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.9.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.9.4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.4
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.9.3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.9.2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.9.1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.9.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.8.5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.8.3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.8.2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.8.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.8.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generated-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generated code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run time
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Run time">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#apple-clang" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Apple Clang
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gcc-in-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GCC in CI
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#owned-subjects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Owned subjects
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debug-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debug information
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Methods
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#outcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Outcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="patternia-performance-v096">Patternia Performance - v0.9.6<a class="headerlink" href="#patternia-performance-v096" title="Permanent link">&para;</a></h1>
+<p><strong>Published</strong>: November 2026</p>
+<p><strong>Focus</strong>: One <code>switch</code> for every keyed match, on GCC as well as Clang,
+for borrowed and owned subjects, with less debug information.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Before v0.9.6, each kind of keyed match had its own lowering. Dense
+<code>val&lt;N&gt;</code> literals used a table of function pointers or a recursive
+comparison tree, <code>lit(...)</code> literals used a chain of comparisons, and
+variant alternatives used a comparison chain or a function-pointer
+table depending on the number of alternatives. Clang usually folded
+these into good code. GCC often did not: whether it inlined the
+dispatch depended on its size estimates and on the order of functions
+in the translation unit, and when it did not, the case pack was written
+to the stack and every comparison stayed a branch.</p>
+<p>v0.9.6 lowers every keyed plan to the same shape. The plan computes a
+small integer (the literal's offset, the index of the first matching
+<code>lit</code>, or the variant's <code>index()</code>), and one <code>index_visit</code> <code>switch</code> over
+that integer runs the selected case. Every function on that path is
+always inlined. On x86-64 the result is the code of a hand-written
+<code>switch</code> with GCC 11 and 13 and Clang 14 and 18, and the codegen gate in
+CTest keeps it that way.</p>
+<p>The release also introduces owned subjects (<code>match(std::move(x))</code>).
+They use the same plans as borrowed subjects, so moving a subject into
+a match does not cost a slower dispatch.</p>
+<h2 id="changes">Changes<a class="headerlink" href="#changes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Pull request</th>
+<th>Change</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/sentomk/patternia/pull/93">#93</a></td>
+<td>Store the case pack in a type whose accessors are always inlined</td>
+<td>GCC no longer writes the case pack to the stack when a function's position in the file changes its inlining budget</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sentomk/patternia/pull/94">#94</a></td>
+<td>Owned subjects use the dense-literal plan</td>
+<td>An owned <code>val&lt;N&gt;</code> match compiles like a borrowed one</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sentomk/patternia/pull/97">#97</a></td>
+<td>Variant alternatives dispatch through a <code>switch</code> on <code>index()</code></td>
+<td>Replaces the comparison chain (few alternatives) and the function-pointer table (many)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sentomk/patternia/pull/98">#98</a></td>
+<td><code>PTN_ON</code> and <code>static_on</code> cache stateless case packs as <code>const</code></td>
+<td>GCC builds a lookup table instead of a jump table through a mutable static</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sentomk/patternia/pull/99">#99</a></td>
+<td>Inline the <code>lit(...)</code> comparison chain for owned subjects</td>
+<td>Owned literal matches lose their remaining call</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sentomk/patternia/pull/100">#100</a></td>
+<td>Inside a variant arm, cases that only test the alternative are not tested again</td>
+<td>One <code>switch</code>, then the handler</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sentomk/patternia/pull/102">#102</a></td>
+<td><code>lit(...)</code> lists compute the first matching index with comparisons that each yield a constant, then <code>switch</code> on it</td>
+<td>GCC turns 15 sparse literals from 14 branches into a table lookup</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sentomk/patternia/pull/103">#103</a></td>
+<td>Dense <code>val&lt;N&gt;</code> literals go through the same <code>index_visit</code> <code>switch</code></td>
+<td>Replaces the comparison tree that GCC left as branches</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sentomk/patternia/pull/104">#104</a></td>
+<td>Owned variants with five or more alternatives switch on the active alternative</td>
+<td>Owned variant matches stop testing alternatives one by one</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sentomk/patternia/pull/105">#105</a></td>
+<td>Always inline the owned evaluation path</td>
+<td>Owned matches on Apple Clang reach hand-written speed</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sentomk/patternia/pull/106">#106</a></td>
+<td>Keep the case pack's type out of the names of per-case templates</td>
+<td>GCC debug information shrinks about 8×</td>
+</tr>
+</tbody>
+</table>
+<p>The plans and their thresholds are described in
+<a href="../../guide/performance-tuning/">Performance Tuning</a>.</p>
+<h2 id="generated-code">Generated code<a class="headerlink" href="#generated-code" title="Permanent link">&para;</a></h2>
+<p>Instructions in the probe function at <code>-O2</code> on x86-64, from Compiler
+Explorer, v0.9.5 → v0.9.6. "b" counts conditional branches. The
+reference is the same logic written by hand in the same file
+(<code>switch</code>, <code>if</code> chain or <code>std::visit</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Probe</th>
+<th>GCC 13.3</th>
+<th>Clang 18.1</th>
+<th>Reference (GCC / Clang)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>16 dense <code>val&lt;N&gt;</code></td>
+<td>38/1b → 6/0b</td>
+<td>46/1b → 6/0b</td>
+<td>—</td>
+</tr>
+<tr>
+<td>64 dense <code>val&lt;N&gt;</code></td>
+<td>134/1b → 7/1b</td>
+<td>144/1b → 6/0b</td>
+<td>6 / 6</td>
+</tr>
+<tr>
+<td>64 dense <code>val&lt;N&gt;</code>, cached pack</td>
+<td>134/1b → 7/1b</td>
+<td>15/1b → 6/0b</td>
+<td>7 / 6</td>
+</tr>
+<tr>
+<td>8 <code>lit(...)</code></td>
+<td>26/7b → 7/1b</td>
+<td>10/0b → 7/0b</td>
+<td>—</td>
+</tr>
+<tr>
+<td>15 sparse <code>lit(...)</code></td>
+<td>47/14b → 6/1b</td>
+<td>40/1b → 39/1b</td>
+<td>7 / 39</td>
+</tr>
+<tr>
+<td>16-alternative variant, <code>is&lt;T&gt;</code></td>
+<td>59/8b → 8/1b</td>
+<td>80/4b → 7/1b</td>
+<td>—</td>
+</tr>
+<tr>
+<td>16-alternative variant, cached</td>
+<td>52/8b → 7/1b</td>
+<td>47/4b → 7/1b</td>
+<td>8 / 7</td>
+</tr>
+<tr>
+<td>16-alternative variant, <code>$(is&lt;T&gt;)</code> bindings</td>
+<td>61/8b → 55/1b</td>
+<td>99/22b → 8/1b</td>
+<td>—</td>
+</tr>
+<tr>
+<td>2-alternative variant with a guard</td>
+<td>18/2b → 17/2b</td>
+<td>18/2b → 18/2b</td>
+<td>17 / 17</td>
+</tr>
+</tbody>
+</table>
+<p>GCC 11.4 and Clang 14 give the same picture, except that GCC 11 keeps
+two branches for the 8-literal and sparse cases (11/2b and 10/2b).
+Clang already compiled the sparse list to a table in v0.9.5, so it
+does not change. The probes that use v0.9.6 features (owned subjects,
+expression guards) have no v0.9.5 counterpart; they are all within a
+few instructions of their reference.</p>
+<h2 id="run-time">Run time<a class="headerlink" href="#run-time" title="Permanent link">&para;</a></h2>
+<h3 id="apple-clang">Apple Clang<a class="headerlink" href="#apple-clang" title="Permanent link">&para;</a></h3>
+<p>Apple M5 Pro, Apple clang 17.0.0, <code>-std=c++17 -O2 -DNDEBUG</code>. The same
+benchmark sources (<code>bench/bench_suite.cpp</code>, <code>bench/bench_scale.cpp</code>)
+were built against the <code>v0.9.5</code> headers and the v0.9.6 headers. Each
+benchmark is the median of 20 repetitions; the table gives the median
+of three process runs, alternating versions. Times are ns per match.</p>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>v0.9.5</th>
+<th>v0.9.6</th>
+<th>Hand-written</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>16 dense <code>val&lt;N&gt;</code></td>
+<td>1.92</td>
+<td>0.92</td>
+<td>0.92 (<code>switch</code>)</td>
+</tr>
+<tr>
+<td>32 dense <code>val&lt;N&gt;</code></td>
+<td>3.01</td>
+<td>0.91</td>
+<td>0.92</td>
+</tr>
+<tr>
+<td>64 dense <code>val&lt;N&gt;</code></td>
+<td>5.21</td>
+<td>0.92</td>
+<td>0.92</td>
+</tr>
+<tr>
+<td>128 dense <code>val&lt;N&gt;</code>, <code>on(...)</code></td>
+<td>8.92</td>
+<td>0.94</td>
+<td>0.92</td>
+</tr>
+<tr>
+<td>128 dense <code>val&lt;N&gt;</code>, <code>PTN_ON</code></td>
+<td>0.97</td>
+<td>0.94</td>
+<td>0.92</td>
+</tr>
+<tr>
+<td><code>lit(...)</code> list</td>
+<td>0.93</td>
+<td>0.92</td>
+<td>0.92</td>
+</tr>
+<tr>
+<td>32-alternative variant</td>
+<td>3.38</td>
+<td>0.90</td>
+<td>0.91 (<code>switch</code> on <code>index()</code>)</td>
+</tr>
+<tr>
+<td>32-alternative variant, cached pack</td>
+<td>2.60</td>
+<td>0.93</td>
+<td>0.91</td>
+</tr>
+<tr>
+<td>Scale, 4 alternatives</td>
+<td>1.53</td>
+<td>1.32</td>
+<td>1.31</td>
+</tr>
+<tr>
+<td>Scale, 8 alternatives</td>
+<td>1.20</td>
+<td>0.95</td>
+<td>0.96</td>
+</tr>
+<tr>
+<td>Scale, 16 alternatives</td>
+<td>2.69</td>
+<td>1.31</td>
+<td>1.32</td>
+</tr>
+<tr>
+<td>Scale, 32 alternatives</td>
+<td>3.17</td>
+<td>1.32</td>
+<td>1.32</td>
+</tr>
+<tr>
+<td>2-alternative variant, guarded</td>
+<td>1.82</td>
+<td>0.95</td>
+<td>0.96</td>
+</tr>
+<tr>
+<td>Protocol router</td>
+<td>1.20</td>
+<td>0.89</td>
+<td>0.83 (<code>if</code> chain)</td>
+</tr>
+<tr>
+<td>Command parser</td>
+<td>1.14</td>
+<td>1.00</td>
+<td>0.97</td>
+</tr>
+<tr>
+<td>Packet mixed</td>
+<td>1.13</td>
+<td>1.15</td>
+<td>1.56</td>
+</tr>
+<tr>
+<td>2-alternative variant</td>
+<td>0.92</td>
+<td>1.31</td>
+<td>1.31</td>
+</tr>
+<tr>
+<td>2-alternative variant, one hot alternative</td>
+<td>0.55</td>
+<td>0.87</td>
+<td>0.66</td>
+</tr>
+</tbody>
+</table>
+<p>Run-to-run spread was under 3% for most rows and up to 13% for the
+scale benchmarks. Before this release, a dense literal match without
+<code>PTN_ON</code> grew linearly with the number of cases; it is now flat.</p>
+<p>The last two rows got slower. v0.9.6 compiles the two-alternative
+match to exactly the instructions of the hand-written
+<code>switch (v.index())</code>: two compares and three conditional selects.
+v0.9.5 produced a different sequence with one never-taken branch,
+which this core runs faster in a tight loop. Code layout matters at
+this scale: in the same pair of binaries, the hand-written 32-case
+<code>switch</code> with one hot alternative, whose source did not change, went
+from 0.52 to 0.87 ns. We have not found a way to make Clang choose the
+v0.9.5 sequence without diverging from the hand-written code
+elsewhere.</p>
+<h3 id="gcc-in-ci">GCC in CI<a class="headerlink" href="#gcc-in-ci" title="Permanent link">&para;</a></h3>
+<p>The bench-publish job runs the suite with GCC 13 on a GitHub-hosted
+x86-64 runner after every push to <code>main</code>. Shared runners vary from run
+to run, so the table below divides each Patternia time by the fastest
+hand-written implementation in the same run, and gives the median of
+8 runs on v0.9.5 code and 3 runs on v0.9.6 code. 1.00 means as fast
+as the best hand-written version.</p>
+<table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>v0.9.5</th>
+<th>v0.9.6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Variant, mixed alternatives</td>
+<td>1.99</td>
+<td>1.02</td>
+</tr>
+<tr>
+<td>Variant, mixed, guarded</td>
+<td>1.72</td>
+<td>1.02</td>
+</tr>
+<tr>
+<td>Scale, 4 alternatives</td>
+<td>1.45</td>
+<td>1.15</td>
+</tr>
+<tr>
+<td>Scale, 8 alternatives</td>
+<td>1.87</td>
+<td>1.12</td>
+</tr>
+<tr>
+<td>Scale, 16 alternatives</td>
+<td>1.78</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td>Scale, 32 alternatives</td>
+<td>2.27</td>
+<td>1.05</td>
+</tr>
+<tr>
+<td>Command parser</td>
+<td>1.27</td>
+<td>1.05</td>
+</tr>
+<tr>
+<td>Variant, one hot alternative</td>
+<td>0.98</td>
+<td>1.09</td>
+</tr>
+<tr>
+<td>Variant, one hot alternative, guarded</td>
+<td>0.97</td>
+<td>1.16</td>
+</tr>
+<tr>
+<td>Protocol router</td>
+<td>1.07</td>
+<td>1.15</td>
+</tr>
+<tr>
+<td>Packet mixed</td>
+<td>1.17</td>
+<td>1.27</td>
+</tr>
+<tr>
+<td>Packet mixed, heavy bindings</td>
+<td>1.12</td>
+<td>1.13</td>
+</tr>
+</tbody>
+</table>
+<p>The first seven rows are the intended improvement. The last five are
+within the spread between runs on the same code (up to about 15% on
+these runners). The benchmark harness itself changed in
+<a href="https://github.com/sentomk/patternia/pull/93">#93</a>, which force-inlines
+the per-benchmark runner, so the two columns are not a strict
+same-binary comparison.</p>
+<h2 id="owned-subjects">Owned subjects<a class="headerlink" href="#owned-subjects" title="Permanent link">&para;</a></h2>
+<p><code>bench/bench_ownership.cpp</code> runs the same cases on a borrowed subject
+(<code>match(x)</code>), an owned subject (<code>match(std::move(copy))</code>) and
+hand-written code. Same machine and settings as above, median of three
+process runs of 10 repetitions, ns per match:</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Borrowed</th>
+<th>Owned</th>
+<th>Hand-written</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lit(...)</code> on an <code>int</code></td>
+<td>0.97</td>
+<td>0.97</td>
+<td>0.97</td>
+</tr>
+<tr>
+<td>64 dense <code>val&lt;N&gt;</code></td>
+<td>0.97</td>
+<td>0.97</td>
+<td>0.98</td>
+</tr>
+<tr>
+<td>4-alternative variant with bindings</td>
+<td>1.51</td>
+<td>1.44</td>
+<td>1.77</td>
+</tr>
+<tr>
+<td>Rejected guards, then a later case</td>
+<td>1.21</td>
+<td>1.21</td>
+<td>1.21</td>
+</tr>
+<tr>
+<td>Structural bindings with a guard</td>
+<td>1.22</td>
+<td>1.06</td>
+<td>1.23</td>
+</tr>
+<tr>
+<td>Handler takes over a heap string</td>
+<td>16.89</td>
+<td>1.48</td>
+<td>2.24</td>
+</tr>
+<tr>
+<td>Two rejected guards, then a consuming fallback</td>
+<td>16.50</td>
+<td>1.88</td>
+<td>1.77</td>
+</tr>
+</tbody>
+</table>
+<p>Owned matches cost the same as borrowed ones, or less. The two
+consuming scenarios show what ownership is for: a borrowed subject has
+to be copied to hand it to a by-value handler, which allocates; an
+owned subject is moved. Guards before the consuming case observe the
+string without moving it, and adding one, two or four rejected guards
+does not change the time (1.05 ns in each case).</p>
+<h2 id="debug-information">Debug information<a class="headerlink" href="#debug-information" title="Permanent link">&para;</a></h2>
+<p>GCC writes the name of every template instantiation, with all its
+template arguments, into the debug information. Before v0.9.6, the
+type of the whole case pack appeared in the arguments of every per-case
+template, so a match with N cases wrote N names that were each as long
+as the case list. v0.9.6 passes a case's index instead of the pack
+type where the pack type is not needed.</p>
+<p><code>bench/bench_suite.cpp</code>, <code>-O2 -g</code>, object file size and compile time
+on the same machine:</p>
+<table>
+<thead>
+<tr>
+<th>Compiler</th>
+<th>v0.9.5</th>
+<th>v0.9.6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GCC 13 (macOS, with <code>pubnames</code>)</td>
+<td>686 MB, 18.4 s</td>
+<td>92 MB, 5.8 s</td>
+</tr>
+<tr>
+<td>GCC 13, <code>-gno-pubnames</code> (as on Linux)</td>
+<td>206 MB, 10.1 s</td>
+<td>25 MB, 4.2 s</td>
+</tr>
+<tr>
+<td>Apple Clang 17</td>
+<td>4.7 MB, 2.6 s</td>
+<td>3.9 MB, 1.7 s</td>
+</tr>
+</tbody>
+</table>
+<p>Single probes from <code>tests/codegen/</code> (GCC 13, <code>-gno-pubnames</code>, object
+file size):</p>
+<table>
+<thead>
+<tr>
+<th>Probe</th>
+<th>v0.9.5</th>
+<th>v0.9.6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>16 dense <code>val&lt;N&gt;</code></td>
+<td>7.6 MB</td>
+<td>0.3 MB</td>
+</tr>
+<tr>
+<td>64 dense <code>val&lt;N&gt;</code></td>
+<td>31.7 MB</td>
+<td>1.3 MB</td>
+</tr>
+<tr>
+<td>16-alternative variant, <code>$(is&lt;T&gt;)</code> bindings</td>
+<td>21.4 MB</td>
+<td>2.7 MB</td>
+</tr>
+<tr>
+<td>16-alternative variant, <code>is&lt;T&gt;</code></td>
+<td>2.0 MB</td>
+<td>1.9 MB</td>
+</tr>
+</tbody>
+</table>
+<p>Clang's object files were small to begin with and shrank less.</p>
+<h2 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Owned variants with four or fewer alternatives are evaluated in
+  source order. The compilers already make tight code of so few index
+  tests, and Apple Clang 17 turned the <code>switch</code> into a tree of
+  compares that was slower.</li>
+<li>With <code>$(is&lt;T&gt;)</code> bindings on a 16-alternative variant, GCC now has
+  one conditional branch but still emits 55 instructions, where Clang
+  emits 8.</li>
+<li>A 16-alternative variant match without bindings still produces about
+  1.9 MB of GCC debug information; that probe did not shrink.</li>
+<li>MSVC was not measured. The dispatch functions are <code>__forceinline</code>,
+  but MSVC has no portable way to force a lambda inline.</li>
+<li>Two-alternative variant matches on Apple Clang are slower than in
+  v0.9.5, as described above. Workloads dominated by one hot
+  alternative are within noise on GCC.</li>
+</ul>
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Instruction counts: <code>scripts/check_codegen.py</code> on the probes in
+  <code>tests/codegen/</code>, compiled at <code>-O2</code> through the Compiler Explorer API
+  for GCC 11.4 and 13.3 and Clang 14 and 18.1 on x86-64. The probes at
+  v0.9.5 were compiled against the <code>v0.9.5</code> tag's headers.</li>
+<li>Apple Clang timings: Google Benchmark, <code>min_time</code> 0.5 s and 20
+  repetitions per benchmark (<code>bench_ownership</code>: 0.2 s and 10), three
+  process runs per version in the order v0.9.5, v0.9.6, ownership. The
+  binaries were built from the v0.9.6 benchmark sources against each
+  version's headers.</li>
+<li>GCC timings: the <code>bench-publish</code> workflow's logs for the last pushes
+  to <code>main</code> before and after the dispatch changes.</li>
+<li>Debug sizes: object file size after <code>-c -O2 -g</code>, wall-clock compile
+  time of a single run, GCC 13.3 from Homebrew and Apple clang 17.</li>
+</ul>
+<h2 id="outcome">Outcome<a class="headerlink" href="#outcome" title="Permanent link">&para;</a></h2>
+<p>Keyed matches in v0.9.6 compile to a hand-written <code>switch</code> on both
+major compilers, independent of the number of cases and of where the
+function sits in the file. Dense literal matches that grew linearly
+with the case count are now constant time, variant matches on GCC went
+from about twice the hand-written time to parity, owned subjects cost
+nothing over borrowed ones, and GCC debug builds are about 8 times
+smaller. The one measured regression is the two-alternative variant on
+Apple Clang, where Patternia now matches the hand-written <code>switch</code>
+instead of beating it.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Overview
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../v0.9.5/" class="md-footer__link md-footer__link--next" aria-label="Next: v0.9.5">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                v0.9.5
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

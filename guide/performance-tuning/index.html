@@ -15,6 +15,10 @@
         <link rel="canonical" href="https://sentomk.github.io/patternia/guide/performance-tuning/">
       
       
+        <link rel="prev" href="../installation/">
+      
+      
+        <link rel="next" href="../../api/">
       
       
         
@@ -25,7 +29,7 @@
     
     
       
-        <title>Performance tuning - Patternia</title>
+        <title>Performance Tuning - Patternia</title>
       
     
     
@@ -111,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Performance tuning
+              Performance Tuning
             
           </span>
         </div>
@@ -252,10 +256,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../getting-started/" class="md-tabs__link">
           
   
@@ -621,26 +627,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -658,7 +669,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -720,6 +731,158 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance Tuning
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance Tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-a-match-is-evaluated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How a match is evaluated
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#writing-matches-that-stay-keyed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing matches that stay keyed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#borrowed-and-owned-subjects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Borrowed and owned subjects
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caching-case-packs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caching case packs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compilers-and-build-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compilers and build settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checking-the-generated-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checking the generated code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benchmarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Benchmarks
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -886,6 +1049,34 @@
     
   
     Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../performance/v0.9.6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.6
   
 
     
@@ -1085,6 +1276,34 @@
     
   
     Releases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/v0.9.6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.6
   
 
     
@@ -1429,6 +1648,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1437,63 +1658,79 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#performance-tuning" class="md-nav__link">
+  <a href="#how-a-match-is-evaluated" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Performance Tuning
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Performance Tuning">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#when-to-use-ptn_on-macro" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        When to use PTN_ON(...) macro
+        How a match is evaluated
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#when-to-use-static_onfactory" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#writing-matches-that-stay-keyed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        When to use static_on(factory)
+        Writing matches that stay keyed
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#when-raw-matchx-on-is-fine" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#borrowed-and-owned-subjects" class="md-nav__link">
     <span class="md-ellipsis">
       
-        When raw match(x) | on(...) is fine
+        Borrowed and owned subjects
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#dispatch-tiers-and-their-effect" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#caching-case-packs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dispatch tiers and their effect
+        Caching case packs
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#compilers-and-build-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compilers and build settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checking-the-generated-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checking the generated code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benchmarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Benchmarks
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1517,54 +1754,165 @@
   
 
 
-  <h1>Performance tuning</h1>
-
-<h2 id="performance-tuning">Performance Tuning<a class="headerlink" href="#performance-tuning" title="Permanent link">&para;</a></h2>
-<h3 id="when-to-use-ptn_on-macro">When to use <code>PTN_ON(...)</code> macro<a class="headerlink" href="#when-to-use-ptn_on-macro" title="Permanent link">&para;</a></h3>
-<p>The <code>PTN_ON</code> macro caches the case pack in a function-local static. This ensures zero construction overhead on hot paths, as the matcher object is only built once during the first execution.</p>
-<p>Use this when the same case pack is called repeatedly in a loop or a frequently invoked function. It provides the best performance for local, repeated matching logic.</p>
-<p>Example:
+<h1 id="performance-tuning">Performance Tuning<a class="headerlink" href="#performance-tuning" title="Permanent link">&para;</a></h1>
+<p>A Patternia match is meant to cost what the same branches cost when
+written by hand. For the common shapes it does: a dense literal match
+compiles to the code of a <code>switch</code>, and a variant match to the code of
+a <code>switch</code> on <code>index()</code>. This page explains which matches take those
+paths, what keeps them there, and how to check.</p>
+<h2 id="how-a-match-is-evaluated">How a match is evaluated<a class="headerlink" href="#how-a-match-is-evaluated" title="Permanent link">&para;</a></h2>
+<p>The case list is planned at compile time. The plan depends only on the
+subject's type and on the patterns, never on the values:</p>
+<table>
+<thead>
+<tr>
+<th>Case list</th>
+<th>Plan</th>
+<th>Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>val&lt;N&gt;</code> literals on an integral or unscoped-enum subject, keys close together, an optional <code>_</code> last</td>
+<td>Dense table: the subject's offset from the smallest key indexes one <code>switch</code></td>
+<td>One compare, then a jump or lookup table; independent of the number of cases</td>
+</tr>
+<tr>
+<td><code>lit(v)</code> literals on an integral or enum subject, an optional <code>_</code> last</td>
+<td>The first case whose value equals the subject is found by comparisons that each yield a constant, then run through the same <code>switch</code></td>
+<td>Like a hand-written <code>switch</code>: compilers build a table when the keys allow it</td>
+</tr>
+<tr>
+<td>A <code>std::variant</code> subject with <code>is&lt;T&gt;</code>, <code>alt&lt;I&gt;</code>, <code>$(is&lt;T&gt;)</code>, <code>$(alt&lt;I&gt;)</code> cases, guarded or not, among any others</td>
+<td>A <code>switch</code> on <code>index()</code>; each alternative runs only the cases that can match it, in source order</td>
+<td>One switch, then the cases of one alternative; inside it, cases that only test the alternative do not test it again</td>
+</tr>
+<tr>
+<td>Anything else: guards on other patterns, structural patterns, predicates, strings</td>
+<td>Source order</td>
+<td>One test per case until a case matches, like an <code>if</code> chain</td>
+</tr>
+</tbody>
+</table>
+<p>All plans keep first-match-wins semantics: a case runs only if no
+earlier case matches, and guards are called in the same order and the
+same number of times as in source order.</p>
+<p>A dense table is used when the case list has at most 256 cases and the
+keys span at most 512 values and at most 4 values per literal (8 per
+literal from 4 literals up). <code>val&lt;1&gt;</code> to <code>val&lt;64&gt;</code> qualifies;
+<code>val&lt;0&gt;, val&lt;1000&gt;</code> does not and is compared in order.</p>
+<h2 id="writing-matches-that-stay-keyed">Writing matches that stay keyed<a class="headerlink" href="#writing-matches-that-stay-keyed" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Use <code>val&lt;N&gt;</code> for compile-time constants. <code>val&lt;N&gt;</code> keys are known to
+  the planner and can form a dense table; <code>lit(v)</code> values are only
+  known at run time and are compared first.</li>
+<li>Keep the fallback last. <code>_</code> (or <code>$</code>) after literal cases is the
+  table's default slot.</li>
+<li>Mixing a guard or a non-literal pattern into a literal list moves the
+  whole list to source order, and so does mixing <code>val&lt;N&gt;</code> with <code>lit(v)</code>
+  in one list. Put the literal cases in their own match if the rest
+  needs guards.</li>
+<li><code>val&lt;N&gt;</code> dense tables apply to integral and unscoped <code>enum</code>
+  subjects. On a scoped <code>enum class</code> subject, <code>val&lt;e&gt;</code> is currently
+  compared in source order; use <code>lit(e)</code> there, which gets the
+  compare-then-switch plan.</li>
+<li>For variants, any mix of cases is fine: the switch on <code>index()</code>
+  happens first, and only the cases that can match the active
+  alternative are tested.</li>
+<li>Expression handlers (<code>$ &gt;&gt; _ * 2</code>) and guards (<code>$[_ &gt; 0]</code>) compile to
+  the same code as the equivalent lambdas.</li>
+</ul>
+<h2 id="borrowed-and-owned-subjects">Borrowed and owned subjects<a class="headerlink" href="#borrowed-and-owned-subjects" title="Permanent link">&para;</a></h2>
+<p>An lvalue subject is borrowed: <code>match(x)</code> reads <code>x</code> through a
+reference. An rvalue is owned: <code>match(std::move(x))</code> or
+<code>match(make_x())</code> moves the value into the match context first.</p>
+<p>Owned subjects use the same plans as borrowed ones, with one exception:
+a variant with four or fewer alternatives is evaluated in source order,
+because compilers already turn those few index tests into tight code
+and some (Apple Clang 17) compiled the switch into a tree of compares.
+From five alternatives on, an owned variant match switches on
+<code>index()</code> like a borrowed one.</p>
+<p>The move into the context is the only extra cost. Moving a
+<code>std::string</code> or a <code>std::unique_ptr</code> is cheap; matching an rvalue that
+is expensive to move costs that move.</p>
+<h2 id="caching-case-packs">Caching case packs<a class="headerlink" href="#caching-case-packs" title="Permanent link">&para;</a></h2>
+<p><code>match(x) | on(...)</code> builds its case pack on every call. When the
+patterns and handlers are integers, captureless lambdas or
+expressions, the compiler folds the construction away and nothing
+remains. Caching matters when building the cases does work: a handler
+such as <code>&gt;&gt; std::string("unknown")</code> constructs a string on every call,
+and a <code>lit(std::string(...))</code> pattern stores one.</p>
+<ul>
+<li><code>PTN_ON(...)</code> caches the case pack in a function-local static on the
+  first call. Lambdas inside it must not capture.</li>
+<li><code>static_on(factory)</code> does the same with an explicit factory, so the
+  cached pack can be returned from a function and used elsewhere.</li>
+<li>A case pack you cache yourself should be <code>const</code>:
+  <code>static const auto cases = on(...);</code>, or <code>constexpr</code> when the cases
+  allow it.</li>
+</ul>
+<p><code>PTN_ON</code> and <code>static_on</code> cache the cases as <code>const</code> when no handler
+keeps state, so the compiler treats them as constants, and a match
+through <code>PTN_ON</code> compiles to the same code as <code>on(...)</code>. A handler
+with state, such as a function object with a counter, keeps a mutable
+cache, and the cases are read from memory. GCC turns a dispatch on a
+non-<code>const</code> static into a jump table instead of a lookup table, which
+made a 32-alternative variant match about three times slower in the
+benchmarks (1.32 against 0.41 ns).</p>
 <div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="nf">classify</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PTN_ON</span><span class="p">(</span>
-<span class="w">    </span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">lit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
 <span class="w">    </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">-1</span>
 <span class="w">  </span><span class="p">);</span>
 <span class="p">}</span>
-</code></pre></div></p>
-<p><strong>Caveat:</strong> Lambdas inside <code>PTN_ON</code> must be stateless (no captures), as they are stored in a static context.</p>
-<p>When no handler keeps state, <code>PTN_ON</code> caches the cases as <code>const</code>, so the compiler treats them as constants and a match through <code>PTN_ON</code> compiles to the same code as the same cases written with <code>on(...)</code>. A handler with state (for example a function object with a counter) is still allowed, but its cache stays mutable and the compiler has to read the cases from memory.</p>
-<p>The same applies to a case pack you cache yourself: write <code>static const auto cases = on(...);</code> rather than <code>static auto cases = on(...);</code>. GCC turns a dispatch on a non-const static into a jump table instead of a lookup table, which made a 32-alternative variant match about three times slower in the benchmarks (1.32 against 0.41 ns).</p>
-<h3 id="when-to-use-static_onfactory">When to use <code>static_on(factory)</code><a class="headerlink" href="#when-to-use-static_onfactory" title="Permanent link">&para;</a></h3>
-<p>The <code>static_on</code> function creates a persistent static match object from a factory lambda. It serves as a more explicit version of the caching mechanism used by <code>PTN_ON</code>.</p>
-<p>Use this when you need to store the match object separately from a single call site, such as pre-computing a matcher object at initialization time and then calling it from multiple different locations.</p>
-<p>Example:
-<div class="highlight"><pre><span></span><code><span class="k">auto</span><span class="w"> </span><span class="n">get_matcher</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">static_on</span><span class="p">([]</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
-<span class="w">      </span><span class="n">lit</span><span class="p">(</span><span class="s">"start"</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Action</span><span class="o">::</span><span class="n">Start</span><span class="p">,</span>
-<span class="w">      </span><span class="n">lit</span><span class="p">(</span><span class="s">"stop"</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Action</span><span class="o">::</span><span class="n">Stop</span><span class="p">,</span>
-<span class="w">      </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Action</span><span class="o">::</span><span class="n">Unknown</span>
-<span class="w">    </span><span class="p">);</span>
-<span class="w">  </span><span class="p">});</span>
-<span class="p">}</span>
 
-<span class="kt">void</span><span class="w"> </span><span class="n">process</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">cmd</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">get_matcher</span><span class="p">();</span>
-<span class="p">}</span>
-</code></pre></div></p>
-<h3 id="when-raw-matchx-on-is-fine">When raw <code>match(x) | on(...)</code> is fine<a class="headerlink" href="#when-raw-matchx-on-is-fine" title="Permanent link">&para;</a></h3>
-<p>The raw pipeline form constructs the case objects on every call. While this adds a small amount of overhead, Patternia's dispatch system is highly optimized and fast enough for most scenarios without explicit caching.</p>
-<p>Use the raw form when:
-- The call is not on a hot path.
-- The overhead is negligible (small case packs or infrequent calls).
-- You need to capture local variables in your handlers.</p>
-<h3 id="dispatch-tiers-and-their-effect">Dispatch tiers and their effect<a class="headerlink" href="#dispatch-tiers-and-their-effect" title="Permanent link">&para;</a></h3>
-<p>Patternia uses different dispatch strategies based on the patterns provided:</p>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">parity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">on</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"even"</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"odd"</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"?"</span><span class="p">);</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">parity</span><span class="p">;</span>
+</code></pre></div>
+<h2 id="compilers-and-build-settings">Compilers and build settings<a class="headerlink" href="#compilers-and-build-settings" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Literal Dense/Runtime Dense:</strong> Used for contiguous literal values. These are lowered to efficient jump tables or direct indexing.</li>
-<li><strong>Variant Inline/Segmented/Compact:</strong> Optimized strategies for <code>std::variant</code>. Inline dispatch is used for small variants, while segmented or compact forms handle larger or more complex type distributions.</li>
+<li>Build with optimization (<code>-O2</code> or <code>-O3</code>, <code>/O2</code>). The plans above
+  describe optimized code; without optimization, every step of a
+  match is a separate function call.</li>
+<li>The dispatch path is marked always-inline (<code>__attribute__((always_inline))</code>
+  on GCC and Clang, <code>__forceinline</code> on MSVC). This keeps the case pack
+  out of memory regardless of the inliner's size estimates, which on
+  GCC also depend on the order of functions in the translation unit.</li>
+<li>Debug information: GCC writes the name of every template
+  instantiation, with its arguments, into the debug information.
+  Patternia keeps the case pack's type out of per-case names, so a
+  64-case dense literal match costs about 1.3 MB of debug information
+  with GCC 13 (<code>-O2 -g</code>, without <code>pubnames</code> as on Linux) and 0.3 MB
+  with Clang. On macOS, GCC also writes
+  <code>pubnames</code> by default; <code>-gno-pubnames</code> removes most of the rest.</li>
+<li>MSVC has no portable way to force a lambda inline; the dispatch
+  functions themselves are forced, and MSVC's inliner decides for the
+  continuations.</li>
 </ul>
-<p>The current benchmark report is published on the <a href="https://github.com/sentomk/patternia/blob/bench-charts/latest.md"><code>bench-charts</code> branch</a> after every push to <code>main</code>. It normalizes each scenario to the fastest implementation, and Patternia is not the fastest in every scenario. See <a href="../../performance/">Performance Notes</a> for methodology and per-release results.</p>
+<h2 id="checking-the-generated-code">Checking the generated code<a class="headerlink" href="#checking-the-generated-code" title="Permanent link">&para;</a></h2>
+<p><code>scripts/check_codegen.py</code> compiles a function containing one match
+and checks the machine code: no calls, no stack use, at most a given
+number of conditional branches or instructions, or no more
+instructions than a reference function written by hand in the same
+file. The probes in <code>tests/codegen/</code> run in CTest with the compiler of
+the build:</p>
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>scripts/check_codegen.py<span class="w"> </span>--compiler<span class="w"> </span>g++<span class="w"> </span>--include<span class="w"> </span>include<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--source<span class="w"> </span>tests/codegen/literal_dense_64.cpp<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--reference<span class="w"> </span>ptn_codegen_reference
+</code></pre></div>
+<p>To check a match of your own, put it in an <code>extern "C" int
+ptn_codegen_probe(...)</code> function, optionally with the hand-written
+equivalent as <code>ptn_codegen_reference</code>, and run the script on it. See
+<a href="https://github.com/sentomk/patternia/blob/main/scripts/README.md"><code>scripts/README.md</code></a>.</p>
+<h2 id="benchmarks">Benchmarks<a class="headerlink" href="#benchmarks" title="Permanent link">&para;</a></h2>
+<p>The benchmark report is published on the
+<a href="https://github.com/sentomk/patternia/blob/bench-charts/latest.md"><code>bench-charts</code> branch</a>
+after every push to <code>main</code> (GCC 13 on a GitHub-hosted x86-64 runner).
+It normalizes each scenario to the fastest implementation, and
+Patternia is not the fastest in every scenario. Pull requests get a
+base-against-PR comparison with a noise estimate. See
+<a href="../../performance/">Performance Notes</a> for per-release
+measurements and methods.</p>
 
 
 
@@ -1595,6 +1943,44 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../installation/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Installation">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Installation
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../api/" class="md-footer__link md-footer__link--next" aria-label="Next: Patternia API Reference">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Patternia API Reference
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">

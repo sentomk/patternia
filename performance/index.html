@@ -18,7 +18,7 @@
         <link rel="prev" href="../api/">
       
       
-        <link rel="next" href="v0.9.5/">
+        <link rel="next" href="v0.9.6/">
       
       
         
@@ -731,6 +731,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/performance-tuning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance Tuning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -997,6 +1025,34 @@
   
   
     <li class="md-nav__item">
+      <a href="v0.9.6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.6
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="v0.9.5/" class="md-nav__link">
         
   
@@ -1176,6 +1232,34 @@
     
   
     Releases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/v0.9.6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.6
   
 
     
@@ -1586,7 +1670,13 @@
 <p>This section tracks performance-oriented algorithm evolution by version.</p>
 <hr />
 <h2 id="current-version">Current Version<a class="headerlink" href="#current-version" title="Permanent link">&para;</a></h2>
-<p><strong>v0.9.5</strong> lets the bare spellings <code>is&lt;T&gt;</code> and <code>alt&lt;I&gt;</code> reach the static variant
+<p><strong>v0.9.6</strong> sends every keyed match (dense <code>val&lt;N&gt;</code> literals, <code>lit(...)</code>
+literals and <code>std::variant</code> alternatives, on borrowed and owned
+subjects) through one <code>switch</code> and always inlines the whole path, so
+these matches compile to the code of a hand-written <code>switch</code> on GCC as
+well as Clang. It also cuts GCC's debug information about 8×.
+See <a href="v0.9.6/">v0.9.6 performance note</a> for details.</p>
+<p>v0.9.5 lets the bare spellings <code>is&lt;T&gt;</code> and <code>alt&lt;I&gt;</code> reach the static variant
 dispatch fast path.
 See <a href="v0.9.5/">v0.9.5 performance note</a> for details.</p>
 <p>v0.9.3 tuned the variant inline dispatch threshold for common workloads.
@@ -1599,6 +1689,7 @@ introduced.</p>
 <hr />
 <h2 id="version-index">Version Index<a class="headerlink" href="#version-index" title="Permanent link">&para;</a></h2>
 <ul>
+<li><a href="v0.9.6/">v0.9.6</a> (one <code>switch</code> for every keyed match; owned subjects; GCC debug size)</li>
 <li><a href="v0.9.5/">v0.9.5</a> (bare <code>is&lt;T&gt;</code> / <code>alt&lt;I&gt;</code> reach the variant fast path)</li>
 <li><a href="v0.9.3/">v0.9.3</a> (variant dispatch threshold tuning)</li>
 <li><a href="v0.8.2/">v0.8.2</a> (lowering engine baseline)</li>
@@ -1669,13 +1760,13 @@ introduced.</p>
         
         
           
-          <a href="v0.9.5/" class="md-footer__link md-footer__link--next" aria-label="Next: v0.9.5">
+          <a href="v0.9.6/" class="md-footer__link md-footer__link--next" aria-label="Next: v0.9.6">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                v0.9.5
+                v0.9.6
               </div>
             </div>
             <div class="md-footer__button md-icon">
