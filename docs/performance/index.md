@@ -6,7 +6,14 @@ This section tracks performance-oriented algorithm evolution by version.
 
 ## Current Version
 
-**v0.9.5** lets the bare spellings `is<T>` and `alt<I>` reach the static variant
+**v0.9.6** sends every keyed match (dense `val<N>` literals, `lit(...)`
+literals and `std::variant` alternatives, on borrowed and owned
+subjects) through one `switch` and always inlines the whole path, so
+these matches compile to the code of a hand-written `switch` on GCC as
+well as Clang. It also cuts GCC's debug information about 8×.
+See [v0.9.6 performance note](v0.9.6.md) for details.
+
+v0.9.5 lets the bare spellings `is<T>` and `alt<I>` reach the static variant
 dispatch fast path.
 See [v0.9.5 performance note](v0.9.5.md) for details.
 
@@ -24,6 +31,7 @@ introduced.
 
 ## Version Index
 
+- [v0.9.6](v0.9.6.md) (one `switch` for every keyed match; owned subjects; GCC debug size)
 - [v0.9.5](v0.9.5.md) (bare `is<T>` / `alt<I>` reach the variant fast path)
 - [v0.9.3](v0.9.3.md) (variant dispatch threshold tuning)
 - [v0.8.2](v0.8.2.md) (lowering engine baseline)

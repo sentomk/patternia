@@ -97,9 +97,12 @@ destroyed. A handler that deliberately returns a pointer, view, or
 reference wrapper must still ensure that the referenced storage
 outlives the result.
 
-Owned subjects currently use source-order evaluation. Performance
-measurement and further dispatch optimization are tracked separately
-in the [v0.9.6 performance work](roadmap.md#performance-work).
+Owned subjects are dispatched like borrowed ones: dense literal lists
+through one `switch`, `lit(...)` lists through the same compare-then-
+switch selection, and variants with five or more alternatives through
+a `switch` on `index()`. Other case lists, and variants with up to
+four alternatives, are evaluated in source order. See
+[Performance Tuning](guide/performance-tuning.md).
 
 ### `on(case1, case2, ...)` {#oncases}
 
@@ -153,15 +156,15 @@ binding.
 
 ```cpp
 match(n) | on(
-  $[_ > 0] >> _ * 2 + 1,
+  $[_ > 0] >> (_ * 2 + 1),
   $        >> -_
 );
 
 constexpr auto pt = has<&Point::x, &Point::y>;
 auto [x, y] = pt;
 match(p) | on(
-  $(pt)[x > 0] >> x - y,
-  $(pt)        >> x * x + y * y,
+  $(pt)[x > 0] >> (x - y),
+  $(pt)        >> (x * x + y * y),
   _            >> 0
 );
 ```
@@ -178,7 +181,10 @@ match(p) | on(
   As in guards, logical `!` is not provided.
 - Parenthesize comparisons and logical expressions after `>>`, for
   example `$ >> (_ > 0)` or `$ >> (_ >= 0 && _ <= 10)`, because C++
-  gives `>>` higher precedence than those operators.
+  gives `>>` higher precedence than those operators. Binary `+` and
+  `-` bind tighter than `>>`, so `$ >> _ + 1` is correct as written,
+  but GCC's `-Wall` (`-Wparentheses`) suggests parentheses there;
+  writing `$ >> (_ + 1)` keeps the build warning-free.
 - Ordinary operands are stored by value when the case is built.
   Use a lambda for function calls or values that should be read from
   external state each time the handler runs.

@@ -86,12 +86,14 @@ nav:
   - Guide:
       - Getting Started: guide/getting-started.md
       - Installation: guide/installation.md
+      - Performance Tuning: guide/performance-tuning.md
 
   - API:
       - api.md
 
   - Performance:
       - Overview: performance/index.md
+      - v0.9.6: performance/v0.9.6.md
       - v0.9.5: performance/v0.9.5.md
       - v0.9.3: performance/v0.9.3.md
       - v0.8.2: performance/v0.8.2.md
@@ -99,6 +101,7 @@ nav:
 
   - Changelog:
       - Releases: changelog/releases.md
+      - v0.9.6: changelog/v0.9.6.md
       - v0.9.5: changelog/v0.9.5.md
       - v0.9.4: changelog/v0.9.4.md
       - v0.9.3: changelog/v0.9.3.md
