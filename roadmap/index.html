@@ -1167,6 +1167,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../changelog/v0.9.7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.7
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../changelog/v0.9.6/" class="md-nav__link">
         
   
@@ -1553,15 +1581,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v097-result-types-and-lazy-expressions" class="md-nav__link">
+  <a href="#v098-result-types-and-lazy-expressions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        v0.9.7
+        v0.9.8
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="v0.9.7">
+    <nav class="md-nav" aria-label="v0.9.8">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1910,15 +1938,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#v097-result-types-and-lazy-expressions" class="md-nav__link">
+  <a href="#v098-result-types-and-lazy-expressions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        v0.9.7
+        v0.9.8
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="v0.9.7">
+    <nav class="md-nav" aria-label="v0.9.8">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2289,7 +2317,7 @@ examples are proposals, not APIs available today.</p>
 </thead>
 <tbody>
 <tr>
-<td>v0.9.7</td>
+<td>v0.9.8</td>
 <td>Explicit result types and lazy construction/function expressions</td>
 </tr>
 <tr>
@@ -2310,7 +2338,7 @@ examples are proposals, not APIs available today.</p>
 coverage comes before the nested pattern-matrix analysis. These are
 delivery dependencies, not claims that the planned APIs exist today.</p>
 <hr />
-<h2 id="v097-result-types-and-lazy-expressions">v0.9.7 — Result types and lazy expressions<a class="headerlink" href="#v097-result-types-and-lazy-expressions" title="Permanent link">&para;</a></h2>
+<h2 id="v098-result-types-and-lazy-expressions">v0.9.8 — Result types and lazy expressions<a class="headerlink" href="#v098-result-types-and-lazy-expressions" title="Permanent link">&para;</a></h2>
 <p><strong>Status:</strong> Planned</p>
 <p>Reduce repeated result wrappers and single-expression lambdas without
 hiding complex business operations inside the DSL.</p>
@@ -2708,7 +2736,7 @@ concrete use case first.</p>
   <code>array</code>.</li>
 <li><strong>Conditional expression handlers.</strong> <code>iif(cond, a, b)</code> would evaluate
   only the chosen expression. Calls and construction are scheduled for
-  v0.9.7; conditional evaluation still needs a concrete use case.</li>
+  v0.9.8; conditional evaluation still needs a concrete use case.</li>
 <li><strong>More value types on the left of <code>&gt;&gt;</code>.</strong> Accepting any
   equality-comparable type, not only arithmetic, enum and string
   types.</li>
@@ -2732,6 +2760,10 @@ concrete use case first.</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><a href="../changelog/v0.9.7/">v0.9.7</a></td>
+<td>Hotfix: the installed package includes every header (v0.9.6 left four out)</td>
+</tr>
 <tr>
 <td><a href="../changelog/v0.9.6/">v0.9.6</a></td>
 <td><code>$</code> as the final fallback; expression handlers; plain values inside patterns; <code>match(std::move(x))</code> owns the subject; literal and variant matches compile like a hand-written <code>switch</code> on GCC</td>
