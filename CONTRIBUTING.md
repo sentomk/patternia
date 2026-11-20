@@ -156,6 +156,33 @@ pull requests such as vcpkg port updates.
 
 ---
 
+## Versioning
+
+Patternia follows [Semantic Versioning](https://semver.org/). Before
+1.0 the minor number plays the role of the major one, as in Cargo: a
+release that can break code or change what it does bumps the minor.
+
+| Release contains | Version |
+|---|---|
+| New public API, removed or renamed API, or a change in what existing code does at run time or compile time | next minor: `0.MINOR.0` |
+| Only bug fixes, packaging or install fixes, documentation, or performance work with no observable behavior change | next patch: `0.MINOR.PATCH` |
+
+- A patch release never adds public API. If a fix needs new API, it
+  waits for the next minor release.
+- One new feature is enough to make a release minor. Do not ship
+  features in a patch because the release is small.
+- Remove API in two steps: deprecate it in one minor release (with a
+  replacement and a migration note) and remove it in a later one.
+- From 1.0 on, the usual rules apply: breaking changes bump the major
+  version, new API bumps the minor, fixes bump the patch.
+- The roadmap names planned releases by minor version (`v0.10`,
+  `v0.11`); the first release of a series is `X.Y.0`.
+
+Releases up to v0.9.7 predate this policy: several 0.9.x patch releases
+added features and v0.9.4 removed API. The policy applies from v0.10.0.
+
+---
+
 ## Development Setup
 
 ```bash

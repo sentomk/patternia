@@ -32,10 +32,10 @@ Feedback on any item is welcome in
 
 | Version | Main additions |
 |---|---|
-| v0.9.8 | Explicit result types and lazy construction/function expressions |
-| v0.10 | Exhaustiveness, checked intervals, and complete enum domains |
-| v0.11 | Nested patterns, multiple subjects, and structural coverage |
-| v0.12 | Broader performance work, reflection, and positional constructor patterns |
+| v0.10 | Explicit result types and lazy construction/function expressions |
+| v0.11 | Exhaustiveness, checked intervals, and complete enum domains |
+| v0.12 | Nested patterns, multiple subjects, and structural coverage |
+| v0.13 | Broader performance work, reflection, and positional constructor patterns |
 
 Move-aware binding comes before lazy expressions; finite-domain
 coverage comes before the nested pattern-matrix analysis. These are
@@ -43,7 +43,7 @@ delivery dependencies, not claims that the planned APIs exist today.
 
 ---
 
-## v0.9.8 — Result types and lazy expressions { data-toc-label="v0.9.8" }
+## v0.10 — Result types and lazy expressions { data-toc-label="v0.10" }
 
 **Status:** Planned
 
@@ -95,7 +95,7 @@ control flow and ambiguous ownership remain ordinary lambda code.
 
 ---
 
-## v0.10 — Exhaustiveness checking { data-toc-label="v0.10" }
+## v0.11 — Exhaustiveness checking { data-toc-label="v0.11" }
 
 **Status:** Planned
 
@@ -190,7 +190,7 @@ An explicit list is a completeness contract maintained by its author;
 C++17 cannot detect a newly declared enumerator omitted from that
 list. Automatic detection and reflection avoid that maintenance gap.
 With C++26 reflection, complete metadata no longer needs registration;
-see [v0.12](#v012-performance-and-c26-reflection).
+see [v0.13](#v013-performance-and-c26-reflection).
 
 Without reliable metadata, an ordinary enum match still needs a
 fallback, and requesting `domain<E>` is a compile-time error naming
@@ -341,7 +341,7 @@ flag-style enumerations with `_`.
 
 ---
 
-## v0.11 — Nested and multi-subject matching { data-toc-label="v0.11" }
+## v0.12 — Nested and multi-subject matching { data-toc-label="v0.12" }
 
 **Status:** Planned
 
@@ -430,7 +430,7 @@ check stops at a fixed limit and asks for `_` instead.
 
 ---
 
-## v0.12 — Performance and C++26 reflection { data-toc-label="v0.12" }
+## v0.13 — Performance and C++26 reflection { data-toc-label="v0.13" }
 
 **Status:** Planned
 
@@ -525,7 +525,7 @@ concrete use case first.
   `array`.
 - **Conditional expression handlers.** `iif(cond, a, b)` would evaluate
   only the chosen expression. Calls and construction are scheduled for
-  v0.9.8; conditional evaluation still needs a concrete use case.
+  v0.10; conditional evaluation still needs a concrete use case.
 - **More value types on the left of `>>`.** Accepting any
   equality-comparable type, not only arithmetic, enum and string
   types.

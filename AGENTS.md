@@ -26,6 +26,10 @@ changes need tests under `tests/`. Formatting is checked in CI with the
   prose wraps at 72 characters.
 - PR bodies need the bold sections `**Summary**`, `**Changes**` and
   `**Testing**`.
+- Version numbers follow the Versioning section of
+  [CONTRIBUTING.md](CONTRIBUTING.md#versioning): new or changed API
+  and behavior changes bump the minor (`0.MINOR.0`); patch releases
+  hold fixes only.
 - Do not add attribution trailers or "generated with" lines to commits,
   pull requests, release notes or downstream pull requests.
 
