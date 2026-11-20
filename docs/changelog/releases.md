@@ -4,6 +4,12 @@ Release notes, newest first. Historical release notes have been
 normalized where necessary so examples reflect the current supported API
 surface.
 
+From v0.10.0 on, new or changed API ships in a minor release
+(`0.MINOR.0`) and patch releases contain fixes only. Several 0.9.x
+patch releases predate this rule and include new features; v0.9.4 also
+removed API. See the
+[versioning policy](https://github.com/sentomk/patternia/blob/main/CONTRIBUTING.md#versioning).
+
 ## 0.9.x
 - [v0.9.7](v0.9.7.md) - November 2026 (Hotfix)
 - [v0.9.6](v0.9.6.md) - November 2026

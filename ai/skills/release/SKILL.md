@@ -30,6 +30,13 @@ Rules that apply to everything below:
 3. Decide the headline, breaking changes and behavior changes. A change
    in what existing code does (not just what compiles) belongs in a
    "Behavior Changes" section even when no API was removed.
+   Then check the version number against the Versioning section of
+   `CONTRIBUTING.md`: any new public API, removed or renamed API, or
+   behavior change needs the next minor (`0.MINOR.0`); a patch
+   release may only hold fixes, packaging, docs and performance work
+   with no observable behavior change. If the requested version is a
+   patch but the changes need a minor, stop and tell the user before
+   writing anything.
 4. Verify every claim and example in the note: compile and run the
    examples against `main` headers (`-Wall -Wextra -Werror`) and against
    a `git worktree` of the previous tag, to see which ones failed before.
