@@ -2339,10 +2339,11 @@ coverage comes before the nested pattern-matrix analysis. These are
 delivery dependencies, not claims that the planned APIs exist today.</p>
 <hr />
 <h2 id="v010-result-types-and-lazy-expressions">v0.10 — Result types and lazy expressions<a class="headerlink" href="#v010-result-types-and-lazy-expressions" title="Permanent link">&para;</a></h2>
-<p><strong>Status:</strong> Planned</p>
+<p><strong>Status:</strong> In progress</p>
 <p>Reduce repeated result wrappers and single-expression lambdas without
 hiding complex business operations inside the DSL.</p>
 <h3 id="explicit-result-type">Explicit result type<a class="headerlink" href="#explicit-result-type" title="Permanent link">&para;</a></h3>
+<p><strong>Implemented.</strong> See <a href="../api/#on-result"><code>on&lt;R&gt;</code></a>.</p>
 <p><code>on&lt;R&gt;(...)</code> fixes the match result type once. Every selected handler
 result must be convertible to <code>R</code>; deduced <code>on(...)</code> remains available.</p>
 <div class="highlight"><pre><span></span><code><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Action</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Start</span><span class="p">,</span><span class="w"> </span><span class="n">Stop</span><span class="w"> </span><span class="p">};</span>

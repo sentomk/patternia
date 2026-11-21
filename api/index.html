@@ -948,6 +948,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#on-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        on&lt;R&gt;(case1, case2, ...)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pattern-handler" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2147,6 +2158,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#on-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        on&lt;R&gt;(case1, case2, ...)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pattern-handler" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2685,6 +2707,39 @@ four alternatives, are evaluated in source order. See
 not a case expression. <code>on(...)</code> rejects its result and suggests
 <code>lit(0) &gt;&gt; 1</code>. Use <code>lit(0) &gt;&gt; func</code> for a function-pointer handler
 as well: C++ rejects <code>0 &gt;&gt; func</code> before Patternia can validate it.</p>
+<h3 id="on-result"><code>on&lt;R&gt;(case1, case2, ...)</code><a class="headerlink" href="#on-result" title="Permanent link">&para;</a></h3>
+<p><code>on&lt;R&gt;(...)</code> fixes the result type of the match to <code>R</code> instead of
+deducing the common type of the handlers' results. Each handler's
+result must convert implicitly to <code>R</code>; the results do not need a
+common type of their own.</p>
+<div class="highlight"><pre><span></span><code><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Action</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">Start</span><span class="p">,</span><span class="w"> </span><span class="n">Stop</span><span class="w"> </span><span class="p">};</span>
+<span class="k">using</span><span class="w"> </span><span class="n">Transition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="n">Started</span><span class="p">,</span><span class="w"> </span><span class="n">Stopped</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="n">Transition</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">action</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="o">&lt;</span><span class="n">Transition</span><span class="o">&gt;</span><span class="p">(</span>
+<span class="w">  </span><span class="n">val</span><span class="o">&lt;</span><span class="n">Action</span><span class="o">::</span><span class="n">Start</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Started</span><span class="p">{},</span>
+<span class="w">  </span><span class="n">_</span><span class="w">                  </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Stopped</span><span class="p">{}</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>Rules:</p>
+<ul>
+<li>Every handler is checked, including handlers of cases that the
+  subject can never select. A handler whose result does not convert,
+  a <code>void</code> handler with a non-<code>void</code> <code>R</code>, or a conversion that needs
+  an <code>explicit</code> constructor is a compile-time error.</li>
+<li><code>on&lt;void&gt;(...)</code> discards every handler's result.</li>
+<li>A reference <code>R</code> must bind directly to a reference the handler
+  returns (<code>Derived &amp;</code> to <code>const Base &amp;</code> is fine). A handler that
+  returns a value, or a reference that would first be converted to a
+  temporary, is rejected because the result would dangle.</li>
+<li><code>R</code> is not an array, function or abstract class type.</li>
+<li><code>on&lt;R&gt;</code> changes only the result type. It does not supply a fallback
+  or make a case list exhaustive, and it does not change how cases are
+  dispatched. All rules of <code>on(...)</code> still apply.</li>
+</ul>
+<p><code>on&lt;R&gt;</code> works with borrowed and owned subjects, with <code>static_on</code>, and
+with <code>const</code> or <code>constexpr</code> case packs. <code>PTN_ON(...)</code> always deduces
+the result type; write <code>static_on([] { return on&lt;R&gt;(...); })</code> to cache
+a pack with an explicit result type.</p>
 <h3 id="pattern-handler"><code>pattern &gt;&gt; handler</code><a class="headerlink" href="#pattern-handler" title="Permanent link">&para;</a></h3>
 <p>This is the core case-expression form.</p>
 <div class="highlight"><pre><span></span><code><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">42</span>
@@ -3068,7 +3123,7 @@ reference.</p>
 below:</p>
 <ul>
 <li><code>match</code></li>
-<li><code>on</code></li>
+<li><code>on</code>, <code>on&lt;R&gt;</code></li>
 <li><code>lit</code>, <code>val</code>, <code>lit_ci</code></li>
 <li><code>$</code></li>
 <li><code>_</code>, <code>rng</code></li>
