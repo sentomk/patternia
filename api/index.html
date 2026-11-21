@@ -980,6 +980,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#to" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        to&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-pipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        case | f
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2190,6 +2212,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#to" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        to&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-pipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        case | f
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2792,8 +2836,69 @@ binding.</p>
   writing <code>$ &gt;&gt; (_ + 1)</code> keeps the build warning-free.</li>
 <li>Ordinary operands are stored by value when the case is built.
   Use a lambda for function calls or values that should be read from
-  external state each time the handler runs.</li>
+  external state each time the handler runs, or pass the result on
+  with <a href="#case-pipe"><code>| f</code></a>.</li>
 </ul>
+<h3 id="to"><code>to&lt;T&gt;</code><a class="headerlink" href="#to" title="Permanent link">&para;</a></h3>
+<p><code>to&lt;T&gt;</code> is a callable that constructs a <code>T</code> from its arguments. As a
+handler it receives the case's bindings, in order, and runs only when
+the case is selected:</p>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Point</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">pt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="n">match</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">to</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span><span class="p">,</span><span class="w">      </span><span class="c1">// Point{x, y}</span>
+<span class="w">  </span><span class="n">_</span><span class="w">     </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">to</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span><span class="w">       </span><span class="c1">// Point{}</span>
+<span class="p">);</span>
+
+<span class="n">match</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span><span class="n">$</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">to</span><span class="o">&lt;</span><span class="n">Celsius</span><span class="o">&gt;</span><span class="p">);</span><span class="w">   </span><span class="c1">// Celsius{n}</span>
+</code></pre></div>
+<ul>
+<li>An aggregate is initialized with braces, <code>T{args...}</code>; any other
+  type with parentheses, <code>T(args...)</code>. <code>to&lt;std::vector&lt;int&gt;&gt;</code> called
+  with <code>3</code> gives three elements, not one.</li>
+<li><code>T</code> is a non-array, non-abstract object type without <code>const</code> or
+  <code>volatile</code>.</li>
+<li><code>to&lt;T&gt;</code> only passes the bindings on unchanged. To transform them
+  first, write a lambda, or use <code>| to&lt;T&gt;</code> after an expression.</li>
+</ul>
+<h3 id="case-pipe"><code>case | f</code><a class="headerlink" href="#case-pipe" title="Permanent link">&para;</a></h3>
+<p><code>p &gt;&gt; h | f</code> passes the result of handler <code>h</code> to the callable <code>f</code>,
+once the case is selected. It is shorthand for a lambda that does the
+same: the pattern, its bindings and the case's place in the list do
+not change.</p>
+<div class="highlight"><pre><span></span><code><span class="n">match</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">-</span><span class="n">_</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">to</span><span class="o">&lt;</span><span class="n">Celsius</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">$</span><span class="w">        </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">parse</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">validate</span>
+<span class="p">);</span>
+
+<span class="n">match</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">job</span><span class="p">))</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">$</span><span class="p">[</span><span class="n">_</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">to</span><span class="o">&lt;</span><span class="n">Rejected</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">$</span><span class="w">               </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">schedule</span><span class="w">      </span><span class="c1">// the owned unique_ptr moves in</span>
+<span class="p">);</span>
+
+<span class="n">match</span><span class="p">(</span><span class="n">code</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"ok"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">to</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">  </span><span class="n">_</span><span class="w">      </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"error"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">to</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span>
+<span class="p">);</span>
+</code></pre></div>
+<ul>
+<li>C++ gives <code>&gt;&gt;</code> higher precedence than <code>|</code>, so <code>| f</code> applies to the
+  whole case: <code>$ &gt;&gt; _ * 2 | f</code> is <code>($ &gt;&gt; (_ * 2)) | f</code>.</li>
+<li>Any handler can come before <code>|</code>: an expression, a value, a lambda,
+  <code>to&lt;T&gt;</code>, or another <code>| f</code>. Any callable can come after it: a
+  function, a lambda, a pointer to member (<code>| &amp;Point::y</code>) or <code>to&lt;T&gt;</code>.
+  A pattern or a non-callable value after <code>|</code> is a compile error.</li>
+<li><code>f</code> receives one value, the handler's result, and is checked
+  against it at compile time even when the case is never selected. A
+  <code>void</code> handler has no result to pass on.</li>
+<li><code>f</code>'s result is the case's result. An rvalue reference result is
+  returned by value, since it would refer into a temporary.</li>
+<li><code>case | f</code> keeps the dispatch plan and the generated code of the
+  equivalent lambda, and a pack whose handlers and callables are all
+  stateless is still cached as <code>const</code> by <code>static_on</code>.</li>
+</ul>
+<p>There is no form for several values (<code>f(x, y * 2)</code>): write a lambda.</p>
 <hr />
 <h2 id="wildcard">Wildcard<a class="headerlink" href="#wildcard" title="Permanent link">&para;</a></h2>
 <h3 id="_-wildcard"><code>_</code><a class="headerlink" href="#_-wildcard" title="Permanent link">&para;</a></h3>
@@ -3124,6 +3229,7 @@ below:</p>
 <ul>
 <li><code>match</code></li>
 <li><code>on</code>, <code>on&lt;R&gt;</code></li>
+<li><code>to&lt;T&gt;</code>, <code>case | f</code></li>
 <li><code>lit</code>, <code>val</code>, <code>lit_ci</code></li>
 <li><code>$</code></li>
 <li><code>_</code>, <code>rng</code></li>
