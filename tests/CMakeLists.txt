@@ -183,6 +183,7 @@ set(PTN_CODEGEN_PROBES
   literal_dense_16:max-branches=4
   literal_dense_64:max-branches=4:reference=ptn_codegen_reference
   literal_dense_64_owned:max-branches=4:max-instructions=40
+  literal_dense_enum_class_16:max-branches=4:reference=ptn_codegen_reference
   literal_runtime_8:max-instructions=60
   literal_runtime_8_owned:max-instructions=60
   literal_sparse_15:max-branches=4:reference=ptn_codegen_reference

@@ -13,7 +13,7 @@ subject's type and on the patterns, never on the values:
 
 | Case list | Plan | Cost |
 |---|---|---|
-| `val<N>` literals on an integral or unscoped-enum subject, keys close together, an optional `_` last | Dense table: the subject's offset from the smallest key indexes one `switch` | One compare, then a jump or lookup table; independent of the number of cases |
+| `val<N>` literals on an integral or enum subject (scoped `enum class` included), keys close together, an optional `_` last | Dense table: the subject's offset from the smallest key indexes one `switch` | One compare, then a jump or lookup table; independent of the number of cases |
 | `lit(v)` literals on an integral or enum subject, an optional `_` last | The first case whose value equals the subject is found by comparisons that each yield a constant, then run through the same `switch` | Like a hand-written `switch`: compilers build a table when the keys allow it |
 | A `std::variant` subject with `is<T>`, `alt<I>`, `$(is<T>)`, `$(alt<I>)` cases, guarded or not, among any others | A `switch` on `index()`; each alternative runs only the cases that can match it, in source order | One switch, then the cases of one alternative; inside it, cases that only test the alternative do not test it again |
 | Anything else: guards on other patterns, structural patterns, predicates, strings | Source order | One test per case until a case matches, like an `if` chain |
@@ -38,10 +38,8 @@ literal from 4 literals up). `val<1>` to `val<64>` qualifies;
   whole list to source order, and so does mixing `val<N>` with `lit(v)`
   in one list. Put the literal cases in their own match if the rest
   needs guards.
-- `val<N>` dense tables apply to integral and unscoped `enum`
-  subjects. On a scoped `enum class` subject, `val<e>` is currently
-  compared in source order; use `lit(e)` there, which gets the
-  compare-then-switch plan.
+- `val<N>` dense tables apply to integral and enum subjects, scoped
+  `enum class` included.
 - For variants, any mix of cases is fine: the switch on `index()`
   happens first, and only the cases that can match the active
   alternative are tested.
