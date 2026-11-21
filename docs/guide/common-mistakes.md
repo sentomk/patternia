@@ -159,3 +159,17 @@ auto result = match(x) | on(
   _ >> std::string("0")
 );
 ```
+
+Or name the result type once with `on<R>(...)`. Each handler's result
+then only has to convert to `R`:
+
+```cpp
+std::string result = match(x) | on<std::string>(
+  lit(1) >> "100",
+  lit(2) >> "error",
+  _ >> "0"
+);
+```
+
+This is also how to return a `std::variant` whose alternatives have
+no common type.

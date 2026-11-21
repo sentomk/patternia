@@ -45,12 +45,14 @@ delivery dependencies, not claims that the planned APIs exist today.
 
 ## v0.10 — Result types and lazy expressions { data-toc-label="v0.10" }
 
-**Status:** Planned
+**Status:** In progress
 
 Reduce repeated result wrappers and single-expression lambdas without
 hiding complex business operations inside the DSL.
 
 ### Explicit result type
+
+**Implemented.** See [`on<R>`](api.md#on-result).
 
 `on<R>(...)` fixes the match result type once. Every selected handler
 result must be convertible to `R`; deduced `on(...)` remains available.

@@ -15,8 +15,12 @@
 
 namespace ptn::core::dsl::detail {
 
-  template <typename... Cases>
-  struct on;
+  // Result type marker of an `on(...)` pack whose result type is
+  // deduced from its handlers.
+  struct deduced_result {};
+
+  template <typename Result, typename... Cases>
+  struct on_cases;
 
   // Internal representation of a pattern-handler pair (case).
   //
@@ -81,8 +85,8 @@ namespace ptn::core::dsl::detail {
   template <typename T>
   struct is_on : std::false_type {};
 
-  template <typename... Cases>
-  struct is_on<on<Cases...>> : std::true_type {};
+  template <typename Result, typename... Cases>
+  struct is_on<on_cases<Result, Cases...>> : std::true_type {};
 
   template <typename T>
   inline constexpr bool is_on_v = is_on<
@@ -183,23 +187,50 @@ namespace ptn::core::dsl::detail {
   }
 
   // Compact case pack used by `match(x) | on(...)`.
-  template <typename... Cases>
-  struct on {
-    using tuple_type = case_pack<Cases...>;
+  //
+  // `Result` is the result type given to `on<Result>(...)`, or
+  // `deduced_result` for `on(...)`, whose result type is the common
+  // type of its handlers' results.
+  template <typename Result, typename... Cases>
+  struct on_cases {
+    using result_spec = Result;
+    using tuple_type  = case_pack<Cases...>;
 
     tuple_type cases;
 
     template <typename... Exprs,
               typename = std::enable_if_t<sizeof...(Exprs)
                                           == sizeof...(Cases)>>
-    constexpr explicit on(Exprs &&...exprs)
+    constexpr explicit on_cases(Exprs &&...exprs)
         : cases(std::forward<Exprs>(exprs)...) {
       (core::common::static_assert_case_expression<Cases>(), ...);
     }
   };
 
-  template <typename... Cases>
-  on(Cases &&...) -> on<std::decay_t<Cases>...>;
+  // `on(cases...)`: the match result is the common type of the
+  // handlers' results, or `void` when every handler returns `void`.
+  template <typename... Exprs>
+  constexpr auto on(Exprs &&...exprs) {
+    return on_cases<deduced_result, std::decay_t<Exprs>...>(
+        std::forward<Exprs>(exprs)...);
+  }
+
+  // `on<R>(cases...)`: the match result is `R`. Every handler result
+  // must convert to `R`, whether or not its case can be selected.
+  // With `R = void`, handler results are discarded.
+  //
+  // `R` cannot be deduced, so a call without an explicit template
+  // argument always selects the overload above. With one, the
+  // overload above would take `R` as the type of its first case and
+  // is not viable for an actual case expression.
+  template <typename Result, typename... Exprs>
+  constexpr auto on(Exprs &&...exprs) {
+    static_assert(
+        !std::is_same_v<std::remove_cv_t<Result>, deduced_result>,
+        "[Patternia.on]: use on(...) for a deduced result type.");
+    return on_cases<Result, std::decay_t<Exprs>...>(
+        std::forward<Exprs>(exprs)...);
+  }
 
 } // namespace ptn::core::dsl::detail
 
