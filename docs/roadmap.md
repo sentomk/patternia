@@ -32,18 +32,18 @@ Feedback on any item is welcome in
 
 | Version | Main additions |
 |---|---|
-| v0.10 | Explicit result types and lazy construction/function expressions |
+| v0.10 | Explicit result types, `to<T>` construction and pipe handlers |
 | v0.11 | Exhaustiveness, checked intervals, and complete enum domains |
 | v0.12 | Nested patterns, multiple subjects, and structural coverage |
 | v0.13 | Broader performance work, reflection, and positional constructor patterns |
 
-Move-aware binding comes before lazy expressions; finite-domain
+Move-aware binding comes before the handler sugar; finite-domain
 coverage comes before the nested pattern-matrix analysis. These are
 delivery dependencies, not claims that the planned APIs exist today.
 
 ---
 
-## v0.10 — Result types and lazy expressions { data-toc-label="v0.10" }
+## v0.10 — Result types and handler sugar { data-toc-label="v0.10" }
 
 **Status:** In progress
 
@@ -71,29 +71,28 @@ Result typing is independent of coverage: `on<R>` neither supplies a
 fallback nor makes a partial match exhaustive. Invalid branch results
 must be diagnosed even if that branch is not selected at run time.
 
-### Lazy construction and calls
+### Construction and pipe sugar
 
-`make<T>(expressions...)` constructs `T{...}` after its case wins.
-`call(f, expressions...)` invokes a callable at that same point. Both
-compose with existing arithmetic and named binding expressions.
+**Implemented.** See [`to<T>`](api.md#to) and
+[`case | f`](api.md#case-pipe).
+
+`to<T>` is a callable that constructs `T` from the case's bindings,
+and `p >> h | f` passes the handler's result to `f`. Both are syntax
+sugar for a one-line lambda: they run only when the case is selected
+and add no rules of their own.
 
 ```cpp
 struct Point { int x; int y; };
 
-match(n) | on($ >> make<Point>(_, _ * 2));
-match(text) | on($ >> call(parse, _));
+match(p) | on($(pt) >> to<Point>, _ >> to<Point>);
+match(n) | on($ >> (_ * 2 + 1) | to<Celsius>);
+match(text) | on($ >> _ | parse);
 ```
 
-An ordinary value handler is still eager: `p >> build()` evaluates
-`build()` while constructing the case pack; `p >> call(build)` waits
-until that case is selected. Unselected expression handlers perform
-no calls or result construction.
-
-These expressions use v0.9.6's ownership rules. Reads may reuse a
-binding, but expression forwarding must not silently consume the same
-bound value twice. Define argument evaluation order and diagnose
-unsupported repeated consumption before freezing the API. Complex
-control flow and ambiguous ownership remain ordinary lambda code.
+This replaces the earlier `make<T>(expressions...)` and
+`call(f, expressions...)` design, which read like function calls.
+`call(build)` with no arguments was never needed: `p >> build`, a
+callable handler, already waits until its case is selected.
 
 ---
 
@@ -526,8 +525,16 @@ concrete use case first.
 - **Sequence patterns.** Matching the head and rest of a `vector` or
   `array`.
 - **Conditional expression handlers.** `iif(cond, a, b)` would evaluate
-  only the chosen expression. Calls and construction are scheduled for
-  v0.10; conditional evaluation still needs a concrete use case.
+  only the chosen expression. Construction and single-value calls
+  shipped as `to<T>` and `| f` in v0.10; conditional evaluation still
+  needs a concrete use case.
+- **Several values in one call.** `(x, y * 2) | to<Point>` would pass
+  transformed bindings to one call. Declined for now: it needs an
+  overloaded comma operator, which every comma fold over placeholder
+  expressions (in Patternia and in user code) would pick up silently;
+  it makes `| f` unpack a tuple result but not a handler's own
+  `std::pair`; and each element needs its own forwarding, lifetime
+  and repeated-consumption rules. A lambda covers the case today.
 - **More value types on the left of `>>`.** Accepting any
   equality-comparable type, not only arithmetic, enum and string
   types.
