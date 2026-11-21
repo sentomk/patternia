@@ -236,18 +236,28 @@ namespace ptn::core::common {
     template <typename Pattern, typename Subject, bool = false>
     struct is_static_literal_subject_compatible : std::false_type {};
 
+    // The literal must convert to the subject's key. A literal of
+    // the subject's own enum type always does, through `static_cast`
+    // to the underlying type; this covers scoped enums, whose
+    // enumerators do not convert implicitly.
     template <typename Pattern, typename Subject>
     struct is_static_literal_subject_compatible<Pattern,
                                                 Subject,
-                                                true>
-        : std::bool_constant<
-              is_equality_comparable_v<
-                  Subject,
-                  typename std::decay_t<Pattern>::store_t>
-              && std::is_constructible_v<
-                  literal_subject_key_t<std::remove_cv_t<
-                      std::remove_reference_t<Subject>>>,
-                  decltype(std::decay_t<Pattern>::value)>> {};
+                                                true> {
+      using subject_t = std::remove_cv_t<
+          std::remove_reference_t<Subject>>;
+      using value_t = std::remove_cv_t<
+          decltype(std::decay_t<Pattern>::value)>;
+
+      static constexpr bool
+          value = is_equality_comparable_v<
+                      Subject,
+                      typename std::decay_t<Pattern>::store_t>
+                  && (std::is_same_v<value_t, subject_t>
+                      || std::is_constructible_v<
+                          literal_subject_key_t<subject_t>,
+                          value_t>);
+    };
 
     template <typename Pattern, typename Subject>
     struct static_literal_case_value;

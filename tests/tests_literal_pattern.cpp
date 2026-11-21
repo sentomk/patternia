@@ -487,3 +487,89 @@ TEST(LiteralPattern, DenseDispatchOnBoolKeys) {
   EXPECT_EQ(match(yes) | flags, 2);
   EXPECT_EQ(match(true) | flags, 2);
 }
+
+namespace {
+  // The default `int` base is the case from issue #112.
+  // NOLINTNEXTLINE(performance-enum-size)
+  enum class ScopedKey {
+    a,
+    b,
+    c,
+    d
+  };
+  enum class ScopedByte : std::uint8_t {
+    miss = 0,
+    lo   = 253,
+    mid  = 254,
+    hi   = 255
+  };
+  // NOLINTNEXTLINE(performance-enum-size)
+  enum PlainKey {
+    pa,
+    pb,
+    pc
+  };
+  enum class OtherScoped : std::uint8_t {
+    a,
+    b,
+    c
+  };
+} // namespace
+
+// Issue #112: `val<e>` on a scoped enum subject takes the
+// dense-table plan, like an unscoped enum or an integer.
+TEST(LiteralPattern, ScopedEnumValUsesDensePlan) {
+  auto cases = on(val<ScopedKey::a> >> 1,
+                  val<ScopedKey::b> >> 2,
+                  val<ScopedKey::c> >> 3,
+                  _ >> 0);
+  static_assert(is_dense_literal_plan_v<ScopedKey, decltype(cases)>);
+  static_assert(
+      is_dense_literal_plan_v<const ScopedKey, decltype(cases)>);
+
+  EXPECT_EQ(match(ScopedKey::a) | cases, 1);
+  EXPECT_EQ(match(ScopedKey::b) | cases, 2);
+  EXPECT_EQ(match(ScopedKey::c) | cases, 3);
+  EXPECT_EQ(match(ScopedKey::d) | cases, 0);
+  const ScopedKey key = ScopedKey::c;
+  EXPECT_EQ(match(key) | cases, 3);
+
+  auto plain = on(val<pa> >> 1, val<pb> >> 2, val<pc> >> 3, _ >> 0);
+  static_assert(is_dense_literal_plan_v<PlainKey, decltype(plain)>);
+}
+
+TEST(LiteralPattern, ScopedEnumWithByteUnderlyingTypeUsesDensePlan) {
+  auto cases = on(val<ScopedByte::lo> >> 1,
+                  val<ScopedByte::mid> >> 2,
+                  val<ScopedByte::hi> >> 3,
+                  _ >> 0);
+  static_assert(
+      is_dense_literal_plan_v<ScopedByte, decltype(cases)>);
+
+  // `miss` sits below the span, so the offset from the smallest
+  // literal wraps in the key's unsigned width.
+  EXPECT_EQ(match(ScopedByte::miss) | cases, 0);
+  EXPECT_EQ(match(ScopedByte::lo) | cases, 1);
+  EXPECT_EQ(match(ScopedByte::mid) | cases, 2);
+  EXPECT_EQ(match(ScopedByte::hi) | cases, 3);
+}
+
+// A literal of another enum type, or an integer literal, still does
+// not compare with a scoped enum subject, so it must not reach the
+// dense plan through the underlying type.
+TEST(LiteralPattern, ScopedEnumRejectsForeignLiteralsInDensePlan) {
+  using foreign_enum = decltype(on(val<OtherScoped::a> >> 1,
+                                   _ >> 0));
+  using integer      = decltype(on(val<0> >> 1, _ >> 0));
+  static_assert(
+      !dispatch::is_static_literal_subject_compatible<
+          ptn::core::traits::case_pattern_t<
+              std::tuple_element_t<0, foreign_enum::tuple_type>>,
+          ScopedKey,
+          true>::value);
+  static_assert(!dispatch::is_static_literal_subject_compatible<
+                ptn::core::traits::case_pattern_t<
+                    std::tuple_element_t<0, integer::tuple_type>>,
+                ScopedKey,
+                true>::value);
+}
