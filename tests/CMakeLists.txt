@@ -78,6 +78,8 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/on_result_reference_temporary.cpp
   compile_fail/on_result_explicit_conversion.cpp
   compile_fail/on_result_array_type.cpp
+  compile_fail/on_result_function_type.cpp
+  compile_fail/on_result_abstract_type.cpp
   compile_fail/on_result_missing_fallback.cpp
   compile_fail/on_result_bad_handler.cpp
   compile_fail/expression_handler_requires_binding.cpp
