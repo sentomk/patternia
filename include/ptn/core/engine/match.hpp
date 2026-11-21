@@ -63,8 +63,9 @@ namespace ptn::core::engine::detail {
   template <typename Cases>
   struct caches_cases_as_const : std::false_type {};
 
-  template <typename... Cases>
-  struct caches_cases_as_const<core::dsl::detail::on<Cases...>>
+  template <typename Result, typename... Cases>
+  struct caches_cases_as_const<
+      core::dsl::detail::on_cases<Result, Cases...>>
       : std::bool_constant<(
             is_stateless_handler_v<traits::case_handler_t<Cases>>
             && ...)> {};

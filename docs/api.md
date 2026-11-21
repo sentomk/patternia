@@ -127,6 +127,44 @@ not a case expression. `on(...)` rejects its result and suggests
 `lit(0) >> 1`. Use `lit(0) >> func` for a function-pointer handler
 as well: C++ rejects `0 >> func` before Patternia can validate it.
 
+### `on<R>(case1, case2, ...)` {#on-result}
+
+`on<R>(...)` fixes the result type of the match to `R` instead of
+deducing the common type of the handlers' results. Each handler's
+result must convert implicitly to `R`; the results do not need a
+common type of their own.
+
+```cpp
+enum class Action { Start, Stop };
+using Transition = std::variant<Started, Stopped>;
+
+Transition next = match(action) | on<Transition>(
+  val<Action::Start> >> Started{},
+  _                  >> Stopped{}
+);
+```
+
+Rules:
+
+- Every handler is checked, including handlers of cases that the
+  subject can never select. A handler whose result does not convert,
+  a `void` handler with a non-`void` `R`, or a conversion that needs
+  an `explicit` constructor is a compile-time error.
+- `on<void>(...)` discards every handler's result.
+- A reference `R` must bind directly to a reference the handler
+  returns (`Derived &` to `const Base &` is fine). A handler that
+  returns a value, or a reference that would first be converted to a
+  temporary, is rejected because the result would dangle.
+- `R` is not an array, function or abstract class type.
+- `on<R>` changes only the result type. It does not supply a fallback
+  or make a case list exhaustive, and it does not change how cases are
+  dispatched. All rules of `on(...)` still apply.
+
+`on<R>` works with borrowed and owned subjects, with `static_on`, and
+with `const` or `constexpr` case packs. `PTN_ON(...)` always deduces
+the result type; write `static_on([] { return on<R>(...); })` to cache
+a pack with an explicit result type.
+
 ### `pattern >> handler` {#pattern-handler}
 
 This is the core case-expression form.
@@ -639,7 +677,7 @@ The public surface is available through `namespace ptn`, plus the macros listed
 below:
 
 - `match`
-- `on`
+- `on`, `on<R>`
 - `lit`, `val`, `lit_ci`
 - `$`
 - `_`, `rng`
