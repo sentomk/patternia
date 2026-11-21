@@ -225,7 +225,75 @@ match(p) | on(
   writing `$ >> (_ + 1)` keeps the build warning-free.
 - Ordinary operands are stored by value when the case is built.
   Use a lambda for function calls or values that should be read from
-  external state each time the handler runs.
+  external state each time the handler runs, or pass the result on
+  with [`| f`](#case-pipe).
+
+### `to<T>` {#to}
+
+`to<T>` is a callable that constructs a `T` from its arguments. As a
+handler it receives the case's bindings, in order, and runs only when
+the case is selected:
+
+```cpp
+struct Point { int x; int y; };
+constexpr auto pt = has<&Point::x, &Point::y>;
+
+match(p) | on(
+  $(pt) >> to<Point>,      // Point{x, y}
+  _     >> to<Point>       // Point{}
+);
+
+match(n) | on($ >> to<Celsius>);   // Celsius{n}
+```
+
+- An aggregate is initialized with braces, `T{args...}`; any other
+  type with parentheses, `T(args...)`. `to<std::vector<int>>` called
+  with `3` gives three elements, not one.
+- `T` is a non-array, non-abstract object type without `const` or
+  `volatile`.
+- `to<T>` only passes the bindings on unchanged. To transform them
+  first, write a lambda, or use `| to<T>` after an expression.
+
+### `case | f` {#case-pipe}
+
+`p >> h | f` passes the result of handler `h` to the callable `f`,
+once the case is selected. It is shorthand for a lambda that does the
+same: the pattern, its bindings and the case's place in the list do
+not change.
+
+```cpp
+match(n) | on(
+  $[_ < 0] >> -_ | to<Celsius>,
+  $        >> _ | parse | validate
+);
+
+match(std::move(job)) | on(
+  $[_ == nullptr] >> to<Rejected>,
+  $               >> _ | schedule      // the owned unique_ptr moves in
+);
+
+match(code) | on(
+  lit(0) >> "ok" | to<std::string>,
+  _      >> "error" | to<std::string>
+);
+```
+
+- C++ gives `>>` higher precedence than `|`, so `| f` applies to the
+  whole case: `$ >> _ * 2 | f` is `($ >> (_ * 2)) | f`.
+- Any handler can come before `|`: an expression, a value, a lambda,
+  `to<T>`, or another `| f`. Any callable can come after it: a
+  function, a lambda, a pointer to member (`| &Point::y`) or `to<T>`.
+  A pattern or a non-callable value after `|` is a compile error.
+- `f` receives one value, the handler's result, and is checked
+  against it at compile time even when the case is never selected. A
+  `void` handler has no result to pass on.
+- `f`'s result is the case's result. An rvalue reference result is
+  returned by value, since it would refer into a temporary.
+- `case | f` keeps the dispatch plan and the generated code of the
+  equivalent lambda, and a pack whose handlers and callables are all
+  stateless is still cached as `const` by `static_on`.
+
+There is no form for several values (`f(x, y * 2)`): write a lambda.
 
 ---
 
@@ -678,6 +746,7 @@ below:
 
 - `match`
 - `on`, `on<R>`
+- `to<T>`, `case | f`
 - `lit`, `val`, `lit_ci`
 - `$`
 - `_`, `rng`

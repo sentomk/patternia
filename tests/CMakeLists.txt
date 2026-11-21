@@ -30,6 +30,7 @@ add_executable(ptn_tests
   tests_handler_forms.cpp
   tests_expression_handler.cpp
   tests_explicit_result.cpp
+  tests_to_pipe.cpp
   tests_dispatch_fallback.cpp
   tests_dispatch_metadata.cpp
   tests_move_matching.cpp
@@ -82,6 +83,14 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/on_result_abstract_type.cpp
   compile_fail/on_result_missing_fallback.cpp
   compile_fail/on_result_bad_handler.cpp
+  compile_fail/pipe_pattern_operand.cpp
+  compile_fail/pipe_non_callable.cpp
+  compile_fail/pipe_void_handler.cpp
+  compile_fail/pipe_target_mismatch.cpp
+  compile_fail/to_invalid_type.cpp
+  compile_fail/to_cv_type.cpp
+  compile_fail/to_function_type.cpp
+  compile_fail/to_abstract_type.cpp
   compile_fail/expression_handler_requires_binding.cpp
   compile_fail/expression_handler_result_requires_binding.cpp
   compile_fail/expression_handler_foreign_member.cpp
@@ -193,6 +202,7 @@ endforeach()
 set(PTN_CODEGEN_PROBES
   literal_dense_16:max-branches=4
   literal_dense_16_explicit_result:max-branches=4:reference=ptn_codegen_reference
+  literal_dense_16_pipe:max-branches=4:reference=ptn_codegen_reference
   literal_dense_64:max-branches=4:reference=ptn_codegen_reference
   literal_dense_64_owned:max-branches=4:max-instructions=40
   literal_dense_enum_class_16:max-branches=4:reference=ptn_codegen_reference

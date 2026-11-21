@@ -24,6 +24,7 @@
 // --- DSL Operators ---
 // Enables the use of `&&`, `||`, `!` for pattern composition.
 #include "ptn/core/dsl/ops.hpp"
+#include "ptn/core/dsl/to.hpp"
 
 // --- All Pattern Modules ---
 // Includes all public pattern factories.
@@ -40,6 +41,7 @@
 namespace ptn {
   // Imports DSL operators.
   using ptn::core::dsl::ops::operator>>;
+  using ptn::core::dsl::to;
   using ptn::core::dsl::detail::on;
 
   using ptn::pat::lit;

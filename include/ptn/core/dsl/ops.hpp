@@ -14,6 +14,7 @@
 #include "ptn/core/common/common_traits.hpp"
 #include "ptn/core/dsl/detail/case_expr_impl.hpp"
 #include "ptn/core/dsl/detail/expression_handler.hpp"
+#include "ptn/core/dsl/detail/piped_handler.hpp"
 #include "ptn/pattern/lit.hpp"
 #include "ptn/pattern/plain_value.hpp"
 
@@ -108,5 +109,6 @@ namespace ptn::pat::base {
 namespace ptn::core::dsl::ops {
 
   using ptn::pat::base::operator>>;
+  using ptn::core::dsl::detail::operator|;
 
 } // namespace ptn::core::dsl::ops

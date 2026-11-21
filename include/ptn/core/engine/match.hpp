@@ -12,6 +12,7 @@
 #include "ptn/core/common/inline.hpp"
 #include "ptn/core/dsl/detail/case_expr_impl.hpp"
 #include "ptn/core/dsl/detail/expression_handler.hpp"
+#include "ptn/core/dsl/detail/piped_handler.hpp"
 #include "ptn/core/engine/detail/pipeline_match_context.hpp"
 
 namespace ptn::core::engine::detail {
@@ -51,14 +52,25 @@ namespace ptn::core::engine::detail {
 
   // A handler that keeps no state between calls and can be called
   // through a const reference: an empty class with a const call
-  // operator (such as a captureless lambda), a constant result, or
-  // an expression.
+  // operator (such as a captureless lambda), a constant result, an
+  // expression, or `h | f` where both `h` and `f` are stateless.
   template <typename Handler>
-  inline constexpr bool is_stateless_handler_v =
-      (std::is_empty_v<Handler>
-       && !has_non_const_call_operator<Handler>::value)
-      || core::dsl::detail::is_value_handler_v<Handler>
-      || is_expression_handler<Handler>::value;
+  struct is_stateless_handler
+      : std::bool_constant<
+            (std::is_empty_v<Handler>
+             && !has_non_const_call_operator<Handler>::value)
+            || core::dsl::detail::is_value_handler_v<Handler>
+            || is_expression_handler<Handler>::value> {};
+
+  template <typename Handler, typename Pipe>
+  struct is_stateless_handler<
+      core::dsl::detail::piped_handler<Handler, Pipe>>
+      : std::bool_constant<is_stateless_handler<Handler>::value
+                           && is_stateless_handler<Pipe>::value> {};
+
+  template <typename Handler>
+  inline constexpr bool
+      is_stateless_handler_v = is_stateless_handler<Handler>::value;
 
   template <typename Cases>
   struct caches_cases_as_const : std::false_type {};
