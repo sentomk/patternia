@@ -1801,7 +1801,7 @@ subject's type and on the patterns, never on the values:</p>
 </thead>
 <tbody>
 <tr>
-<td><code>val&lt;N&gt;</code> literals on an integral or unscoped-enum subject, keys close together, an optional <code>_</code> last</td>
+<td><code>val&lt;N&gt;</code> literals on an integral or enum subject (scoped <code>enum class</code> included), keys close together, an optional <code>_</code> last</td>
 <td>Dense table: the subject's offset from the smallest key indexes one <code>switch</code></td>
 <td>One compare, then a jump or lookup table; independent of the number of cases</td>
 </tr>
@@ -1840,10 +1840,8 @@ literal from 4 literals up). <code>val&lt;1&gt;</code> to <code>val&lt;64&gt;</c
   whole list to source order, and so does mixing <code>val&lt;N&gt;</code> with <code>lit(v)</code>
   in one list. Put the literal cases in their own match if the rest
   needs guards.</li>
-<li><code>val&lt;N&gt;</code> dense tables apply to integral and unscoped <code>enum</code>
-  subjects. On a scoped <code>enum class</code> subject, <code>val&lt;e&gt;</code> is currently
-  compared in source order; use <code>lit(e)</code> there, which gets the
-  compare-then-switch plan.</li>
+<li><code>val&lt;N&gt;</code> dense tables apply to integral and enum subjects, scoped
+  <code>enum class</code> included.</li>
 <li>For variants, any mix of cases is fine: the switch on <code>index()</code>
   happens first, and only the cases that can match the active
   alternative are tested.</li>
