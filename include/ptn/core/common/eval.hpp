@@ -126,6 +126,38 @@ namespace ptn::core::common {
       }
     }
 
+    // Calls a case's handler with its pattern's bindings, or with no
+    // arguments when it accepts only that: such a handler ignores
+    // the bindings, as on the owned path.
+    template <typename F, typename... Args>
+    PTN_DETAIL_ALWAYS_INLINE constexpr decltype(auto)
+    invoke_case_handler(F &&f, Args &&...args) {
+      if constexpr (std::is_invocable_v<F, Args...>) {
+        return std::invoke(std::forward<F>(f),
+                           std::forward<Args>(args)...);
+      }
+      else {
+        return std::invoke(std::forward<F>(f));
+      }
+    }
+
+    template <typename F, typename Tuple, std::size_t... I>
+    constexpr decltype(auto) invoke_handler_from_tuple_impl(
+        F &&f, Tuple &&t, std::index_sequence<I...>) {
+      return invoke_case_handler(
+          std::forward<F>(f), forward_bound_element<I, Tuple>(t)...);
+    }
+
+    template <typename F, typename Tuple>
+    constexpr decltype(auto) invoke_handler_from_tuple(F     &&f,
+                                                       Tuple &&t) {
+      using tuple_t = std::remove_reference_t<Tuple>;
+      return invoke_handler_from_tuple_impl(
+          std::forward<F>(f),
+          std::forward<Tuple>(t),
+          std::make_index_sequence<std::tuple_size_v<tuple_t>>{});
+    }
+
     template <typename F, typename Tuple>
     constexpr decltype(auto) invoke_from_tuple(F &&f, Tuple &&t) {
       using tuple_t = std::remove_reference_t<Tuple>;
@@ -153,7 +185,7 @@ namespace ptn::core::common {
 
     // Extract bound values from the pattern
     auto &&bound_values = std::as_const(c.pattern).bind(subject);
-    return detail::invoke_from_tuple(
+    return detail::invoke_handler_from_tuple(
         c.handler,
         std::forward<decltype(bound_values)>(bound_values));
   }
@@ -372,8 +404,8 @@ namespace ptn::core::common {
               subject);
           if (guard_predicate_holds_direct_ref(guarded.pred,
                                                bound_ref)) {
-            return static_cast<Result>(
-                std::invoke(current_case.handler, bound_ref));
+            return static_cast<Result>(invoke_case_handler(
+                current_case.handler, bound_ref));
           }
         }
       }
@@ -381,7 +413,7 @@ namespace ptn::core::common {
         auto &&bound_ref = variant_direct_ref_bind_get<pattern_t>(
             subject);
         return static_cast<Result>(
-            std::invoke(current_case.handler, bound_ref));
+            invoke_case_handler(current_case.handler, bound_ref));
       }
 
       return std::forward<OnMiss>(on_miss)();
@@ -498,9 +530,10 @@ namespace ptn::core::common {
             current_case,
             subject,
             [&](auto &&bound) -> Result {
-              return static_cast<Result>(detail::invoke_from_tuple(
-                  current_case.handler,
-                  std::forward<decltype(bound)>(bound)));
+              return static_cast<Result>(
+                  detail::invoke_handler_from_tuple(
+                      current_case.handler,
+                      std::forward<decltype(bound)>(bound)));
             },
             std::forward<OnMiss>(on_miss));
       }
@@ -667,8 +700,8 @@ namespace ptn::core::common {
             return std::forward<OnMiss>(on_miss)();
           }
         }
-        return static_cast<Result>(
-            detail::invoke_from_tuple(current_case.handler, bound));
+        return static_cast<Result>(detail::invoke_handler_from_tuple(
+            current_case.handler, bound));
       }
     }
 

@@ -129,16 +129,18 @@ namespace ptn::core::traits {
   // Handler Invocability Check (C++17)
 
   namespace detail {
-    // The result type goes through remove_reference_t so that a
-    // handler returning a reference (a lambda returning `const T &`,
-    // or a pointer to data member) still forms a valid pointer type.
+    // Whether H accepts the elements of Tuple as arguments. Tested
+    // with std::is_invocable rather than through std::apply: apply
+    // returns decltype(auto), so naming its result instantiates its
+    // body, and a mismatch is a hard error rather than a
+    // substitution failure. MSVC's apply is not SFINAE-friendly
+    // either.
     template <typename H, typename Tuple>
-    static constexpr std::true_type is_applicable_impl(
-        std::remove_reference_t<decltype(std::apply(
-            std::declval<H>(), std::declval<Tuple>()))> *);
+    struct is_invocable_with_tuple;
 
-    template <typename H, typename Tuple>
-    static constexpr std::false_type is_applicable_impl(...);
+    template <typename H, typename... Args>
+    struct is_invocable_with_tuple<H, std::tuple<Args...>>
+        : std::is_invocable<H, Args...> {};
 
     // Does the class type T have a call operator? T is probed
     // without instantiating any operator() body: a type deriving
@@ -232,6 +234,7 @@ namespace ptn::core::traits {
   //   Handler arguments are exactly the pattern's bound values:
   //   handler( pattern.bind(subject)... )
   //   The subject itself is NOT passed as a separate first argument.
+  //   A handler that accepts no arguments ignores the bindings.
   template <typename Case, typename Subject>
   struct is_handler_invocable {
   private:
@@ -246,9 +249,9 @@ namespace ptn::core::traits {
 
   public:
     static constexpr bool
-        value = decltype(detail::is_applicable_impl<
-                         handler_type,
-                         full_invoke_args_tuple>(nullptr))::value
+        value = detail::is_invocable_with_tuple<
+                    handler_type,
+                    full_invoke_args_tuple>::value
                 || std::is_invocable_v<handler_type>;
   };
 

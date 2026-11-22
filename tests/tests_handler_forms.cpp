@@ -163,3 +163,72 @@ TEST(HandlerForms, ValuesAreStillValues) {
                           ptn::_ >> std::string("other")),
             "seven");
 }
+
+// A handler that accepts no arguments ignores the pattern's
+// bindings, whether the subject is borrowed or owned.
+TEST(HandlerForms, NullaryHandlerIgnoresBindings) {
+  int value = 5;
+
+  EXPECT_EQ(ptn::match(value)
+                | ptn::on(
+                    ptn::$ >> [] { return 1; }, ptn::_ >> 0),
+            1);
+  EXPECT_EQ(ptn::match(5)
+                | ptn::on(
+                    ptn::$ >> [] { return 1; }, ptn::_ >> 0),
+            1);
+
+  const auto cases = ptn::on(
+      ptn::$[ptn::_ > 3] >> [] { return 2; }, ptn::_ >> 0);
+  int one = 1;
+  EXPECT_EQ(ptn::match(value) | cases, 2);
+  EXPECT_EQ(ptn::match(one) | cases, 0);
+}
+
+TEST(HandlerForms, NullaryHandlerOnDestructuringPattern) {
+  Point p{3, 4};
+
+  int calls = 0;
+  ptn::match(p)
+      | ptn::on(
+          ptn::$(ptn::has<&Point::x, &Point::y>) >> [&] { ++calls; },
+          ptn::_ >> [] {});
+  EXPECT_EQ(calls, 1);
+}
+
+TEST(HandlerForms, NullaryHandlerOnVariantAlternative) {
+  Text text = std::string("abc");
+  Text num  = 9;
+
+  auto run = [](Text &v) {
+    return ptn::match(v)
+           | ptn::on(
+               ptn::$(ptn::is<std::string>()) >> [] { return 1; },
+               ptn::$(ptn::is<int>())[ptn::_ > 3] >>
+                   [] { return 2; },
+               ptn::_ >> 0);
+  };
+  EXPECT_EQ(run(text), 1);
+  EXPECT_EQ(run(num), 2);
+}
+
+TEST(HandlerForms, NullaryHandlerBeforePipe) {
+  int value = 5;
+
+  long result = ptn::match(value)
+                | ptn::on(
+                    ptn::$ >> [] { return 3; } | ptn::to<long>,
+                    ptn::_ >> 0L);
+  EXPECT_EQ(result, 3L);
+}
+
+// to<T> is called with no arguments when T cannot be built from the
+// bindings but has a default constructor.
+TEST(HandlerForms, ToWithoutMatchingConstructor) {
+  int value = 5;
+
+  std::string result = ptn::match(value)
+                       | ptn::on(ptn::$ >> ptn::to<std::string>,
+                                 ptn::_ >> std::string("other"));
+  EXPECT_EQ(result, "");
+}
