@@ -102,27 +102,6 @@ namespace ptn::core::engine::detail {
                   "pointer as R.");
   }
 
-  // Whether a borrowed case's handler accepts its pattern's
-  // bindings, tested with std::is_invocable on each binding. Unlike
-  // is_handler_invocable_v, it never names std::apply, whose MSVC
-  // definition is not SFINAE-friendly: a hard error there would
-  // replace the case's own diagnostic.
-  template <typename Handler, typename Bindings>
-  struct is_handler_invocable_with_bindings;
-
-  template <typename Handler, typename... Bindings>
-  struct is_handler_invocable_with_bindings<Handler,
-                                            std::tuple<Bindings...>>
-      : std::bool_constant<std::is_invocable_v<Handler, Bindings...>
-                           || std::is_invocable_v<Handler>> {};
-
-  template <typename Case, typename Subject>
-  inline constexpr bool is_borrowed_case_invocable_v =
-      is_handler_invocable_with_bindings<
-          traits::case_handler_t<Case>,
-          pat::base::binding_args_t<traits::case_pattern_t<Case>,
-                                    Subject>>::value;
-
   template <typename S, typename Cases, std::size_t... I>
   auto owned_case_results(std::index_sequence<I...>)
       -> std::tuple<core::common::detail::owned_case_result_t<
@@ -231,30 +210,43 @@ namespace ptn::core::engine::detail {
         (ptn::core::common::static_assert_valid_case<Cases,
                                                      subject_type>(),
          ...);
-        auto dummy_fallback = [](auto &&...)
-            -> ptn::core::traits::detail::unreachable_t {
-          return {};
-        };
-        using dummy_handler_t = decltype(dummy_fallback);
-
-        ptn::core::common::static_assert_valid_match<subject_type,
-                                                     dummy_handler_t,
-                                                     Cases...>();
-
-        using result_type = core::traits::
-            match_result_t<subject_type, dummy_handler_t, Cases...>;
-
-        if constexpr (traits::is_void_like_v<result_type>) {
-          match_impl::eval<result_type>(
-              std::forward<subject_type>(subject_),
-              std::forward<CasesStorage>(pipeline_cases),
-              std::move(dummy_fallback));
+        if constexpr (!(traits::is_handler_invocable_v<Cases,
+                                                       subject_type>
+                        && ...)) {
+          // Stop before computing a result type from a handler that
+          // cannot be called: the diagnostic above is the useful
+          // one.
+          return traits::detail::unreachable_t{};
         }
         else {
-          return match_impl::eval<result_type>(
-              std::forward<subject_type>(subject_),
-              std::forward<CasesStorage>(pipeline_cases),
-              std::move(dummy_fallback));
+          auto dummy_fallback = [](auto &&...)
+              -> ptn::core::traits::detail::unreachable_t {
+            return {};
+          };
+          using dummy_handler_t = decltype(dummy_fallback);
+
+          ptn::core::common::static_assert_valid_match<
+              subject_type,
+              dummy_handler_t,
+              Cases...>();
+
+          using result_type = core::traits::match_result_t<
+              subject_type,
+              dummy_handler_t,
+              Cases...>;
+
+          if constexpr (traits::is_void_like_v<result_type>) {
+            match_impl::eval<result_type>(
+                std::forward<subject_type>(subject_),
+                std::forward<CasesStorage>(pipeline_cases),
+                std::move(dummy_fallback));
+          }
+          else {
+            return match_impl::eval<result_type>(
+                std::forward<subject_type>(subject_),
+                std::forward<CasesStorage>(pipeline_cases),
+                std::move(dummy_fallback));
+          }
         }
       }
     }
@@ -293,8 +285,8 @@ namespace ptn::core::engine::detail {
         (ptn::core::common::static_assert_valid_case<Cases,
                                                      subject_type>(),
          ...);
-        if constexpr ((is_borrowed_case_invocable_v<Cases,
-                                                    subject_type>
+        if constexpr ((traits::is_handler_invocable_v<Cases,
+                                                      subject_type>
                        && ...)) {
           using check_t = explicit_results_check<
               Result,

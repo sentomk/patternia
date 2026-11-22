@@ -181,7 +181,9 @@ Handler forms:
 - `pattern >> callable`
 - `pattern >> expression`
 
-Bindings are determined entirely by the pattern.
+Bindings are determined entirely by the pattern. A callable handler
+that cannot take them but can be called with no arguments ignores
+them: `$ >> [] { return 1; }` is valid.
 
 ### Expression handlers
 
@@ -253,6 +255,9 @@ match(n) | on($ >> to<Celsius>);   // Celsius{n}
   `volatile`.
 - `to<T>` only passes the bindings on unchanged. To transform them
   first, write a lambda, or use `| to<T>` after an expression.
+- Like any handler, `to<T>` is called with no arguments when `T`
+  cannot be built from the bindings but can be default-constructed:
+  `$ >> to<std::string>` on an `int` gives an empty string.
 
 ### `case | f` {#case-pipe}
 
