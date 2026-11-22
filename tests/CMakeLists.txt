@@ -72,6 +72,9 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/to_bindings_mismatch.cpp
   compile_fail/to_owned_bindings_mismatch.cpp
   compile_fail/to_pipe_mismatch.cpp
+  compile_fail/pipe_mismatch_class_result_borrowed.cpp
+  compile_fail/pipe_mismatch_class_result_owned.cpp
+  compile_fail/pipe_mismatch_class_result_explicit.cpp
   compile_fail/on_builtin_shift.cpp
   compile_fail/on_builtin_shift_stored.cpp
   compile_fail/on_non_case.cpp

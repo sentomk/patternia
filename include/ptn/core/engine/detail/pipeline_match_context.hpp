@@ -102,6 +102,23 @@ namespace ptn::core::engine::detail {
                   "pointer as R.");
   }
 
+  // Whether a case's result is unreachable_t, which a handler yields
+  // after reporting its own diagnostic, such as a `case | f` whose
+  // callable cannot take the handler's result. Such a match is not
+  // evaluated for its result: converting unreachable_t to a class
+  // result is ambiguous on MSVC, which would report that instead of
+  // the handler's own diagnostic.
+  template <typename Results>
+  struct has_unreachable_result;
+
+  template <typename... Rs>
+  struct has_unreachable_result<std::tuple<Rs...>>
+      : std::bool_constant<(
+            std::is_same_v<
+                std::remove_cv_t<std::remove_reference_t<Rs>>,
+                traits::detail::unreachable_t>
+            || ...)> {};
+
   template <typename S, typename Cases, std::size_t... I>
   auto owned_case_results(std::index_sequence<I...>)
       -> std::tuple<core::common::detail::owned_case_result_t<
@@ -200,7 +217,15 @@ namespace ptn::core::engine::detail {
             result_info::valid,
             "[Patternia.match]: handlers must all return void or "
             "values with a common result type.");
-        if constexpr (result_info::valid) {
+        using results_t = decltype(owned_case_results<
+                                   subject_type,
+                                   CasesStorage &&>(
+            std::index_sequence_for<Cases...>{}));
+        if constexpr (has_unreachable_result<results_t>::value) {
+          return std::move(*this).report_unreachable_cases(
+              std::forward<CasesStorage>(pipeline_cases));
+        }
+        else if constexpr (result_info::valid) {
           return core::common::detail::eval_owned_cases<
               typename result_info::type>(
               subject_, std::forward<CasesStorage>(pipeline_cases));
@@ -217,6 +242,13 @@ namespace ptn::core::engine::detail {
           // cannot be called: the diagnostic above is the useful
           // one.
           return traits::detail::unreachable_t{};
+        }
+        else if constexpr (has_unreachable_result<std::tuple<
+                               traits::case_result_t<subject_type,
+                                                     Cases>...>>::
+                               value) {
+          return std::move(*this).report_unreachable_cases(
+              std::forward<CasesStorage>(pipeline_cases));
         }
         else {
           auto dummy_fallback = [](auto &&...)
@@ -251,6 +283,31 @@ namespace ptn::core::engine::detail {
       }
     }
 
+    // Instantiates the handlers, so that each reports its own
+    // diagnostic, without converting any result: the cases are
+    // evaluated as `on<void>` would. Reached only when a case's
+    // result is unreachable_t, so the program does not compile and
+    // this never runs.
+    template <typename CasesStorage>
+    constexpr traits::detail::unreachable_t
+    report_unreachable_cases(CasesStorage &&pipeline_cases) && {
+      if constexpr (!std::is_lvalue_reference_v<subject_type>) {
+        core::common::detail::eval_owned_cases<void>(
+            subject_, std::forward<CasesStorage>(pipeline_cases));
+      }
+      else {
+        auto dummy_fallback = [](auto &&...)
+            -> ptn::core::traits::detail::unreachable_t {
+          return {};
+        };
+        match_impl::eval<void>(
+            std::forward<subject_type>(subject_),
+            std::forward<CasesStorage>(pipeline_cases),
+            std::move(dummy_fallback));
+      }
+      return {};
+    }
+
     // `on<Result>(...)`: the handlers' results need no common type;
     // each one must convert to `Result`.
     template <typename Result,
@@ -273,12 +330,17 @@ namespace ptn::core::engine::detail {
             std::index_sequence_for<Cases...>{}));
         using check_t   = explicit_results_check<Result, results_t>;
         check_t::assert_each();
-        if constexpr (check_t::value) {
-          return core::common::detail::eval_owned_cases<Result>(
-              subject_, std::forward<CasesStorage>(pipeline_cases));
+        if constexpr (!check_t::value) {
+          return traits::detail::unreachable_t{};
+        }
+        else if constexpr (has_unreachable_result<
+                               results_t>::value) {
+          return std::move(*this).report_unreachable_cases(
+              std::forward<CasesStorage>(pipeline_cases));
         }
         else {
-          return traits::detail::unreachable_t{};
+          return core::common::detail::eval_owned_cases<Result>(
+              subject_, std::forward<CasesStorage>(pipeline_cases));
         }
       }
       else {
@@ -288,12 +350,19 @@ namespace ptn::core::engine::detail {
         if constexpr ((traits::is_handler_invocable_v<Cases,
                                                       subject_type>
                        && ...)) {
-          using check_t = explicit_results_check<
-              Result,
-              std::tuple<
-                  traits::case_result_t<subject_type, Cases>...>>;
+          using results_t = std::tuple<
+              traits::case_result_t<subject_type, Cases>...>;
+          using check_t = explicit_results_check<Result, results_t>;
           check_t::assert_each();
-          if constexpr (check_t::value) {
+          if constexpr (!check_t::value) {
+            return traits::detail::unreachable_t{};
+          }
+          else if constexpr (has_unreachable_result<
+                                 results_t>::value) {
+            return std::move(*this).report_unreachable_cases(
+                std::forward<CasesStorage>(pipeline_cases));
+          }
+          else {
             auto dummy_fallback = [](auto &&...)
                 -> ptn::core::traits::detail::unreachable_t {
               return {};
@@ -302,9 +371,6 @@ namespace ptn::core::engine::detail {
                 std::forward<subject_type>(subject_),
                 std::forward<CasesStorage>(pipeline_cases),
                 std::move(dummy_fallback));
-          }
-          else {
-            return traits::detail::unreachable_t{};
           }
         }
         else {
