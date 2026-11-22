@@ -2863,9 +2863,11 @@ the case is selected:</p>
   <code>volatile</code>.</li>
 <li><code>to&lt;T&gt;</code> only passes the bindings on unchanged. To transform them
   first, write a lambda, or use <code>| to&lt;T&gt;</code> after an expression.</li>
-<li>Like any handler, <code>to&lt;T&gt;</code> is called with no arguments when <code>T</code>
-  cannot be built from the bindings but can be default-constructed:
-  <code>$ &gt;&gt; to&lt;std::string&gt;</code> on an <code>int</code> gives an empty string.</li>
+<li><code>to&lt;T&gt;</code> takes whatever bindings the case has, like the lambda
+  <code>[](auto &amp;&amp;...args) { return T{args...}; }</code>. If <code>T</code> cannot be built
+  from them, that is a compile error, even when <code>T</code> has a default
+  constructor: <code>$ &gt;&gt; to&lt;std::string&gt;</code> on an <code>int</code> does not give an
+  empty string. Use <code>_ &gt;&gt; to&lt;T&gt;</code> for <code>T{}</code>.</li>
 </ul>
 <h3 id="case-pipe"><code>case | f</code><a class="headerlink" href="#case-pipe" title="Permanent link">&para;</a></h3>
 <p><code>p &gt;&gt; h | f</code> passes the result of handler <code>h</code> to the callable <code>f</code>,
