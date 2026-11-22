@@ -69,6 +69,9 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/owned_lvalue_pack_move_only_value.cpp
   compile_fail/borrowed_subject_cannot_move.cpp
   compile_fail/handler_rejects_bindings.cpp
+  compile_fail/to_bindings_mismatch.cpp
+  compile_fail/to_owned_bindings_mismatch.cpp
+  compile_fail/to_pipe_mismatch.cpp
   compile_fail/on_builtin_shift.cpp
   compile_fail/on_builtin_shift_stored.cpp
   compile_fail/on_non_case.cpp

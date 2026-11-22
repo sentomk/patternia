@@ -255,9 +255,11 @@ match(n) | on($ >> to<Celsius>);   // Celsius{n}
   `volatile`.
 - `to<T>` only passes the bindings on unchanged. To transform them
   first, write a lambda, or use `| to<T>` after an expression.
-- Like any handler, `to<T>` is called with no arguments when `T`
-  cannot be built from the bindings but can be default-constructed:
-  `$ >> to<std::string>` on an `int` gives an empty string.
+- `to<T>` takes whatever bindings the case has, like the lambda
+  `[](auto &&...args) { return T{args...}; }`. If `T` cannot be built
+  from them, that is a compile error, even when `T` has a default
+  constructor: `$ >> to<std::string>` on an `int` does not give an
+  empty string. Use `_ >> to<T>` for `T{}`.
 
 ### `case | f` {#case-pipe}
 
