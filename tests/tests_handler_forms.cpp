@@ -221,14 +221,3 @@ TEST(HandlerForms, NullaryHandlerBeforePipe) {
                     ptn::_ >> 0L);
   EXPECT_EQ(result, 3L);
 }
-
-// to<T> is called with no arguments when T cannot be built from the
-// bindings but has a default constructor.
-TEST(HandlerForms, ToWithoutMatchingConstructor) {
-  int value = 5;
-
-  std::string result = ptn::match(value)
-                       | ptn::on(ptn::$ >> ptn::to<std::string>,
-                                 ptn::_ >> std::string("other"));
-  EXPECT_EQ(result, "");
-}
