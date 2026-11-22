@@ -2796,7 +2796,9 @@ a pack with an explicit result type.</p>
 <li><code>pattern &gt;&gt; callable</code></li>
 <li><code>pattern &gt;&gt; expression</code></li>
 </ul>
-<p>Bindings are determined entirely by the pattern.</p>
+<p>Bindings are determined entirely by the pattern. A callable handler
+that cannot take them but can be called with no arguments ignores
+them: <code>$ &gt;&gt; [] { return 1; }</code> is valid.</p>
 <h3 id="expression-handlers">Expression handlers<a class="headerlink" href="#expression-handlers" title="Permanent link">&para;</a></h3>
 <p>An expression on the right of <code>&gt;&gt;</code> is evaluated only when its case
 matches and its guard passes. It uses the same bound values as a
@@ -2861,6 +2863,9 @@ the case is selected:</p>
   <code>volatile</code>.</li>
 <li><code>to&lt;T&gt;</code> only passes the bindings on unchanged. To transform them
   first, write a lambda, or use <code>| to&lt;T&gt;</code> after an expression.</li>
+<li>Like any handler, <code>to&lt;T&gt;</code> is called with no arguments when <code>T</code>
+  cannot be built from the bindings but can be default-constructed:
+  <code>$ &gt;&gt; to&lt;std::string&gt;</code> on an <code>int</code> gives an empty string.</li>
 </ul>
 <h3 id="case-pipe"><code>case | f</code><a class="headerlink" href="#case-pipe" title="Permanent link">&para;</a></h3>
 <p><code>p &gt;&gt; h | f</code> passes the result of handler <code>h</code> to the callable <code>f</code>,
