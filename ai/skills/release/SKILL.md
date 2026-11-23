@@ -90,9 +90,8 @@ Rules that apply to everything below:
      `packaging/conan/config.yml`. Keep the older versions.
    - Verify the recipe with `conan create packaging/conan/all --version
      X.Y.Z -s compiler.cppstd=17` (use a scratch `CONAN_HOME` so the
-     user's cache is untouched), then delete
-     `packaging/conan/all/test_package/build` and
-     `CMakeUserPresets.json`.
+     user's cache is untouched). Its `test_package/build` and
+     `CMakeUserPresets.json` outputs are gitignored.
    One PR `chore(packaging): update package hashes for vX.Y.Z`. The user
    merges it.
 4. vcpkg fork (`sentomk/vcpkg`, default branch `master`, fork of
