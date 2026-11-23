@@ -120,18 +120,25 @@ Rules that apply to everything below:
    name this step.
 
 6. ConanCenter (`conan-io/conan-center-index`, default branch
-   `master`; fork `sentomk/conan-center-index`, create it with
-   `gh repo fork` if missing): sync the fork, branch
-   `patternia-X.Y.Z`, copy `packaging/conan/config.yml` and
-   `packaging/conan/all/` into `recipes/patternia/`, and commit
-   `patternia: add version X.Y.Z` (the first submission is
-   `patternia: add recipe`). Before the recipe is merged upstream, any
-   open ConanCenter PR is updated instead of opening a second one.
-   Open the PR against `master` with title `patternia/X.Y.Z` (first
-   submission: `[package] patternia/X.Y.Z: new recipe`) and a body that
-   follows the repository's PR template. This is outward facing: show
-   the title and body to the user if the request did not already name
-   this step.
+   `master`; fork `sentomk/conan-center-index`). The recipe was first
+   submitted in conan-io/conan-center-index#31538 (0.9.7). While that
+   PR is still open, push the new version to its branch instead of
+   opening a second PR. Otherwise:
+   - sync the fork, branch `patternia-X.Y.Z` from upstream `master`;
+     the repository is large, so a `--filter=blob:none --sparse` clone
+     with `recipes/patternia` checked out is enough;
+   - copy `packaging/conan/config.yml` and `packaging/conan/all/` into
+     `recipes/patternia/`;
+   - verify with `conan create recipes/patternia/all --version X.Y.Z`
+     in a scratch `CONAN_HOME`;
+   - commit and title the PR `patternia: add version X.Y.Z`, the
+     convention merged update PRs use (`<name>: add version <v>`; a
+     first submission is `<name>: new recipe`).
+   The body follows the repository's PR template (Summary with
+   `Changes to recipe: **patternia/X.Y.Z**`, Motivation, Details, the
+   checklist; tick only the boxes that are true). This is outward
+   facing: show the title and body to the user if the request did not
+   already name this step.
 
 ## Report
 
