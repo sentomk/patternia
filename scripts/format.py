@@ -30,6 +30,9 @@ sys.path.insert(0, str(repository_root / "tools"))
 import envsetup  # noqa: E402
 
 EXTENSIONS = (".h", ".hpp", ".hh", ".hxx", ".c", ".cc", ".cpp", ".cxx", ".ipp")
+# Generated from checked headers by scripts/amalgamate.py; formatting it
+# would make it differ from what the generator writes.
+GENERATED_PREFIXES = ("single_include/",)
 ZERO_SHA = "0" * 40
 
 
@@ -79,6 +82,8 @@ def candidate_files(args: argparse.Namespace) -> List[str]:
 def select(files: List[str]) -> List[str]:
     seen = []
     for name in files:
+        if name.startswith(GENERATED_PREFIXES):
+            continue
         if name.endswith(EXTENSIONS) and name not in seen and (repository_root / name).is_file():
             seen.append(name)
     return seen

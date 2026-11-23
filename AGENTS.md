@@ -13,7 +13,9 @@ ctest --test-dir build --output-on-failure
 ```
 
 Patternia is a header-only C++17 library under `include/ptn/`. Logic
-changes need tests under `tests/`. Formatting is checked in CI with the
+changes need tests under `tests/`. After changing `include/` or the
+version, run `python3 scripts/amalgamate.py` and commit the regenerated
+`single_include/ptn/patternia.hpp` (CI checks it with `--check`). Formatting is checked in CI with the
 `clang-format` version pinned in `tools/requirements.txt`.
 
 ## Changes and pull requests

@@ -4,6 +4,8 @@ Patternia is a header-only C++ library.
 There is no build system, no linking step, and no external dependency.
 
 You can integrate Patternia into your project in any of the following ways.
+To try it in a single file without any setup, use the
+[single header](#7-single-header).
 
 ---
 
@@ -161,3 +163,43 @@ target_include_directories(your_target
 ```
 
 No configuration, no installation, immediately usable.
+
+---
+
+## 7. Single header
+
+`single_include/ptn/patternia.hpp` holds the whole library in one
+file. Download it next to your source and include it; nothing else is
+needed:
+
+```bash
+curl -LO https://raw.githubusercontent.com/sentomk/patternia/main/single_include/ptn/patternia.hpp
+```
+
+```cpp
+// test.cpp
+#include "patternia.hpp"
+
+#include <cstdio>
+
+int main() {
+  using namespace ptn;
+  std::puts(match(42) | on(lit(0) >> "zero", _ >> "other"));
+}
+```
+
+```bash
+c++ -std=c++17 test.cpp && ./a.out
+```
+
+The URL above follows `main`. To pin a release, replace `main` with
+its tag; the single header ships with releases after v0.9.7.
+
+The file is generated from `include/` by `scripts/amalgamate.py` and
+has the same content, so it compiles exactly like
+`#include <ptn/patternia.hpp>` and takes no longer to build. Keeping
+the `ptn/` directory (`-Isingle_include`) lets you write
+`#include <ptn/patternia.hpp>` as with the other methods. Compiler
+errors point into the single file rather than the individual headers;
+the `// ---- begin ptn/... ----` comments in it show which header a
+line comes from.

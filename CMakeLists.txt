@@ -64,6 +64,8 @@ option(PTN_BUILD_SAMPLES "Build sample programs" ${PTN_MASTER_PROJECT})
 option(PTN_BUILD_FUZZ "Build fuzz targets (requires Clang)" OFF)
 option(PTN_DEV_INDEX "Create local indexable target for IDEs (not installed)" ON)
 option(PTN_SKIP_COMPILER_CHECK "Skip compiler version check" OFF)
+option(PTN_TEST_SINGLE_HEADER
+  "Also run the tests against the generated single header (needs Python 3)" OFF)
 
 # ========== Public headers ==========
 # Collected from the tree so that every header is installed. A

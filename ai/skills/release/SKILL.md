@@ -64,7 +64,9 @@ Rules that apply to everything below:
    the README FetchContent `GIT_TAG` and the Conan `--version` and
    `patternia/X.Y.Z` examples in the README and
    `docs/guide/installation.md`. Grep for the previous version to catch
-   other places.
+   other places. Then run `python3 scripts/amalgamate.py`: the single
+   header's banner carries the version, and CI's `--check` fails until
+   it is regenerated.
 9. One commit `chore(release): prepare vX.Y.Z`, push, open the PR to
    `main`. Do not touch the portfile SHA512 or the Conan
    `conandata.yml` yet; both need the tag.
