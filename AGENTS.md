@@ -42,7 +42,7 @@ description matches the task.
 
 | Skill | Use when |
 |---|---|
-| [`release`](ai/skills/release/SKILL.md) | Preparing or publishing a version: release PR, tag, GitHub release, vcpkg |
+| [`release`](ai/skills/release/SKILL.md) | Preparing or publishing a version: release PR, tag, GitHub release, vcpkg, Conan |
 
 Claude Code only discovers skills under `.claude/skills/`, so each
 skill there is a small `SKILL.md` stub with the same front matter that
