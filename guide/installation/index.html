@@ -1794,11 +1794,23 @@ Conan cache from a checkout of this repository:</p>
 <span class="k">[generators]</span>
 <span class="na">CMakeDeps</span>
 <span class="na">CMakeToolchain</span>
+
+<span class="k">[layout]</span>
+<span class="na">cmake_layout</span>
 </code></pre></div>
 <p>The package provides the same CMake target as the other methods:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">find_package</span><span class="p">(</span><span class="s">patternia</span><span class="w"> </span><span class="s">CONFIG</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
 <span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">your_target</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">patternia::patternia</span><span class="p">)</span>
 </code></pre></div>
+<p>Install the dependencies and build through the presets that
+<code>CMakeToolchain</code> generates:</p>
+<div class="highlight"><pre><span></span><code>conan<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>-s<span class="w"> </span>compiler.cppstd<span class="o">=</span><span class="m">17</span>
+cmake<span class="w"> </span>--preset<span class="w"> </span>conan-release
+cmake<span class="w"> </span>--build<span class="w"> </span>--preset<span class="w"> </span>conan-release
+</code></pre></div>
+<p>Patternia needs C++17. Pass <code>-s compiler.cppstd=17</code> (or newer), or set
+<code>compiler.cppstd</code> in your Conan profile, when the compiler defaults to
+an older standard.</p>
 <hr />
 <h2 id="3-fetch-patternia-automatically">3. Fetch Patternia automatically<a class="headerlink" href="#3-fetch-patternia-automatically" title="Permanent link">&para;</a></h2>
 <p>You may choose to fetch Patternia as a remote dependency during configuration.</p>
