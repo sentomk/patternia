@@ -45,6 +45,10 @@ jobs:
           echo "CXX=clang++" >> $GITHUB_ENV
           clang++ --version
 
+      - name: Check that the single header is current
+        if: needs.changes.outputs.code == 'true'
+        run: python3 scripts/amalgamate.py --check
+
       - name: Configure (Debug build)
         if: needs.changes.outputs.code == 'true'
         run: |
@@ -53,6 +57,7 @@ jobs:
             -DCMAKE_CXX_COMPILER=${{ env.CXX }} \
             -DPTN_BUILD_TESTS=ON \
             -DPTN_BUILD_BENCHMARKS=OFF \
+            -DPTN_TEST_SINGLE_HEADER=ON \
             -DPTN_SKIP_COMPILER_CHECK=ON
 
       - name: Build

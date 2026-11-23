@@ -84,6 +84,10 @@ All logic changes must be accompanied by appropriate tests.
 - Add new tests under `tests/`
 - Update existing tests when modifying behavior
 - Ensure all tests pass before submitting
+- After changing anything under `include/` (or the version), regenerate
+  the single header with `python3 scripts/amalgamate.py` and commit
+  `single_include/ptn/patternia.hpp`; CI fails when it is out of date.
+  `-DPTN_TEST_SINGLE_HEADER=ON` also runs the tests against it.
 
 ### 5. Comment Style
 

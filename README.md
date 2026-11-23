@@ -441,6 +441,15 @@ find_package(patternia CONFIG REQUIRED)
 target_link_libraries(your_target PRIVATE patternia::patternia)
 ```
 
+### Single header
+
+`single_include/ptn/patternia.hpp` is the whole library in one file:
+download it and `#include "patternia.hpp"`, nothing else needed.
+
+```bash
+curl -LO https://raw.githubusercontent.com/sentomk/patternia/main/single_include/ptn/patternia.hpp
+```
+
 ### Without a package manager
 
 Add the repository as a subdirectory (for example a Git submodule) with

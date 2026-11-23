@@ -14,7 +14,7 @@ if(NOT TARGET GTest::gtest)
   FetchContent_MakeAvailable(googletest)
 endif()
 
-add_executable(ptn_tests
+set(PTN_TEST_SOURCES
   tests_canonical_patterns.cpp
   tests_destructure.cpp
   tests_guard.cpp
@@ -38,6 +38,8 @@ add_executable(ptn_tests
   tests_header_first.cpp
 )
 
+add_executable(ptn_tests ${PTN_TEST_SOURCES})
+
 target_link_libraries(ptn_tests PRIVATE
   patternia
   GTest::gtest
@@ -46,6 +48,45 @@ target_link_libraries(ptn_tests PRIVATE
 
 include(GoogleTest)
 gtest_discover_tests(ptn_tests)
+
+# The same suite against the generated single header
+# (single_include/ptn/patternia.hpp), regenerated into the build tree
+# from the current headers so it tests what scripts/amalgamate.py
+# produces now. CI separately checks that the committed copy is
+# current with `scripts/amalgamate.py --check`.
+if(PTN_TEST_SINGLE_HEADER)
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+  set(_ptn_single_dir "${CMAKE_CURRENT_BINARY_DIR}/single_include")
+  set(_ptn_single_header "${_ptn_single_dir}/ptn/patternia.hpp")
+  list(TRANSFORM PTN_HEADERS PREPEND "${PROJECT_SOURCE_DIR}/"
+       OUTPUT_VARIABLE _ptn_header_paths)
+  add_custom_command(
+    OUTPUT "${_ptn_single_header}"
+    COMMAND "${Python3_EXECUTABLE}"
+            "${PROJECT_SOURCE_DIR}/scripts/amalgamate.py"
+            --output "${_ptn_single_header}"
+    DEPENDS "${PROJECT_SOURCE_DIR}/scripts/amalgamate.py"
+            "${PROJECT_SOURCE_DIR}/CMakeLists.txt"
+            ${_ptn_header_paths}
+    COMMENT "Generating the Patternia single header"
+    VERBATIM
+  )
+  add_custom_target(ptn_single_header DEPENDS "${_ptn_single_header}")
+
+  add_executable(ptn_tests_single_header ${PTN_TEST_SOURCES})
+  add_dependencies(ptn_tests_single_header ptn_single_header)
+  # Only the generated header is on the include path: no include/.
+  target_include_directories(ptn_tests_single_header PRIVATE
+    "${_ptn_single_dir}"
+  )
+  target_compile_features(ptn_tests_single_header PRIVATE cxx_std_17)
+  target_link_libraries(ptn_tests_single_header PRIVATE
+    GTest::gtest
+    GTest::gtest_main
+  )
+  gtest_discover_tests(ptn_tests_single_header TEST_PREFIX "single_header.")
+endif()
 
 # Exercise static structured bindings even when the main suite is
 # built with the project's C++17 default.
