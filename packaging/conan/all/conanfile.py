@@ -43,8 +43,11 @@ class PatterniaConan(ConanFile):
 
     def validate(self):
         check_min_cppstd(self, self._min_cppstd)
-        minimum_version = self._compilers_minimum_version.get(
-            str(self.settings.compiler))
+        compiler = str(self.settings.compiler)
+        minimum_version = self._compilers_minimum_version.get(compiler)
+        if compiler == "clang" and self.settings.os == "Windows":
+            # clang-cl and clang with the MSVC toolchain need Clang 18.
+            minimum_version = "18"
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
             raise ConanInvalidConfiguration(
                 f"{self.ref} requires {self.settings.compiler} "

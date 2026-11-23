@@ -55,6 +55,9 @@ patternia/0.9.7
 [generators]
 CMakeDeps
 CMakeToolchain
+
+[layout]
+cmake_layout
 ```
 
 The package provides the same CMake target as the other methods:
@@ -63,6 +66,19 @@ The package provides the same CMake target as the other methods:
 find_package(patternia CONFIG REQUIRED)
 target_link_libraries(your_target PRIVATE patternia::patternia)
 ```
+
+Install the dependencies and build through the presets that
+`CMakeToolchain` generates:
+
+```bash
+conan install . -s compiler.cppstd=17
+cmake --preset conan-release
+cmake --build --preset conan-release
+```
+
+Patternia needs C++17. Pass `-s compiler.cppstd=17` (or newer), or set
+`compiler.cppstd` in your Conan profile, when the compiler defaults to
+an older standard.
 
 ---
 
