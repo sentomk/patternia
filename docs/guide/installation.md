@@ -36,7 +36,37 @@ cmake -B build -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.
 
 ---
 
-## 2. Fetch Patternia automatically
+## 2. Conan
+
+The Conan 2 recipe lives in `packaging/conan/` and is being submitted
+to ConanCenter. Until it is available there, export it into your local
+Conan cache from a checkout of this repository:
+
+```bash
+conan create packaging/conan/all --version 0.9.7
+```
+
+Then require it from your `conanfile.txt`:
+
+```ini
+[requires]
+patternia/0.9.7
+
+[generators]
+CMakeDeps
+CMakeToolchain
+```
+
+The package provides the same CMake target as the other methods:
+
+```cmake
+find_package(patternia CONFIG REQUIRED)
+target_link_libraries(your_target PRIVATE patternia::patternia)
+```
+
+---
+
+## 3. Fetch Patternia automatically
 
 You may choose to fetch Patternia as a remote dependency during configuration.
 
@@ -63,7 +93,7 @@ This fits well in reproducible CI pipelines and modern CMake workflows.
 
 ---
 
-## 3. Install and consume via `find_package()`
+## 4. Install and consume via `find_package()`
 
 Patternia provides full CMake package export support.
 
@@ -86,7 +116,7 @@ This is the recommended method for system-wide integration, packaging, and distr
 
 ---
 
-## 4. Add Patternia as a Git submodule
+## 5. Add Patternia as a Git submodule
 
 ```bash
 git submodule add https://github.com/sentomk/patternia extern/patternia
@@ -103,7 +133,7 @@ This approach keeps Patternia version-controlled inside your repository and work
 
 ---
 
-## 5. Include the `include/` directory directly
+## 6. Include the `include/` directory directly
 
 This is the simplest approach.
 Just add Patternia’s header path to your target:

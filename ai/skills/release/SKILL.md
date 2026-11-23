@@ -1,6 +1,6 @@
 ---
 name: release
-description: Prepare and publish a Patternia release (version bump, release note, performance note, GitHub release, vcpkg fork and microsoft/vcpkg PR). Use when the user asks to release, ship or publish a new version such as v0.9.6.
+description: Prepare and publish a Patternia release (version bump, release note, performance note, GitHub release, vcpkg fork and microsoft/vcpkg PR, Conan recipe and ConanCenter PR). Use when the user asks to release, ship or publish a new version such as v0.9.6.
 ---
 
 # Patternia release
@@ -60,11 +60,14 @@ Rules that apply to everything below:
    version and index), `mkdocs.yml` nav, and in `docs/roadmap.md` move
    the shipped items out of their version section into a new first row
    of the "Released" table.
-8. Bump the version in `CMakeLists.txt`, `packaging/vcpkg/vcpkg.json` and
-   the README FetchContent `GIT_TAG`. Grep for the previous version to
-   catch other places.
+8. Bump the version in `CMakeLists.txt`, `packaging/vcpkg/vcpkg.json`,
+   the README FetchContent `GIT_TAG` and the Conan `--version` and
+   `patternia/X.Y.Z` examples in the README and
+   `docs/guide/installation.md`. Grep for the previous version to catch
+   other places.
 9. One commit `chore(release): prepare vX.Y.Z`, push, open the PR to
-   `main`. Do not touch the portfile SHA512 yet; it needs the tag.
+   `main`. Do not touch the portfile SHA512 or the Conan
+   `conandata.yml` yet; both need the tag.
 10. Tell the user the PR is ready and wait. The user merges it.
 
 ## Phase 2: after the release PR is merged
@@ -77,11 +80,21 @@ Rules that apply to everything below:
    `gh release create vX.Y.Z --title vX.Y.Z --notes-file
    docs/changelog/vX.Y.Z.md`. Past releases use the changelog file as the
    body and attach no assets.
-3. Port SHA512: download
+3. Package hashes: download
    `https://github.com/sentomk/patternia/archive/refs/tags/vX.Y.Z.tar.gz`
-   (vcpkg hashes this file), compute `shasum -a 512`, update
-   `packaging/vcpkg/portfile.cmake` in a PR
-   `chore(vcpkg): update portfile SHA512 for vX.Y.Z`. The user merges it.
+   (vcpkg and Conan both hash this file).
+   - vcpkg: `shasum -a 512`, update `packaging/vcpkg/portfile.cmake`.
+   - Conan: `shasum -a 256`, add an `"X.Y.Z"` entry (url and sha256) at
+     the top of `packaging/conan/all/conandata.yml` and an
+     `"X.Y.Z": folder: all` entry at the top of
+     `packaging/conan/config.yml`. Keep the older versions.
+   - Verify the recipe with `conan create packaging/conan/all --version
+     X.Y.Z -s compiler.cppstd=17` (use a scratch `CONAN_HOME` so the
+     user's cache is untouched), then delete
+     `packaging/conan/all/test_package/build` and
+     `CMakeUserPresets.json`.
+   One PR `chore(packaging): update package hashes for vX.Y.Z`. The user
+   merges it.
 4. vcpkg fork (`sentomk/vcpkg`, default branch `master`, fork of
    `microsoft/vcpkg`):
    - sync the fork's `master` with upstream first;
@@ -107,8 +120,22 @@ Rules that apply to everything below:
    show the title and body to the user if the request did not already
    name this step.
 
+6. ConanCenter (`conan-io/conan-center-index`, default branch
+   `master`; fork `sentomk/conan-center-index`, create it with
+   `gh repo fork` if missing): sync the fork, branch
+   `patternia-X.Y.Z`, copy `packaging/conan/config.yml` and
+   `packaging/conan/all/` into `recipes/patternia/`, and commit
+   `patternia: add version X.Y.Z` (the first submission is
+   `patternia: add recipe`). Before the recipe is merged upstream, any
+   open ConanCenter PR is updated instead of opening a second one.
+   Open the PR against `master` with title `patternia/X.Y.Z` (first
+   submission: `[package] patternia/X.Y.Z: new recipe`) and a body that
+   follows the repository's PR template. This is outward facing: show
+   the title and body to the user if the request did not already name
+   this step.
+
 ## Report
 
-End with: the tag, the GitHub release URL, the portfile PR, the
-`sentomk/vcpkg` branch and the `microsoft/vcpkg` PR, and what was not
-verified (compilers, platforms).
+End with: the tag, the GitHub release URL, the package hash PR, the
+`sentomk/vcpkg` branch and the `microsoft/vcpkg` PR, the ConanCenter
+PR, and what was not verified (compilers, platforms).
