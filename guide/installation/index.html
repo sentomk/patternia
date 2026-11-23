@@ -840,6 +840,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#7-single-header" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Single header
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1740,6 +1751,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#7-single-header" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Single header
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1763,7 +1785,9 @@
 <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h1>
 <p>Patternia is a header-only C++ library.
 There is no build system, no linking step, and no external dependency.</p>
-<p>You can integrate Patternia into your project in any of the following ways.</p>
+<p>You can integrate Patternia into your project in any of the following ways.
+To try it in a single file without any setup, use the
+<a href="#7-single-header">single header</a>.</p>
 <hr />
 <h2 id="1-vcpkg">1. vcpkg<a class="headerlink" href="#1-vcpkg" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>vcpkg<span class="w"> </span>install<span class="w"> </span>patternia
@@ -1859,6 +1883,35 @@ Just add Patternia’s header path to your target:</p>
 <span class="p">)</span>
 </code></pre></div>
 <p>No configuration, no installation, immediately usable.</p>
+<hr />
+<h2 id="7-single-header">7. Single header<a class="headerlink" href="#7-single-header" title="Permanent link">&para;</a></h2>
+<p><code>single_include/ptn/patternia.hpp</code> holds the whole library in one
+file. Download it next to your source and include it; nothing else is
+needed:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-LO<span class="w"> </span>https://raw.githubusercontent.com/sentomk/patternia/main/single_include/ptn/patternia.hpp
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1">// test.cpp</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"patternia.hpp"</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">ptn</span><span class="p">;</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">puts</span><span class="p">(</span><span class="n">match</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"zero"</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"other"</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>c++<span class="w"> </span>-std<span class="o">=</span>c++17<span class="w"> </span>test.cpp<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./a.out
+</code></pre></div>
+<p>The URL above follows <code>main</code>. To pin a release, replace <code>main</code> with
+its tag; the single header ships with releases after v0.9.7.</p>
+<p>The file is generated from <code>include/</code> by <code>scripts/amalgamate.py</code> and
+has the same content, so it compiles exactly like
+<code>#include &lt;ptn/patternia.hpp&gt;</code> and takes no longer to build. Keeping
+the <code>ptn/</code> directory (<code>-Isingle_include</code>) lets you write
+<code>#include &lt;ptn/patternia.hpp&gt;</code> as with the other methods. Compiler
+errors point into the single file rather than the individual headers;
+the <code>// ---- begin ptn/... ----</code> comments in it show which header a
+line comes from.</p>
 
 
 
