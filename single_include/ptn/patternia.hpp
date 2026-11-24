@@ -1151,6 +1151,9 @@ namespace ptn::core::common {
     // Force instantiation to catch potential type errors (skip for
     // void)
     if constexpr (!std::is_void_v<common_return_type>) {
+      // A pointer result type is valid; sizeof only forces the type
+      // to be complete.
+      // NOLINTNEXTLINE(bugprone-sizeof-expression)
       (void) sizeof(common_return_type);
     }
   }
@@ -2772,7 +2775,43 @@ namespace ptn::core::dsl::detail {
         return predicate(std::forward<Args>(args)...);
       }
     }
+
+    // The result for `case | f`. `operator()` returns by value
+    // because its result can outlive the bindings; here the result
+    // goes straight to `f` within the same call, while the bindings
+    // are alive. A bare placeholder such as `_` or a member name
+    // therefore stays a reference to the bound value, so
+    // `$(is<T>) >> _ | f` does not copy the alternative before
+    // calling `f`. Other expressions produce a value either way.
+    template <typename... Args,
+              std::enable_if_t<(sizeof...(Args) > 0), int> = 0>
+    constexpr decltype(auto) pipe_source(Args &&...args) const {
+      if constexpr (ValueExpression
+                    && pat::traits::is_tuple_guard_predicate_v<
+                        Predicate>) {
+        if constexpr (pat::mod::max_tuple_guard_index_v<Predicate>
+                      < sizeof...(Args)) {
+          return pat::mod::eval(
+              predicate.expr,
+              std::forward_as_tuple(std::forward<Args>(args)...));
+        }
+        else {
+          // operator() reports the out-of-range placeholder.
+          return (*this)(std::forward<Args>(args)...);
+        }
+      }
+      else {
+        return (*this)(std::forward<Args>(args)...);
+      }
+    }
   };
+
+  template <typename Handler>
+  inline constexpr bool is_expression_handler_v = false;
+
+  template <typename Predicate, bool ValueExpression>
+  inline constexpr bool is_expression_handler_v<
+      expression_handler<Predicate, ValueExpression>> = true;
 
   template <typename Pattern, typename Expression>
   constexpr auto make_expression_handler(Expression &&expression) {
@@ -2827,6 +2866,23 @@ namespace ptn::core::dsl::detail {
     }
   }
 
+  // The value the handler before `|` passes on. An expression
+  // handler keeps a bare placeholder as a reference to the bound
+  // value (see expression_handler::pipe_source), so `_ | f` does not
+  // copy what `f` may only read.
+  template <typename H, typename... Args>
+  PTN_DETAIL_ALWAYS_INLINE constexpr decltype(auto)
+  pipe_source(H &&h, Args &&...args) {
+    if constexpr (is_expression_handler_v<std::decay_t<H>>) {
+      return std::forward<H>(h).pipe_source(
+          std::forward<Args>(args)...);
+    }
+    else {
+      return pipe_invoke(std::forward<H>(h),
+                         std::forward<Args>(args)...);
+    }
+  }
+
   // The value `f` returns. A reference into the handler's result,
   // which is a temporary, would dangle, so an rvalue reference
   // result is returned by value. An lvalue reference is kept: it
@@ -2863,7 +2919,7 @@ namespace ptn::core::dsl::detail {
 
   template <typename HandlerRef, typename PipeRef, typename... Args>
   struct piped_call {
-    using inner_t = decltype(pipe_invoke(std::declval<HandlerRef>(),
+    using inner_t = decltype(pipe_source(std::declval<HandlerRef>(),
                                          std::declval<Args>()...));
     static constexpr bool valid = is_pipe_target_v<inner_t, PipeRef>;
     using type = typename piped_result<valid, PipeRef, inner_t>::
@@ -2930,13 +2986,13 @@ namespace ptn::core::dsl::detail {
       }
       else if constexpr (std::is_void_v<result_t>) {
         pipe_invoke(std::forward<Self>(self).pipe,
-                    pipe_invoke(std::forward<Self>(self).handler,
+                    pipe_source(std::forward<Self>(self).handler,
                                 std::forward<Args>(args)...));
       }
       else {
         return static_cast<result_t>(
             pipe_invoke(std::forward<Self>(self).pipe,
-                        pipe_invoke(std::forward<Self>(self).handler,
+                        pipe_source(std::forward<Self>(self).handler,
                                     std::forward<Args>(args)...)));
       }
     }

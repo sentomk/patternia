@@ -294,6 +294,10 @@ match(code) | on(
 - `f` receives one value, the handler's result, and is checked
   against it at compile time even when the case is never selected. A
   `void` handler has no result to pass on.
+- After a bare placeholder, such as `_` or a member name, `f`
+  receives the bound value itself rather than a copy: a `const`
+  reference for a borrowed subject, an rvalue for an owned one. So
+  `$(is<T>) >> _ | f` costs the same as `$(is<T>) >> f`.
 - `f`'s result is the case's result. An rvalue reference result is
   returned by value, since it would refer into a temporary.
 - `case | f` keeps the dispatch plan and the generated code of the

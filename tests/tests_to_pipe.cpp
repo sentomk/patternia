@@ -58,6 +58,31 @@ namespace {
   namespace engine   = ptn::core::engine::detail;
 
   constexpr auto point_xy = has<&Point::x, &Point::y>;
+
+  // Counts copies, to check that `_ | f` passes the bound value on.
+  struct Counted {
+    int        value;
+    static int copies;
+
+    explicit Counted(int v) : value(v) {
+    }
+    Counted(const Counted &other) : value(other.value) {
+      ++copies;
+    }
+    Counted(Counted &&) noexcept            = default;
+    Counted &operator=(const Counted &)     = default;
+    Counted &operator=(Counted &&) noexcept = default;
+  };
+  int Counted::copies = 0;
+
+  struct Holder {
+    Counted item;
+    int     tag;
+  };
+
+  const Counted *address_of(const Counted &c) {
+    return &c;
+  }
 } // namespace
 
 TEST(ToPipe, ToBuildsAggregateFromBindings) {
@@ -161,6 +186,44 @@ TEST(ToPipe, OwnedSubjectMovesIntoPipe) {
   int id = match(std::make_unique<Job>(Job{42}))
            | on($[_ == nullptr] >> -1, $ >> _ | schedule);
   EXPECT_EQ(id, 42);
+}
+
+// After a bare placeholder, `| f` receives the bound value itself,
+// not a copy of it (#130).
+TEST(ToPipe, PlaceholderPassesBoundValueWithoutCopy) {
+  Counted                      subject{5};
+  std::variant<Counted, Point> alternative{Counted{6}};
+  Holder                       holder{Counted{7}, 1};
+  auto [item, tag] = has<&Holder::item, &Holder::tag>;
+  (void) tag;
+
+  Counted::copies = 0;
+  EXPECT_EQ(match(subject) | on($ >> _ | address_of), &subject);
+  EXPECT_EQ(match(alternative)
+                | on($(is<Counted>) >> _ | address_of,
+                     _ >> static_cast<const Counted *>(nullptr)),
+            &std::get<Counted>(alternative));
+  EXPECT_EQ(match(holder)
+                | on($(has<&Holder::item, &Holder::tag>) >> item
+                         | address_of,
+                     _ >> static_cast<const Counted *>(nullptr)),
+            &holder.item);
+  EXPECT_EQ(Counted::copies, 0);
+
+  // Without `| f` the case's result is still a value.
+  static_assert(std::is_same_v<decltype(match(subject) | on($ >> _)),
+                               Counted>);
+  EXPECT_EQ((match(subject) | on($ >> _)).value, 5);
+  EXPECT_EQ(Counted::copies, 1);
+}
+
+TEST(ToPipe, OwnedAlternativeMovesIntoPipe) {
+  std::variant<std::unique_ptr<Job>, int> owned{
+      std::make_unique<Job>(Job{8})};
+  int id = match(std::move(owned))
+           | on($(is<std::unique_ptr<Job>>) >> _ | schedule,
+                _ >> -1);
+  EXPECT_EQ(id, 8);
 }
 
 TEST(ToPipe, WithExplicitResultType) {

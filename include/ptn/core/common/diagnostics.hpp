@@ -74,6 +74,9 @@ namespace ptn::core::common {
     // Force instantiation to catch potential type errors (skip for
     // void)
     if constexpr (!std::is_void_v<common_return_type>) {
+      // A pointer result type is valid; sizeof only forces the type
+      // to be complete.
+      // NOLINTNEXTLINE(bugprone-sizeof-expression)
       (void) sizeof(common_return_type);
     }
   }
