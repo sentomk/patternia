@@ -52,7 +52,43 @@ namespace ptn::core::dsl::detail {
         return predicate(std::forward<Args>(args)...);
       }
     }
+
+    // The result for `case | f`. `operator()` returns by value
+    // because its result can outlive the bindings; here the result
+    // goes straight to `f` within the same call, while the bindings
+    // are alive. A bare placeholder such as `_` or a member name
+    // therefore stays a reference to the bound value, so
+    // `$(is<T>) >> _ | f` does not copy the alternative before
+    // calling `f`. Other expressions produce a value either way.
+    template <typename... Args,
+              std::enable_if_t<(sizeof...(Args) > 0), int> = 0>
+    constexpr decltype(auto) pipe_source(Args &&...args) const {
+      if constexpr (ValueExpression
+                    && pat::traits::is_tuple_guard_predicate_v<
+                        Predicate>) {
+        if constexpr (pat::mod::max_tuple_guard_index_v<Predicate>
+                      < sizeof...(Args)) {
+          return pat::mod::eval(
+              predicate.expr,
+              std::forward_as_tuple(std::forward<Args>(args)...));
+        }
+        else {
+          // operator() reports the out-of-range placeholder.
+          return (*this)(std::forward<Args>(args)...);
+        }
+      }
+      else {
+        return (*this)(std::forward<Args>(args)...);
+      }
+    }
   };
+
+  template <typename Handler>
+  inline constexpr bool is_expression_handler_v = false;
+
+  template <typename Predicate, bool ValueExpression>
+  inline constexpr bool is_expression_handler_v<
+      expression_handler<Predicate, ValueExpression>> = true;
 
   template <typename Pattern, typename Expression>
   constexpr auto make_expression_handler(Expression &&expression) {
