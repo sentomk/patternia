@@ -2899,6 +2899,10 @@ not change.</p>
 <li><code>f</code> receives one value, the handler's result, and is checked
   against it at compile time even when the case is never selected. A
   <code>void</code> handler has no result to pass on.</li>
+<li>After a bare placeholder, such as <code>_</code> or a member name, <code>f</code>
+  receives the bound value itself rather than a copy: a <code>const</code>
+  reference for a borrowed subject, an rvalue for an owned one. So
+  <code>$(is&lt;T&gt;) &gt;&gt; _ | f</code> costs the same as <code>$(is&lt;T&gt;) &gt;&gt; f</code>.</li>
 <li><code>f</code>'s result is the case's result. An rvalue reference result is
   returned by value, since it would refer into a temporary.</li>
 <li><code>case | f</code> keeps the dispatch plan and the generated code of the
