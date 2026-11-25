@@ -53,6 +53,14 @@ namespace ptn::pat::mod {
   template <typename T>
   struct max_tuple_guard_index;
 
+  // Forward declare the check for member names that no pattern
+  // resolved, and the guard that replaces such a predicate
+  template <typename T>
+  struct contains_member;
+
+  template <typename T>
+  struct unbound_member_guard;
+
   // Forward declare range predicate and related types
   enum class range_mode : std::uint8_t;
 

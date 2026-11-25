@@ -198,6 +198,8 @@ set(PTN_COMPILE_FAIL_CASES
   compile_fail/member_names_non_structural.cpp
   compile_fail/ptn_bind_unknown_member.cpp
   compile_fail/member_names_local_ptn_on.cpp
+  compile_fail/member_names_whole_alternative_handler.cpp
+  compile_fail/member_names_whole_alternative_guard.cpp
   compile_fail/has_get_out_of_range.cpp
   compile_fail/has_get_empty.cpp
   compile_fail/has_get_ignored.cpp

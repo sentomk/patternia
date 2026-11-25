@@ -1,4 +1,5 @@
-// EXPECT_ERROR: A member placeholder was used
+// EXPECT_ERROR: [Patternia.handler]: A member name in this
+// FORBID_ERROR: Handler signature does not match
 #include <ptn/patternia.hpp>
 
 using namespace ptn;

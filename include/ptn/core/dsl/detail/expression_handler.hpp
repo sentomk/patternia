@@ -90,20 +90,58 @@ namespace ptn::core::dsl::detail {
   inline constexpr bool is_expression_handler_v<
       expression_handler<Predicate, ValueExpression>> = true;
 
+  // Stands in for an expression handler whose member names are
+  // unbound, once that has been reported. It accepts any bindings,
+  // so the handler-signature check does not add a second error.
+  struct unbound_member_handler {
+    template <typename... Args>
+    constexpr int operator()(Args &&...) const {
+      return 0;
+    }
+  };
+
+  // Resolves member names in an expression or predicate against
+  // the case's pattern. A function rather than a lambda: MSVC
+  // instantiates both `if constexpr` branches of a lambda whose
+  // return type is deduced.
+  template <typename Pattern,
+            bool ValueExpression,
+            typename Expression>
+  constexpr auto resolve_expression(Expression &&expression) {
+    if constexpr (ValueExpression) {
+      return pat::base::guard_resolver<Pattern>::apply(
+          pat::mod::make_pred(std::forward<Expression>(expression)));
+    }
+    else {
+      return pat::base::guard_resolver<Pattern>::apply(
+          std::forward<Expression>(expression));
+    }
+  }
+
   template <typename Pattern, typename Expression>
   constexpr auto make_expression_handler(Expression &&expression) {
     constexpr bool
-        value_expression = pat::traits::is_arg_expr_v<Expression>;
-    if constexpr (value_expression) {
-      auto resolved = pat::base::guard_resolver<Pattern>::apply(
-          pat::mod::make_pred(std::forward<Expression>(expression)));
-      return expression_handler<decltype(resolved), true>{
-          std::move(resolved)};
+         value_expression = pat::traits::is_arg_expr_v<Expression>;
+    auto resolved = resolve_expression<Pattern, value_expression>(
+        std::forward<Expression>(expression));
+    using R = std::decay_t<decltype(resolved)>;
+    // Member names that the pattern did not resolve. The usual
+    // cause is $ around is<T>(...) or alt<I>(...), which binds the
+    // whole alternative rather than the members of a has<...>
+    // inside it.
+    static_assert(
+        !pat::mod::contains_member_v<R>,
+        "[Patternia.handler]: A member name in this handler is not "
+        "bound by the case's pattern. Member names are bound only "
+        "by $(has<...>); $(is<T>(has<...>)) binds the whole "
+        "alternative, not its members. Tip: write "
+        "is<T>($(has<...>)) or alt<I>($(has<...>)) to bind the "
+        "members.");
+    if constexpr (pat::mod::contains_member_v<R>) {
+      return unbound_member_handler{};
     }
     else {
-      auto resolved = pat::base::guard_resolver<Pattern>::apply(
-          std::forward<Expression>(expression));
-      return expression_handler<decltype(resolved), false>{
+      return expression_handler<R, value_expression>{
           std::move(resolved)};
     }
   }

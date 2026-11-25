@@ -504,9 +504,24 @@ of member pointers in a subsequent pattern does not matter:
 $(has<&Point::y, &Point::x>)[x == 3 && y == 4]  // x is still .x
 ```
 
-A name whose member is not listed in `has<>` fails a static_assert. Member
-names are only valid in guards attached to `has<...>`; using them on a
-non-structural pattern is a compile-time error.
+A name whose member is not listed in `has<>` fails a static_assert. Names
+refer to members bound by `$(has<...>)`; using them in a guard or expression
+handler whose pattern binds no such member is a compile-time error.
+
+Inside a variant, place `$` on the `has<...>`, not around `is<T>(...)`:
+`$(is<T>(has<...>))` binds the whole alternative, so its members have no names.
+
+```cpp
+struct Order { int qty; int unit; };
+constexpr auto order = has<&Order::qty, &Order::unit>;
+auto [qty, unit] = order;
+
+match(event) | on(
+  is<Order>($(order))[qty <= 0] >> 0,
+  is<Order>($(order))           >> qty * unit,  // members bound
+  _                             >> -1
+);
+```
 
 #### Scope and cached matchers
 
@@ -639,6 +654,9 @@ Rules:
 - `alt<I>` requires `I` to be in range.
 - Use `$(...)` when you want the alternative value bound into the handler.
   `$(is<T>)` and `$(alt<I>)` both bind the alternative, not the variant.
+  To bind the members of a struct alternative instead, put `$` on the
+  `has<...>`: `is<T>($(has<...>))`. See
+  [Structured-binding member names](#structured-binding-member-names).
 - `is<T>(p)` and `alt<I>(p)` also match the alternative against `p`. A plain
   value is treated as `lit(value)`: `is<int>(0)`, `alt<1>("hi")`.
 

@@ -52,8 +52,28 @@ namespace ptn::pat::base {
       using D       = std::decay_t<Derived>;
       auto resolved = guard_resolver<D>::apply(
           std::forward<Pred>(pred));
-      return mod::guarded_pattern<D, decltype(resolved)>{
-          static_cast<const D &>(*this), std::move(resolved)};
+      using R = std::decay_t<decltype(resolved)>;
+      // Member names that the pattern did not resolve. The usual
+      // cause is $ around is<T>(...) or alt<I>(...), which binds the
+      // whole alternative rather than the members of a has<...>
+      // inside it.
+      static_assert(
+          !mod::contains_member<R>::value,
+          "[Patternia.guard]: A member name in this guard is not "
+          "bound by the pattern the guard is attached to. Member "
+          "names are bound only by $(has<...>); $(is<T>(has<...>)) "
+          "binds the whole alternative, not its members. Tip: write "
+          "is<T>($(has<...>)) or alt<I>($(has<...>)) to bind the "
+          "members.");
+      if constexpr (mod::contains_member<R>::value) {
+        auto poisoned = mod::unbound_member_guard<R>::make();
+        return mod::guarded_pattern<D, decltype(poisoned)>{
+            static_cast<const D &>(*this), std::move(poisoned)};
+      }
+      else {
+        return mod::guarded_pattern<D, R>{
+            static_cast<const D &>(*this), std::move(resolved)};
+      }
     }
   };
 

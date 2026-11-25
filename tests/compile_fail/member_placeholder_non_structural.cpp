@@ -1,5 +1,5 @@
-// EXPECT_ERROR: A member placeholder was used
-// EXPECT_ERROR: in a guard on a non-structural pattern.
+// EXPECT_ERROR: [Patternia.guard]: A member name in this guard
+// FORBID_ERROR: Member names are bound only by $(has<...>).
 #include <ptn/patternia.hpp>
 
 struct Point {
