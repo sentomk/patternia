@@ -1108,6 +1108,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#bnd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bnd and PTN_NO_DOLLAR
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2340,6 +2351,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#bnd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        bnd and PTN_NO_DOLLAR
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2979,6 +3001,30 @@ need a fallback.</p>
 <li>Handler parameters follow binding order.</li>
 <li>Patterns that do not bind produce zero-argument handlers.</li>
 </ul>
+<h3 id="bnd"><code>bnd</code> and <code>PTN_NO_DOLLAR</code><a class="headerlink" href="#bnd" title="Permanent link">&para;</a></h3>
+<p><code>bnd</code> is the same binding pattern as <code>$</code>, spelled in standard C++:
+<code>bnd &gt;&gt; h</code>, <code>bnd[g]</code> and <code>bnd(p)</code> mean exactly what <code>$ &gt;&gt; h</code>, <code>$[g]</code>
+and <code>$(p)</code> mean, and an unguarded <code>bnd</code> ends a case list like <code>$</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.5</span><span class="p">;</span>
+
+<span class="n">match</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">bnd</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="n">bnd</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">)</span><span class="w">     </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[](</span><span class="kt">double</span><span class="w"> </span><span class="n">d</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">d</span><span class="p">);</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="n">_</span><span class="w">                   </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+<p>A <code>$</code> in an identifier is a compiler extension. GCC, Clang and MSVC
+accept it by default, but clang warns about every use under
+<code>-pedantic</code>, so <code>-pedantic-errors</code> and <code>-Werror</code> builds reject it,
+and <code>-fno-dollars-in-identifiers</code> rejects it on GCC and Clang. The
+warning is raised in your code, so Patternia cannot silence it.</p>
+<p>For such builds, define <code>PTN_NO_DOLLAR</code> before including Patternia,
+for example with <code>-DPTN_NO_DOLLAR</code>, and write <code>bnd</code>. The headers then
+declare no <code>$</code> identifier.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">target_compile_definitions</span><span class="p">(</span><span class="s">your_target</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">PTN_NO_DOLLAR</span><span class="p">)</span>
+</code></pre></div>
+<p>Without the switch both spellings are available and refer to the same
+object.</p>
 <hr />
 <h2 id="guard-attachment">Guard Attachment<a class="headerlink" href="#guard-attachment" title="Permanent link">&para;</a></h2>
 <h3 id="patternguard"><code>pattern[guard]</code><a class="headerlink" href="#patternguard" title="Permanent link">&para;</a></h3>
@@ -3242,13 +3288,17 @@ below:</p>
 <li><code>on</code>, <code>on&lt;R&gt;</code></li>
 <li><code>to&lt;T&gt;</code>, <code>case | f</code></li>
 <li><code>lit</code>, <code>val</code>, <code>lit_ci</code></li>
-<li><code>$</code></li>
+<li><code>$</code>, <code>bnd</code></li>
 <li><code>_</code>, <code>rng</code></li>
 <li><code>has</code></li>
 <li><code>is</code>, <code>alt</code></li>
 <li><code>any</code>, <code>all</code>, <code>neg</code></li>
 <li><code>PTN_ON</code> (macro)</li>
 <li><code>PTN_BIND</code> (deprecated compatibility macro)</li>
+</ul>
+<p>Configuration switch, defined by the user before including Patternia:</p>
+<ul>
+<li><code>PTN_NO_DOLLAR</code>: leave out <code>$</code>; see <a href="#bnd"><code>bnd</code></a>.</li>
 </ul>
 <hr />
 <h2 id="minimal-example">Minimal Example<a class="headerlink" href="#minimal-example" title="Permanent link">&para;</a></h2>
