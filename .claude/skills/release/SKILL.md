@@ -1,6 +1,6 @@
 ---
 name: release
-description: Prepare and publish a Patternia release (version bump, release note, performance note, GitHub release, vcpkg fork and microsoft/vcpkg PR, Conan recipe and ConanCenter PR). Use when the user asks to release, ship or publish a new version such as v0.9.6.
+description: Prepare and publish a Patternia release (version bump, release note, performance note, GitHub release, vcpkg fork and microsoft/vcpkg PR). Use when the user asks to release, ship or publish a new version such as v0.9.6.
 ---
 
 # Patternia release

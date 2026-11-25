@@ -81,8 +81,8 @@ code as a hand-written `switch`.
 - **Costs what hand-written code costs**: no RTTI, no virtual dispatch,
   no heap allocation. Literal and variant matches compile to a `switch`
   on GCC and Clang, and a codegen check in CI keeps them that way.
-- **No dependencies**: just headers. Packaged for vcpkg and Conan and
-  exported as a CMake target.
+- **No dependencies**: just headers. Packaged for vcpkg and exported as
+  a CMake target.
 
 ## Performance
 
@@ -402,16 +402,6 @@ vcpkg install patternia
 ```cmake
 find_package(patternia CONFIG REQUIRED)
 target_link_libraries(your_target PRIVATE patternia::patternia)
-```
-
-### Conan
-
-A Conan 2 recipe lives in `packaging/conan/` and is being submitted to
-ConanCenter. Until then, export it locally and require
-`patternia/0.9.7`:
-
-```bash
-conan create packaging/conan/all --version 0.9.7
 ```
 
 ### CMake FetchContent
