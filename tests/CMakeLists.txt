@@ -36,6 +36,7 @@ set(PTN_TEST_SOURCES
   tests_move_matching.cpp
   tests_member_names.cpp
   tests_header_first.cpp
+  tests_bnd.cpp
 )
 
 add_executable(ptn_tests ${PTN_TEST_SOURCES})
@@ -87,6 +88,24 @@ if(PTN_TEST_SINGLE_HEADER)
   )
   gtest_discover_tests(ptn_tests_single_header TEST_PREFIX "single_header.")
 endif()
+
+# PTN_NO_DOLLAR leaves out `$`, so the headers must compile without
+# any `$` identifier. GCC and Clang reject one under
+# -fno-dollars-in-identifiers, and -pedantic-errors keeps the headers
+# free of other extensions; other compilers only check that `bnd`
+# works with the switch defined.
+add_executable(ptn_tests_no_dollar tests_bnd.cpp)
+target_compile_definitions(ptn_tests_no_dollar PRIVATE PTN_NO_DOLLAR)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(ptn_tests_no_dollar PRIVATE
+    -fno-dollars-in-identifiers -pedantic-errors)
+endif()
+target_link_libraries(ptn_tests_no_dollar PRIVATE
+  patternia
+  GTest::gtest
+  GTest::gtest_main
+)
+gtest_discover_tests(ptn_tests_no_dollar TEST_PREFIX "no_dollar.")
 
 # Exercise static structured bindings even when the main suite is
 # built with the project's C++17 default.

@@ -126,10 +126,18 @@ namespace ptn::core::engine::detail {
               std::declval<Cases>())),
           S>...>;
 
+  // A message on [[nodiscard]] is C++20; clang flags it under
+  // -pedantic in C++17, so older modes get the plain attribute.
   template <typename TV>
-  class [[nodiscard(
-      "[Patternia.match]: incomplete match expression. "
-      "Use `match(subject) | on(...)`.")]] pipeline_match_context {
+  class
+#if __cplusplus >= 202002L                                          \
+    || (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L)
+      [[nodiscard("[Patternia.match]: incomplete match expression. "
+                  "Use `match(subject) | on(...)`.")]]
+#else
+      [[nodiscard]]
+#endif
+      pipeline_match_context {
 
   public:
     using subject_type = TV;

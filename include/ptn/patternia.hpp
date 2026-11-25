@@ -48,7 +48,10 @@ namespace ptn {
   using ptn::pat::lit_ci;
   using ptn::pat::val;
 
+  using ptn::pat::bnd;
+#ifndef PTN_NO_DOLLAR
   using ptn::pat::$;
+#endif
 
   using ptn::pat::_;
 
