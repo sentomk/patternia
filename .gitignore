@@ -102,9 +102,6 @@ cmake/patternia_dummy.cc
 .venv-win/
 .tmp/
 
-# Conan test_package outputs (conan create)
-CMakeUserPresets.json
-
 # Local benchmark staging outputs
 bench/results/
 
