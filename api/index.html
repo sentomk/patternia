@@ -3066,9 +3066,21 @@ member list at compile time, so they follow members, not positions — the order
 of member pointers in a subsequent pattern does not matter:</p>
 <div class="highlight"><pre><span></span><code><span class="n">$</span><span class="p">(</span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Point</span><span class="o">::</span><span class="n">x</span><span class="o">&gt;</span><span class="p">)[</span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">4</span><span class="p">]</span><span class="w">  </span><span class="c1">// x is still .x</span>
 </code></pre></div>
-<p>A name whose member is not listed in <code>has&lt;&gt;</code> fails a static_assert. Member
-names are only valid in guards attached to <code>has&lt;...&gt;</code>; using them on a
-non-structural pattern is a compile-time error.</p>
+<p>A name whose member is not listed in <code>has&lt;&gt;</code> fails a static_assert. Names
+refer to members bound by <code>$(has&lt;...&gt;)</code>; using them in a guard or expression
+handler whose pattern binds no such member is a compile-time error.</p>
+<p>Inside a variant, place <code>$</code> on the <code>has&lt;...&gt;</code>, not around <code>is&lt;T&gt;(...)</code>:
+<code>$(is&lt;T&gt;(has&lt;...&gt;))</code> binds the whole alternative, so its members have no names.</p>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Order</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">qty</span><span class="p">;</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">unit</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">has</span><span class="o">&lt;&amp;</span><span class="n">Order</span><span class="o">::</span><span class="n">qty</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">Order</span><span class="o">::</span><span class="n">unit</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">qty</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">order</span><span class="p">;</span>
+
+<span class="n">match</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span>
+<span class="w">  </span><span class="n">is</span><span class="o">&lt;</span><span class="n">Order</span><span class="o">&gt;</span><span class="p">(</span><span class="n">$</span><span class="p">(</span><span class="n">order</span><span class="p">))[</span><span class="n">qty</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">  </span><span class="n">is</span><span class="o">&lt;</span><span class="n">Order</span><span class="o">&gt;</span><span class="p">(</span><span class="n">$</span><span class="p">(</span><span class="n">order</span><span class="p">))</span><span class="w">           </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">qty</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">unit</span><span class="p">,</span><span class="w">  </span><span class="c1">// members bound</span>
+<span class="w">  </span><span class="n">_</span><span class="w">                             </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">-1</span>
+<span class="p">);</span>
+</code></pre></div>
 <h4 id="scope-and-cached-matchers">Scope and cached matchers<a class="headerlink" href="#scope-and-cached-matchers" title="Permanent link">&para;</a></h4>
 <p>Function-local <code>auto [x, y] = pt;</code> works with <code>on(...)</code>, but not with
 <code>PTN_ON(...)</code>: the macro uses a captureless lambda, which cannot access these
@@ -3169,7 +3181,10 @@ Wrap it with <code>$(...)</code> to extract values.</p>
 <li><code>is&lt;T&gt;</code> requires <code>T</code> to appear exactly once.</li>
 <li><code>alt&lt;I&gt;</code> requires <code>I</code> to be in range.</li>
 <li>Use <code>$(...)</code> when you want the alternative value bound into the handler.
-  <code>$(is&lt;T&gt;)</code> and <code>$(alt&lt;I&gt;)</code> both bind the alternative, not the variant.</li>
+  <code>$(is&lt;T&gt;)</code> and <code>$(alt&lt;I&gt;)</code> both bind the alternative, not the variant.
+  To bind the members of a struct alternative instead, put <code>$</code> on the
+  <code>has&lt;...&gt;</code>: <code>is&lt;T&gt;($(has&lt;...&gt;))</code>. See
+  <a href="#structured-binding-member-names">Structured-binding member names</a>.</li>
 <li><code>is&lt;T&gt;(p)</code> and <code>alt&lt;I&gt;(p)</code> also match the alternative against <code>p</code>. A plain
   value is treated as <code>lit(value)</code>: <code>is&lt;int&gt;(0)</code>, <code>alt&lt;1&gt;("hi")</code>.</li>
 </ul>
