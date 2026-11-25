@@ -408,6 +408,39 @@ Binding rules:
 - Handler parameters follow binding order.
 - Patterns that do not bind produce zero-argument handlers.
 
+### `bnd` and `PTN_NO_DOLLAR` {#bnd}
+
+`bnd` is the same binding pattern as `$`, spelled in standard C++:
+`bnd >> h`, `bnd[g]` and `bnd(p)` mean exactly what `$ >> h`, `$[g]`
+and `$(p)` mean, and an unguarded `bnd` ends a case list like `$`.
+
+```cpp
+std::variant<int, double> v = 2.5;
+
+match(v) | on(
+  bnd(is<int>)[_ > 0] >> [](int i) { return i; },
+  bnd(is<double>)     >> [](double d) { return static_cast<int>(d); },
+  _                   >> 0
+);
+```
+
+A `$` in an identifier is a compiler extension. GCC, Clang and MSVC
+accept it by default, but clang warns about every use under
+`-pedantic`, so `-pedantic-errors` and `-Werror` builds reject it,
+and `-fno-dollars-in-identifiers` rejects it on GCC and Clang. The
+warning is raised in your code, so Patternia cannot silence it.
+
+For such builds, define `PTN_NO_DOLLAR` before including Patternia,
+for example with `-DPTN_NO_DOLLAR`, and write `bnd`. The headers then
+declare no `$` identifier.
+
+```cmake
+target_compile_definitions(your_target PRIVATE PTN_NO_DOLLAR)
+```
+
+Without the switch both spellings are available and refer to the same
+object.
+
 ---
 
 ## Guard Attachment {#guard-attachment}
@@ -759,13 +792,17 @@ below:
 - `on`, `on<R>`
 - `to<T>`, `case | f`
 - `lit`, `val`, `lit_ci`
-- `$`
+- `$`, `bnd`
 - `_`, `rng`
 - `has`
 - `is`, `alt`
 - `any`, `all`, `neg`
 - `PTN_ON` (macro)
 - `PTN_BIND` (deprecated compatibility macro)
+
+Configuration switch, defined by the user before including Patternia:
+
+- `PTN_NO_DOLLAR`: leave out `$`; see [`bnd`](#bnd).
 
 ---
 

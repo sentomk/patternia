@@ -217,14 +217,29 @@ namespace ptn::pat {
     }
   };
 
-  // $ - Binding pattern and factory for binding subpatterns.
+  // bnd - Binding pattern and factory for binding subpatterns.
   //
   // Usage:
-  //   $ >> handler                    // bind whole subject
-  //   $[_ > 0] >> handler             // bind with guard
-  //   $(has<&T::x, &T::y>) >> handler  // bind structural members
-  //   $(is<T>()) >> handler           // bind variant alternative
-  inline constexpr bind_factory $;
+  //   bnd >> handler                    // bind whole subject
+  //   bnd[_ > 0] >> handler             // bind with guard
+  //   bnd(has<&T::x, &T::y>) >> handler  // bind structural members
+  //   bnd(is<T>) >> handler             // bind variant alternative
+  //
+  // `bnd` is the standard C++ spelling. `$` below is the same object
+  // under a shorter name.
+  inline constexpr bind_factory bnd;
+
+  // $ - The usual spelling of `bnd`.
+  //
+  // A `$` in an identifier is a compiler extension (GCC, Clang and
+  // MSVC accept it by default), so clang warns about it under
+  // -pedantic and -fno-dollars-in-identifiers rejects it. Define
+  // PTN_NO_DOLLAR before including Patternia to leave it out; the
+  // headers then contain no `$` identifier and `bnd` is the only
+  // spelling.
+#ifndef PTN_NO_DOLLAR
+  inline constexpr const bind_factory &$ = bnd;
+#endif
 
 } // namespace ptn::pat
 
