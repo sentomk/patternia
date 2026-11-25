@@ -251,3 +251,20 @@ TEST(MemberNames, RuntimeGuardResolvesThroughVariantWrapper) {
   EXPECT_EQ(classify(subject_t{42}), -1);
   EXPECT_EQ(calls, 1);
 }
+
+TEST(MemberNames, BindInsideVariantAlternativeInGuardAndHandler) {
+  // $ inside is<T>(...) binds the members, so the names work in
+  // the guard and in an expression handler.
+  using subject_t = std::variant<int, Point>;
+  auto classify   = [&](const subject_t &subject) {
+    return ptn::match(subject)
+           | ptn::on(
+               ptn::is<Point>(ptn::$(point_pt))[px == py] >> 0,
+               ptn::is<Point>(ptn::$(point_pt)) >> (px * 10 + py),
+               ptn::_ >> -1);
+  };
+
+  EXPECT_EQ(classify(subject_t{Point{3, 3}}), 0);
+  EXPECT_EQ(classify(subject_t{Point{3, 4}}), 34);
+  EXPECT_EQ(classify(subject_t{7}), -1);
+}

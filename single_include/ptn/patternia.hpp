@@ -200,6 +200,14 @@ namespace ptn::pat::mod {
   template <typename T>
   struct max_tuple_guard_index;
 
+  // Forward declare the check for member names that no pattern
+  // resolved, and the guard that replaces such a predicate
+  template <typename T>
+  struct contains_member;
+
+  template <typename T>
+  struct unbound_member_guard;
+
   // Forward declare range predicate and related types
   enum class range_mode : std::uint8_t;
 
@@ -1891,8 +1899,28 @@ namespace ptn::pat::base {
       using D       = std::decay_t<Derived>;
       auto resolved = guard_resolver<D>::apply(
           std::forward<Pred>(pred));
-      return mod::guarded_pattern<D, decltype(resolved)>{
-          static_cast<const D &>(*this), std::move(resolved)};
+      using R = std::decay_t<decltype(resolved)>;
+      // Member names that the pattern did not resolve. The usual
+      // cause is $ around is<T>(...) or alt<I>(...), which binds the
+      // whole alternative rather than the members of a has<...>
+      // inside it.
+      static_assert(
+          !mod::contains_member<R>::value,
+          "[Patternia.guard]: A member name in this guard is not "
+          "bound by the pattern the guard is attached to. Member "
+          "names are bound only by $(has<...>); $(is<T>(has<...>)) "
+          "binds the whole alternative, not its members. Tip: write "
+          "is<T>($(has<...>)) or alt<I>($(has<...>)) to bind the "
+          "members.");
+      if constexpr (mod::contains_member<R>::value) {
+        auto poisoned = mod::unbound_member_guard<R>::make();
+        return mod::guarded_pattern<D, decltype(poisoned)>{
+            static_cast<const D &>(*this), std::move(poisoned)};
+      }
+      else {
+        return mod::guarded_pattern<D, R>{
+            static_cast<const D &>(*this), std::move(resolved)};
+      }
     }
   };
 
@@ -2040,16 +2068,15 @@ namespace ptn::pat::mod {
   }
 
   // Trap: member placeholders must be resolved to positional
-  // placeholders by the structural pattern owning the guard. This
-  // overload is only reached when a member placeholder is used in
-  // a guard on a non-structural pattern.
+  // placeholders by the $(has<...>) that binds them. Guards and
+  // expression handlers report unresolved names when they are
+  // built (see contains_member), so this is only a backstop.
   template <auto M, typename Tuple>
   constexpr decltype(auto) eval(const member_t<M> &, Tuple &&) {
     static_assert(dependent_false<Tuple>::value,
-                  "[Patternia.guard]: A member placeholder was used "
-                  "in a guard on a non-structural pattern. Member "
-                  "names are only valid in guards attached to "
-                  "has<...>.");
+                  "[Patternia.guard]: A member name is not bound by "
+                  "this case's pattern. Member names are bound only "
+                  "by $(has<...>).");
   }
 
   // Makes expression callable as predicate on bound tuples.
@@ -2094,15 +2121,14 @@ namespace ptn::pat::mod {
       : std::integral_constant<std::size_t,
                                max_arg_index<X>::value> {};
 
-  // Trap with a clear message when a member placeholder leaks into
-  // the positional bounds check (non-structural guard).
+  // Backstop for a member placeholder that reaches the positional
+  // bounds check unresolved; see the eval trap above.
   template <auto M>
   struct max_arg_index<member_t<M>> {
-    static_assert(
-        dependent_false<member_t<M>>::value,
-        "[Patternia.guard]: A member placeholder was used "
-        "in a guard on a non-structural pattern. Member names are "
-        "only valid in guards attached to has<...>.");
+    static_assert(dependent_false<member_t<M>>::value,
+                  "[Patternia.guard]: A member name is not bound by "
+                  "this case's pattern. Member names are bound only "
+                  "by $(has<...>).");
     static constexpr std::size_t value = 0;
   };
 
@@ -2572,6 +2598,50 @@ namespace ptn::pat::mod {
                                              std::move(r)};
   }
 
+  // True when a guard predicate or expression still holds a
+  // member_t leaf after resolution: no $(has<...>) in the case's
+  // pattern bound that member. Callables and other predicates hold
+  // no member names.
+  template <typename T>
+  struct contains_member : std::false_type {};
+
+  template <auto M>
+  struct contains_member<member_t<M>> : std::true_type {};
+
+  template <typename Op, typename L, typename R>
+  struct contains_member<bin_expr<Op, L, R>>
+      : std::bool_constant<contains_member<L>::value
+                           || contains_member<R>::value> {};
+
+  template <typename Op, typename X>
+  struct contains_member<un_expr<Op, X>> : contains_member<X> {};
+
+  template <typename E>
+  struct contains_member<tuple_predicate<E>> : contains_member<E> {};
+
+  template <typename L, typename R>
+  struct contains_member<pred_and<L, R>>
+      : std::bool_constant<contains_member<L>::value
+                           || contains_member<R>::value> {};
+
+  template <typename L, typename R>
+  struct contains_member<pred_or<L, R>>
+      : std::bool_constant<contains_member<L>::value
+                           || contains_member<R>::value> {};
+
+  template <typename T>
+  inline constexpr bool
+      contains_member_v = contains_member<std::decay_t<T>>::value;
+
+  // Replaces a guard whose member names are unbound, once that has
+  // been reported, so the evaluator does not add more errors.
+  template <typename T>
+  struct unbound_member_guard {
+    static constexpr auto make() {
+      return tuple_predicate<val_t<bool>>{val_t<bool>{false}};
+    }
+  };
+
   // Range modes for interval predicates.
   enum class range_mode : std::uint8_t {
     closed,
@@ -2813,20 +2883,58 @@ namespace ptn::core::dsl::detail {
   inline constexpr bool is_expression_handler_v<
       expression_handler<Predicate, ValueExpression>> = true;
 
+  // Stands in for an expression handler whose member names are
+  // unbound, once that has been reported. It accepts any bindings,
+  // so the handler-signature check does not add a second error.
+  struct unbound_member_handler {
+    template <typename... Args>
+    constexpr int operator()(Args &&...) const {
+      return 0;
+    }
+  };
+
+  // Resolves member names in an expression or predicate against
+  // the case's pattern. A function rather than a lambda: MSVC
+  // instantiates both `if constexpr` branches of a lambda whose
+  // return type is deduced.
+  template <typename Pattern,
+            bool ValueExpression,
+            typename Expression>
+  constexpr auto resolve_expression(Expression &&expression) {
+    if constexpr (ValueExpression) {
+      return pat::base::guard_resolver<Pattern>::apply(
+          pat::mod::make_pred(std::forward<Expression>(expression)));
+    }
+    else {
+      return pat::base::guard_resolver<Pattern>::apply(
+          std::forward<Expression>(expression));
+    }
+  }
+
   template <typename Pattern, typename Expression>
   constexpr auto make_expression_handler(Expression &&expression) {
     constexpr bool
-        value_expression = pat::traits::is_arg_expr_v<Expression>;
-    if constexpr (value_expression) {
-      auto resolved = pat::base::guard_resolver<Pattern>::apply(
-          pat::mod::make_pred(std::forward<Expression>(expression)));
-      return expression_handler<decltype(resolved), true>{
-          std::move(resolved)};
+         value_expression = pat::traits::is_arg_expr_v<Expression>;
+    auto resolved = resolve_expression<Pattern, value_expression>(
+        std::forward<Expression>(expression));
+    using R = std::decay_t<decltype(resolved)>;
+    // Member names that the pattern did not resolve. The usual
+    // cause is $ around is<T>(...) or alt<I>(...), which binds the
+    // whole alternative rather than the members of a has<...>
+    // inside it.
+    static_assert(
+        !pat::mod::contains_member_v<R>,
+        "[Patternia.handler]: A member name in this handler is not "
+        "bound by the case's pattern. Member names are bound only "
+        "by $(has<...>); $(is<T>(has<...>)) binds the whole "
+        "alternative, not its members. Tip: write "
+        "is<T>($(has<...>)) or alt<I>($(has<...>)) to bind the "
+        "members.");
+    if constexpr (pat::mod::contains_member_v<R>) {
+      return unbound_member_handler{};
     }
     else {
-      auto resolved = pat::base::guard_resolver<Pattern>::apply(
-          std::forward<Expression>(expression));
-      return expression_handler<decltype(resolved), false>{
+      return expression_handler<R, value_expression>{
           std::move(resolved)};
     }
   }

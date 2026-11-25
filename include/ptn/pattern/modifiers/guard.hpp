@@ -104,16 +104,15 @@ namespace ptn::pat::mod {
   }
 
   // Trap: member placeholders must be resolved to positional
-  // placeholders by the structural pattern owning the guard. This
-  // overload is only reached when a member placeholder is used in
-  // a guard on a non-structural pattern.
+  // placeholders by the $(has<...>) that binds them. Guards and
+  // expression handlers report unresolved names when they are
+  // built (see contains_member), so this is only a backstop.
   template <auto M, typename Tuple>
   constexpr decltype(auto) eval(const member_t<M> &, Tuple &&) {
     static_assert(dependent_false<Tuple>::value,
-                  "[Patternia.guard]: A member placeholder was used "
-                  "in a guard on a non-structural pattern. Member "
-                  "names are only valid in guards attached to "
-                  "has<...>.");
+                  "[Patternia.guard]: A member name is not bound by "
+                  "this case's pattern. Member names are bound only "
+                  "by $(has<...>).");
   }
 
   // Makes expression callable as predicate on bound tuples.
@@ -158,15 +157,14 @@ namespace ptn::pat::mod {
       : std::integral_constant<std::size_t,
                                max_arg_index<X>::value> {};
 
-  // Trap with a clear message when a member placeholder leaks into
-  // the positional bounds check (non-structural guard).
+  // Backstop for a member placeholder that reaches the positional
+  // bounds check unresolved; see the eval trap above.
   template <auto M>
   struct max_arg_index<member_t<M>> {
-    static_assert(
-        dependent_false<member_t<M>>::value,
-        "[Patternia.guard]: A member placeholder was used "
-        "in a guard on a non-structural pattern. Member names are "
-        "only valid in guards attached to has<...>.");
+    static_assert(dependent_false<member_t<M>>::value,
+                  "[Patternia.guard]: A member name is not bound by "
+                  "this case's pattern. Member names are bound only "
+                  "by $(has<...>).");
     static constexpr std::size_t value = 0;
   };
 
@@ -635,6 +633,50 @@ namespace ptn::pat::mod {
     return pred_or<decltype(l), decltype(r)>{std::move(l),
                                              std::move(r)};
   }
+
+  // True when a guard predicate or expression still holds a
+  // member_t leaf after resolution: no $(has<...>) in the case's
+  // pattern bound that member. Callables and other predicates hold
+  // no member names.
+  template <typename T>
+  struct contains_member : std::false_type {};
+
+  template <auto M>
+  struct contains_member<member_t<M>> : std::true_type {};
+
+  template <typename Op, typename L, typename R>
+  struct contains_member<bin_expr<Op, L, R>>
+      : std::bool_constant<contains_member<L>::value
+                           || contains_member<R>::value> {};
+
+  template <typename Op, typename X>
+  struct contains_member<un_expr<Op, X>> : contains_member<X> {};
+
+  template <typename E>
+  struct contains_member<tuple_predicate<E>> : contains_member<E> {};
+
+  template <typename L, typename R>
+  struct contains_member<pred_and<L, R>>
+      : std::bool_constant<contains_member<L>::value
+                           || contains_member<R>::value> {};
+
+  template <typename L, typename R>
+  struct contains_member<pred_or<L, R>>
+      : std::bool_constant<contains_member<L>::value
+                           || contains_member<R>::value> {};
+
+  template <typename T>
+  inline constexpr bool
+      contains_member_v = contains_member<std::decay_t<T>>::value;
+
+  // Replaces a guard whose member names are unbound, once that has
+  // been reported, so the evaluator does not add more errors.
+  template <typename T>
+  struct unbound_member_guard {
+    static constexpr auto make() {
+      return tuple_predicate<val_t<bool>>{val_t<bool>{false}};
+    }
+  };
 
   // Range modes for interval predicates.
   enum class range_mode : std::uint8_t {
