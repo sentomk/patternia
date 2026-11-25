@@ -5,7 +5,7 @@ There is no build system, no linking step, and no external dependency.
 
 You can integrate Patternia into your project in any of the following ways.
 To try it in a single file without any setup, use the
-[single header](#7-single-header).
+[single header](#6-single-header).
 
 ---
 
@@ -38,53 +38,7 @@ cmake -B build -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.
 
 ---
 
-## 2. Conan
-
-The Conan 2 recipe lives in `packaging/conan/` and is being submitted
-to ConanCenter. Until it is available there, export it into your local
-Conan cache from a checkout of this repository:
-
-```bash
-conan create packaging/conan/all --version 0.9.7
-```
-
-Then require it from your `conanfile.txt`:
-
-```ini
-[requires]
-patternia/0.9.7
-
-[generators]
-CMakeDeps
-CMakeToolchain
-
-[layout]
-cmake_layout
-```
-
-The package provides the same CMake target as the other methods:
-
-```cmake
-find_package(patternia CONFIG REQUIRED)
-target_link_libraries(your_target PRIVATE patternia::patternia)
-```
-
-Install the dependencies and build through the presets that
-`CMakeToolchain` generates:
-
-```bash
-conan install . -s compiler.cppstd=17
-cmake --preset conan-release
-cmake --build --preset conan-release
-```
-
-Patternia needs C++17. Pass `-s compiler.cppstd=17` (or newer), or set
-`compiler.cppstd` in your Conan profile, when the compiler defaults to
-an older standard.
-
----
-
-## 3. Fetch Patternia automatically
+## 2. Fetch Patternia automatically
 
 You may choose to fetch Patternia as a remote dependency during configuration.
 
@@ -111,7 +65,7 @@ This fits well in reproducible CI pipelines and modern CMake workflows.
 
 ---
 
-## 4. Install and consume via `find_package()`
+## 3. Install and consume via `find_package()`
 
 Patternia provides full CMake package export support.
 
@@ -134,7 +88,7 @@ This is the recommended method for system-wide integration, packaging, and distr
 
 ---
 
-## 5. Add Patternia as a Git submodule
+## 4. Add Patternia as a Git submodule
 
 ```bash
 git submodule add https://github.com/sentomk/patternia extern/patternia
@@ -151,7 +105,7 @@ This approach keeps Patternia version-controlled inside your repository and work
 
 ---
 
-## 6. Include the `include/` directory directly
+## 5. Include the `include/` directory directly
 
 This is the simplest approach.
 Just add Patternia’s header path to your target:
@@ -166,7 +120,7 @@ No configuration, no installation, immediately usable.
 
 ---
 
-## 7. Single header
+## 6. Single header
 
 `single_include/ptn/patternia.hpp` holds the whole library in one
 file. Download it next to your source and include it; nothing else is
