@@ -1,13 +1,12 @@
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)"
-            srcset="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/banner-dark.svg">
+            srcset="docs/assets/patternia-dark.svg">
     <source media="(prefers-color-scheme: light)"
-            srcset="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/banner-dark.svg">
-    <img alt="Patternia logo"
-         src="https://wordpress-1316673449.cos.ap-beijing.myqcloud.com/img/banner-dark.svg"
-         width="300"
-         style="max-width: 90%; height: auto; margin-top: 10px; transform: translateX(-2px);">
+            srcset="docs/assets/patternia-light.svg">
+    <img alt="Patternia"
+         src="docs/assets/patternia-light.svg"
+         width="300">
   </picture>
 </div>
 
@@ -25,6 +24,8 @@
 </div>
 
 <br>
+
+<img src="docs/assets/patternia-icon.svg" alt="" width="88" align="right">
 
 **Patternia** is a header-only pattern matching library for C++17 and later.
 Match literals, `std::variant` alternatives and struct members, bind the
