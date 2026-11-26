@@ -17,9 +17,9 @@ theme:
       media: "(prefers-color-scheme: dark)"
   custom_dir: docs/overrides
 
-  logo: assets/favicon.svg
-  logo_dark: assets/favicon.svg
-  favicon: assets/favicon.svg
+  logo: assets/patternia-icon.svg
+  logo_dark: assets/patternia-icon.svg
+  favicon: assets/patternia-icon.svg
 
   font:
     text: Inter
