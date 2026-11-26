@@ -25,8 +25,6 @@
 
 <br>
 
-<img src="docs/assets/patternia-icon.svg" alt="" width="88" align="right">
-
 **Patternia** is a header-only pattern matching library for C++17 and later.
 Match literals, `std::variant` alternatives and struct members, bind the
 values you need, guard them, and compute the result, all in one
@@ -489,3 +487,13 @@ in [SECURITY.md](SECURITY.md).
 ## License
 
 Patternia is released under the [MIT License](LICENSE).
+
+---
+
+<div align="center">
+  <a href="https://patternia.cc">
+    <img src="docs/assets/patternia-icon.svg" alt="Patternia" width="40">
+  </a>
+  <br>
+  <sub><a href="LICENSE">MIT License</a> · <a href="https://patternia.cc">patternia.cc</a></sub>
+</div>
