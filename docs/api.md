@@ -185,6 +185,25 @@ Bindings are determined entirely by the pattern. A callable handler
 that cannot take them but can be called with no arguments ignores
 them: `$ >> [] { return 1; }` is valid.
 
+A value handler stores its value when the case is built and returns a
+copy each time the case is selected, because the case pack can be
+matched again. For integers, enums and string literals the copy is
+free. For a value with an expensive copy, such as a `std::string` or a
+`std::variant` holding one, store a cheap value and convert it when
+the case is selected, or use a lambda:
+
+```cpp
+// Copies the stored Outcome on every fallback.
+_ >> Outcome{Ignored{}}
+
+// Stores the empty Ignored and constructs the Outcome when selected.
+_ >> Ignored{} | to<Outcome>
+on<Outcome>(..., _ >> Ignored{})
+_ >> [] { return Outcome{Ignored{}}; }
+```
+
+See [Performance Tuning](guide/performance-tuning.md#value-handlers).
+
 ### Expression handlers
 
 An expression on the right of `>>` is evaluated only when its case
