@@ -101,6 +101,43 @@ constexpr auto parity = on(val<0> >> "even", val<1> >> "odd", _ >> "?");
 const char *p = match(n % 2) | parity;
 ```
 
+## Value handlers
+
+A value handler (`pattern >> value`) stores the value in the case pack
+and returns a copy of it each time the case is selected. Caching the
+pack with `PTN_ON` saves building the value, not this copy. For
+integers, enums and string literals the copy is free, and
+literal-table plans read the stored value directly. For a
+`std::string`, or a `std::variant` whose alternatives include one,
+every match pays for the copy: a copy reads the stored value from
+memory, while constructing from a literal lets the compiler fold it
+into the call site.
+
+Store a cheap value and convert it when the case is selected, with
+[`| to<T>`](../api.md#to) or an explicit result type
+[`on<R>`](../api.md#on-result), or use a lambda:
+
+```cpp
+using Outcome = std::variant<Accepted, Ignored>;
+
+// Copies the stored Outcome on every fallback.
+match(e) | on($(is<Order>) >> accept, _ >> Outcome{Ignored{}});
+
+// Each of these stores the empty Ignored or a string literal and
+// constructs the result only when the case is selected.
+match(e) | on($(is<Order>) >> accept, _ >> Ignored{} | to<Outcome>);
+match(e) | on<Outcome>($(is<Order>) >> accept, _ >> Ignored{});
+match(x) | on<std::string>(lit(0) >> "zero", _ >> "a long default text");
+```
+
+In the measurements for
+[issue #132](https://github.com/sentomk/patternia/issues/132), a
+fallback returning a stored `Outcome` took 4.0 ns per call with Apple
+Clang 17 and 2.6 ns with GCC 13; `_ >> Ignored{} | to<Outcome>` took
+1.4 and 2.1 ns, the same as a hand-written `std::get_if`. A stored
+`std::string` longer than the small-string buffer took about 37 ns
+against 17 to 19 ns when built in a lambda.
+
 ## Compilers and build settings
 
 - Build with optimization (`-O2` or `-O3`, `/O2`). The plans above
