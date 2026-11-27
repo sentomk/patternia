@@ -847,6 +847,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#value-handlers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value handlers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#compilers-and-build-settings" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1730,6 +1741,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#value-handlers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value handlers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#compilers-and-build-settings" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1895,6 +1917,37 @@ benchmarks (1.32 against 0.41 ns).</p>
 <span class="k">constexpr</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">parity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">on</span><span class="p">(</span><span class="n">val</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"even"</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"odd"</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"?"</span><span class="p">);</span>
 <span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">match</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">parity</span><span class="p">;</span>
 </code></pre></div>
+<h2 id="value-handlers">Value handlers<a class="headerlink" href="#value-handlers" title="Permanent link">&para;</a></h2>
+<p>A value handler (<code>pattern &gt;&gt; value</code>) stores the value in the case pack
+and returns a copy of it each time the case is selected. Caching the
+pack with <code>PTN_ON</code> saves building the value, not this copy. For
+integers, enums and string literals the copy is free, and
+literal-table plans read the stored value directly. For a
+<code>std::string</code>, or a <code>std::variant</code> whose alternatives include one,
+every match pays for the copy: a copy reads the stored value from
+memory, while constructing from a literal lets the compiler fold it
+into the call site.</p>
+<p>Store a cheap value and convert it when the case is selected, with
+<a href="../../api/#to"><code>| to&lt;T&gt;</code></a> or an explicit result type
+<a href="../../api/#on-result"><code>on&lt;R&gt;</code></a>, or use a lambda:</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span><span class="w"> </span><span class="n">Outcome</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="n">Accepted</span><span class="p">,</span><span class="w"> </span><span class="n">Ignored</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="c1">// Copies the stored Outcome on every fallback.</span>
+<span class="n">match</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span><span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="n">Order</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">accept</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Outcome</span><span class="p">{</span><span class="n">Ignored</span><span class="p">{}});</span>
+
+<span class="c1">// Each of these stores the empty Ignored or a string literal and</span>
+<span class="c1">// constructs the result only when the case is selected.</span>
+<span class="n">match</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="p">(</span><span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="n">Order</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">accept</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Ignored</span><span class="p">{}</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">to</span><span class="o">&lt;</span><span class="n">Outcome</span><span class="o">&gt;</span><span class="p">);</span>
+<span class="n">match</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="o">&lt;</span><span class="n">Outcome</span><span class="o">&gt;</span><span class="p">(</span><span class="n">$</span><span class="p">(</span><span class="n">is</span><span class="o">&lt;</span><span class="n">Order</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">accept</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Ignored</span><span class="p">{});</span>
+<span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">on</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"zero"</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="s">"a long default text"</span><span class="p">);</span>
+</code></pre></div>
+<p>In the measurements for
+<a href="https://github.com/sentomk/patternia/issues/132">issue #132</a>, a
+fallback returning a stored <code>Outcome</code> took 4.0 ns per call with Apple
+Clang 17 and 2.6 ns with GCC 13; <code>_ &gt;&gt; Ignored{} | to&lt;Outcome&gt;</code> took
+1.4 and 2.1 ns, the same as a hand-written <code>std::get_if</code>. A stored
+<code>std::string</code> longer than the small-string buffer took about 37 ns
+against 17 to 19 ns when built in a lambda.</p>
 <h2 id="compilers-and-build-settings">Compilers and build settings<a class="headerlink" href="#compilers-and-build-settings" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Build with optimization (<code>-O2</code> or <code>-O3</code>, <code>/O2</code>). The plans above

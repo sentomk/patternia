@@ -2821,6 +2821,21 @@ a pack with an explicit result type.</p>
 <p>Bindings are determined entirely by the pattern. A callable handler
 that cannot take them but can be called with no arguments ignores
 them: <code>$ &gt;&gt; [] { return 1; }</code> is valid.</p>
+<p>A value handler stores its value when the case is built and returns a
+copy each time the case is selected, because the case pack can be
+matched again. For integers, enums and string literals the copy is
+free. For a value with an expensive copy, such as a <code>std::string</code> or a
+<code>std::variant</code> holding one, store a cheap value and convert it when
+the case is selected, or use a lambda:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Copies the stored Outcome on every fallback.</span>
+<span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Outcome</span><span class="p">{</span><span class="n">Ignored</span><span class="p">{}}</span>
+
+<span class="c1">// Stores the empty Ignored and constructs the Outcome when selected.</span>
+<span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Ignored</span><span class="p">{}</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">to</span><span class="o">&lt;</span><span class="n">Outcome</span><span class="o">&gt;</span>
+<span class="n">on</span><span class="o">&lt;</span><span class="n">Outcome</span><span class="o">&gt;</span><span class="p">(...,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">Ignored</span><span class="p">{})</span>
+<span class="n">_</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">Outcome</span><span class="p">{</span><span class="n">Ignored</span><span class="p">{}};</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p>See <a href="../guide/performance-tuning/#value-handlers">Performance Tuning</a>.</p>
 <h3 id="expression-handlers">Expression handlers<a class="headerlink" href="#expression-handlers" title="Permanent link">&para;</a></h3>
 <p>An expression on the right of <code>&gt;&gt;</code> is evaluated only when its case
 matches and its guard passes. It uses the same bound values as a
